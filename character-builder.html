@@ -707,6 +707,27 @@
           </div>
         </div><!-- end cb-form-grid: ideals/bonds/flaws/backstory -->
 
+        <!-- LEVELING METHOD -->
+        <div style="margin-bottom:28px;">
+          <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;">Leveling Method</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+            <div class="cb-card" id="lm-milestone" onclick="setLevelingMethod('milestone')" style="padding:16px;cursor:pointer;">
+              <div class="cb-card-name">Milestone</div>
+              <div class="cb-card-detail">Level up when your DM decides — no XP tracking needed.</div>
+            </div>
+            <div class="cb-card" id="lm-xp" onclick="setLevelingMethod('xp')" style="padding:16px;cursor:pointer;">
+              <div class="cb-card-name">Experience Points</div>
+              <div class="cb-card-detail">Track XP and level up automatically at each threshold.</div>
+            </div>
+          </div>
+          <div id="xp-input-row" style="display:none;">
+            <div class="cb-form-field" style="max-width:220px;">
+              <label class="cb-form-label">Starting XP</label>
+              <input class="cb-form-input" type="number" id="startingXP" min="0" value="0" oninput="C.xp=parseInt(this.value)||0" />
+            </div>
+          </div>
+        </div>
+
         <div class="cb-nav-btns">
           <button class="cb-btn cb-btn-secondary" onclick="prevStep(8)">← Back</button>
           <button class="cb-btn cb-btn-primary" onclick="buildFinalSheet(); nextStep(8)">Generate Character Sheet →</button>
@@ -722,6 +743,10 @@
             <div class="cs-char-name" id="cs-name">—</div>
             <div class="cs-char-class" id="cs-class">—</div>
             <div class="cs-tags" id="cs-tags"></div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;">
+              <div id="cs-xp-display" style="display:none;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;"></div>
+              <button id="cs-levelup-btn" onclick="openLevelUp()" style="display:none;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">Level Up ▸</button>
+            </div>
           </div>
           <div class="cs-header-actions">
             <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
@@ -910,7 +935,8 @@ const C = {
   scoreMethod:'standard', arrayAssigned:{}, selectedArrayVal:null,
   selectedSkills:[], equipChoices:{}, weaponChoices:{},
   selectedCantrips:[], selectedSpells:[],
-  details:{}, level:1, rollLog:[], currentHP:null
+  details:{}, level:1, rollLog:[], currentHP:null,
+  levelingMethod:'milestone', xp:0, hpRolls:[], asiChoices:[]
 };
 const TOTAL_STEPS = 9;
 const PB_COST = {8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9};
@@ -1870,7 +1896,7 @@ function buildFinalSheet(){
 
   // Init sheet state
   const conM=mod(totalScore('con')), dexM=mod(totalScore('dex'));
-  const maxHP=cls.hitDie+conM;
+  const maxHP=calcMaxHP();
   const subrace=race.subraces.find(s=>s.id===C.subrace);
   let ac=10+dexM;
   if(cls.armorProf.some(a=>a.includes('All armor')||a.includes('Heavy'))) ac=16;
@@ -1889,7 +1915,7 @@ function buildFinalSheet(){
   // ── Header ──
   const name=C.details.name||'Unnamed Adventurer';
   document.getElementById('cs-name').textContent=name;
-  document.getElementById('cs-class').textContent=`${race.name}${subrace?' ('+subrace.name+')':''} ${cls.name} · Level 1`;
+  document.getElementById('cs-class').textContent=`${race.name}${subrace?' ('+subrace.name+')':''} ${cls.name} · Level ${C.level}`;
   const tagsEl=document.getElementById('cs-tags');
   tagsEl.innerHTML=[
     bg?`<span class="cs-tag">${bg.name}</span>`:'',
@@ -1962,6 +1988,7 @@ function buildFinalSheet(){
   // ── Notes Tab ──
   buildNotesTab();
 
+  updateXPDisplay();
   // Show/hide spell tab based on spellcasting ability
   const spellTab=document.getElementById('cs-spell-tab');
   if(spellTab){
@@ -2155,7 +2182,14 @@ function buildSpellsTab(){
     return;
   }
   const sm=mod(totalScore(cls.spellcastingAbility));
-  const slots=DND_DATA.spellSlots?.[C.cls]?.[0]||[2]; // level 1
+  var rawSlots = DND_DATA.spellSlots && DND_DATA.spellSlots[C.cls];
+  var slots;
+  if(C.cls==='warlock' && rawSlots){
+    var w = rawSlots[C.level-1]||[1,1];
+    slots = Array.from({length:w[0]}, function(){ return 1; });
+  } else {
+    slots = (rawSlots && rawSlots[C.level-1]) || [2];
+  }
 
   let html=`<div class="cs-spell-stats">
     <div class="cs-spell-stat"><div class="cs-spell-stat-val">${DND_DATA.abilityShort[cls.spellcastingAbility]}</div><div class="cs-spell-stat-label">Ability</div></div>
@@ -2262,9 +2296,15 @@ function buildFeaturesTab(){
   const race=sheetState.race; const cls=sheetState.cls; const bg=sheetState.bg;
   if(!race||!cls) return;
   const subrace=sheetState.subrace;
+  // Collect all features up to current level
+  var allLvlFeatures = cls.features.map(function(f){ return Object.assign({},f); });
+  var lvlFeats = (DND_DATA.levelFeatures && DND_DATA.levelFeatures[C.cls]) || {};
+  for(var lv=2; lv<=C.level; lv++){
+    (lvlFeats[lv]||[]).forEach(function(f){ allLvlFeatures.push(Object.assign({level:lv},f)); });
+  }
   let html='<div class="cs-action-title">Class Features</div>';
-  html+=cls.features.map(f=>`<div class="cs-feature-card" style="margin-bottom:8px;">
-    <div class="cs-feature-card-top"><span class="cs-feature-card-name">Level ${f.level}: ${f.name}</span></div>
+  html+=allLvlFeatures.map(f=>`<div class="cs-feature-card" style="margin-bottom:8px;">
+    <div class="cs-feature-card-top"><span class="cs-feature-card-name">${f.isASI?'★ ':''}Level ${f.level}: ${f.name}</span></div>
     <div class="cs-feature-card-desc">${f.desc}</div>
   </div>`).join('');
   html+='<div class="cs-action-title" style="margin-top:24px;">Racial Traits</div>';
@@ -2383,6 +2423,362 @@ function showRestToast(title,msg){
   setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); },2500);
 }
 
+// ══════════════════════════════════════════
+// LEVELING HELPERS
+// ══════════════════════════════════════════
+
+function setLevelingMethod(m){
+  C.levelingMethod = m;
+  document.querySelectorAll('#lm-milestone,#lm-xp').forEach(function(el){ el.classList.remove('selected'); });
+  var el = document.getElementById('lm-'+m);
+  if(el) el.classList.add('selected');
+  var xpRow = document.getElementById('xp-input-row');
+  if(xpRow) xpRow.style.display = m==='xp' ? '' : 'none';
+}
+
+function calcMaxHP(){
+  var cls = C.cls ? DND_DATA.classes[C.cls] : null;
+  if(!cls) return 0;
+  var conM = mod(totalScore('con'));
+  var hitDie = cls.hitDie;
+  var hp = hitDie + conM;
+  for(var lv=2; lv<=C.level; lv++){
+    var stored = C.hpRolls[lv-1];
+    var gain = (stored !== undefined) ? stored : (Math.floor(hitDie/2)+1);
+    hp += gain + conM;
+  }
+  return Math.max(1, hp);
+}
+
+function calcXPProgress(){
+  var thresh = DND_DATA.xpThresholds;
+  if(!thresh || C.level >= 20) return null;
+  var curThresh = thresh[C.level-1];
+  var nextThresh = thresh[C.level];
+  var progress = C.xp - curThresh;
+  var needed = nextThresh - curThresh;
+  return {current:C.xp, next:nextThresh, progress:progress, needed:needed, pct:Math.round(progress/needed*100)};
+}
+
+function addXP(amount){
+  if(C.levelingMethod !== 'xp') return;
+  C.xp = (C.xp||0) + amount;
+  updateXPDisplay();
+  var thresh = DND_DATA.xpThresholds;
+  if(thresh && C.level < 20 && C.xp >= thresh[C.level]){
+    var btn = document.getElementById('cs-levelup-btn');
+    if(btn){ btn.style.display=''; btn.textContent='Level Up! ▸'; }
+  }
+  scheduleSave();
+}
+
+function updateXPDisplay(){
+  var el = document.getElementById('cs-xp-display');
+  var btn = document.getElementById('cs-levelup-btn');
+  if(!el) return;
+  if(C.levelingMethod === 'xp'){
+    var prog = calcXPProgress();
+    if(prog && C.level < 20){
+      el.style.display = '';
+      el.innerHTML = '<span style="color:var(--text-dim)">' + C.xp.toLocaleString() + ' XP</span> <span style="color:var(--text-faint)">/ ' + prog.next.toLocaleString() + ' (' + prog.pct + '% to Lv' + (C.level+1) + ')</span>';
+      if(btn) btn.style.display = (C.xp >= DND_DATA.xpThresholds[C.level]) ? '' : 'none';
+    } else if(C.level >= 20){
+      el.style.display='';
+      el.textContent = C.xp.toLocaleString() + ' XP — Max Level!';
+      if(btn) btn.style.display='none';
+    }
+  } else {
+    el.style.display = 'none';
+    if(btn) btn.style.display = C.level < 20 ? '' : 'none';
+  }
+}
+
+
+// ══════════════════════════════════════════
+// LEVEL UP MODAL FUNCTIONS
+// ══════════════════════════════════════════
+
+function openLevelUp(){
+  if(C.level >= 20) return;
+  var newLevel = C.level + 1;
+  var modal = document.getElementById('levelup-modal');
+  var overlay = document.getElementById('levelup-overlay');
+  document.getElementById('lu-title').textContent = 'Reaching Level ' + newLevel;
+  renderLevelUpBody(newLevel);
+  modal.style.display = '';
+  overlay.style.display = '';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLevelUp(){
+  document.getElementById('levelup-modal').style.display = 'none';
+  document.getElementById('levelup-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  window._luState = null;
+}
+
+function renderLevelUpBody(newLevel){
+  var cls = C.cls ? DND_DATA.classes[C.cls] : null;
+  if(!cls) return;
+  var body = document.getElementById('levelup-body');
+  var features = (DND_DATA.levelFeatures && DND_DATA.levelFeatures[C.cls] && DND_DATA.levelFeatures[C.cls][newLevel]) || [];
+  var hitDie = cls.hitDie;
+  var avgHp = Math.floor(hitDie/2)+1;
+  var conM = mod(totalScore('con'));
+  var conStr = conM >= 0 ? '+'+conM : ''+conM;
+  var pb = DND_DATA.profBonus[newLevel] || 2;
+  var pbOld = DND_DATA.profBonus[C.level] || 2;
+  var pbChanged = pb !== pbOld;
+  var hasASI = features.some(function(f){ return f.isASI; });
+  var nonASI = features.filter(function(f){ return !f.isASI; });
+
+  // Spell slot summary for casters
+  var spellInfo = '';
+  if(cls.spellcastingAbility){
+    var rawSlots = DND_DATA.spellSlots && DND_DATA.spellSlots[C.cls];
+    var newSlots = rawSlots ? (rawSlots[newLevel-1] || null) : null;
+    if(newSlots){
+      var slotNames = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
+      var slotStr = newSlots.map(function(n,i){ return n + ' ' + slotNames[i]; }).filter(function(s){ return parseInt(s)>0; }).join(', ');
+      spellInfo = '<div style="background:var(--crimson-soft);border:1px solid var(--crimson-border);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--text-dim);"><strong style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--crimson);display:block;margin-bottom:4px;">Spell Slots at Level '+newLevel+'</strong>'+slotStr+'</div>';
+    }
+  }
+
+  var html = '';
+
+  // HP section
+  html += '<div style="background:var(--bg);border:1px solid var(--crimson-border);padding:20px;margin-bottom:20px;position:relative;">';
+  html += '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--crimson),transparent);"></div>';
+  html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:12px;">Hit Points</div>';
+  html += '<div style="font-size:14px;color:var(--text-dim);margin-bottom:14px;">Roll a d'+hitDie+' or take the average. Your CON modifier <span style="color:var(--crimson);">('+conStr+')</span> is added automatically.</div>';
+  html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">';
+  html += '<button onclick="luTakeAverage('+avgHp+','+newLevel+')" id="lu-avg-btn" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:var(--crimson);color:#f5f0e8;border:none;cursor:pointer;">Take Average ('+avgHp+'+CON)</button>';
+  html += '<button onclick="luRollHP('+hitDie+','+newLevel+')" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">Roll d'+hitDie+'</button>';
+  html += '<span id="lu-hp-result" style="font-family:\'Cinzel\',serif;font-size:16px;color:var(--text);"></span>';
+  html += '</div></div>';
+
+  // Prof bonus change
+  if(pbChanged){
+    html += '<div style="background:var(--bg);border:1px solid var(--border);padding:14px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">';
+    html += '<span style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:2px;color:var(--text);text-transform:uppercase;">Proficiency Bonus Increases</span>';
+    html += '<span style="font-family:\'Cinzel\',serif;font-size:20px;color:var(--crimson);">+'+pbOld+' → +'+pb+'</span>';
+    html += '</div>';
+  }
+
+  // Spell slots
+  if(spellInfo) html += spellInfo;
+
+  // ASI section
+  if(hasASI){
+    html += '<div style="background:var(--bg);border:1px solid var(--crimson-border);padding:20px;margin-bottom:20px;position:relative;">';
+    html += '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--crimson),transparent);"></div>';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;">Ability Score Improvement</div>';
+    html += '<div style="font-size:14px;color:var(--text-dim);margin-bottom:16px;">Increase one score by 2, or two different scores by 1. No score may exceed 20.</div>';
+    html += '<div style="display:flex;gap:8px;margin-bottom:14px;">';
+    html += '<button onclick="luSetASIMode(\'two\')" id="lu-asi-two" style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;background:var(--crimson);color:#f5f0e8;border:1px solid var(--crimson);cursor:pointer;">+2 to One Score</button>';
+    html += '<button onclick="luSetASIMode(\'one\')" id="lu-asi-one" style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">+1 to Two Scores</button>';
+    html += '</div>';
+    html += '<div id="lu-asi-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>';
+    html += '<div id="lu-asi-summary" style="margin-top:10px;font-size:13px;color:var(--text-muted);font-style:italic;">Click ability scores to assign your increase.</div>';
+    html += '</div>';
+  }
+
+  // New features
+  if(nonASI.length > 0){
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:12px;">New Features</div>';
+    nonASI.forEach(function(f){
+      html += '<div style="background:var(--bg);border:1px solid var(--border);padding:16px 18px;margin-bottom:8px;">';
+      html += '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:2px;color:var(--text);text-transform:uppercase;margin-bottom:6px;">'+f.name+'</div>';
+      html += '<div style="font-size:13px;color:var(--text-dim);line-height:1.65;font-style:italic;">'+f.desc+'</div>';
+      html += '</div>';
+    });
+  } else if(!hasASI && !spellInfo){
+    html += '<div style="font-size:14px;color:var(--text-faint);font-style:italic;padding:8px 0;">No base class features at this level — your spell slots and prepared spells increase.</div>';
+  }
+
+  // XP input
+  if(C.levelingMethod === 'xp'){
+    html += '<div style="margin-top:16px;padding:14px 18px;background:var(--bg);border:1px solid var(--border);">';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;">Add XP Gained This Session</div>';
+    html += '<div style="display:flex;gap:8px;align-items:center;">';
+    html += '<input id="lu-xp-input" type="number" min="0" placeholder="e.g. 1000" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:\'Cormorant Garamond\',serif;font-size:15px;padding:7px 10px;flex:1;" />';
+    html += '<button onclick="luAddXP()" style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;white-space:nowrap;">Add XP</button>';
+    html += '</div></div>';
+  }
+
+  // Confirm / Cancel
+  html += '<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;">';
+  html += '<button onclick="closeLevelUp()" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Cancel</button>';
+  html += '<button id="lu-confirm-btn" onclick="confirmLevelUp('+newLevel+')" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:9px 24px;background:var(--crimson);color:#f5f0e8;border:none;cursor:pointer;opacity:0.4;pointer-events:none;">Confirm Level Up</button>';
+  html += '</div>';
+
+  body.innerHTML = html;
+
+  // Store modal state
+  window._luState = { newLevel:newLevel, hasASI:hasASI, asiMode:'two', asiChoices:{}, hpChosen:false };
+
+  if(hasASI) luRenderASIGrid();
+  luCheckConfirm();
+}
+
+function luTakeAverage(avg, newLevel){
+  C.hpRolls[newLevel-1] = avg;
+  var el = document.getElementById('lu-hp-result');
+  if(el){ el.textContent = '+'+avg+' hp (average)'; el.style.color='var(--text)'; }
+  window._luState.hpChosen = true;
+  luCheckConfirm();
+}
+
+function luRollHP(hitDie, newLevel){
+  var roll = Math.ceil(Math.random()*hitDie);
+  C.hpRolls[newLevel-1] = roll;
+  var el = document.getElementById('lu-hp-result');
+  if(el){
+    el.textContent = '+'+roll+' hp (rolled d'+hitDie+')';
+    el.style.color = roll===hitDie ? '#4CAF50' : roll===1 ? 'var(--crimson)' : 'var(--text)';
+  }
+  window._luState.hpChosen = true;
+  luCheckConfirm();
+}
+
+function luSetASIMode(mode){
+  if(!window._luState) return;
+  window._luState.asiMode = mode;
+  window._luState.asiChoices = {};
+  var twoBtn = document.getElementById('lu-asi-two');
+  var oneBtn = document.getElementById('lu-asi-one');
+  if(twoBtn){
+    twoBtn.style.background = mode==='two' ? 'var(--crimson)' : 'transparent';
+    twoBtn.style.color = mode==='two' ? '#f5f0e8' : 'var(--text-muted)';
+    twoBtn.style.borderColor = mode==='two' ? 'var(--crimson)' : 'var(--border)';
+  }
+  if(oneBtn){
+    oneBtn.style.background = mode==='one' ? 'var(--crimson)' : 'transparent';
+    oneBtn.style.color = mode==='one' ? '#f5f0e8' : 'var(--text-muted)';
+    oneBtn.style.borderColor = mode==='one' ? 'var(--crimson)' : 'var(--border)';
+  }
+  luRenderASIGrid();
+  luCheckConfirm();
+}
+
+function luRenderASIGrid(){
+  var grid = document.getElementById('lu-asi-grid');
+  if(!grid || !window._luState) return;
+  var asiMode = window._luState.asiMode;
+  var asiChoices = window._luState.asiChoices;
+  var abilities = ['str','dex','con','int','wis','cha'];
+  var html = '';
+  abilities.forEach(function(a){
+    var cur = totalScore(a);
+    var bonus = asiChoices[a] || 0;
+    var newVal = cur + bonus;
+    var atMax = cur >= 20;
+    var selected = bonus > 0;
+    html += '<div onclick="luToggleASI(\''+a+'\')" style="background:var(--bg-card);border:2px solid '+(selected?'var(--crimson)':'var(--border)')+';padding:12px 8px;text-align:center;cursor:'+(atMax?'not-allowed':'pointer')+';opacity:'+(atMax?'0.4':'1')+';">';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:4px;">'+DND_DATA.abilityShort[a]+'</div>';
+    html += '<div style="font-size:22px;font-weight:300;color:var(--text);">'+newVal+'</div>';
+    if(selected) html += '<div style="font-family:\'Cinzel\',serif;font-size:10px;color:var(--crimson);">+'+bonus+'</div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+
+  var summary = document.getElementById('lu-asi-summary');
+  if(summary){
+    var parts = [];
+    Object.keys(asiChoices).forEach(function(a){ if(asiChoices[a]>0) parts.push(DND_DATA.abilityShort[a]+' +'+asiChoices[a]); });
+    summary.textContent = parts.length ? parts.join(', ') : 'Click ability scores to assign your increase.';
+  }
+}
+
+function luToggleASI(ability){
+  if(!window._luState) return;
+  var asiMode = window._luState.asiMode;
+  var asiChoices = window._luState.asiChoices;
+  var cur = totalScore(ability);
+  if(cur >= 20) return;
+
+  if(asiMode === 'two'){
+    // Toggle +2 — only one ability at a time
+    if(asiChoices[ability]){
+      asiChoices[ability] = 0;
+    } else {
+      Object.keys(asiChoices).forEach(function(k){ asiChoices[k]=0; });
+      asiChoices[ability] = 2;
+    }
+  } else {
+    // +1/+1 — up to two abilities
+    if(asiChoices[ability]){
+      asiChoices[ability] = 0;
+    } else {
+      var chosen = Object.values(asiChoices).filter(function(v){ return v>0; }).length;
+      if(chosen < 2) asiChoices[ability] = 1;
+    }
+  }
+  window._luState.asiChoices = asiChoices;
+  luRenderASIGrid();
+  luCheckConfirm();
+}
+
+function luCheckConfirm(){
+  if(!window._luState) return;
+  var hasASI = window._luState.hasASI;
+  var hpChosen = window._luState.hpChosen;
+  var asiMode = window._luState.asiMode;
+  var asiChoices = window._luState.asiChoices;
+  var btn = document.getElementById('lu-confirm-btn');
+  if(!btn) return;
+
+  var ready = hpChosen;
+  if(hasASI){
+    if(asiMode==='two'){
+      ready = ready && Object.values(asiChoices).some(function(v){ return v===2; });
+    } else {
+      ready = ready && Object.values(asiChoices).filter(function(v){ return v>0; }).length === 2;
+    }
+  }
+  btn.style.opacity = ready ? '1' : '0.4';
+  btn.style.pointerEvents = ready ? 'all' : 'none';
+}
+
+function luAddXP(){
+  var inp = document.getElementById('lu-xp-input');
+  if(!inp) return;
+  var amt = parseInt(inp.value) || 0;
+  if(amt > 0){ addXP(amt); inp.value = ''; }
+}
+
+function confirmLevelUp(newLevel){
+  if(!window._luState) return;
+  var hasASI = window._luState.hasASI;
+  var asiChoices = window._luState.asiChoices;
+
+  // Apply ASI to C.abilities
+  if(hasASI){
+    Object.keys(asiChoices).forEach(function(a){
+      if(asiChoices[a] > 0){
+        C.abilities[a] = Math.min(20, C.abilities[a] + asiChoices[a]);
+      }
+    });
+    if(!C.asiChoices) C.asiChoices = [];
+    C.asiChoices.push({ level:newLevel, choices: Object.assign({}, asiChoices) });
+  }
+
+  // Advance level
+  C.level = newLevel;
+
+  // Rebuild sheet with new level
+  buildFinalSheet();
+  updateXPDisplay();
+  closeLevelUp();
+  showRestToast('Level ' + newLevel + '!', 'Your character has grown stronger. Features updated.');
+  scheduleSave();
+}
+
+function initLevelingMethod(){
+  setLevelingMethod('milestone');
+}
+
+
 // ── SAVE CHARACTER (auto-save, silent) ──
 let _saveTimer = null;
 
@@ -2414,6 +2810,11 @@ async function saveCharacterToDB(){
     details:          {...C.details},
     level:            C.level||1,
     savedAt:          Date.now(),
+    level:            C.level||1,
+    levelingMethod:   C.levelingMethod||'milestone',
+    xp:               C.xp||0,
+    hpRolls:          [...(C.hpRolls||[])],
+    asiChoices:       [...(C.asiChoices||[])],
   };
 
   const existingId = localStorage.getItem('phmurt_current_char_id')||undefined;
@@ -2448,7 +2849,7 @@ function updateMiniSummary(){
 // INIT
 // ══════════════════════════════════════════
 function init(){
-  renderRaces(); renderClasses(); renderBackgrounds();
+  renderRaces(); renderClasses(); renderBackgrounds(); initLevelingMethod();
   renderAbilityGrid(); renderArrayPool(); initDetails(); updateMiniSummary();
   document.getElementById('rollPanel').style.display='none';
   document.getElementById('arrayPool').style.display='flex';
@@ -2476,7 +2877,8 @@ function init(){
     // Restore all state fields safely
     const fields=['race','subrace','cls','background','abilities','scoreMethod',
                   'arrayAssigned','selectedSkills','equipChoices','weaponChoices',
-                  'selectedCantrips','selectedSpells','details','level'];
+                  'selectedCantrips','selectedSpells','details','level',
+                  'levelingMethod','xp','hpRolls','asiChoices'];
     fields.forEach(k=>{ if(data[k]!==undefined) C[k]=data[k]; });
     C.weaponChoices = C.weaponChoices || {};
     C.rollLog = [];
@@ -2496,7 +2898,20 @@ function init(){
   window.addEventListener('DOMContentLoaded',function(){ init(); setTimeout(checkLoadCharacter,200); });
   </script>
 
-  <!-- DICE POPUP -->
+  <!-- LEVEL UP MODAL -->
+  <div id="levelup-overlay" onclick="closeLevelUp()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:8500;"></div>
+  <div id="levelup-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-card);border:1px solid var(--crimson-border);z-index:8501;width:min(640px,95vw);max-height:85vh;overflow-y:auto;">
+    <div style="position:sticky;top:0;background:var(--bg-card);border-bottom:1px solid var(--crimson-border);padding:20px 28px;display:flex;justify-content:space-between;align-items:center;z-index:2;">
+      <div>
+        <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--crimson);margin-bottom:4px;">Level Up</div>
+        <div id="lu-title" style="font-size:28px;font-weight:300;color:var(--text);">Reaching Level 2</div>
+      </div>
+      <button onclick="closeLevelUp()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="levelup-body" style="padding:28px;"></div>
+  </div>
+
+<!-- DICE POPUP -->
   <div class="dp-overlay" id="diceOverlay" onclick="closeDicePopup()"></div>
   <div id="dice-popup">
     <button class="dp-close" onclick="closeDicePopup()">✕</button>

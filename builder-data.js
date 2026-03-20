@@ -282,16 +282,7 @@ DND_DATA.standardActions = [
 ];
 
 // ── SPELL SLOT TABLES ──
-DND_DATA.spellSlots = {
-  bard:     [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
-  cleric:   [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
-  druid:    [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
-  sorcerer: [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
-  wizard:   [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
-  warlock:  [[1],[2],[2],[2],[2],[2],[2],[2],[2],[2]],
-  paladin:  [[2],[2],[3],[3],[4,2],[4,2],[4,3],[4,3],[4,3,2],[4,3,2]],
-  ranger:   [[2],[2],[3],[3],[4,2],[4,2],[4,3],[4,3],[4,3,2],[4,3,2]]
-};
+
 
 // ── SPELL DESCRIPTIONS ──
 DND_DATA.spellDescriptions = {
@@ -420,3 +411,434 @@ if(DND_DATA.weaponCategories){
     DND_DATA.itemCategories[k] = DND_DATA.weaponCategories[k];
   });
 }
+
+
+// ── LEVEL UP DATA ──
+// ══════════════════════════════════════════════════════
+// XP THRESHOLDS (index = level - 1)
+// ══════════════════════════════════════════════════════
+DND_DATA.xpThresholds = [
+  0,300,900,2700,6500,14000,23000,34000,
+  48000,64000,85000,100000,120000,140000,
+  165000,195000,225000,265000,305000,355000
+];
+
+// ══════════════════════════════════════════════════════
+// SPELL SLOTS — extended to level 20
+// index = level-1, array = [1st,2nd,3rd,4th,5th,6th,7th,8th,9th]
+// ══════════════════════════════════════════════════════
+DND_DATA.spellSlots = {
+  // Full casters
+  bard:     [
+    [2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2],
+    [4,3,3,3,2,1],[4,3,3,3,2,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1],
+    [4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1,1],
+    [4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]
+  ],
+  cleric:   [
+    [2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2],
+    [4,3,3,3,2,1],[4,3,3,3,2,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1],
+    [4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1,1],
+    [4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]
+  ],
+  druid:    [
+    [2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2],
+    [4,3,3,3,2,1],[4,3,3,3,2,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1],
+    [4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1,1],
+    [4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]
+  ],
+  sorcerer: [
+    [2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2],
+    [4,3,3,3,2,1],[4,3,3,3,2,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1],
+    [4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1,1],
+    [4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]
+  ],
+  wizard:   [
+    [2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2],
+    [4,3,3,3,2,1],[4,3,3,3,2,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1],
+    [4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1,1],
+    [4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]
+  ],
+  // Half casters (first spell slot at level 2 for paladin/ranger)
+  paladin:  [
+    null,[2],[3],[3],[4,2],[4,2],[4,3],[4,3],[4,3,2],[4,3,2],
+    [4,3,3],[4,3,3],[4,3,3,1],[4,3,3,1],[4,3,3,2],[4,3,3,2],
+    [4,3,3,3,1],[4,3,3,3,1],[4,3,3,3,2],[4,3,3,3,2]
+  ],
+  ranger:   [
+    null,[2],[3],[3],[4,2],[4,2],[4,3],[4,3],[4,3,2],[4,3,2],
+    [4,3,3],[4,3,3],[4,3,3,1],[4,3,3,1],[4,3,3,2],[4,3,3,2],
+    [4,3,3,3,1],[4,3,3,3,1],[4,3,3,3,2],[4,3,3,3,2]
+  ],
+  // Pact Magic — [slots, slot_level] per level
+  warlock: [
+    [1,1],[2,1],[2,2],[2,2],[3,3],[3,3],[4,4],[4,4],[5,5],[5,5],
+    [3,5],[3,5],[3,5],[3,5],[3,5],[3,5],[4,5],[4,5],[4,5],[4,5]
+  ]
+};
+
+// ══════════════════════════════════════════════════════
+// LEVEL FEATURES — levels 2-20 for all classes
+// Level 1 features live in DND_DATA.classes[cls].features
+// isASI: true = Ability Score Improvement at this level
+// ══════════════════════════════════════════════════════
+DND_DATA.levelFeatures = {
+
+  // ── BARBARIAN ──────────────────────────────────────
+  barbarian: {
+    2:  [{name:"Reckless Attack",desc:"When you make your first attack on your turn, you can attack recklessly — advantage on melee weapon attack rolls using STR, but attack rolls against you have advantage until your next turn."},
+         {name:"Danger Sense",desc:"Advantage on DEX saving throws against effects you can see (e.g. traps, spells). Not while blinded, deafened, or incapacitated."}],
+    3:  [{name:"Primal Path",desc:"Choose your Primal Path: Path of the Berserker, Path of the Totem Warrior, or another. Your path grants additional features at levels 3, 6, 10, and 14."},
+         {name:"Rage (3/day)",desc:"Rage uses increase to 3 per long rest."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each. Cannot exceed 20."}],
+    5:  [{name:"Extra Attack",desc:"You can attack twice, instead of once, whenever you take the Attack action on your turn."},
+         {name:"Fast Movement",desc:"Your speed increases by 10 ft while you aren't wearing heavy armor."}],
+    6:  [{name:"Primal Path Feature",desc:"You gain a feature from your chosen Primal Path."},
+         {name:"Rage (4/day)",desc:"Rage uses increase to 4 per long rest."}],
+    7:  [{name:"Feral Instinct",desc:"Advantage on initiative rolls. If surprised at the start of combat, you can act normally if you enter your rage before doing anything else."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    9:  [{name:"Brutal Critical (1 die)",desc:"On a critical hit with a melee weapon, roll one additional weapon damage die."},
+         {name:"Rage Damage +3",desc:"Bonus damage while raging increases to +3."}],
+    10: [{name:"Primal Path Feature",desc:"You gain a feature from your chosen Primal Path."}],
+    11: [{name:"Relentless Rage",desc:"If you drop to 0 HP while raging and don't die outright, make a DC 10 CON save. On success, drop to 1 HP. The DC increases by 5 each time you use this until you finish a short or long rest."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Rage (5/day)",desc:"Rage uses increase to 5 per long rest."}],
+    13: [{name:"Brutal Critical (2 dice)",desc:"On a critical hit with a melee weapon, roll two additional weapon damage dice."}],
+    14: [{name:"Primal Path Feature",desc:"You gain a feature from your chosen Primal Path."}],
+    15: [{name:"Persistent Rage",desc:"Your rage ends early only if you fall unconscious or choose to end it. It no longer ends from not attacking or taking damage."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Rage Damage +4",desc:"Bonus damage while raging increases to +4."}],
+    17: [{name:"Brutal Critical (3 dice)",desc:"On a critical hit with a melee weapon, roll three additional weapon damage dice."},
+         {name:"Rage (6/day)",desc:"Rage uses increase to 6 per long rest."}],
+    18: [{name:"Indomitable Might",desc:"If your total for a STR check is less than your STR score, you can use that score in place of the total."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Primal Champion",desc:"Your STR and CON scores each increase by 4. Their maximum is also now 24."},
+         {name:"Unlimited Rages",desc:"You can rage an unlimited number of times per long rest."}]
+  },
+
+  // ── BARD ───────────────────────────────────────────
+  bard: {
+    2:  [{name:"Jack of All Trades",desc:"Add half your proficiency bonus (rounded down) to any ability check that doesn't already include your proficiency bonus."},
+         {name:"Song of Rest (d6)",desc:"If you or any friendly creatures who can hear your performance regain HP at the end of a short rest, each regains an extra d6 HP."}],
+    3:  [{name:"Bard College",desc:"Choose a Bard College: College of Lore, College of Valor, or another. Grants features at levels 3, 6, and 14."},
+         {name:"Expertise",desc:"Choose 2 proficient skills. Your proficiency bonus is doubled for ability checks using those skills."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Bardic Inspiration (d8)",desc:"Your Bardic Inspiration die increases from d6 to d8."},
+         {name:"Font of Inspiration",desc:"You regain all uses of Bardic Inspiration on a short or long rest (previously only long rest)."}],
+    6:  [{name:"Countercharm",desc:"As an action, start a performance. Friendly creatures within 30 ft have advantage on saving throws against being frightened or charmed as long as you maintain it."},
+         {name:"Bard College Feature",desc:"You gain a feature from your Bard College."}],
+    7:  [{name:"Spell Progression",desc:"Your spell slots and known spells increase. See your character sheet for current spell progression."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    9:  [{name:"Song of Rest (d8)",desc:"Your Song of Rest die increases from d6 to d8."}],
+    10: [{name:"Bardic Inspiration (d10)",desc:"Your Bardic Inspiration die increases from d8 to d10."},
+         {name:"Expertise (2 more)",desc:"Choose 2 more proficient skills. Your proficiency bonus is doubled for ability checks using those skills."},
+         {name:"Magical Secrets",desc:"Choose 2 spells from any class's spell list. They count as bard spells for you."}],
+    11: [{name:"Spell Progression",desc:"Your spell slots and known spells increase (6th-level spell slots unlocked)."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Song of Rest (d10)",desc:"Your Song of Rest die increases from d8 to d10."}],
+    14: [{name:"Magical Secrets",desc:"Choose 2 more spells from any class's spell list."},
+         {name:"Bard College Feature",desc:"You gain a feature from your Bard College."}],
+    15: [{name:"Bardic Inspiration (d12)",desc:"Your Bardic Inspiration die increases from d10 to d12."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Song of Rest (d12)",desc:"Your Song of Rest die increases from d10 to d12."}],
+    18: [{name:"Magical Secrets",desc:"Choose 2 more spells from any class's spell list."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Superior Inspiration",desc:"When you roll initiative and have no uses of Bardic Inspiration left, you regain one use."}]
+  },
+
+  // ── CLERIC ─────────────────────────────────────────
+  cleric: {
+    2:  [{name:"Channel Divinity (1/rest)",desc:"You gain the ability to channel divine energy. You have 1 use per short or long rest. You also gain the Turn Undead option and a second Channel Divinity option from your domain."},
+         {name:"Divine Domain Feature",desc:"Your chosen Divine Domain grants you an additional feature."}],
+    3:  [{name:"Spell Progression",desc:"Your spell slots increase. See your character sheet for current spell progression."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Destroy Undead (CR 1/2)",desc:"When an undead fails its saving throw against your Turn Undead, it is instantly destroyed if its CR is 1/2 or lower."}],
+    6:  [{name:"Channel Divinity (2/rest)",desc:"You can now use Channel Divinity twice between rests."},
+         {name:"Divine Domain Feature",desc:"Your chosen Divine Domain grants an additional feature."}],
+    7:  [{name:"Spell Progression",desc:"Your spell slots increase (4th-level slots unlocked)."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Destroy Undead (CR 1)",desc:"Your Destroy Undead threshold increases to CR 1."},
+         {name:"Divine Domain Feature",desc:"Your chosen Divine Domain grants an additional feature."}],
+    9:  [{name:"Spell Progression",desc:"Your spell slots increase (5th-level slots unlocked)."}],
+    10: [{name:"Divine Intervention",desc:"You can call on your deity for aid. Roll d100. If you roll equal to or lower than your Cleric level, your deity intervenes. Once successful, can't be used again for 7 days."}],
+    11: [{name:"Destroy Undead (CR 2)",desc:"Your Destroy Undead threshold increases to CR 2."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Spell Progression",desc:"Your spell slots increase (7th-level slots unlocked)."}],
+    14: [{name:"Destroy Undead (CR 3)",desc:"Your Destroy Undead threshold increases to CR 3."}],
+    15: [{name:"Spell Progression",desc:"Your spell slots increase (8th-level slots unlocked)."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Destroy Undead (CR 4)",desc:"Your Destroy Undead threshold increases to CR 4."},
+         {name:"Divine Domain Feature",desc:"Your chosen Divine Domain grants an additional feature."}],
+    18: [{name:"Channel Divinity (3/rest)",desc:"You can now use Channel Divinity three times between rests."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Divine Intervention (Improved)",desc:"Your Divine Intervention call automatically succeeds without rolling. After you use it, you can't use it again for 7 days."}]
+  },
+
+  // ── DRUID ──────────────────────────────────────────
+  druid: {
+    2:  [{name:"Wild Shape (CR 1/4)",desc:"Use your action to transform into a beast with CR 1/4 or lower (no fly or swim speed). You can use this twice per short rest. Lasts up to 1 hour or half your druid level."},
+         {name:"Druid Circle",desc:"Choose a Druid Circle: Circle of the Land, Circle of the Moon, or another. Grants features at levels 2, 6, 10, and 14."}],
+    3:  [{name:"Spell Progression",desc:"Your spell slots increase (2nd-level slots unlocked)."}],
+    4:  [{name:"Wild Shape (CR 1/2)",desc:"You can now assume beast shapes with CR 1/2 or lower (still no fly speed)."},
+         {name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Spell Progression",desc:"Your spell slots increase (3rd-level slots unlocked)."}],
+    6:  [{name:"Druid Circle Feature",desc:"Your Druid Circle grants an additional feature."}],
+    7:  [{name:"Spell Progression",desc:"Your spell slots increase (4th-level slots unlocked)."}],
+    8:  [{name:"Wild Shape (CR 1)",desc:"You can now assume beast shapes with CR 1 or lower, as well as creatures with a swim speed."},
+         {name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    9:  [{name:"Spell Progression",desc:"Your spell slots increase (5th-level slots unlocked)."}],
+    10: [{name:"Druid Circle Feature",desc:"Your Druid Circle grants an additional feature."}],
+    11: [{name:"Spell Progression",desc:"Your spell slots increase (6th-level slots unlocked)."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Spell Progression",desc:"Your spell slots increase (7th-level slots unlocked)."}],
+    14: [{name:"Druid Circle Feature",desc:"Your Druid Circle grants an additional feature."}],
+    15: [{name:"Spell Progression",desc:"Your spell slots increase (8th-level slots unlocked)."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Spell Progression",desc:"Your spell slots increase (9th-level slots unlocked)."}],
+    18: [{name:"Timeless Body",desc:"The primal magic you wield causes you to age more slowly. For every 10 years that pass, your body ages only 1 year."},
+         {name:"Beast Spells",desc:"You can cast many of your druid spells in any shape you assume using Wild Shape. You perform the somatic and verbal components in beast form."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Archdruid",desc:"You can use Wild Shape an unlimited number of times. Additionally, ignore verbal and somatic spell components while transformed, and maintain concentration on Wild Shape through damage more easily."}]
+  },
+
+  // ── FIGHTER ────────────────────────────────────────
+  fighter: {
+    2:  [{name:"Action Surge (1/rest)",desc:"On your turn, take one additional action. Once per short or long rest."}],
+    3:  [{name:"Martial Archetype",desc:"Choose a Martial Archetype: Champion, Battle Master, Eldritch Knight, or another. Grants features at levels 3, 7, 10, 15, and 18."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Extra Attack",desc:"You can attack twice whenever you take the Attack action."}],
+    6:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    7:  [{name:"Martial Archetype Feature",desc:"Your Martial Archetype grants an additional feature."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    9:  [{name:"Indomitable (1/long rest)",desc:"Reroll a saving throw that you fail. You must use the new roll. Once per long rest."}],
+    10: [{name:"Martial Archetype Feature",desc:"Your Martial Archetype grants an additional feature."}],
+    11: [{name:"Extra Attack (2)",desc:"You can now attack three times whenever you take the Attack action."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Indomitable (2/long rest)",desc:"You can now use Indomitable twice between long rests."}],
+    14: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    15: [{name:"Martial Archetype Feature",desc:"Your Martial Archetype grants an additional feature."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Action Surge (2/rest)",desc:"You can now use Action Surge twice between short rests (but not twice in the same turn)."},
+         {name:"Indomitable (3/long rest)",desc:"You can now use Indomitable three times between long rests."}],
+    18: [{name:"Martial Archetype Feature",desc:"Your Martial Archetype grants an additional feature."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Extra Attack (3)",desc:"You can now attack four times whenever you take the Attack action."}]
+  },
+
+  // ── MONK ───────────────────────────────────────────
+  monk: {
+    2:  [{name:"Ki (2 points)",desc:"Gain 2 ki points (equals monk level). Spend to fuel Flurry of Blows (1 ki: 2 bonus unarmed strikes), Patient Defense (1 ki: Dodge as bonus action), or Step of the Wind (1 ki: Dash or Disengage as bonus action). Recharge on short rest."},
+         {name:"Unarmored Movement (+10 ft)",desc:"Your speed increases by 10 ft while not wearing armor or wielding a shield."}],
+    3:  [{name:"Monastic Tradition",desc:"Choose a Monastic Tradition: Way of the Open Hand, Way of Shadow, Way of the Four Elements, or another. Grants features at levels 3, 6, 11, and 17."},
+         {name:"Deflect Missiles",desc:"Use your reaction when hit by a ranged weapon attack to reduce damage by d10 + DEX mod + Monk level. If reduced to 0, catch and throw it as a ranged attack (1 ki)."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Slow Fall",desc:"Reaction: reduce falling damage by 5 × monk level."}],
+    5:  [{name:"Extra Attack",desc:"You can attack twice whenever you take the Attack action."},
+         {name:"Stunning Strike",desc:"When you hit with a melee weapon attack, spend 1 ki to stun the target. CON save vs your ki save DC. On fail: stunned until end of your next turn (attacks vs it have advantage, it fails DEX/STR saves)."},
+         {name:"Martial Arts (d6)",desc:"Your Martial Arts die increases to d6."}],
+    6:  [{name:"Ki-Empowered Strikes",desc:"Your unarmed strikes count as magical for the purpose of overcoming resistance and immunity."},
+         {name:"Monastic Tradition Feature",desc:"Your Monastic Tradition grants an additional feature."},
+         {name:"Unarmored Movement (+15 ft)",desc:"Your speed bonus increases to +15 ft."}],
+    7:  [{name:"Evasion",desc:"When subjected to an effect that allows a DEX save for half damage, you take no damage on a success, and only half on a failure."},
+         {name:"Stillness of Mind",desc:"Use your action to end one effect on yourself that is causing you to be charmed or frightened."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    9:  [{name:"Unarmored Movement (wall/ceiling)",desc:"You gain the ability to move along vertical surfaces and across liquids on your turn without falling during the move."}],
+    10: [{name:"Purity of Body",desc:"Your mastery of ki grants immunity to disease and poison."},
+         {name:"Unarmored Movement (+20 ft)",desc:"Your speed bonus increases to +20 ft."}],
+    11: [{name:"Monastic Tradition Feature",desc:"Your Monastic Tradition grants an additional feature."},
+         {name:"Martial Arts (d8)",desc:"Your Martial Arts die increases to d8."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Tongue of the Sun and Moon",desc:"You learn to touch the ki of other minds, allowing you to understand all spoken languages and be understood by any creature that understands language."}],
+    14: [{name:"Diamond Soul",desc:"Proficiency in all saving throws. Additionally, when you fail a saving throw, spend 1 ki to reroll and take the new result."}],
+    15: [{name:"Timeless Body",desc:"Your ki sustains you so you suffer none of the frailty of old age, and you cannot be aged magically. You still die normally."},
+         {name:"Unarmored Movement (+25 ft)",desc:"Your speed bonus increases to +25 ft."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Monastic Tradition Feature",desc:"Your Monastic Tradition grants an additional feature."},
+         {name:"Martial Arts (d10)",desc:"Your Martial Arts die increases to d10."}],
+    18: [{name:"Empty Body",desc:"Spend 4 ki: become invisible for 1 minute, resist all damage except force. Spend 8 ki: cast Astral Projection without material components for yourself."},
+         {name:"Unarmored Movement (+30 ft)",desc:"Your speed bonus increases to +30 ft."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Perfect Self",desc:"When you roll initiative and have no ki points remaining, you regain 4 ki points."}]
+  },
+
+  // ── PALADIN ────────────────────────────────────────
+  paladin: {
+    2:  [{name:"Fighting Style",desc:"Choose a fighting style: Defense (+1 AC in armor), Dueling (+2 damage with one-handed weapon), Great Weapon Fighting (reroll 1s and 2s on two-handed weapon damage), or Protection (use reaction to impose disadvantage on attacker of ally)."},
+         {name:"Spellcasting",desc:"You are a half-caster. Use CHA for spellcasting. You prepare paladin spells (CHA mod + half paladin level, rounded down). You also always have your Sacred Oath spells prepared."},
+         {name:"Divine Smite",desc:"When you hit with a melee weapon attack, expend a spell slot to deal extra radiant damage: 2d8 per slot level (3d8 vs undead/fiends). No action required."}],
+    3:  [{name:"Divine Health",desc:"The divine magic flowing through you makes you immune to disease."},
+         {name:"Sacred Oath",desc:"Swear an oath: Oath of Devotion, Oath of the Ancients, Oath of Vengeance, or another. Grants Oath spells, Channel Divinity options, and features at levels 3, 7, 15, and 20."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Extra Attack",desc:"You can attack twice whenever you take the Attack action."}],
+    6:  [{name:"Aura of Protection",desc:"While conscious, you and friendly creatures within 10 ft add your CHA modifier (minimum +1) to all saving throws."}],
+    7:  [{name:"Sacred Oath Feature",desc:"Your Sacred Oath grants an additional feature."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    9:  [{name:"Spell Progression",desc:"Your spell slots increase (3rd-level paladin spells unlocked)."}],
+    10: [{name:"Aura of Courage",desc:"While conscious, you and friendly creatures within 10 ft can't be frightened."}],
+    11: [{name:"Improved Divine Smite",desc:"Whenever you hit a creature with a melee weapon, you deal an extra 1d8 radiant damage (in addition to any Divine Smite you might add)."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Spell Progression",desc:"Your spell slots increase (4th-level paladin spells unlocked)."}],
+    14: [{name:"Cleansing Touch",desc:"Use your action to end one spell on yourself or a willing creature you touch. Uses = CHA modifier (min 1) per long rest."}],
+    15: [{name:"Sacred Oath Feature",desc:"Your Sacred Oath grants an additional feature."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Spell Progression",desc:"Your spell slots increase (5th-level paladin spells unlocked)."}],
+    18: [{name:"Aura Improvements",desc:"The range of your Aura of Protection and Aura of Courage increases to 30 ft."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Sacred Oath Capstone",desc:"You gain the capstone feature of your Sacred Oath, a powerful ability that defines the pinnacle of your paladin's power."}]
+  },
+
+  // ── RANGER ─────────────────────────────────────────
+  ranger: {
+    2:  [{name:"Fighting Style",desc:"Choose a fighting style: Archery (+2 ranged attack rolls), Defense (+1 AC in armor), Dueling (+2 damage with one-handed weapon), or Two-Weapon Fighting (add ability modifier to off-hand attacks)."},
+         {name:"Spellcasting",desc:"You gain spellcasting. WIS-based. You know spells rather than preparing them. Your spell slots update with your level."}],
+    3:  [{name:"Ranger Archetype",desc:"Choose a Ranger Archetype: Hunter, Beast Master, or another. Grants features at levels 3, 7, 11, and 15."},
+         {name:"Primeval Awareness",desc:"Expend a spell slot to sense for 1 minute per slot level whether aberrations, celestials, dragons, elementals, fey, fiends, or undead are present within 1 mile (6 miles in natural terrain)."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Extra Attack",desc:"You can attack twice whenever you take the Attack action."}],
+    6:  [{name:"Favored Enemy (2nd type)",desc:"Choose a second favored enemy type. Also learn one more language associated with your original or new favored enemy."},
+         {name:"Natural Explorer (2nd terrain)",desc:"Choose a second favored terrain type."}],
+    7:  [{name:"Ranger Archetype Feature",desc:"Your Ranger Archetype grants an additional feature."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Land's Stride",desc:"Moving through nonmagical difficult terrain costs no extra movement. Advantage on saves against magically created plants. No damage from nonmagical plant hazards."}],
+    9:  [{name:"Spell Progression",desc:"Your spell slots increase (2nd-level ranger spells unlocked)."}],
+    10: [{name:"Natural Explorer (3rd terrain)",desc:"Choose a third favored terrain type."},
+         {name:"Hide in Plain Sight",desc:"Spend 1 minute creating camouflage: +10 to Stealth checks while motionless in natural environments."}],
+    11: [{name:"Ranger Archetype Feature",desc:"Your Ranger Archetype grants an additional feature."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Spell Progression",desc:"Your spell slots increase (3rd-level ranger spells unlocked)."}],
+    14: [{name:"Favored Enemy (3rd type)",desc:"Choose a third favored enemy type."},
+         {name:"Vanish",desc:"Use the Hide action as a bonus action. Also, you can't be tracked by nonmagical means unless you choose to leave a trail."}],
+    15: [{name:"Ranger Archetype Feature",desc:"Your Ranger Archetype grants an additional feature."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Spell Progression",desc:"Your spell slots increase (4th-level ranger spells unlocked)."}],
+    18: [{name:"Feral Senses",desc:"Gain preternatural senses. When attacking a creature you can't see, your inability to see doesn't impose disadvantage. You're also aware of any invisible creature within 30 ft."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Foe Slayer",desc:"Once on each of your turns, add your WIS modifier to an attack roll or damage roll against one of your favored enemies. You can use this before or after rolling."}]
+  },
+
+  // ── ROGUE ──────────────────────────────────────────
+  rogue: {
+    2:  [{name:"Cunning Action",desc:"You can take the Dash, Disengage, or Hide action as a bonus action on each of your turns."}],
+    3:  [{name:"Roguish Archetype",desc:"Choose a Roguish Archetype: Thief, Assassin, Arcane Trickster, or another. Grants features at levels 3, 9, 13, and 17."},
+         {name:"Sneak Attack (2d6)",desc:"Sneak Attack damage increases to 2d6."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Uncanny Dodge",desc:"When an attacker you can see hits you with an attack, use your reaction to halve the attack's damage against you."},
+         {name:"Sneak Attack (3d6)",desc:"Sneak Attack damage increases to 3d6."}],
+    6:  [{name:"Expertise (2 more)",desc:"Choose 2 more proficient skills to double your proficiency bonus on."},
+         {name:"Sneak Attack (3d6)",desc:"Sneak Attack damage remains 3d6 until level 7."}],
+    7:  [{name:"Evasion",desc:"When subjected to an effect that allows a DEX save for half damage, you take no damage on success, and only half on a failure."},
+         {name:"Sneak Attack (4d6)",desc:"Sneak Attack damage increases to 4d6."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Sneak Attack (4d6)",desc:"Sneak Attack damage remains 4d6."}],
+    9:  [{name:"Roguish Archetype Feature",desc:"Your Roguish Archetype grants an additional feature."},
+         {name:"Sneak Attack (5d6)",desc:"Sneak Attack damage increases to 5d6."}],
+    10: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Sneak Attack (5d6)",desc:"Sneak Attack damage remains 5d6."}],
+    11: [{name:"Reliable Talent",desc:"When you make an ability check using a skill you're proficient in, treat any d20 result of 9 or lower as a 10."},
+         {name:"Sneak Attack (6d6)",desc:"Sneak Attack damage increases to 6d6."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Sneak Attack (6d6)",desc:"Sneak Attack damage remains 6d6."}],
+    13: [{name:"Roguish Archetype Feature",desc:"Your Roguish Archetype grants an additional feature."},
+         {name:"Sneak Attack (7d6)",desc:"Sneak Attack damage increases to 7d6."}],
+    14: [{name:"Blindsense",desc:"If you are able to hear, you are aware of the location of any hidden or invisible creature within 10 ft of you."},
+         {name:"Sneak Attack (7d6)",desc:"Sneak Attack damage remains 7d6."}],
+    15: [{name:"Slippery Mind",desc:"You gain proficiency in WIS saving throws."},
+         {name:"Sneak Attack (8d6)",desc:"Sneak Attack damage increases to 8d6."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Sneak Attack (8d6)",desc:"Sneak Attack damage remains 8d6."}],
+    17: [{name:"Roguish Archetype Feature",desc:"Your Roguish Archetype grants an additional feature."},
+         {name:"Sneak Attack (9d6)",desc:"Sneak Attack damage increases to 9d6."}],
+    18: [{name:"Elusive",desc:"No attack roll has advantage against you while you aren't incapacitated."},
+         {name:"Sneak Attack (9d6)",desc:"Sneak Attack damage remains 9d6."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Sneak Attack (10d6)",desc:"Sneak Attack damage increases to 10d6."}],
+    20: [{name:"Stroke of Luck",desc:"If your attack misses a target within range, you can turn it into a hit. Alternatively, if you fail an ability check, treat the d20 roll as a 20. Once per short or long rest."},
+         {name:"Sneak Attack (10d6)",desc:"Sneak Attack damage remains 10d6 at level 20."}]
+  },
+
+  // ── SORCERER ───────────────────────────────────────
+  sorcerer: {
+    2:  [{name:"Font of Magic",desc:"You gain 2 sorcery points (equals your sorcerer level). Use points to create spell slots (2=1st, 3=2nd, 5=3rd, 6=4th, 7=5th) or convert spell slots to sorcery points (slot level). Recharge on long rest."}],
+    3:  [{name:"Metamagic (2 options)",desc:"Choose 2 Metamagic options: Careful Spell (protect allies in AoEs), Distant Spell (double range), Empowered Spell (reroll damage dice), Extended Spell (double duration), Heightened Spell (disadvantage on save), Quickened Spell (bonus action cast), Subtle Spell (no verbal/somatic), Twinned Spell (target two creatures)."},
+         {name:"Sorcery Points (3)",desc:"Your sorcery point total increases to 3."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Sorcery Points (5)",desc:"Your sorcery point total increases to 5."}],
+    6:  [{name:"Sorcerous Origin Feature",desc:"Your Sorcerous Origin grants an additional feature."}],
+    7:  [{name:"Sorcery Points (7)",desc:"Your sorcery point total increases to 7."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    9:  [{name:"Sorcery Points (9)",desc:"Your sorcery point total increases to 9."}],
+    10: [{name:"Metamagic (3rd option)",desc:"Choose one additional Metamagic option."},
+         {name:"Sorcery Points (10)",desc:"Your sorcery point total increases to 10."}],
+    11: [{name:"Sorcery Points (11)",desc:"Your sorcery point total increases to 11."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Sorcery Points (13)",desc:"Your sorcery point total increases to 13."}],
+    14: [{name:"Sorcerous Origin Feature",desc:"Your Sorcerous Origin grants an additional feature."}],
+    15: [{name:"Sorcery Points (15)",desc:"Your sorcery point total increases to 15."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Metamagic (4th option)",desc:"Choose one additional Metamagic option."},
+         {name:"Sorcery Points (17)",desc:"Your sorcery point total increases to 17."}],
+    18: [{name:"Sorcerous Origin Feature",desc:"Your Sorcerous Origin grants an additional feature."},
+         {name:"Sorcery Points (18)",desc:"Your sorcery point total increases to 18."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Sorcery Points (19)",desc:"Your sorcery point total increases to 19."}],
+    20: [{name:"Sorcerous Restoration",desc:"Regain 4 expended sorcery points whenever you finish a short rest."},
+         {name:"Sorcery Points (20)",desc:"Your sorcery point total increases to 20."}]
+  },
+
+  // ── WARLOCK ────────────────────────────────────────
+  warlock: {
+    2:  [{name:"Eldritch Invocations (2)",desc:"Choose 2 Eldritch Invocations to augment your magical powers. Examples: Agonizing Blast (+CHA to Eldritch Blast), Devil's Sight (darkvision 120ft in magical darkness), Mask of Many Faces (cast Disguise Self at will), Repelling Blast (push targets 10ft)."}],
+    3:  [{name:"Pact Boon",desc:"Choose your Pact Boon: Pact of the Chain (find familiar), Pact of the Blade (create a magical weapon), or Pact of the Tome (Book of Shadows with 3 cantrips)."},
+         {name:"Eldritch Invocations (3 total)",desc:"Choose one additional Eldritch Invocation (total 3). Your spell slots become 2nd level."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Eldritch Invocations (4 total)",desc:"Choose one additional Eldritch Invocation (total 4)."}],
+    5:  [{name:"Eldritch Invocations (5 total)",desc:"Choose one additional Eldritch Invocation (total 5). Your spell slots become 3rd level."}],
+    6:  [{name:"Otherworldly Patron Feature",desc:"Your Otherworldly Patron grants an additional feature."},
+         {name:"Eldritch Invocations (6 total)",desc:"Choose one additional Eldritch Invocation (total 6)."}],
+    7:  [{name:"Eldritch Invocations (7 total)",desc:"Choose one additional Eldritch Invocation (total 7). Your spell slots become 4th level."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Eldritch Invocations (8 total)",desc:"Choose one additional Eldritch Invocation (total 8)."}],
+    9:  [{name:"Eldritch Invocations (9 total)",desc:"Choose one additional Eldritch Invocation (total 9). Your spell slots become 5th level."}],
+    10: [{name:"Otherworldly Patron Feature",desc:"Your Otherworldly Patron grants an additional feature."},
+         {name:"Eldritch Invocations (10 total)",desc:"Choose one additional Eldritch Invocation (total 10)."}],
+    11: [{name:"Mystic Arcanum (6th Level)",desc:"You can cast one 6th-level spell from your patron's list once per long rest without using a spell slot. Current 6th-level warlock spells include: Eyebite, Flesh to Stone, Scatter, Soul Cage."},
+         {name:"Eldritch Invocations (11 total)",desc:"Choose one additional Eldritch Invocation (total 11)."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Eldritch Invocations (12 total)",desc:"Choose one additional Eldritch Invocation (total 12)."}],
+    13: [{name:"Mystic Arcanum (7th Level)",desc:"You can cast one 7th-level spell from your patron's list once per long rest without using a spell slot. Examples: Etherealness, Finger of Death, Forcecage, Plane Shift."}],
+    14: [{name:"Otherworldly Patron Feature",desc:"Your Otherworldly Patron grants an additional feature."},
+         {name:"Eldritch Invocations (13 total)",desc:"Choose one additional Eldritch Invocation (total 13)."}],
+    15: [{name:"Mystic Arcanum (8th Level)",desc:"You can cast one 8th-level spell from your patron's list once per long rest without using a spell slot. Examples: Demiplane, Dominate Monster, Feeblemind, Maddening Darkness."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Eldritch Invocations (14 total)",desc:"Choose one additional Eldritch Invocation (total 14)."}],
+    17: [{name:"Mystic Arcanum (9th Level)",desc:"You can cast one 9th-level spell from your patron's list once per long rest without using a spell slot. Examples: Astral Projection, Foresight, True Polymorph, Weird."}],
+    18: [{name:"Eldritch Invocations (15 total)",desc:"Choose one additional Eldritch Invocation (total 15)."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."},
+         {name:"Eldritch Invocations (16 total)",desc:"Choose one additional Eldritch Invocation (total 16)."}],
+    20: [{name:"Eldritch Master",desc:"You can entreat your patron for aid. Spend 1 minute entreating your patron to regain all expended spell slots from Pact Magic. Once per long rest."}]
+  },
+
+  // ── WIZARD ─────────────────────────────────────────
+  wizard: {
+    2:  [{name:"Arcane Tradition",desc:"Choose an Arcane Tradition: School of Evocation, School of Abjuration, School of Transmutation, School of Illusion, School of Enchantment, School of Divination, School of Conjuration, or School of Necromancy. Grants features at levels 2, 6, 10, and 14."}],
+    3:  [{name:"Spell Progression",desc:"Your spell slots increase (2nd-level slots unlocked). Add 2 spells to your spellbook."}],
+    4:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    5:  [{name:"Spell Progression",desc:"Your spell slots increase (3rd-level slots unlocked). Add 2 spells to your spellbook."}],
+    6:  [{name:"Arcane Tradition Feature",desc:"Your Arcane Tradition grants an additional feature."}],
+    7:  [{name:"Spell Progression",desc:"Your spell slots increase (4th-level slots unlocked). Add 2 spells to your spellbook."}],
+    8:  [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    9:  [{name:"Spell Progression",desc:"Your spell slots increase (5th-level slots unlocked). Add 2 spells to your spellbook."}],
+    10: [{name:"Arcane Tradition Feature",desc:"Your Arcane Tradition grants an additional feature."}],
+    11: [{name:"Spell Progression",desc:"Your spell slots increase (6th-level slots unlocked). Add 2 spells to your spellbook."}],
+    12: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    13: [{name:"Spell Progression",desc:"Your spell slots increase (7th-level slots unlocked). Add 2 spells to your spellbook."}],
+    14: [{name:"Arcane Tradition Feature",desc:"Your Arcane Tradition grants an additional feature."}],
+    15: [{name:"Spell Progression",desc:"Your spell slots increase (8th-level slots unlocked). Add 2 spells to your spellbook."}],
+    16: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    17: [{name:"Spell Progression",desc:"Your spell slots increase (9th-level slots unlocked). Add 2 spells to your spellbook."}],
+    18: [{name:"Spell Mastery",desc:"Choose one 1st-level and one 2nd-level wizard spell in your spellbook. You can cast each at their lowest level without expending a spell slot. To cast at a higher level, use a slot as normal."}],
+    19: [{name:"Ability Score Improvement",isASI:true,desc:"Increase one ability score by 2, or two scores by 1 each."}],
+    20: [{name:"Signature Spells",desc:"You gain mastery over two powerful spells. Choose two 3rd-level wizard spells in your spellbook. You always have them prepared and can cast each once per short rest at 3rd level without a spell slot."}]
+  }
+
+}; // end DND_DATA.levelFeatures
