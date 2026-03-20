@@ -1780,7 +1780,7 @@ function buildFinalSheet(){
   const allProf=[...bgKeys,...C.selectedSkills];
 
   // Store for event handlers
-  sheetState={race,cls,bg,pb2,maxHP,ac,speed,dexM,conM,allProf,subrace};
+  sheetState={race,cls,bg,pb2,maxHP,ac,speed,dexMod:dexM,conM,allProf,subrace};
 
   // ── Header ──
   const name=C.details.name||'Unnamed Adventurer';
@@ -1955,7 +1955,7 @@ function adjustPool(name,delta){
 
 // ── ACTIONS TAB ──
 function buildActionsTab(){
-  const cls=sheetState.cls; const pb2=sheetState.pb2;
+  const cls=sheetState.cls; const pb2=sheetState.pb2||2;
   if(!cls) return;
   const strM=mod(totalScore('str')), dexM=mod(totalScore('dex'));
   const allWeapons=DND_DATA.weapons?[...DND_DATA.weapons.simple_melee,...DND_DATA.weapons.simple_ranged,...DND_DATA.weapons.martial_melee,...DND_DATA.weapons.martial_ranged]:[];
@@ -2044,9 +2044,9 @@ function buildActionsTab(){
 
 // ── SPELLS TAB ──
 function buildSpellsTab(){
-  const cls=sheetState.cls; const pb2=sheetState.pb2;
+  const cls=sheetState.cls; const pb2=sheetState.pb2||2;
   const el=document.getElementById('cs-spells-content');
-  if(!cls.spellcastingAbility){
+  if(!cls||!cls.spellcastingAbility){
     el.innerHTML=`<div class="cs-no-spell"><div style="font-size:48px;opacity:.15;margin-bottom:16px;">⚔</div><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;color:var(--text-muted);text-transform:uppercase;">${cls.name} — No Spellcasting</div></div>`;
     return;
   }
@@ -2111,6 +2111,7 @@ function toggleSpellSlot(level,pipIdx,max){
 // ── INVENTORY TAB ──
 function buildInventoryTab(){
   const cls=sheetState.cls; const bg=sheetState.bg;
+  if(!cls) return;
   // Build initial items from equipment choices
   if(!inventoryItems.length){
     const equipment=cls.equipment||[]; let ci=0;
@@ -2155,6 +2156,7 @@ function removeItem(i){ inventoryItems.splice(i,1); renderInventory(); }
 // ── FEATURES TAB ──
 function buildFeaturesTab(){
   const race=sheetState.race; const cls=sheetState.cls; const bg=sheetState.bg;
+  if(!race||!cls) return;
   const subrace=sheetState.subrace;
   let html='<div class="cs-action-title">Class Features</div>';
   html+=cls.features.map(f=>`<div class="cs-feature-card" style="margin-bottom:8px;">
