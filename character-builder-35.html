@@ -1594,7 +1594,7 @@ document.addEventListener('DOMContentLoaded', function() {
       a.addEventListener('click',function(e){e.preventDefault();document.body.classList.add('page-out');setTimeout(function(){window.location.href=href;},200);});
     }
   });
-  (function(){ function onScroll(){document.body.classList.toggle('at-top',window.scrollY<10);} window.addEventListener('scroll',onScroll,{passive:true}); onScroll(); })();
+  (function(){  })();
   // Load saved char
   var loadId = localStorage.getItem('cb35_load_char_id');
   if (loadId && typeof PhmurtDB!=='undefined') {

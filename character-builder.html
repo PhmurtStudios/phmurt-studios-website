@@ -2449,9 +2449,7 @@ function init(){
 
     // Scroll fade effect
     (function(){
-      function onScroll(){ document.body.classList.toggle('at-top', window.scrollY < 10); }
-      window.addEventListener('scroll', onScroll, {passive:true});
-      onScroll();
+      
     })();
     document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
   window.addEventListener('DOMContentLoaded',function(){ init(); setTimeout(checkLoadCharacter,200); });
