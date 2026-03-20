@@ -48,12 +48,7 @@
     <a href="my-characters.html">My Characters</a>
   </div>
 
-  </div>
-
-
-    <a href="grimoire.html">Grimoire</a>    <a href="character-sheets.html" class="active">Sheets</a>  </div>
-
-  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
+<nav class="ps-breadcrumb" aria-label="Breadcrumb">
     <a href="index.html">Home</a><span class="sep">◆</span>
     <a href="character-sheets.html">Sheets</a><span class="sep">◆</span>
     <span class="current">D&amp;D 5e</span>
@@ -244,6 +239,13 @@
     document.querySelectorAll('a[href]').forEach(a=>{const href=a.getAttribute('href');if(!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});}});
 
     document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
+
+    // Scroll fade effect
+    (function(){
+      function onScroll(){ document.body.classList.toggle('at-top', window.scrollY < 10); }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
   </script>
 </body>
 </html>

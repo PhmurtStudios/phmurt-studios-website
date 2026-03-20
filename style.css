@@ -426,8 +426,10 @@ body{animation:pageIn .3s ease both;}
 /* ═══════════════════════════════════════
    AUTH MODAL
    ═══════════════════════════════════════ */
-#phmurt-auth-modal { display:none; position:fixed; inset:0; z-index:9000; align-items:center; justify-content:center; padding:20px; }
+#phmurt-auth-modal { display:none; position:fixed; inset:0; z-index:9000; align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
 #phmurt-auth-modal.open { display:flex; }
+/* ensure box stays centered even with overflow */
+#phmurt-auth-modal > .pam-box { margin:auto; flex-shrink:0; }
 .pam-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); }
 .pam-box { position:relative; background:var(--bg-card); border:1px solid var(--crimson-border); padding:40px; width:100%; max-width:400px; z-index:1; }
 .pam-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--crimson),transparent); }
@@ -506,7 +508,7 @@ body{animation:pageIn .3s ease both;}
 .cs-hp-controls { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:8px; }
 .cs-hp-btn { width:32px; height:32px; background:var(--crimson-soft); border:1px solid var(--crimson-border); color:var(--crimson); font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; line-height:1; }
 .cs-hp-btn:hover { background:var(--crimson); color:#f5f0e8; }
-.cs-hp-input { width:90px; min-width:3ch; text-align:center; font-size:32px; font-weight:300; color:var(--text); background:transparent; border:none; border-bottom:1px solid var(--crimson-border); padding:2px 4px; }
+.cs-hp-input { width:auto; min-width:2ch; max-width:120px; text-align:center; font-size:32px; font-weight:300; color:var(--text); background:transparent; border:none; border-bottom:1px solid var(--crimson-border); padding:2px 4px; }
 .cs-hp-input:focus { outline:none; border-color:var(--crimson); }
 .cs-hp-max { font-family:'Cinzel',serif; font-size:10px; color:var(--text-faint); }
 .cs-hp-adjust { display:flex; gap:6px; justify-content:center; margin-top:10px; }
@@ -643,3 +645,34 @@ body{animation:pageIn .3s ease both;}
   .cs-header { padding:24px; grid-template-columns:1fr; }
   .ps-chars-grid { grid-template-columns:1fr; margin:0 24px 40px; }
 }
+
+/* ── SCROLL FADE EFFECT ── */
+/* Applied to the main content area so content fades in/out as you scroll */
+.ps-scroll-fade-wrapper {
+  position: relative;
+}
+/* Top fade - fixed to viewport */
+body::before {
+  content: '';
+  position: fixed;
+  top: 58px; /* below nav */
+  left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+  z-index: 100;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+/* Bottom fade */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
+  z-index: 100;
+  pointer-events: none;
+}
+/* Hide top fade when at very top of page (first 10px) */
+body.at-top::before { opacity: 0; }

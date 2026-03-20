@@ -507,6 +507,8 @@
     <a href="my-characters.html">My Characters</a>
   </div>
 
+
+
   <nav class="ps-breadcrumb" aria-label="Breadcrumb">
     <a href="index.html">Home</a><span class="sep">◆</span>
     <a href="character-sheets.html">Sheets</a><span class="sep">◆</span>
@@ -2458,7 +2460,14 @@ function init(){
     goToStep(9, true);
   }
 
-  document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
+
+    // Scroll fade effect
+    (function(){
+      function onScroll(){ document.body.classList.toggle('at-top', window.scrollY < 10); }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
+    document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
   window.addEventListener('DOMContentLoaded',function(){ init(); setTimeout(checkLoadCharacter,200); });
   </script>
 

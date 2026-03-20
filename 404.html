@@ -51,6 +51,8 @@
     <a href="my-characters.html">My Characters</a>
   </div>
 
+
+
   <div class="ps-404">
     <img src="owlbear-purple.png" alt="Phmurt Studios owlbear mascot" class="ps-404-img" />
     <div class="ps-404-code">Error 404</div>
@@ -89,6 +91,13 @@
     document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 
     document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
+
+    // Scroll fade effect
+    (function(){
+      function onScroll(){ document.body.classList.toggle('at-top', window.scrollY < 10); }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
   </script>
 </body>
 </html>
