@@ -437,6 +437,19 @@
   html.light-mode #rollPanel { background: transparent; }
   html.light-mode .cb-rolled-scores-wrap > div { color: var(--text-faint); }
   html.light-mode select.cb-form-input option { background: var(--bg-card); color: var(--text); }
+  html.light-mode .cb-equip-label { color: var(--text-muted); }
+  html.light-mode .cb-equip-choice { background: var(--bg-card); border-color: var(--border); }
+  html.light-mode .cb-equip-option { color: var(--text-dim); border-color: var(--crimson-border); }
+  html.light-mode .cb-equip-option:hover { color: var(--text); border-color: var(--crimson); }
+  html.light-mode .cb-equip-option.selected { background: var(--crimson-soft); color: var(--text); }
+  html.light-mode .cb-method-tab { color: var(--text-muted); }
+  html.light-mode .cb-method-tab.active { background: var(--crimson-soft); color: var(--text); border-bottom-color: var(--crimson); }
+  html.light-mode .cb-method-tabs { border-color: var(--crimson-border); }
+  html.light-mode .cb-spell-header { color: var(--crimson); }
+  html.light-mode .cb-spell-count { color: var(--text-muted); }
+  html.light-mode .cb-skill-source { color: var(--crimson); }
+  html.light-mode .cb-roll-all-btn { background: var(--crimson); color: #f5f0e8; }
+  html.light-mode .cb-subrace-section .cb-cards { background: var(--bg-hover); }
   </style>
 </head>
 <body>
@@ -764,7 +777,7 @@
                 </div>
                 <div class="cs-hp-max">/ <span id="cs-hp-max">0</span> Max &nbsp;|&nbsp; Temp: <input type="number" id="cs-hp-temp" value="0" min="0" style="width:40px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);text-align:center;font-size:13px;" /></div>
                 <div class="cs-hp-adjust">
-                  <input class="cs-hp-adj-input" type="number" id="hp-adj-amt" placeholder="Amt" min="1" />
+                  <input class="cs-hp-adj-input" type="number" id="hp-adj-amt" value="0" min="0" />
                   <button class="cs-hp-adj-btn" onclick="applyHPAdj('dmg')">Damage</button>
                   <button class="cs-hp-adj-btn" onclick="applyHPAdj('heal')">Heal</button>
                 </div>
@@ -2405,7 +2418,7 @@ function init(){
   document.querySelectorAll('a[href]').forEach(a=>{
     const href=a.getAttribute('href');
     if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){
-      a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});
+      a.addEventListener('click',e=>{e.preventDefault();window.location.href=href;});
     }
   });
   const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});

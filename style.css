@@ -389,7 +389,7 @@ a{text-decoration:none;color:inherit;}
 .reveal.visible{opacity:1;transform:translateY(0);}
 body{animation:pageIn .3s ease both;}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.page-out{animation:pageOut .2s ease forwards;}
+
 @keyframes pageOut{to{opacity:0;transform:translateY(-8px)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
