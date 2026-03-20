@@ -156,3 +156,60 @@ profBonus: { 1:2,2:2,3:2,4:2,5:3,6:3,7:3,8:3,9:4,10:4,11:4,12:4,13:5,14:5,15:5,1
 
 hpByLevel: { barbarian:12, bard:8, cleric:8, druid:8, fighter:10, monk:8, paladin:10, ranger:10, rogue:8, sorcerer:6, warlock:8, wizard:6 }
 };
+
+// ── WEAPON LISTS ──
+DND_DATA.weapons = {
+  simple_melee: [
+    {name:"Club",damage:"1d4",type:"Bludgeoning",props:"Light"},
+    {name:"Dagger",damage:"1d4",type:"Piercing",props:"Finesse, Light, Thrown"},
+    {name:"Greatclub",damage:"1d8",type:"Bludgeoning",props:"Two-handed"},
+    {name:"Handaxe",damage:"1d6",type:"Slashing",props:"Light, Thrown"},
+    {name:"Javelin",damage:"1d6",type:"Piercing",props:"Thrown"},
+    {name:"Light Hammer",damage:"1d4",type:"Bludgeoning",props:"Light, Thrown"},
+    {name:"Mace",damage:"1d6",type:"Bludgeoning",props:"—"},
+    {name:"Quarterstaff",damage:"1d6",type:"Bludgeoning",props:"Versatile (1d8)"},
+    {name:"Sickle",damage:"1d4",type:"Slashing",props:"Light"},
+    {name:"Spear",damage:"1d6",type:"Piercing",props:"Thrown, Versatile (1d8)"}
+  ],
+  simple_ranged: [
+    {name:"Crossbow, Light",damage:"1d8",type:"Piercing",props:"Ammunition, Loading, Two-handed"},
+    {name:"Dart",damage:"1d4",type:"Piercing",props:"Finesse, Thrown"},
+    {name:"Shortbow",damage:"1d6",type:"Piercing",props:"Ammunition, Two-handed"},
+    {name:"Sling",damage:"1d4",type:"Bludgeoning",props:"Ammunition"}
+  ],
+  martial_melee: [
+    {name:"Battleaxe",damage:"1d8",type:"Slashing",props:"Versatile (1d10)"},
+    {name:"Flail",damage:"1d8",type:"Bludgeoning",props:"—"},
+    {name:"Glaive",damage:"1d10",type:"Slashing",props:"Heavy, Reach, Two-handed"},
+    {name:"Greataxe",damage:"1d12",type:"Slashing",props:"Heavy, Two-handed"},
+    {name:"Greatsword",damage:"2d6",type:"Slashing",props:"Heavy, Two-handed"},
+    {name:"Halberd",damage:"1d10",type:"Slashing",props:"Heavy, Reach, Two-handed"},
+    {name:"Lance",damage:"1d12",type:"Piercing",props:"Reach, Special"},
+    {name:"Longsword",damage:"1d8",type:"Slashing",props:"Versatile (1d10)"},
+    {name:"Maul",damage:"2d6",type:"Bludgeoning",props:"Heavy, Two-handed"},
+    {name:"Morningstar",damage:"1d8",type:"Piercing",props:"—"},
+    {name:"Pike",damage:"1d10",type:"Piercing",props:"Heavy, Reach, Two-handed"},
+    {name:"Rapier",damage:"1d8",type:"Piercing",props:"Finesse"},
+    {name:"Scimitar",damage:"1d6",type:"Slashing",props:"Finesse, Light"},
+    {name:"Shortsword",damage:"1d6",type:"Piercing",props:"Finesse, Light"},
+    {name:"Trident",damage:"1d6",type:"Piercing",props:"Thrown, Versatile (1d8)"},
+    {name:"War Pick",damage:"1d8",type:"Piercing",props:"—"},
+    {name:"Warhammer",damage:"1d8",type:"Bludgeoning",props:"Versatile (1d10)"},
+    {name:"Whip",damage:"1d4",type:"Slashing",props:"Finesse, Reach"}
+  ],
+  martial_ranged: [
+    {name:"Blowgun",damage:"1",type:"Piercing",props:"Ammunition, Loading"},
+    {name:"Crossbow, Hand",damage:"1d6",type:"Piercing",props:"Ammunition, Light, Loading"},
+    {name:"Crossbow, Heavy",damage:"1d10",type:"Piercing",props:"Ammunition, Heavy, Loading, Two-handed"},
+    {name:"Longbow",damage:"1d8",type:"Piercing",props:"Ammunition, Heavy, Two-handed"},
+    {name:"Net",damage:"—",type:"—",props:"Special, Thrown"}
+  ]
+};
+
+DND_DATA.weaponCategories = {
+  "Any simple weapon":    [...DND_DATA.weapons.simple_melee, ...DND_DATA.weapons.simple_ranged],
+  "Any simple melee weapon": DND_DATA.weapons.simple_melee,
+  "Any martial weapon":   [...DND_DATA.weapons.martial_melee, ...DND_DATA.weapons.martial_ranged],
+  "Any martial melee weapon": DND_DATA.weapons.martial_melee,
+  "Any weapon":           [...DND_DATA.weapons.simple_melee, ...DND_DATA.weapons.simple_ranged, ...DND_DATA.weapons.martial_melee, ...DND_DATA.weapons.martial_ranged]
+};

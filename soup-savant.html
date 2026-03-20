@@ -21,6 +21,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
 </head>
 <body>
   <nav class="ps-nav">
@@ -73,30 +74,27 @@
   <button class="ps-top-btn" id="topBtn" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
     <svg viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
   </button>
+
+
   <script>
-    const ham = document.getElementById('hamburger');
-    const menu = document.getElementById('mobileMenu');
-    const close = document.getElementById('mobileClose');
-    const topBtn = document.getElementById('topBtn');
-    if(ham){ ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');}); }
-    if(close){ close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}); }
-    if(menu){ menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');})); }
-    window.addEventListener('scroll',()=>{ topBtn.classList.toggle('visible', window.scrollY > 300); });
+    // Mobile nav
+    const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
+    if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
+    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
+    if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
+    // Back to top
+    const topBtn=document.getElementById('topBtn');
+    if(topBtn) window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+    // Page transitions
     document.querySelectorAll('a[href]').forEach(a=>{
-      const href = a.getAttribute('href');
-      if(!href.startsWith('#') && !href.startsWith('http') && !href.startsWith('mailto') && href.endsWith('.html')){
-        a.addEventListener('click',e=>{
-          e.preventDefault();
-          document.body.classList.add('page-out');
-          setTimeout(()=>{ window.location.href = href; }, 200);
-        });
+      const href=a.getAttribute('href');
+      if(href&&!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){
+        a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});
       }
     });
-    const observer = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
-    },{threshold:0.1});
-    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+    // Scroll reveal
+    const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
   </script>
-
 </body>
 </html>

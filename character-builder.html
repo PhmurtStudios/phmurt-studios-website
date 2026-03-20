@@ -14,6 +14,7 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
   <style>
     /* ── BUILDER LAYOUT ── */
     .cb-wrap { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 60px); }
@@ -212,6 +213,22 @@
       .cb-form-grid { grid-template-columns: 1fr; }
     }
 
+
+    /* ── WEAPON CARDS ── */
+    .cb-weapon-card { background: var(--bg-card); border: 1px solid var(--crimson-border); padding: 14px 16px; cursor: pointer; transition: all 0.2s; display: inline-block; margin: 0 8px 8px 0; min-width: 160px; position: relative; }
+    .cb-weapon-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
+    .cb-weapon-card:hover { background: var(--bg-hover); border-color: var(--crimson); transform: translateY(-2px); }
+    .cb-weapon-name { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px; color: var(--text); text-transform: uppercase; margin-bottom: 6px; }
+    .cb-weapon-stats { display: flex; gap: 10px; margin-bottom: 4px; }
+    .cb-weapon-atk { font-family: 'Cinzel', serif; font-size: 11px; color: var(--crimson); }
+    .cb-weapon-dmg { font-size: 13px; color: var(--text-dim); font-style: italic; }
+    .cb-weapon-props { font-size: 11px; color: var(--text-faint); font-style: italic; }
+    .cb-weapon-roll-hint { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; color: var(--crimson); text-transform: uppercase; margin-top: 8px; opacity: 0.6; }
+    .cb-weapon-card:hover .cb-weapon-roll-hint { opacity: 1; }
+    /* Clickable stat blocks */
+    .cb-stat-block-clickable { cursor: pointer; transition: background 0.2s; }
+    .cb-stat-block-clickable:hover { background: var(--bg-hover); }
+
     /* ── ROLL BUTTONS ── */
     .cb-roll-group { display: flex; flex-direction: column; gap: 4px; }
     .cb-roll-btn { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 7px 12px; background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.2); color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.15s; text-align: left; display: flex; justify-content: space-between; align-items: center; }
@@ -225,6 +242,24 @@
     .cb-roll-all-btn { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 10px 24px; background: var(--crimson); border: none; color: white; cursor: pointer; margin-bottom: 14px; transition: background 0.2s; }
     .cb-roll-all-btn:hover { background: var(--crimson-dim); }
     #rolledScores { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ── WEAPON CARDS ── */
+    .cb-weapon-card { background: var(--bg-card); border: 1px solid var(--crimson-border); padding: 12px 14px; cursor: pointer; transition: all 0.2s; min-width: 150px; position: relative; flex-shrink: 0; }
+    .cb-weapon-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
+    .cb-weapon-card:hover { background: var(--bg-hover); border-color: var(--crimson); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(192,57,43,0.15); }
+    .cb-weapon-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .cb-weapon-name { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--text); text-transform: uppercase; }
+    .cb-weapon-hint { font-size: 10px; color: var(--crimson); opacity: 0.6; transition: opacity 0.2s; }
+    .cb-weapon-card:hover .cb-weapon-hint { opacity: 1; }
+    .cb-weapon-stats { display: flex; gap: 10px; margin-bottom: 4px; }
+    .cb-weapon-atk { font-family: 'Cinzel', serif; font-size: 11px; color: var(--crimson); }
+    .cb-weapon-dmg { font-size: 12px; color: var(--text-dim); font-style: italic; }
+    .cb-weapon-props { font-size: 10px; color: var(--text-faint); font-style: italic; }
+    /* ── ROLL BUTTONS ── */
+    .cb-roll-btn { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 7px 12px; background: var(--crimson-soft); border: 1px solid var(--crimson-border); color: var(--text-dim); cursor: pointer; transition: all 0.15s; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+    .cb-roll-btn:hover { background: var(--crimson); border-color: var(--crimson); color: #f5f0e8; }
+    .cb-roll-btn span { font-size: 11px; color: var(--crimson); }
+    .cb-roll-btn:hover span { color: #f5f0e8; }
   </style>
 </head>
 <body>
@@ -396,12 +431,12 @@
 
       <!-- STEP 7: SPELLS -->
       <div class="cb-panel" id="panel7">
-        <div class="cb-panel-title">Spells</div>
-        <div class="cb-panel-sub">Choose your known spells</div>
+        <div class="cb-panel-title" id="spellStepTitle">Spells</div>
+        <div class="cb-panel-sub" id="spellStepSub">Choose your known spells</div>
         <div id="spellsContent"></div>
         <div class="cb-nav-btns">
           <button class="cb-btn cb-btn-secondary" onclick="prevStep(7)">← Back</button>
-          <button class="cb-btn cb-btn-primary" onclick="nextStep(7)">Continue to Details →</button>
+          <button class="cb-btn cb-btn-primary" onclick="nextStep(7)" id="spellNextBtn">Continue to Details →</button>
         </div>
       </div>
 
@@ -492,918 +527,971 @@
 
   <script src="builder-data.js"></script>
   <script>
-  // ── STATE ──
-  const C = {
-    step:1, race:null, subrace:null, cls:null, background:null,
-    abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
-    scoreMethod:'standard',
-    arrayAssigned:{},
-    selectedArrayVal:null,
-    pbScores:{str:8,dex:8,con:8,int:8,wis:8,cha:8},
-    selectedSkills:[],
-    equipChoices:{},
-    selectedCantrips:[], selectedSpells:[],
-    details:{},
-    level:1,
-    rollLog:[]
-  };
-  const TOTAL_STEPS=9;
-  const PB_COST={8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9};
-  const STANDARD_ARRAY=[15,14,13,12,10,8];
 
-  // ── UTILS ──
-  function mod(s){return Math.floor((parseInt(s)||8)-10)/2|0;}
-  function modStr(s){const m=mod(s);return(m>=0?'+':'')+m;}
-  function pb(){return DND_DATA.profBonus[C.level]||2;}
-  function totalScore(a){
-    const base=C.abilities[a]||8;
-    const r=C.race?DND_DATA.races[C.race]:null;
-    let asi=r?(r.asi[a]||0):0;
-    if(C.subrace&&r){const sr=r.subraces.find(s=>s.id===C.subrace);if(sr)asi+=(sr.asi||{})[a]||0;}
-    return base+asi;
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const C = {
+  step:1, race:null, subrace:null, cls:null, background:null,
+  abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
+  scoreMethod:'standard', arrayAssigned:{}, selectedArrayVal:null,
+  selectedSkills:[], equipChoices:{}, weaponChoices:{},
+  selectedCantrips:[], selectedSpells:[],
+  details:{}, level:1, rollLog:[], currentHP:null
+};
+const TOTAL_STEPS = 9;
+const PB_COST = {8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9};
+const STANDARD_ARRAY = [15,14,13,12,10,8];
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function mod(s){ return Math.floor(((parseInt(s)||8)-10)/2); }
+function modStr(s){ const m=mod(s); return (m>=0?'+':'')+m; }
+function pbBonus(){ return DND_DATA.profBonus[C.level]||2; }
+function totalScore(a){
+  const base = C.abilities[a]||8;
+  const r = C.race ? DND_DATA.races[C.race] : null;
+  let asi = r ? (r.asi[a]||0) : 0;
+  if(C.subrace&&r){ const sr=r.subraces.find(s=>s.id===C.subrace); if(sr) asi+=(sr.asi||{})[a]||0; }
+  return base+asi;
+}
+function skKey(name){ return name.toLowerCase().replace(/[\s'\-]/g,'').replace(/[^a-z]/g,''); }
+function rollD(sides){ return Math.ceil(Math.random()*sides); }
+
+// ══════════════════════════════════════════
+// VALIDATION
+// ══════════════════════════════════════════
+function validate(step){
+  if(step===1){
+    if(!C.race) return 'Please select a race.';
+    if(DND_DATA.races[C.race].subraces.length && !C.subrace) return 'Please choose a subrace.';
   }
-  function sk(name){return name.toLowerCase().replace(/[\s''-]/g,'').replace(/[^a-z]/g,'');}
-
-  // ── VALIDATION ──
-  function validate(step){
-    const errs=[];
-    if(step===1){
-      if(!C.race) errs.push('Please select a race.');
-      if(C.race&&DND_DATA.races[C.race].subraces.length&&!C.subrace) errs.push('Please choose a subrace.');
-    }
-    if(step===2) if(!C.cls) errs.push('Please select a class.');
-    if(step===3) if(!C.background) errs.push('Please select a background.');
-    if(step===4){
-      if(C.scoreMethod==='standard'){
-        const assigned=Object.keys(C.arrayAssigned).length;
-        if(assigned<6) errs.push(`Please assign all 6 ability scores. (${6-assigned} remaining)`);
+  if(step===2 && !C.cls) return 'Please select a class.';
+  if(step===3 && !C.background) return 'Please select a background.';
+  if(step===4 && C.scoreMethod==='standard'){
+    const n = Object.keys(C.arrayAssigned).length;
+    if(n<6) return `Assign all 6 ability scores — ${6-n} remaining.`;
+  }
+  if(step===4 && C.scoreMethod==='roll'){
+    const n = Object.keys(C.rolledAssigned||{}).length;
+    if(n<6) return `Assign all 6 rolled scores — ${6-n} remaining.`;
+  }
+  if(step===5 && C.cls){
+    const cls = DND_DATA.classes[C.cls];
+    const bg = C.background ? DND_DATA.backgrounds[C.background] : null;
+    const bgKeys = bg ? bg.skills.map(s=>skKey(s)) : [];
+    const chosen = C.selectedSkills.filter(s=>!bgKeys.includes(s)).length;
+    if(chosen < cls.skillCount) return `Choose ${cls.skillCount-chosen} more skill(s) for your class.`;
+  }
+  if(step===6 && C.cls){
+    const equipment = DND_DATA.classes[C.cls].equipment||[];
+    let ci=0;
+    for(const ch of equipment){
+      if(Array.isArray(ch) && ch.length>1){
+        if(C.equipChoices[ci]===undefined) return `Make equipment choice ${ci+1}.`;
+        ci++;
       }
     }
-    if(step===5){
-      if(C.cls){
-        const cls=DND_DATA.classes[C.cls];
-        const bgData=C.background?DND_DATA.backgrounds[C.background]:null;
-        const bgSkills=bgData?bgData.skills.map(s=>sk(s)):[];
-        const chosen=C.selectedSkills.filter(s=>!bgSkills.includes(s));
-        if(chosen.length<cls.skillCount) errs.push(`Please select ${cls.skillCount-chosen.length} more skill(s) from your class list.`);
-      }
-    }
-    if(step===6){
-      if(C.cls){
-        const equipment=DND_DATA.classes[C.cls].equipment||[];
-        equipment.forEach((choice,i)=>{
-          if(choice.length>1&&C.equipChoices[i]===undefined) errs.push(`Please make equipment choice ${i+1}.`);
-        });
-      }
-    }
-    return errs;
   }
+  return null;
+}
 
-  function showError(msg){
-    let el=document.getElementById('cb-validation-error');
-    if(!el){el=document.createElement('div');el.id='cb-validation-error';el.style.cssText='background:rgba(192,57,43,0.15);border:1px solid var(--crimson);padding:12px 16px;margin-top:16px;font-size:13px;color:var(--white);font-family:Cormorant Garamond,serif;';
-    const panel=document.querySelector('.cb-panel.active .cb-nav-btns');panel.before(el);}
-    el.innerHTML='⚠ '+msg;
-    el.scrollIntoView({behavior:'smooth',block:'nearest'});
-    setTimeout(()=>{if(el)el.remove();},4000);
+function showError(msg){
+  let el = document.getElementById('cb-err');
+  if(!el){ el=document.createElement('div'); el.id='cb-err';
+    el.style.cssText='background:rgba(192,57,43,.15);border:1px solid var(--crimson);padding:11px 16px;margin-top:14px;font-size:13px;color:var(--text);border-radius:2px;';
+    const nb = document.querySelector('.cb-panel.active .cb-nav-btns');
+    if(nb) nb.before(el);
   }
+  el.textContent = '⚠ '+msg;
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 4000);
+}
 
-  function clearError(){const el=document.getElementById('cb-validation-error');if(el)el.remove();}
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function goToStep(n, skipVal){
+  if(!skipVal && n > C.step){
+    const err = validate(C.step);
+    if(err){ showError(err); return; }
+  }
+  const old = document.getElementById('cb-err'); if(old) old.remove();
+  C.step = n;
+  document.querySelectorAll('.cb-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel'+n).classList.add('active');
+  document.querySelectorAll('.cb-step-item').forEach(s=>{
+    const sn=parseInt(s.dataset.step);
+    s.classList.toggle('active',sn===n);
+    s.classList.toggle('done',sn<n);
+  });
+  document.getElementById('progressBar').style.width = Math.round(n/TOTAL_STEPS*100)+'%';
+  if(n===5) renderSkills();
+  if(n===6) renderEquipment();
+  if(n===7) renderSpells();
+  if(n===9){ buildFinalSheet(); }
+  updateMiniSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextStep(n){ goToStep(n+1); }
+function prevStep(n){ goToStep(n-1,true); }
+function startOver(){ location.reload(); }
 
-  // ── NAVIGATION ──
-  function goToStep(n,skipValidation){
-    if(!skipValidation&&n>C.step){
-      const errs=validate(C.step);
-      if(errs.length){showError(errs[0]);return;}
-    }
-    clearError();
-    C.step=n;
-    document.querySelectorAll('.cb-panel').forEach(p=>p.classList.remove('active'));
-    document.getElementById('panel'+n).classList.add('active');
-    document.querySelectorAll('.cb-step-item').forEach(s=>{
-      const sn=parseInt(s.dataset.step);
-      s.classList.toggle('active',sn===n);
-      s.classList.toggle('done',sn<n);
+// ══════════════════════════════════════════
+// STEP 1 — RACE
+// ══════════════════════════════════════════
+function renderRaces(){
+  const c = document.getElementById('raceCards'); c.innerHTML='';
+  Object.entries(DND_DATA.races).forEach(([id,race])=>{
+    const d=document.createElement('div');
+    d.className='cb-card'+(C.race===id?' selected':'');
+    d.onclick=()=>selectRace(id);
+    const asi=Object.entries(race.asi).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
+    d.innerHTML=`<div class="cb-card-name">${race.name}</div><div class="cb-card-detail">${asi} · ${race.size} · ${race.speed}ft</div>`;
+    c.appendChild(d);
+  });
+}
+function selectRace(id){
+  C.race=id; C.subrace=null;
+  document.querySelectorAll('#raceCards .cb-card').forEach((c,i)=>c.classList.toggle('selected',Object.keys(DND_DATA.races)[i]===id));
+  document.getElementById('sl-race').textContent=DND_DATA.races[id].name;
+  renderRaceDetail(id); updateMiniSummary(); updateAsiNote();
+}
+function renderRaceDetail(id){
+  const race=DND_DATA.races[id];
+  const d=document.getElementById('raceDetail');
+  let html=`<div class="cb-detail"><div class="cb-detail-title">${race.name}</div>
+    <div class="cb-detail-sub">${race.size} · ${race.speed}ft · ${race.languages.join(', ')}</div>
+    <div class="cb-asi-badges">${Object.entries(race.asi).map(([k,v])=>`<span class="cb-asi-badge">${DND_DATA.abilityShort[k]} +${v}</span>`).join('')}</div>
+    <div class="cb-detail-body">`;
+  race.traits.forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`);
+  html+='</div>';
+  if(race.subraces.length){
+    html+=`<div class="cb-subrace-section"><div class="cb-subrace-title" style="color:var(--crimson);font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin:20px 0 12px;">⚠ Choose Subrace (Required)</div><div class="cb-cards" style="margin-bottom:12px;">`;
+    race.subraces.forEach(sr=>{
+      const asi=Object.entries(sr.asi||{}).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
+      html+=`<div class="cb-card ${C.subrace===sr.id?'selected':''}" onclick="selectSubrace('${sr.id}')"><div class="cb-card-name">${sr.name}</div><div class="cb-card-detail">${asi}</div></div>`;
     });
-    document.getElementById('progressBar').style.width=Math.round(n/TOTAL_STEPS*100)+'%';
-    if(n===5)renderSkills();
-    if(n===6)renderEquipment();
-    if(n===7)renderSpells();
-    if(n===9)buildFinalSheet();
-    updateMiniSummary();
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-  function nextStep(n){goToStep(n+1);}
-  function prevStep(n){goToStep(n-1,true);}
-  function startOver(){location.reload();}
-
-  // ── STEP 1: RACE ──
-  function renderRaces(){
-    const c=document.getElementById('raceCards');c.innerHTML='';
-    Object.entries(DND_DATA.races).forEach(([id,race])=>{
-      const d=document.createElement('div');
-      d.className='cb-card'+(C.race===id?' selected':'');
-      d.onclick=()=>selectRace(id);
-      const asi=Object.entries(race.asi).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
-      d.innerHTML=`<div class="cb-card-name">${race.name}</div><div class="cb-card-detail">${asi} · ${race.size} · ${race.speed} ft</div>`;
-      c.appendChild(d);
-    });
-  }
-  function selectRace(id){
-    C.race=id;C.subrace=null;
-    document.querySelectorAll('#raceCards .cb-card').forEach((c,i)=>c.classList.toggle('selected',Object.keys(DND_DATA.races)[i]===id));
-    document.getElementById('sl-race').textContent=DND_DATA.races[id].name;
-    renderRaceDetail(id);updateMiniSummary();updateAsiNote();
-  }
-  function renderRaceDetail(id){
-    const race=DND_DATA.races[id];
-    const d=document.getElementById('raceDetail');
-    let html=`<div class="cb-detail"><div class="cb-detail-title">${race.name}</div>
-      <div class="cb-detail-sub">${race.size} · Speed ${race.speed} ft · ${race.languages.join(', ')}</div>
-      <div class="cb-asi-badges">${Object.entries(race.asi).map(([k,v])=>`<span class="cb-asi-badge">${DND_DATA.abilityShort[k]} +${v}</span>`).join('')}</div>
-      <div class="cb-detail-body">`;
-    race.traits.forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`);
     html+='</div>';
-    if(race.subraces.length){
-      html+=`<div class="cb-subrace-section"><div class="cb-subrace-title">⚠ Choose a Subrace (Required)</div><div class="cb-cards" style="margin-bottom:16px;">`;
-      race.subraces.forEach(sr=>{
-        const asi=Object.entries(sr.asi||{}).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
-        html+=`<div class="cb-card ${C.subrace===sr.id?'selected':''}" onclick="selectSubrace('${sr.id}')"><div class="cb-card-name">${sr.name}</div><div class="cb-card-detail">${asi}</div></div>`;
-      });
-      html+='</div>';
-      if(C.subrace){const sr=race.subraces.find(s=>s.id===C.subrace);if(sr)sr.traits.forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`);}
-      html+='</div>';
-    }
-    html+='</div>';d.innerHTML=html;
+    if(C.subrace){ const sr=race.subraces.find(s=>s.id===C.subrace); if(sr) sr.traits.forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`); }
+    html+='</div>';
   }
-  function selectSubrace(id){C.subrace=id;renderRaceDetail(C.race);updateAsiNote();updateMiniSummary();}
+  html+='</div>'; d.innerHTML=html;
+}
+function selectSubrace(id){ C.subrace=id; renderRaceDetail(C.race); updateAsiNote(); updateMiniSummary(); }
 
-  // ── STEP 2: CLASS ──
-  function renderClasses(){
-    const c=document.getElementById('classCards');c.innerHTML='';
-    Object.entries(DND_DATA.classes).forEach(([id,cls])=>{
-      const d=document.createElement('div');
-      d.className='cb-card'+(C.cls===id?' selected':'');
-      d.onclick=()=>selectClass(id);
-      const sp=cls.spellcastingAbility?` · ${DND_DATA.abilityShort[cls.spellcastingAbility]} Spells`:'';
-      d.innerHTML=`<div class="cb-card-name">${cls.name}</div><div class="cb-card-detail">d${cls.hitDie} Hit Die${sp}</div><div class="cb-card-badge">${cls.primaryAbility.toUpperCase()}</div>`;
-      c.appendChild(d);
-    });
-  }
-  function selectClass(id){
-    C.cls=id;C.selectedSkills=[];C.equipChoices={};
-    document.querySelectorAll('#classCards .cb-card').forEach((c,i)=>c.classList.toggle('selected',Object.keys(DND_DATA.classes)[i]===id));
-    document.getElementById('sl-class').textContent=DND_DATA.classes[id].name;
-    document.getElementById('step7item').style.opacity=DND_DATA.classes[id].spellcastingAbility?'1':'0.4';
-    renderClassDetail(id);updateMiniSummary();
-  }
-  function renderClassDetail(id){
-    const cls=DND_DATA.classes[id];
-    const d=document.getElementById('classDetail');
-    const saves=cls.saves.map(s=>DND_DATA.abilityNames[s]).join(', ');
-    let html=`<div class="cb-detail"><div class="cb-detail-title">${cls.name}</div>
-      <div class="cb-detail-sub">d${cls.hitDie} Hit Die · Saves: ${saves}</div>
-      <div class="cb-detail-body">
-      <div class="cb-trait"><div class="cb-trait-name">Armor Proficiencies</div><div class="cb-trait-desc">${cls.armorProf.join(', ')||'None'}</div></div>
-      <div class="cb-trait"><div class="cb-trait-name">Weapon Proficiencies</div><div class="cb-trait-desc">${cls.weaponProf.join(', ')}</div></div>
-      <div class="cb-trait"><div class="cb-trait-name">Skills (Choose ${cls.skillCount})</div><div class="cb-trait-desc">${Array.isArray(cls.skillOptions)?cls.skillOptions.join(', '):cls.skillOptions}</div></div>`;
-    if(cls.spellcastingAbility)html+=`<div class="cb-trait"><div class="cb-trait-name">Spellcasting</div><div class="cb-trait-desc">Uses ${DND_DATA.abilityNames[cls.spellcastingAbility]} as spellcasting ability.</div></div>`;
-    html+='<div style="margin-top:16px;">';
-    cls.features.forEach(f=>html+=`<div class="cb-trait"><div class="cb-trait-name">Lv ${f.level}: ${f.name}</div><div class="cb-trait-desc">${f.desc}</div></div>`);
-    html+='</div></div></div>';d.innerHTML=html;
-  }
+// ══════════════════════════════════════════
+// STEP 2 — CLASS
+// ══════════════════════════════════════════
+function renderClasses(){
+  const c=document.getElementById('classCards'); c.innerHTML='';
+  Object.entries(DND_DATA.classes).forEach(([id,cls])=>{
+    const d=document.createElement('div');
+    d.className='cb-card'+(C.cls===id?' selected':'');
+    d.onclick=()=>selectClass(id);
+    const sp=cls.spellcastingAbility?` · ${DND_DATA.abilityShort[cls.spellcastingAbility]} Spells`:'';
+    d.innerHTML=`<div class="cb-card-name">${cls.name}</div><div class="cb-card-detail">d${cls.hitDie} Hit Die${sp}</div><div class="cb-card-badge">${cls.primaryAbility.toUpperCase()}</div>`;
+    c.appendChild(d);
+  });
+}
+function selectClass(id){
+  C.cls=id; C.selectedSkills=[]; C.equipChoices={}; C.weaponChoices={};
+  document.querySelectorAll('#classCards .cb-card').forEach((c,i)=>c.classList.toggle('selected',Object.keys(DND_DATA.classes)[i]===id));
+  document.getElementById('sl-class').textContent=DND_DATA.classes[id].name;
+  // Update spell step appearance
+  const step7=document.getElementById('step7item');
+  if(step7) step7.style.opacity=DND_DATA.classes[id].spellcastingAbility?'1':'0.4';
+  renderClassDetail(id); updateMiniSummary();
+}
+function renderClassDetail(id){
+  const cls=DND_DATA.classes[id];
+  const saves=cls.saves.map(s=>DND_DATA.abilityNames[s]).join(', ');
+  document.getElementById('classDetail').innerHTML=`<div class="cb-detail">
+    <div class="cb-detail-title">${cls.name}</div>
+    <div class="cb-detail-sub">d${cls.hitDie} Hit Die · Saves: ${saves}</div>
+    <div class="cb-detail-body">
+    <div class="cb-trait"><div class="cb-trait-name">Armor</div><div class="cb-trait-desc">${cls.armorProf.join(', ')||'None'}</div></div>
+    <div class="cb-trait"><div class="cb-trait-name">Weapons</div><div class="cb-trait-desc">${cls.weaponProf.join(', ')}</div></div>
+    <div class="cb-trait"><div class="cb-trait-name">Skills — Choose ${cls.skillCount}</div><div class="cb-trait-desc">${cls.skillOptions.join(', ')}</div></div>
+    ${cls.spellcastingAbility?`<div class="cb-trait"><div class="cb-trait-name">Spellcasting</div><div class="cb-trait-desc">${DND_DATA.abilityNames[cls.spellcastingAbility]}-based.</div></div>`:''}
+    <div style="margin-top:16px;">${cls.features.map(f=>`<div class="cb-trait"><div class="cb-trait-name">Lv${f.level}: ${f.name}</div><div class="cb-trait-desc">${f.desc}</div></div>`).join('')}</div>
+    </div></div>`;
+}
 
-  // ── STEP 3: BACKGROUND ──
-  function renderBackgrounds(){
-    const c=document.getElementById('bgCards');c.innerHTML='';
-    Object.entries(DND_DATA.backgrounds).forEach(([id,bg])=>{
-      const d=document.createElement('div');
-      d.className='cb-card'+(C.background===id?' selected':'');
-      d.onclick=()=>selectBackground(id);
-      d.innerHTML=`<div class="cb-card-name">${bg.name}</div><div class="cb-card-detail">${bg.skills.join(', ')}</div>`;
-      c.appendChild(d);
-    });
-  }
-  function selectBackground(id){
-    C.background=id;
-    document.querySelectorAll('#bgCards .cb-card').forEach((c,i)=>c.classList.toggle('selected',Object.keys(DND_DATA.backgrounds)[i]===id));
-    document.getElementById('sl-bg').textContent=DND_DATA.backgrounds[id].name;
-    renderBgDetail(id);updateMiniSummary();
-  }
-  function renderBgDetail(id){
-    const bg=DND_DATA.backgrounds[id];
-    const d=document.getElementById('bgDetail');
-    let extras=[];
-    if(bg.languages)extras.push(`${bg.languages} language${bg.languages>1?'s':''}`);
-    if(bg.tools)extras.push(...bg.tools);
-    d.innerHTML=`<div class="cb-detail"><div class="cb-detail-title">${bg.name}</div>
-      <div class="cb-detail-sub">Skills: ${bg.skills.join(', ')}${extras.length?' · '+extras.join(', '):''}</div>
-      <div class="cb-detail-body">
-      <div class="cb-trait"><div class="cb-trait-name">${bg.feature}</div><div class="cb-trait-desc">${bg.featureDesc}</div></div>
-      <div class="cb-trait"><div class="cb-trait-name">Equipment</div><div class="cb-trait-desc">${bg.equipment}</div></div>
-      </div></div>`;
-  }
+// ══════════════════════════════════════════
+// STEP 3 — BACKGROUND
+// ══════════════════════════════════════════
+function renderBackgrounds(){
+  const c=document.getElementById('bgCards'); c.innerHTML='';
+  Object.entries(DND_DATA.backgrounds).forEach(([id,bg])=>{
+    const d=document.createElement('div');
+    d.className='cb-card'+(C.background===id?' selected':'');
+    d.onclick=()=>selectBackground(id);
+    d.innerHTML=`<div class="cb-card-name">${bg.name}</div><div class="cb-card-detail">${bg.skills.join(', ')}</div>`;
+    c.appendChild(d);
+  });
+}
+function selectBackground(id){
+  C.background=id;
+  document.querySelectorAll('#bgCards .cb-card').forEach((c,i)=>c.classList.toggle('selected',Object.keys(DND_DATA.backgrounds)[i]===id));
+  document.getElementById('sl-bg').textContent=DND_DATA.backgrounds[id].name;
+  renderBgDetail(id); updateMiniSummary();
+}
+function renderBgDetail(id){
+  const bg=DND_DATA.backgrounds[id];
+  let extras=[]; if(bg.languages) extras.push(`${bg.languages} language${bg.languages>1?'s':''}`); if(bg.tools) extras.push(...bg.tools);
+  document.getElementById('bgDetail').innerHTML=`<div class="cb-detail">
+    <div class="cb-detail-title">${bg.name}</div>
+    <div class="cb-detail-sub">Skills: ${bg.skills.join(', ')}${extras.length?' · '+extras.join(', '):''}</div>
+    <div class="cb-detail-body">
+    <div class="cb-trait"><div class="cb-trait-name">${bg.feature}</div><div class="cb-trait-desc">${bg.featureDesc}</div></div>
+    <div class="cb-trait"><div class="cb-trait-name">Equipment</div><div class="cb-trait-desc">${bg.equipment}</div></div>
+    </div></div>`;
+}
 
-  // ── STEP 4: ABILITY SCORES ──
-  function setScoreMethod(m){
-    C.scoreMethod=m;
-    document.querySelectorAll('.cb-method-tab').forEach((t,i)=>t.classList.toggle('active',['standard','pointbuy','roll','manual'][i]===m));
-    const info=document.getElementById('scoreMethodInfo');
-    if(m==='standard')info.innerHTML='<strong>Standard Array</strong> — Click a value below, then click an ability box to assign it. All 6 values must be assigned before continuing.';
-    else if(m==='pointbuy')info.innerHTML='<strong>Point Buy</strong> — You have 27 points. Scores start at 8. Higher scores cost more points.';
-    else if(m==='roll')info.innerHTML='<strong>Roll 4d6 Drop Lowest</strong> — Click "Roll Stats" to roll all 6 scores, or roll each individually. Then drag or click to assign.';
-    else info.innerHTML='<strong>Manual Entry</strong> — Type any score (1–20) directly into each box.';
-    C.arrayAssigned={};C.selectedArrayVal=null;
-    Object.keys(C.abilities).forEach(a=>C.abilities[a]=8);
-    C.pbScores={str:8,dex:8,con:8,int:8,wis:8,cha:8};
-    renderAbilityGrid();renderArrayPool();
-    document.getElementById('rollPanel').style.display=m==='roll'?'block':'none';
-    document.getElementById('arrayPool').style.display=m==='standard'?'flex':'none';
-  }
+// ══════════════════════════════════════════
+// STEP 4 — ABILITY SCORES
+// ══════════════════════════════════════════
+C.rolledScores = [];
+C.rolledAssigned = {};
+C.selectedRolled = null;
 
-  function rollDice(n,sides){const r=[];for(let i=0;i<n;i++)r.push(Math.ceil(Math.random()*sides));return r;}
-  function roll4d6drop(){const r=rollDice(4,6);r.sort((a,b)=>a-b);return r.slice(1).reduce((s,v)=>s+v,0);}
+function setScoreMethod(m){
+  C.scoreMethod=m;
+  document.querySelectorAll('.cb-method-tab').forEach((t,i)=>t.classList.toggle('active',['standard','pointbuy','roll','manual'][i]===m));
+  const info=document.getElementById('scoreMethodInfo');
+  if(m==='standard') info.innerHTML='<strong>Standard Array</strong> — Click a value, then click an ability box to assign it.';
+  else if(m==='pointbuy') info.innerHTML='<strong>Point Buy</strong> — 27 points. Scores start at 8. Higher scores cost more.';
+  else if(m==='roll') info.innerHTML='<strong>Roll 4d6 Drop Lowest</strong> — Click "Roll All Stats", then assign each result to an ability.';
+  else info.innerHTML='<strong>Manual Entry</strong> — Type scores (1–20) directly into each box.';
+  C.arrayAssigned={}; C.selectedArrayVal=null;
+  C.rolledScores=[]; C.rolledAssigned={}; C.selectedRolled=null;
+  Object.keys(C.abilities).forEach(a=>C.abilities[a]=8);
+  document.getElementById('arrayPool').style.display = m==='standard'?'flex':'none';
+  document.getElementById('rollPanel').style.display = m==='roll'?'block':'none';
+  renderArrayPool(); renderAbilityGrid(); updateAsiNote();
+}
 
-  let rolledScores=[];
-  let rolledAssigned={};
-  let selectedRolled=null;
-
-  function rollAllStats(){
-    rolledScores=Array.from({length:6},()=>roll4d6drop());
-    rolledAssigned={};selectedRolled=null;
-    Object.keys(C.abilities).forEach(a=>C.abilities[a]=8);
-    renderRolledScores();renderAbilityGrid();
-  }
-
-  function renderRolledScores(){
-    const el=document.getElementById('rolledScores');
-    const usedIdxs=Object.values(rolledAssigned);
-    el.innerHTML=rolledScores.map((v,i)=>{
-      const used=usedIdxs.includes(i);
-      const sel=selectedRolled===i;
-      return `<div class="cb-array-val ${used?'used':''} ${sel?'selected':''}" onclick="selectRolled(${i})">${v}</div>`;
-    }).join('');
-  }
-
-  function selectRolled(i){
-    if(Object.values(rolledAssigned).includes(i))return;
-    selectedRolled=i;
-    renderRolledScores();
-    document.querySelectorAll('.cb-ability-box').forEach(b=>b.classList.add('selecting'));
-  }
-
-  function renderArrayPool(){
-    const pool=document.getElementById('arrayPool');
-    if(C.scoreMethod!=='standard'){pool.innerHTML='';return;}
-    const usedVals=Object.values(C.arrayAssigned);
-    pool.innerHTML=STANDARD_ARRAY.map(v=>{
-      const used=usedVals.includes(v)&&usedVals.filter(u=>u===v).length>=STANDARD_ARRAY.filter(u=>u===v).length;
-      const sel=C.selectedArrayVal===v;
-      return `<div class="cb-array-val ${used?'used':''} ${sel?'selected':''}" onclick="selectArrayVal(${v})">${v}</div>`;
-    }).join('');
-  }
-
-  function selectArrayVal(v){
-    const usedVals=Object.values(C.arrayAssigned);
-    const usedCount=usedVals.filter(u=>u===v).length;
+function renderArrayPool(){
+  const pool=document.getElementById('arrayPool');
+  const used=Object.values(C.arrayAssigned);
+  pool.innerHTML=STANDARD_ARRAY.map(v=>{
+    const usedCount=used.filter(u=>u===v).length;
     const totalCount=STANDARD_ARRAY.filter(u=>u===v).length;
-    if(usedCount>=totalCount)return;
-    C.selectedArrayVal=v;
+    const isUsed=usedCount>=totalCount;
+    const isSel=C.selectedArrayVal===v;
+    return `<div class="cb-array-val ${isUsed?'used':''} ${isSel?'selected':''}" onclick="pickArrayVal(${v})">${v}</div>`;
+  }).join('');
+}
+
+function pickArrayVal(v){
+  const used=Object.values(C.arrayAssigned);
+  const usedCount=used.filter(u=>u===v).length;
+  if(usedCount>=STANDARD_ARRAY.filter(u=>u===v).length) return;
+  C.selectedArrayVal=v;
+  renderArrayPool(); renderAbilityGrid();
+}
+
+function rollAllStats(){
+  C.rolledScores=[]; C.rolledAssigned={}; C.selectedRolled=null;
+  for(let i=0;i<6;i++){
+    const r=[rollD(6),rollD(6),rollD(6),rollD(6)].sort((a,b)=>a-b);
+    C.rolledScores.push(r.slice(1).reduce((s,v)=>s+v,0));
+  }
+  Object.keys(C.abilities).forEach(a=>C.abilities[a]=8);
+  renderRolledScores(); renderAbilityGrid();
+}
+
+function renderRolledScores(){
+  const el=document.getElementById('rolledScores');
+  if(!el) return;
+  const used=Object.values(C.rolledAssigned);
+  el.innerHTML=C.rolledScores.map((v,i)=>{
+    const isUsed=used.includes(i);
+    const isSel=C.selectedRolled===i;
+    return `<div class="cb-array-val ${isUsed?'used':''} ${isSel?'selected':''}" onclick="pickRolled(${i})">${v}</div>`;
+  }).join('');
+}
+
+function pickRolled(i){
+  if(Object.values(C.rolledAssigned).includes(i)) return;
+  C.selectedRolled=i;
+  renderRolledScores(); renderAbilityGrid();
+}
+
+function assignAbility(ability){
+  if(C.scoreMethod==='standard'){
+    if(C.selectedArrayVal===null) return;
+    C.abilities[ability]=C.selectedArrayVal;
+    C.arrayAssigned[ability]=C.selectedArrayVal;
+    C.selectedArrayVal=null;
     renderArrayPool();
-    document.querySelectorAll('.cb-ability-box').forEach(b=>b.classList.add('selecting'));
+  } else if(C.scoreMethod==='roll'){
+    if(C.selectedRolled===null) return;
+    C.abilities[ability]=C.rolledScores[C.selectedRolled];
+    C.rolledAssigned[ability]=C.selectedRolled;
+    C.selectedRolled=null;
+    renderRolledScores();
   }
+  renderAbilityGrid(); updateAsiNote();
+}
 
-  function assignToAbility(ability){
-    if(C.scoreMethod==='standard'){
-      if(C.selectedArrayVal===null)return;
-      C.abilities[ability]=C.selectedArrayVal;
-      C.arrayAssigned[ability]=C.selectedArrayVal;
-      C.selectedArrayVal=null;
-      renderArrayPool();renderAbilityGrid();
-    } else if(C.scoreMethod==='roll'){
-      if(selectedRolled===null)return;
-      C.abilities[ability]=rolledScores[selectedRolled];
-      rolledAssigned[ability]=selectedRolled;
-      selectedRolled=null;
-      renderRolledScores();renderAbilityGrid();
-    }
-    updateAsiNote();
-  }
+function pbAdjust(ability,delta){
+  const cur=C.abilities[ability]; const nxt=cur+delta;
+  if(nxt<8||nxt>15) return;
+  const spent=Object.values(C.abilities).reduce((s,v)=>s+(PB_COST[v]||0),0);
+  if((PB_COST[nxt]||0)-(PB_COST[cur]||0)>27-spent) return;
+  C.abilities[ability]=nxt; renderAbilityGrid(); updateAsiNote();
+}
 
-  function pbAdjust(ability,delta){
-    if(C.scoreMethod!=='pointbuy')return;
-    const cur=C.abilities[ability];
-    const nxt=cur+delta;
-    if(nxt<8||nxt>15)return;
-    const spent=Object.values(C.abilities).reduce((s,v)=>s+(PB_COST[v]||0),0);
-    const curCost=PB_COST[cur]||0;
-    const nxtCost=PB_COST[nxt]||0;
-    if(nxtCost-curCost>27-spent)return;
-    C.abilities[ability]=nxt;
-    renderAbilityGrid();updateAsiNote();
-  }
+function renderAbilityGrid(){
+  const grid=document.getElementById('abilityGrid');
+  const race=C.race?DND_DATA.races[C.race]:null;
+  const isSelecting=(C.scoreMethod==='standard'&&C.selectedArrayVal!==null)||(C.scoreMethod==='roll'&&C.selectedRolled!==null);
+  const spent=Object.values(C.abilities).reduce((s,v)=>s+(PB_COST[v]||0),0);
+  const rem=27-spent;
+  const pbEl=document.querySelector('.cb-pb-display');
+  if(C.scoreMethod==='pointbuy'){
+    if(pbEl) pbEl.innerHTML=`Points remaining: <span>${rem}</span>/27`;
+    else { const d=document.createElement('div'); d.className='cb-pb-display'; d.innerHTML=`Points: <span>${rem}</span>/27`; grid.before(d); }
+  } else { if(pbEl) pbEl.remove(); }
 
-  function renderAbilityGrid(){
-    const grid=document.getElementById('abilityGrid');
-    const race=C.race?DND_DATA.races[C.race]:null;
-    const spent=Object.values(C.abilities).reduce((s,v)=>s+(PB_COST[v]||0),0);
-    const remaining=27-spent;
-    const pbEl=document.querySelector('.cb-pb-display');
-    if(C.scoreMethod==='pointbuy'){
-      if(pbEl)pbEl.innerHTML=`Points remaining: <span>${remaining}</span> / 27`;
-      else{const d=document.createElement('div');d.className='cb-pb-display';d.innerHTML=`Points remaining: <span>${remaining}</span> / 27`;grid.before(d);}
-    } else {if(pbEl)pbEl.remove();}
-
-    const isSelecting=(C.scoreMethod==='standard'&&C.selectedArrayVal!==null)||(C.scoreMethod==='roll'&&selectedRolled!==null);
-
-    grid.innerHTML=Object.keys(C.abilities).map(ability=>{
-      const base=C.abilities[ability];
-      const rAsi=race?(race.asi[ability]||0):0;
-      const srAsi=(C.subrace&&race)?((race.subraces.find(s=>s.id===C.subrace)||{}).asi||{})[ability]||0:0;
-      const total=base+rAsi+srAsi;
-      const m=mod(total);
-      let inner='';
-      if(C.scoreMethod==='standard'){
-        const isSet=C.arrayAssigned[ability]!==undefined;
-        inner=`<div class="cb-ability-score" style="${isSet?'':'color:rgba(255,255,255,0.2);'}">${isSet?base:'—'}</div>`;
-      } else if(C.scoreMethod==='pointbuy'){
-        inner=`<div class="cb-score-btns"><button class="cb-score-btn" onclick="event.stopPropagation();pbAdjust('${ability}',-1)">−</button><span style="font-size:28px;font-weight:300;color:var(--white);min-width:40px;text-align:center;">${base}</span><button class="cb-score-btn" onclick="event.stopPropagation();pbAdjust('${ability}',1)">+</button></div>`;
-      } else if(C.scoreMethod==='roll'){
-        const isSet=rolledAssigned[ability]!==undefined;
-        inner=`<div class="cb-ability-score" style="${isSet?'':'color:rgba(255,255,255,0.2);'}">${isSet?base:'—'}</div>`;
-      } else {
-        inner=`<input class="cb-ability-input" type="number" min="1" max="20" value="${base}" oninput="C.abilities['${ability}']=Math.max(1,Math.min(20,parseInt(this.value)||1));renderAbilityGrid();updateAsiNote();" onclick="event.stopPropagation()"/>`;
-      }
-      return `<div class="cb-ability-box ${isSelecting?'selecting':''}" onclick="assignToAbility('${ability}')">
-        <div class="cb-ability-name">${DND_DATA.abilityShort[ability]}</div>
-        ${inner}
-        <div class="cb-ability-mod">${modStr(total)}</div>
-        ${(rAsi+srAsi)>0?`<div class="cb-ability-asi">+${rAsi+srAsi} racial</div>`:''}
-        <div style="font-size:10px;color:rgba(255,255,255,0.22);margin-top:3px;font-style:italic;">${DND_DATA.abilityNames[ability]}</div>
-      </div>`;
-    }).join('');
-  }
-
-  function updateAsiNote(){
-    const note=document.getElementById('raceAsiNote');
-    if(!C.race){note.style.display='none';return;}
-    const race=DND_DATA.races[C.race];
-    const bonuses=[];
-    Object.entries(race.asi).forEach(([k,v])=>bonuses.push(`${DND_DATA.abilityNames[k]} +${v}`));
-    if(C.subrace){const sr=race.subraces.find(s=>s.id===C.subrace);if(sr)Object.entries(sr.asi||{}).forEach(([k,v])=>bonuses.push(`${DND_DATA.abilityNames[k]} +${v}`));}
-    if(bonuses.length){note.style.display='block';note.innerHTML=`<strong>Racial Bonuses Applied</strong> — ${race.name}${C.subrace?' ('+race.subraces.find(s=>s.id===C.subrace).name+')':''}: ${bonuses.join(', ')}.`;}
-    else note.style.display='none';
-  }
-
-  // ── STEP 5: SKILLS ──
-  function renderSkills(){
-    const grid=document.getElementById('skillsGrid');
-    const cls=C.cls?DND_DATA.classes[C.cls]:null;
-    const bg=C.background?DND_DATA.backgrounds[C.background]:null;
-    const bgSkillKeys=bg?bg.skills.map(s=>sk(s)):[];
-    const clsAll=cls&&cls.skillOptions.includes('Any three skills');
-    const clsKeys=cls?cls.skillOptions.map(s=>sk(s)):[];
-    const canChoose=cls?cls.skillCount:0;
-    const alreadyChosen=C.selectedSkills.filter(s=>!bgSkillKeys.includes(s)).length;
-    const remaining=canChoose-alreadyChosen;
-
-    // Update alert
-    const alert=document.getElementById('profAlert');
-    if(cls){
-      const skillListLabel=clsAll?'any skill':cls.skillOptions.join(', ');
-      alert.innerHTML=`<strong>${cls.name} Skills</strong> — Choose <span style="color:var(--crimson);font-size:15px;font-family:'Cinzel',serif;">${remaining}</span> more from: <em>${skillListLabel}</em>. Background grants: <em>${bg?bg.skills.join(', '):'—'}</em>`;
-    }
-
-    grid.innerHTML='';
-    Object.entries(DND_DATA.skills).forEach(([id,skill])=>{
-      const key=sk(skill.name);
-      const isBg=bgSkillKeys.includes(key);
-      const isChosen=C.selectedSkills.includes(key);
-      const isProf=isBg||isChosen;
-      const canPick=clsAll||clsKeys.includes(key);
-      const total=mod(totalScore(skill.ability))+(isProf?pb():0);
-      const bonus=(total>=0?'+':'')+total;
-
-      const row=document.createElement('div');
-      row.className='cb-skill-row';
-      // dim non-available class skills
-      if(!canPick&&!isBg)row.style.opacity='0.35';
-
-      let checkClass='cb-skill-check';
-      if(isProf)checkClass+=' checked';
-      if(!canPick&&!isBg)checkClass+=' locked';
-
-      let sourceTag='';
-      if(isBg)sourceTag=`<span style="font-size:9px;color:rgba(192,57,43,0.6);font-family:'Cinzel',serif;letter-spacing:1px;margin-left:4px;">BG</span>`;
-      else if(isChosen)sourceTag=`<span style="font-size:9px;color:rgba(192,57,43,0.6);font-family:'Cinzel',serif;letter-spacing:1px;margin-left:4px;">CLASS</span>`;
-      else if(canPick)sourceTag=`<span style="font-size:9px;color:rgba(255,255,255,0.15);font-style:italic;margin-left:4px;">available</span>`;
-
-      row.innerHTML=`<div class="${checkClass}" onclick="toggleSkill('${key}','${isBg}','${canPick}',${canChoose})"></div>
-        <span class="cb-skill-ability">${DND_DATA.abilityShort[skill.ability]}</span>
-        <span class="cb-skill-name">${skill.name}${sourceTag}</span>
-        <span class="cb-skill-bonus">${bonus}</span>`;
-      grid.appendChild(row);
-    });
-
-    // Saving throws
-    if(cls){
-      const saves=cls.saves.map(s=>`${DND_DATA.abilityNames[s]} ${modStr(totalScore(s)+pb())}`).join(' · ');
-      document.getElementById('savingThrowsDisplay').innerHTML=`<div class="cb-detail" style="margin-top:16px;"><div class="cb-detail-title">Saving Throw Proficiencies</div><div class="cb-detail-sub">${saves}</div><div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:8px;font-style:italic;">Granted by your class. Cannot be changed.</div></div>`;
-    }
-  }
-
-  function toggleSkill(key,isBg,canPick,canChoose){
-    if(isBg==='true')return;
-    if(canPick==='false')return;
-    const bg=C.background?DND_DATA.backgrounds[C.background]:null;
-    const bgKeys=bg?bg.skills.map(s=>sk(s)):[];
-    const chosen=C.selectedSkills.filter(s=>!bgKeys.includes(s)).length;
-    if(C.selectedSkills.includes(key)){
-      C.selectedSkills=C.selectedSkills.filter(s=>s!==key);
+  grid.innerHTML=Object.keys(C.abilities).map(ability=>{
+    const base=C.abilities[ability]; const rAsi=race?(race.asi[ability]||0):0;
+    const srAsi=(C.subrace&&race)?((race.subraces.find(s=>s.id===C.subrace)||{}).asi||{})[ability]||0:0;
+    const total=base+rAsi+srAsi; const m=mod(total);
+    let inner='';
+    if(C.scoreMethod==='standard'||C.scoreMethod==='roll'){
+      const isSet=C.scoreMethod==='standard'?(C.arrayAssigned[ability]!==undefined):(C.rolledAssigned[ability]!==undefined);
+      inner=`<div class="cb-ability-score" style="${isSet?'':'color:var(--text-faint)'}">${isSet?base:'—'}</div>`;
+    } else if(C.scoreMethod==='pointbuy'){
+      inner=`<div class="cb-score-btns"><button class="cb-score-btn" onclick="event.stopPropagation();pbAdjust('${ability}',-1)">−</button><span style="font-size:26px;font-weight:300;color:var(--text);min-width:38px;text-align:center;">${base}</span><button class="cb-score-btn" onclick="event.stopPropagation();pbAdjust('${ability}',1)">+</button></div>`;
     } else {
-      if(chosen>=canChoose)return;
-      C.selectedSkills.push(key);
+      inner=`<input class="cb-ability-input" type="number" min="1" max="20" value="${base}" onclick="event.stopPropagation()" oninput="C.abilities['${ability}']=Math.max(1,Math.min(20,parseInt(this.value)||1));renderAbilityGrid();updateAsiNote();">`;
     }
-    renderSkills();
+    return `<div class="cb-ability-box ${isSelecting?'selecting':''}" onclick="assignAbility('${ability}')">
+      <div class="cb-ability-name">${DND_DATA.abilityShort[ability]}</div>
+      ${inner}
+      <div class="cb-ability-mod">${modStr(total)}</div>
+      ${(rAsi+srAsi)>0?`<div class="cb-ability-asi">+${rAsi+srAsi} racial</div>`:''}
+      <div style="font-size:10px;color:var(--text-faint);margin-top:3px;font-style:italic;">${DND_DATA.abilityNames[ability]}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateAsiNote(){
+  const note=document.getElementById('raceAsiNote');
+  if(!C.race){note.style.display='none';return;}
+  const race=DND_DATA.races[C.race]; const bonuses=[];
+  Object.entries(race.asi).forEach(([k,v])=>bonuses.push(`${DND_DATA.abilityNames[k]} +${v}`));
+  if(C.subrace){ const sr=race.subraces.find(s=>s.id===C.subrace); if(sr) Object.entries(sr.asi||{}).forEach(([k,v])=>bonuses.push(`${DND_DATA.abilityNames[k]} +${v}`)); }
+  if(bonuses.length){ note.style.display='block'; note.innerHTML=`<strong>Racial Bonuses Applied</strong> — ${race.name}: ${bonuses.join(', ')}.`; }
+  else note.style.display='none';
+}
+
+// ══════════════════════════════════════════
+// STEP 5 — SKILLS
+// ══════════════════════════════════════════
+function renderSkills(){
+  const cls=C.cls?DND_DATA.classes[C.cls]:null;
+  const bg=C.background?DND_DATA.backgrounds[C.background]:null;
+  const bgKeys=bg?bg.skills.map(s=>skKey(s)):[];
+  const clsAll=cls&&cls.skillOptions.includes('Any three skills');
+  const clsKeys=cls?cls.skillOptions.map(s=>skKey(s)):[];
+  const canChoose=cls?cls.skillCount:0;
+  const chosen=C.selectedSkills.filter(s=>!bgKeys.includes(s)).length;
+  const rem=canChoose-chosen;
+
+  document.getElementById('profAlert').innerHTML=
+    `<strong>${cls?cls.name+' Skills':''}</strong> — Choose <span style="color:var(--crimson);font-family:'Cinzel',serif;font-size:15px;">${rem}</span> more${cls?` from: <em>${clsAll?'any skill':cls.skillOptions.join(', ')}</em>`:''}.${bg?` Background grants: <em>${bg.skills.join(', ')}</em>`:''} <span style="opacity:.5;font-size:12px;">— dimmed skills are unavailable for your class</span>`;
+
+  const grid=document.getElementById('skillsGrid'); grid.innerHTML='';
+  Object.entries(DND_DATA.skills).forEach(([id,skill])=>{
+    const key=skKey(skill.name);
+    const isBg=bgKeys.includes(key); const isChosen=C.selectedSkills.includes(key);
+    const isProf=isBg||isChosen; const canPick=clsAll||clsKeys.includes(key);
+    const total=mod(totalScore(skill.ability))+(isProf?pbBonus():0);
+    const bonus=(total>=0?'+':'')+total;
+    const row=document.createElement('div'); row.className='cb-skill-row';
+    if(!canPick&&!isBg) row.style.opacity='0.3';
+    let tag=''; if(isBg) tag=`<span style="font-size:8px;letter-spacing:1px;color:var(--crimson);font-family:'Cinzel',serif;margin-left:4px;">BG</span>`;
+    else if(isChosen) tag=`<span style="font-size:8px;letter-spacing:1px;color:var(--crimson);font-family:'Cinzel',serif;margin-left:4px;">CLASS</span>`;
+    else if(canPick) tag=`<span style="font-size:9px;color:var(--text-faint);font-style:italic;margin-left:4px;">available</span>`;
+    row.innerHTML=`<div class="cb-skill-check ${isProf?'checked':''} ${!canPick&&!isBg?'locked':''}" onclick="toggleSkill('${key}','${isBg}','${canPick}',${canChoose})"></div>
+      <span class="cb-skill-ability">${DND_DATA.abilityShort[skill.ability]}</span>
+      <span class="cb-skill-name">${skill.name}${tag}</span>
+      <span class="cb-skill-bonus">${bonus}</span>`;
+    grid.appendChild(row);
+  });
+
+  if(cls){ const saves=cls.saves.map(s=>`${DND_DATA.abilityNames[s]} ${modStr(totalScore(s)+pbBonus())}`).join(' · ');
+    document.getElementById('savingThrowsDisplay').innerHTML=`<div class="cb-detail" style="margin-top:16px;"><div class="cb-detail-title">Saving Throw Proficiencies</div><div class="cb-detail-sub">${saves}</div><div style="font-size:12px;color:var(--text-faint);margin-top:6px;font-style:italic;">Granted by class — cannot be changed.</div></div>`; }
+}
+
+function toggleSkill(key,isBg,canPick,canChoose){
+  if(isBg==='true') return;
+  if(canPick==='false') return;
+  const bg=C.background?DND_DATA.backgrounds[C.background]:null;
+  const bgKeys=bg?bg.skills.map(s=>skKey(s)):[];
+  if(C.selectedSkills.includes(key)){
+    C.selectedSkills=C.selectedSkills.filter(s=>s!==key);
+  } else {
+    const chosen=C.selectedSkills.filter(s=>!bgKeys.includes(s)).length;
+    if(chosen>=canChoose) return;
+    C.selectedSkills.push(key);
   }
+  renderSkills();
+}
 
-  // ── STEP 6: EQUIPMENT ──
-  function renderEquipment(){
-    const cls=C.cls?DND_DATA.classes[C.cls]:null;
-    const container=document.getElementById('equipChoices');
-    const fixedEl=document.getElementById('fixedEquip');
-    container.innerHTML='';fixedEl.innerHTML='';
-    if(!cls){container.innerHTML='<div class="cb-alert">Please select a class first.</div>';return;}
+// ══════════════════════════════════════════
+// STEP 6 — EQUIPMENT
+// ══════════════════════════════════════════
+function renderEquipment(){
+  const cls=C.cls?DND_DATA.classes[C.cls]:null;
+  const container=document.getElementById('equipChoices');
+  const fixedEl=document.getElementById('fixedEquip');
+  container.innerHTML=''; fixedEl.innerHTML='';
+  if(!cls){ container.innerHTML='<div class="cb-alert">Select a class first.</div>'; return; }
 
-    const equipment=cls.equipment||[];
-    let choiceIndex=0;
+  const equipment=cls.equipment||[];
+  let ci=0;
+  equipment.forEach(choice=>{
+    if(!Array.isArray(choice)||choice.length===0) return;
+    if(choice.length===1){
+      const d=document.createElement('div'); d.className='cb-equip-choice';
+      d.innerHTML=`<div class="cb-equip-label">Always Included</div><div style="font-size:15px;color:var(--text-dim);font-style:italic;padding:4px 0;">✓ ${choice[0]}</div>`;
+      fixedEl.appendChild(d);
+    } else {
+      const idx=ci;
+      const d=document.createElement('div'); d.className='cb-equip-choice';
+      const req=C.equipChoices[idx]===undefined;
 
-    equipment.forEach((choice)=>{
-      if(!Array.isArray(choice)||choice.length===0)return;
+      // Build weapon dropdown if selected option is a weapon category
+      let weapDrop='';
+      if(C.equipChoices[idx]!==undefined){
+        const selOpt=choice[C.equipChoices[idx]];
+        if(DND_DATA.weaponCategories&&DND_DATA.weaponCategories[selOpt]){
+          const wpns=DND_DATA.weaponCategories[selOpt];
+          const wKey=idx+'_'+C.equipChoices[idx];
+          const curW=C.weaponChoices[wKey]||'';
+          weapDrop=`<div style="margin-top:12px;">
+            <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;">Choose Specific Weapon</div>
+            <select style="background:var(--bg-card);border:1px solid var(--crimson-border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:14px;padding:7px 10px;width:100%;" onchange="C.weaponChoices['${wKey}']=this.value;renderEquipment();">
+              <option value="">Select a weapon...</option>
+              ${wpns.map(w=>`<option value="${w.name}" ${curW===w.name?'selected':''}>${w.name} — ${w.damage} ${w.type} (${w.props})</option>`).join('')}
+            </select>
+            ${curW?`<div style="font-size:12px;color:var(--text-muted);font-style:italic;margin-top:5px;">✓ ${curW}</div>`:''}
+          </div>`;
+        }
+      }
 
-      // Single-item = always included, no choice needed
-      if(choice.length===1){
-        const d=document.createElement('div');
-        d.className='cb-equip-choice';
-        d.innerHTML=`<div class="cb-equip-label">Always Included</div><div style="font-size:15px;color:rgba(255,255,255,0.65);font-style:italic;padding:4px 0;">✓ ${choice[0]}</div>`;
-        fixedEl.appendChild(d);
-      } else {
-        const idx=choiceIndex;
-        const d=document.createElement('div');
-        d.className='cb-equip-choice';
-        const isRequired=C.equipChoices[idx]===undefined;
-        d.innerHTML=`<div class="cb-equip-label" style="${isRequired?'color:var(--crimson);':''}">
-          ${isRequired?'⚠ ':''}Choice ${idx+1} — Select One ${isRequired?'(Required)':''}
+      d.innerHTML=`<div class="cb-equip-label" style="${req?'color:var(--crimson);':''}">
+          ${req?'⚠ ':''}Choice ${idx+1} — Pick One${req?' (Required)':''}
         </div>
         <div class="cb-equip-options">${choice.map((opt,j)=>`
-          <div class="cb-equip-option ${C.equipChoices[idx]===j?'selected':''}" onclick="selectEquip(${idx},${j},'${opt.replace(/'/g,"\\'")}')">
+          <div class="cb-equip-option ${C.equipChoices[idx]===j?'selected':''}" onclick="C.equipChoices[${idx}]=${j};C.weaponChoices={};document.getElementById('sl-equip').textContent='Gear chosen';renderEquipment();">
             ${C.equipChoices[idx]===j?'✓ ':''}${opt}
-          </div>`).join('')}</div>`;
-        container.appendChild(d);
-        choiceIndex++;
-      }
-    });
-
-    if(choiceIndex===0&&equipment.length>0){
-      fixedEl.innerHTML+='<div class="cb-alert">All starting equipment is fixed for this class.</div>';
-    }
-  }
-
-  function selectEquip(idx,optIdx,optName){
-    C.equipChoices[idx]=optIdx;
-    document.getElementById('sl-equip').textContent='Equipment chosen';
-    renderEquipment();
-  }
-
-  // ── STEP 7: SPELLS ──
-  function renderSpells(){
-    const cls=C.cls?DND_DATA.classes[C.cls]:null;
-    const container=document.getElementById('spellsContent');
-    if(!cls||!cls.spellcastingAbility){
-      container.innerHTML='<div class="cb-alert"><strong>Non-Spellcaster</strong> — Your class does not have spells at 1st level. Click Continue to proceed.</div>';
-      return;
-    }
-    const spellList=DND_DATA.spells[C.cls];
-    if(!spellList){container.innerHTML='<div class="cb-alert">Spell list loading...</div>';return;}
-
-    const sm=mod(totalScore(cls.spellcastingAbility));
-    const saveDC=8+pb()+sm;
-    const atkBonus=pb()+sm;
-
-    let cantripCount=2,spellCount=2;
-    if(C.cls==='wizard')spellCount=6;
-    if(C.cls==='bard'){cantripCount=2;spellCount=4;}
-    if(C.cls==='sorcerer'){cantripCount=4;spellCount=2;}
-    if(C.cls==='cleric'||C.cls==='druid')spellCount=0;
-    if(C.cls==='paladin'||C.cls==='ranger')cantripCount=0;
-    if(C.cls==='warlock'){cantripCount=2;spellCount=2;}
-
-    let html=`<div class="cb-detail" style="margin-bottom:24px;">
-      <div class="cb-detail-title">Spellcasting — ${cls.name}</div>
-      <div class="cb-detail-sub">Ability: ${DND_DATA.abilityShort[cls.spellcastingAbility]} · Save DC: ${saveDC} · Attack Bonus: +${atkBonus}</div>
-    </div>`;
-
-    if(spellList.cantrips&&cantripCount>0){
-      const chosen=C.selectedCantrips.length;
-      html+=`<div class="cb-spell-section">
-        <div class="cb-spell-header">Cantrips — Choose ${cantripCount}</div>
-        <div class="cb-spell-count"><span style="color:${chosen>=cantripCount?'#5a9a5a':'var(--crimson)'};">${chosen}/${cantripCount}</span> selected</div>
-        <div class="cb-spell-grid">${spellList.cantrips.map(sp=>`
-          <div class="cb-spell-item ${C.selectedCantrips.includes(sp)?'selected':''}" onclick="toggleSpell('${sp}','cantrip',${cantripCount})">
-            <div class="cb-spell-dot"></div>${sp}
           </div>`).join('')}
-        </div></div>`;
-    }
-    if(spellList.level1&&spellCount>0){
-      const chosen=C.selectedSpells.length;
-      html+=`<div class="cb-spell-section">
-        <div class="cb-spell-header">1st-Level Spells — Choose ${spellCount}</div>
-        <div class="cb-spell-count"><span style="color:${chosen>=spellCount?'#5a9a5a':'var(--crimson)'};">${chosen}/${spellCount}</span> selected</div>
-        <div class="cb-spell-grid">${spellList.level1.map(sp=>`
-          <div class="cb-spell-item ${C.selectedSpells.includes(sp)?'selected':''}" onclick="toggleSpell('${sp}','spell',${spellCount})">
-            <div class="cb-spell-dot"></div>${sp}
-          </div>`).join('')}
-        </div></div>`;
-    }
-    if(C.cls==='cleric'||C.cls==='druid'){
-      html+=`<div class="cb-alert"><strong>Prepared Caster</strong> — You prepare ${Math.max(1,sm+1)} spells per long rest from the full ${cls.name} list. You know all ${cls.name} spells and choose which to prepare each day.</div>`;
-    }
-    container.innerHTML=html;
-  }
-
-  function toggleSpell(name,type,max){
-    if(type==='cantrip'){
-      if(C.selectedCantrips.includes(name))C.selectedCantrips=C.selectedCantrips.filter(s=>s!==name);
-      else if(C.selectedCantrips.length<max)C.selectedCantrips.push(name);
-    } else {
-      if(C.selectedSpells.includes(name))C.selectedSpells=C.selectedSpells.filter(s=>s!==name);
-      else if(C.selectedSpells.length<max)C.selectedSpells.push(name);
-    }
-    renderSpells();
-  }
-
-  // ── STEP 8: DETAILS ──
-  function initDetails(){
-    const sel=document.getElementById('charAlignment');
-    sel.innerHTML='<option value="">Select alignment...</option>'+DND_DATA.alignments.map(a=>`<option value="${a}" ${C.details.alignment===a?'selected':''}>${a}</option>`).join('');
-  }
-  function updateDetails(){
-    C.details={
-      name:document.getElementById('charName').value,
-      alignment:document.getElementById('charAlignment').value,
-      age:document.getElementById('charAge').value,
-      gender:document.getElementById('charGender').value,
-      height:document.getElementById('charHeight').value,
-      weight:document.getElementById('charWeight').value,
-      eyes:document.getElementById('charEyes').value,
-      hair:document.getElementById('charHair').value,
-      personality:document.getElementById('charPersonality').value,
-      ideals:document.getElementById('charIdeals').value,
-      bonds:document.getElementById('charBonds').value,
-      flaws:document.getElementById('charFlaws').value,
-      backstory:document.getElementById('charBackstory').value,
-    };
-    if(C.details.name)document.getElementById('sl-details').textContent=C.details.name;
-    updateMiniSummary();
-  }
-
-  // ── DICE ROLLER ──
-  function rollD20(){return Math.ceil(Math.random()*20);}
-  function rollDie(sides){return Math.ceil(Math.random()*sides);}
-
-  function rollCheck(type,label,bonus){
-    const roll=rollD20();
-    const total=roll+bonus;
-    const isCrit=roll===20;
-    const isFumble=roll===1;
-    const timestamp=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    const entry={
-      time:timestamp,
-      type,label,roll,bonus,total,
-      crit:isCrit,fumble:isFumble
-    };
-    C.rollLog.unshift(entry);
-    renderRollLog();
-    // flash result
-    const flash=document.getElementById('rollFlash');
-    flash.innerHTML=`<span style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.4);">${label}</span><br>
-      <span style="font-size:48px;font-weight:300;color:${isCrit?'#4CAF50':isFumble?'#c0392b':'var(--white)'};">${total}</span>
-      <span style="font-size:14px;color:rgba(255,255,255,0.4);">(d20: ${roll} ${bonus>=0?'+':''}${bonus})</span>
-      ${isCrit?'<br><span style="color:#4CAF50;font-family:Cinzel,serif;font-size:10px;letter-spacing:2px;">CRITICAL HIT</span>':''}
-      ${isFumble?'<br><span style="color:var(--crimson);font-family:Cinzel,serif;font-size:10px;letter-spacing:2px;">CRITICAL FAIL</span>':''}`;
-    flash.style.opacity='1';
-    setTimeout(()=>flash.style.opacity='0.6',1500);
-  }
-
-  function rollDamage(label,diceStr,bonusVal){
-    // diceStr like "1d8+3" or "2d6"
-    const match=diceStr.match(/(\d+)d(\d+)([+-]\d+)?/);
-    if(!match)return;
-    const num=parseInt(match[1]),sides=parseInt(match[2]);
-    const bonus=parseInt(match[3]||0);
-    let rolls=[];
-    for(let i=0;i<num;i++)rolls.push(rollDie(sides));
-    const total=rolls.reduce((s,v)=>s+v,0)+(bonusVal||bonus);
-    const timestamp=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    C.rollLog.unshift({time:timestamp,type:'Damage',label,roll:rolls.join('+'),bonus:bonusVal||bonus,total,crit:false,fumble:false});
-    renderRollLog();
-    const flash=document.getElementById('rollFlash');
-    flash.innerHTML=`<span style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.4);">${label} Damage</span><br>
-      <span style="font-size:48px;font-weight:300;color:var(--white);">${total}</span>
-      <span style="font-size:14px;color:rgba(255,255,255,0.4);">(${rolls.join('+')}${(bonusVal||bonus)!==0?((bonusVal||bonus)>=0?' +':' ')+((bonusVal||bonus)):''})</span>`;
-    flash.style.opacity='1';
-    setTimeout(()=>flash.style.opacity='0.6',1500);
-  }
-
-  function renderRollLog(){
-    const el=document.getElementById('rollTranscript');
-    if(!C.rollLog.length){el.innerHTML='<div style="font-size:13px;color:rgba(255,255,255,0.2);font-style:italic;padding:12px 0;">No rolls yet. Use the buttons above to roll checks and attacks.</div>';return;}
-    el.innerHTML=C.rollLog.map(e=>`
-      <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);">${e.type}</span>
-          <span style="font-size:13px;color:rgba(255,255,255,0.65);margin-left:8px;">${e.label}</span>
-          ${e.crit?'<span style="font-size:9px;color:#4CAF50;margin-left:6px;font-family:Cinzel,serif;letter-spacing:1px;">CRIT</span>':''}
-          ${e.fumble?'<span style="font-size:9px;color:var(--crimson);margin-left:6px;font-family:Cinzel,serif;letter-spacing:1px;">FAIL</span>':''}
-        </div>
-        <div style="display:flex;align-items:baseline;gap:8px;">
-          <span style="font-size:11px;color:rgba(255,255,255,0.25);">d20:${e.roll} ${e.bonus>=0?'+':''}${e.bonus}</span>
-          <span style="font-family:'Cinzel',serif;font-size:16px;color:${e.crit?'#4CAF50':e.fumble?'var(--crimson)':'var(--white)'};">${e.total}</span>
-          <span style="font-size:10px;color:rgba(255,255,255,0.2);">${e.time}</span>
-        </div>
-      </div>`).join('');
-  }
-
-  function clearLog(){C.rollLog=[];renderRollLog();}
-
-  // ── FINAL SHEET ──
-  function buildFinalSheet(){
-    const sheet=document.getElementById('finalSheet');
-    if(!C.race||!C.cls){sheet.innerHTML='<div class="cb-alert">Please complete all steps before viewing your sheet.</div>';return;}
-    const race=DND_DATA.races[C.race];
-    const cls=DND_DATA.classes[C.cls];
-    const bg=C.background?DND_DATA.backgrounds[C.background]:null;
-    const name=C.details.name||'Unnamed Adventurer';
-    const pb2=pb();
-    const conMod=mod(totalScore('con'));
-    const dexMod=mod(totalScore('dex'));
-    const hp=cls.hitDie+conMod;
-    const subrace=race.subraces.find(s=>s.id===C.subrace);
-
-    // AC calc
-    let ac=10+dexMod;
-    const armors=cls.armorProf||[];
-    if(armors.some(a=>a.includes('All armor')||a.includes('Heavy')))ac=18;
-    else if(armors.some(a=>a.includes('Medium')))ac=14+Math.min(dexMod,2);
-    else if(armors.some(a=>a.includes('Light')))ac=11+dexMod;
-    if(armors.some(a=>a.includes('Shield')))ac+=2;
-    if(C.cls==='barbarian')ac=10+dexMod+mod(totalScore('con'));
-    if(C.cls==='monk')ac=10+dexMod+mod(totalScore('wis'));
-
-    // Skills
-    const bgSkills=bg?bg.skills.map(s=>sk(s)):[];
-    const allProf=[...bgSkills,...C.selectedSkills];
-
-    // Equipment
-    const equipLines=[];
-    const equipment=cls.equipment||[];
-    let choiceIdx=0;
-    equipment.forEach(choice=>{
-      if(!Array.isArray(choice)||choice.length===0)return;
-      if(choice.length===1){equipLines.push(choice[0]);}
-      else{
-        const sel=C.equipChoices[choiceIdx];
-        equipLines.push(choice[sel!==undefined?sel:0]);
-        choiceIdx++;
-      }
-    });
-    if(bg)equipLines.push(bg.equipment);
-
-    // Build ability score display
-    const scoresHTML=Object.keys(C.abilities).map(ability=>`
-      <div class="cb-score-block">
-        <div class="cb-score-label">${DND_DATA.abilityShort[ability]}</div>
-        <div class="cb-score-val">${totalScore(ability)}</div>
-        <div class="cb-score-mod">${modStr(totalScore(ability))}</div>
-      </div>`).join('');
-
-    // Skills list
-    const skillsHTML=Object.entries(DND_DATA.skills).map(([id,skill])=>{
-      const key=sk(skill.name);const isP=allProf.includes(key);
-      const total=mod(totalScore(skill.ability))+(isP?pb2:0);
-      return `<div class="cb-sheet-skill">
-        <div class="cb-sheet-skill-prof ${isP?'filled':''}"></div>
-        <span class="cb-sheet-skill-name">${skill.name}</span>
-        <span class="cb-sheet-skill-bonus">${total>=0?'+':''}${total}</span>
-      </div>`;
-    }).join('');
-
-    // Saves
-    const savesHTML=Object.keys(C.abilities).map(ability=>{
-      const isP=cls.saves.includes(ability);
-      const total=mod(totalScore(ability))+(isP?pb2:0);
-      return `<div class="cb-sheet-skill">
-        <div class="cb-sheet-skill-prof ${isP?'filled':''}"></div>
-        <span class="cb-sheet-skill-name">${DND_DATA.abilityNames[ability]}</span>
-        <span class="cb-sheet-skill-bonus">${total>=0?'+':''}${total}</span>
-      </div>`;
-    }).join('');
-
-    // Features
-    const featsHTML=cls.features.map(f=>`<div class="cb-feature-item"><div class="cb-feature-name">${f.name}</div><div class="cb-feature-desc">${f.desc}</div></div>`).join('');
-    const traitsHTML=race.traits.map(t=>`<div class="cb-feature-item"><div class="cb-feature-name">${t.name}</div><div class="cb-feature-desc">${t.desc}</div></div>`).join('');
-    const srTraitsHTML=subrace?subrace.traits.map(t=>`<div class="cb-feature-item"><div class="cb-feature-name">${t.name}</div><div class="cb-feature-desc">${t.desc}</div></div>`).join(''):'';
-
-    // Spellcasting section
-    let spellHTML='';
-    if(cls.spellcastingAbility){
-      const sm=mod(totalScore(cls.spellcastingAbility));
-      spellHTML=`<div class="cb-sheet-section">
-        <div class="cb-sheet-section-title">Spellcasting</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
-          <div class="cb-stat-block"><div class="cb-stat-val">${DND_DATA.abilityShort[cls.spellcastingAbility]}</div><div class="cb-stat-label">Ability</div></div>
-          <div class="cb-stat-block"><div class="cb-stat-val">${8+pb2+sm}</div><div class="cb-stat-label">Save DC</div></div>
-          <div class="cb-stat-block"><div class="cb-stat-val">+${pb2+sm}</div><div class="cb-stat-label">Atk Bonus</div></div>
-        </div>
-        ${C.selectedCantrips.length?`<div style="margin-bottom:10px;"><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:5px;">Cantrips</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">${C.selectedCantrips.join(', ')}</div></div>`:''}
-        ${C.selectedSpells.length?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:5px;">1st-Level Spells (2 Slots)</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">${C.selectedSpells.join(', ')}</div></div>`:''}
-      </div>`;
-    }
-
-    // ── DICE ROLLER SECTION ──
-    // Build roll buttons for skills
-    const skillRollBtns=Object.entries(DND_DATA.skills).map(([id,skill])=>{
-      const key=sk(skill.name);const isP=allProf.includes(key);
-      const total=mod(totalScore(skill.ability))+(isP?pb2:0);
-      return `<button class="cb-roll-btn" onclick="rollCheck('Skill','${skill.name}',${total})">${skill.name}<span>${total>=0?'+':''}${total}</span></button>`;
-    }).join('');
-
-    const saveRollBtns=Object.keys(C.abilities).map(ability=>{
-      const isP=cls.saves.includes(ability);
-      const total=mod(totalScore(ability))+(isP?pb2:0);
-      return `<button class="cb-roll-btn" onclick="rollCheck('Save','${DND_DATA.abilityNames[ability]} Save',${total})">${DND_DATA.abilityShort[ability]}<span>${total>=0?'+':''}${total}</span></button>`;
-    }).join('');
-
-    const abilityRollBtns=Object.keys(C.abilities).map(ability=>{
-      const total=mod(totalScore(ability));
-      return `<button class="cb-roll-btn" onclick="rollCheck('Ability','${DND_DATA.abilityNames[ability]} Check',${total})">${DND_DATA.abilityShort[ability]}<span>${total>=0?'+':''}${total}</span></button>`;
-    }).join('');
-
-    // Attack rolls - based on primary ability and prof
-    const strMod=mod(totalScore('str'));
-    const dexMod2=mod(totalScore('dex'));
-    const attackBtns=[
-      `<button class="cb-roll-btn" onclick="rollCheck('Attack','Melee Attack (STR)',${strMod+pb2})">Melee (STR)<span>${strMod+pb2>=0?'+':''}${strMod+pb2}</span></button>`,
-      `<button class="cb-roll-btn" onclick="rollCheck('Attack','Finesse/Ranged (DEX)',${dexMod2+pb2})">Ranged (DEX)<span>${dexMod2+pb2>=0?'+':''}${dexMod2+pb2}</span></button>`,
-      cls.spellcastingAbility?`<button class="cb-roll-btn" onclick="rollCheck('Attack','Spell Attack',${mod(totalScore(cls.spellcastingAbility))+pb2})">Spell Attack<span>+${mod(totalScore(cls.spellcastingAbility))+pb2}</span></button>`:''
-    ].join('');
-
-    const initBtn=`<button class="cb-roll-btn" onclick="rollCheck('Initiative','Initiative',${dexMod})">Initiative<span>${dexMod>=0?'+':''}${dexMod}</span></button>`;
-    const deathBtn=`<button class="cb-roll-btn cb-roll-btn-death" onclick="rollCheck('Death Save','Death Saving Throw',0)">Death Save<span>d20</span></button>`;
-
-    sheet.innerHTML=`
-      <div class="cb-sheet-header">
-        <div>
-          <div class="cb-sheet-name">${name}</div>
-          <div class="cb-sheet-class">${race.name}${subrace?' · '+subrace.name:''} ${cls.name} · Level 1</div>
-          <div class="cb-sheet-tags">
-            ${bg?`<span class="cb-sheet-tag">${bg.name}</span>`:''}
-            ${C.details.alignment?`<span class="cb-sheet-tag">${C.details.alignment}</span>`:''}
-            <span class="cb-sheet-tag">${race.size}</span>
-            <span class="cb-sheet-tag">Speed ${subrace&&subrace.speed?subrace.speed:race.speed} ft</span>
-            <span class="cb-sheet-tag">PB +${pb2}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="cb-scores-row">${scoresHTML}</div>
-
-      <div class="cb-stats-row">
-        <div class="cb-stat-block"><div class="cb-stat-val">${hp}</div><div class="cb-stat-label">Max HP</div></div>
-        <div class="cb-stat-block"><div class="cb-stat-val">${ac}</div><div class="cb-stat-label">Armor Class</div></div>
-        <div class="cb-stat-block"><div class="cb-stat-val">${dexMod>=0?'+':''}${dexMod}</div><div class="cb-stat-label">Initiative</div></div>
-        <div class="cb-stat-block"><div class="cb-stat-val">d${cls.hitDie}</div><div class="cb-stat-label">Hit Die</div></div>
-      </div>
-
-      <div class="cb-sheet-cols">
-        <div>
-          <div class="cb-sheet-section"><div class="cb-sheet-section-title">Skills</div>${skillsHTML}</div>
-          <div class="cb-sheet-section"><div class="cb-sheet-section-title">Saving Throws</div>${savesHTML}</div>
-        </div>
-        <div>
-          <div class="cb-sheet-section"><div class="cb-sheet-section-title">Class Features</div>${featsHTML}</div>
-          <div class="cb-sheet-section"><div class="cb-sheet-section-title">Racial Traits</div>${traitsHTML}${srTraitsHTML}</div>
-          <div class="cb-sheet-section"><div class="cb-sheet-section-title">Equipment</div><div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.9;">${equipLines.join('<br>')}</div></div>
-          ${spellHTML}
-        </div>
-      </div>
-
-      ${C.details.personality||C.details.backstory?`
-        <div class="cb-sheet-section" style="margin-top:16px;">
-          <div class="cb-sheet-section-title">Character Details</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            ${C.details.personality?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Personality</div><div style="font-size:13px;color:rgba(255,255,255,0.55);font-style:italic;line-height:1.6;">${C.details.personality}</div></div>`:''}
-            ${C.details.ideals?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Ideals</div><div style="font-size:13px;color:rgba(255,255,255,0.55);font-style:italic;line-height:1.6;">${C.details.ideals}</div></div>`:''}
-            ${C.details.bonds?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Bonds</div><div style="font-size:13px;color:rgba(255,255,255,0.55);font-style:italic;line-height:1.6;">${C.details.bonds}</div></div>`:''}
-            ${C.details.flaws?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Flaws</div><div style="font-size:13px;color:rgba(255,255,255,0.55);font-style:italic;line-height:1.6;">${C.details.flaws}</div></div>`:''}
-          </div>
-          ${C.details.backstory?`<div style="margin-top:16px;"><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Backstory</div><div style="font-size:13px;color:rgba(255,255,255,0.55);font-style:italic;line-height:1.6;">${C.details.backstory}</div></div>`:''}
-        </div>`:''
-      }
-
-      <!-- DICE ROLLER -->
-      <div style="margin-top:32px;border-top:2px solid rgba(192,57,43,0.3);padding-top:28px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-          <div>
-            <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:5px;color:var(--crimson);text-transform:uppercase;">◆ Dice Roller</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.3);font-style:italic;margin-top:4px;">Click any roll button to roll — results appear instantly</div>
-          </div>
-          <div id="rollFlash" style="text-align:right;transition:opacity 0.5s;opacity:0.6;min-width:180px;">
-            <div style="font-size:11px;color:rgba(255,255,255,0.3);font-style:italic;">Roll something...</div>
-          </div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px;">
-          <div>
-            <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:10px;">Ability Checks</div>
-            <div class="cb-roll-group">${abilityRollBtns}</div>
-          </div>
-          <div>
-            <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:10px;">Saving Throws</div>
-            <div class="cb-roll-group">${saveRollBtns}</div>
-          </div>
-          <div>
-            <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:10px;">Attacks &amp; Other</div>
-            <div class="cb-roll-group">${attackBtns}${initBtn}${deathBtn}</div>
-          </div>
-        </div>
-
-        <div style="margin-bottom:24px;">
-          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:10px;">Skill Checks</div>
-          <div class="cb-roll-group" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px;">${skillRollBtns}</div>
-        </div>
-
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Roll Transcript</div>
-            <button onclick="clearLog()" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);background:none;border:1px solid rgba(255,255,255,0.1);padding:4px 10px;cursor:pointer;">Clear</button>
-          </div>
-          <div id="rollTranscript" style="background:var(--black-card);border:1px solid rgba(255,255,255,0.06);padding:16px;max-height:280px;overflow-y:auto;">
-            <div style="font-size:13px;color:rgba(255,255,255,0.2);font-style:italic;padding:12px 0;">No rolls yet. Use the buttons above to roll checks and attacks.</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid rgba(192,57,43,0.15);">
-        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.15);text-transform:uppercase;">Phmurt Studios · phmurtstudios.com</div>
-      </div>`;
-  }
-
-  // ── MINI SUMMARY ──
-  function updateMiniSummary(){
-    const el=document.getElementById('miniSummary');
-    const lines=[];
-    if(C.details&&C.details.name)lines.push({l:'Name',v:C.details.name});
-    if(C.race)lines.push({l:'Race',v:DND_DATA.races[C.race].name+(C.subrace?` (${DND_DATA.races[C.race].subraces.find(s=>s.id===C.subrace).name})`:'')});
-    if(C.cls)lines.push({l:'Class',v:DND_DATA.classes[C.cls].name});
-    if(C.background)lines.push({l:'Background',v:DND_DATA.backgrounds[C.background].name});
-    el.innerHTML=lines.map(l=>`<div class="cb-mini-stat"><span class="cb-mini-stat-label">${l.l}</span><span class="cb-mini-stat-val">${l.v}</span></div>`).join('');
-  }
-
-
-  function toggleTheme(){
-    const isLight = document.body.classList.toggle('light-mode');
-    localStorage.setItem('ps-theme', isLight ? 'light' : 'dark');
-    const btn = document.getElementById('themeToggle');
-    if(btn) btn.textContent = isLight ? '☀' : '☽';
-  }
-  // ── INIT ──
-  function init(){
-    renderRaces();renderClasses();renderBackgrounds();renderAbilityGrid();renderArrayPool();initDetails();updateMiniSummary();
-    // Set roll panel hidden initially
-    const rp=document.getElementById('rollPanel');if(rp)rp.style.display='none';
-    const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
-    if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
-    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
-    if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
-    const topBtn=document.getElementById('topBtn');
-    window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
-    document.querySelectorAll('a[href]').forEach(a=>{
-      const href=a.getAttribute('href');
-      if(href&&!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){
-        a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});
-      }
-    });
-  }
-  window.addEventListener('DOMContentLoaded', function(){
-    init();
-    // Apply saved theme
-    if(localStorage.getItem('ps-theme')==='light'){
-      document.body.classList.add('light-mode');
-      const btn=document.getElementById('themeToggle');
-      if(btn)btn.textContent='☀';
+        </div>${weapDrop}`;
+      container.appendChild(d);
+      ci++;
     }
   });
+}
+
+// ══════════════════════════════════════════
+// STEP 7 — SPELLS (hidden for non-casters)
+// ══════════════════════════════════════════
+function renderSpells(){
+  const cls=C.cls?DND_DATA.classes[C.cls]:null;
+  const container=document.getElementById('spellsContent');
+  const titleEl=document.getElementById('spellStepTitle');
+  const subEl=document.getElementById('spellStepSub');
+  const nextBtn=document.getElementById('spellNextBtn');
+
+  if(!cls||!cls.spellcastingAbility){
+    if(titleEl) titleEl.textContent='No Magic';
+    if(subEl) subEl.textContent='This class does not use spells';
+    if(nextBtn) nextBtn.textContent='Skip → Continue to Details';
+    container.innerHTML=`<div class="cb-detail" style="text-align:center;padding:56px 32px;">
+      <div style="font-size:56px;margin-bottom:20px;opacity:.25;">⚔</div>
+      <div class="cb-detail-title">${cls?cls.name:'This class'} — No Spellcasting</div>
+      <div class="cb-detail-sub" style="margin-top:10px;">Martial classes don't choose spells at 1st level</div>
+      <div style="font-size:15px;color:var(--text-dim);margin-top:20px;line-height:1.8;font-style:italic;max-width:400px;margin-left:auto;margin-right:auto;">Your power comes from training and physical mastery, not arcane or divine magic. Click continue to move on.</div>
+    </div>`;
+    return;
+  }
+
+  if(titleEl) titleEl.textContent='Spells';
+  if(subEl) subEl.textContent='Choose your known spells';
+  if(nextBtn) nextBtn.textContent='Continue to Details →';
+
+  const spellList=DND_DATA.spells[C.cls];
+  if(!spellList){ container.innerHTML='<div class="cb-alert">Spell list not available.</div>'; return; }
+
+  const sm=mod(totalScore(cls.spellcastingAbility));
+  const saveDC=8+pbBonus()+sm; const atkBonus=pbBonus()+sm;
+  let cantripCount=2, spellCount=2;
+  if(C.cls==='wizard') spellCount=6;
+  if(C.cls==='bard'){ cantripCount=2; spellCount=4; }
+  if(C.cls==='sorcerer'){ cantripCount=4; spellCount=2; }
+  if(C.cls==='cleric'||C.cls==='druid') spellCount=0;
+  if(C.cls==='paladin'||C.cls==='ranger') cantripCount=0;
+  if(C.cls==='warlock'){ cantripCount=2; spellCount=2; }
+
+  let html=`<div class="cb-detail" style="margin-bottom:24px;">
+    <div class="cb-detail-title">Spellcasting — ${cls.name}</div>
+    <div class="cb-detail-sub">${DND_DATA.abilityShort[cls.spellcastingAbility]} · Save DC ${saveDC} · Atk +${atkBonus}</div></div>`;
+
+  if(spellList.cantrips&&cantripCount>0){
+    const ch=C.selectedCantrips.length;
+    html+=`<div class="cb-spell-section"><div class="cb-spell-header">Cantrips — Choose ${cantripCount}</div>
+      <div class="cb-spell-count"><span style="color:${ch>=cantripCount?'#5a9a5a':'var(--crimson)'}">${ch}/${cantripCount}</span> selected</div>
+      <div class="cb-spell-grid">${spellList.cantrips.map(sp=>`<div class="cb-spell-item ${C.selectedCantrips.includes(sp)?'selected':''}" onclick="toggleSpell('${sp}','c',${cantripCount})"><div class="cb-spell-dot"></div>${sp}</div>`).join('')}</div></div>`;
+  }
+  if(spellList.level1&&spellCount>0){
+    const ch=C.selectedSpells.length;
+    html+=`<div class="cb-spell-section"><div class="cb-spell-header">1st-Level Spells — Choose ${spellCount}</div>
+      <div class="cb-spell-count"><span style="color:${ch>=spellCount?'#5a9a5a':'var(--crimson)'}">${ch}/${spellCount}</span> selected</div>
+      <div class="cb-spell-grid">${spellList.level1.map(sp=>`<div class="cb-spell-item ${C.selectedSpells.includes(sp)?'selected':''}" onclick="toggleSpell('${sp}','s',${spellCount})"><div class="cb-spell-dot"></div>${sp}</div>`).join('')}</div></div>`;
+  }
+  if(C.cls==='cleric'||C.cls==='druid')
+    html+=`<div class="cb-alert"><strong>Prepared Caster</strong> — You prepare ${Math.max(1,sm+1)} spells per long rest from the full list. No selection needed now.</div>`;
+
+  container.innerHTML=html;
+}
+
+function toggleSpell(name,type,max){
+  if(type==='c'){
+    if(C.selectedCantrips.includes(name)) C.selectedCantrips=C.selectedCantrips.filter(s=>s!==name);
+    else if(C.selectedCantrips.length<max) C.selectedCantrips.push(name);
+  } else {
+    if(C.selectedSpells.includes(name)) C.selectedSpells=C.selectedSpells.filter(s=>s!==name);
+    else if(C.selectedSpells.length<max) C.selectedSpells.push(name);
+  }
+  renderSpells();
+}
+
+// ══════════════════════════════════════════
+// STEP 8 — DETAILS
+// ══════════════════════════════════════════
+function initDetails(){
+  const sel=document.getElementById('charAlignment');
+  sel.innerHTML='<option value="">Select...</option>'+DND_DATA.alignments.map(a=>`<option value="${a}">${a}</option>`).join('');
+}
+function updateDetails(){
+  C.details={
+    name:document.getElementById('charName').value,
+    alignment:document.getElementById('charAlignment').value,
+    age:document.getElementById('charAge').value,
+    gender:document.getElementById('charGender').value,
+    height:document.getElementById('charHeight').value,
+    weight:document.getElementById('charWeight').value,
+    eyes:document.getElementById('charEyes').value,
+    hair:document.getElementById('charHair').value,
+    personality:document.getElementById('charPersonality').value,
+    ideals:document.getElementById('charIdeals').value,
+    bonds:document.getElementById('charBonds').value,
+    flaws:document.getElementById('charFlaws').value,
+    backstory:document.getElementById('charBackstory').value,
+  };
+  if(C.details.name) document.getElementById('sl-details').textContent=C.details.name;
+  updateMiniSummary();
+}
+
+// ══════════════════════════════════════════
+// DICE ROLLER
+// ══════════════════════════════════════════
+function rollCheck(type, label, bonus){
+  const roll=Math.ceil(Math.random()*20);
+  const total=roll+bonus;
+  const isCrit=roll===20; const isFail=roll===1;
+  const ts=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  C.rollLog.unshift({ts,type,label,roll,bonus,total,crit:isCrit,fail:isFail,isDmg:false});
+  renderRollLog();
+  const flash=document.getElementById('rollFlash');
+  if(flash){
+    flash.innerHTML=`<div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:4px;">${label}</div>
+      <div style="font-size:52px;font-weight:300;line-height:1;color:${isCrit?'#4CAF50':isFail?'var(--crimson)':'var(--text)'};">${total}</div>
+      <div style="font-size:13px;color:var(--text-muted);">d20: ${roll} ${bonus>=0?'+':''}${bonus}</div>
+      ${isCrit?'<div style="color:#4CAF50;font-family:Cinzel,serif;font-size:10px;letter-spacing:3px;margin-top:4px;">CRITICAL HIT</div>':''}
+      ${isFail?'<div style="color:var(--crimson);font-family:Cinzel,serif;font-size:10px;letter-spacing:3px;margin-top:4px;">CRITICAL FAIL</div>':''}`;
+  }
+}
+
+function rollDamage(label, diceStr, dmgBonus){
+  const m=diceStr.match(/(\d+)d(\d+)/);
+  if(!m) return;
+  const num=parseInt(m[1]),sides=parseInt(m[2]);
+  const rolls=[]; for(let i=0;i<num;i++) rolls.push(Math.ceil(Math.random()*sides));
+  const total=rolls.reduce((s,v)=>s+v,0)+dmgBonus;
+  const ts=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  C.rollLog.unshift({ts,type:'Damage',label,roll:rolls.join('+'),bonus:dmgBonus,total,crit:false,fail:false,isDmg:true});
+  renderRollLog();
+}
+
+function rollWeaponAttack(name, atkBonus, dmgBonus, damageDice){
+  rollCheck('Attack', name, atkBonus);
+  setTimeout(()=>rollDamage(name+' Dmg', damageDice, dmgBonus), 80);
+}
+
+function renderRollLog(){
+  const el=document.getElementById('rollTranscript');
+  if(!el) return;
+  if(!C.rollLog.length){ el.innerHTML='<div style="font-size:13px;color:var(--text-faint);font-style:italic;padding:12px 0;">No rolls yet.</div>'; return; }
+  el.innerHTML=C.rollLog.map(e=>`
+    <div style="padding:7px 0;border-bottom:1px solid var(--border-mid);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);">${e.type}</span>
+        <span style="font-size:13px;color:var(--text-dim);margin-left:8px;">${e.label}</span>
+        ${e.crit?'<span style="font-size:9px;color:#4CAF50;margin-left:5px;font-family:Cinzel,serif;">CRIT</span>':''}
+        ${e.fail?'<span style="font-size:9px;color:var(--crimson);margin-left:5px;font-family:Cinzel,serif;">FAIL</span>':''}
+      </div>
+      <div style="display:flex;align-items:baseline;gap:8px;">
+        <span style="font-size:11px;color:var(--text-faint);">${e.isDmg?`(${e.roll}+${e.bonus})`:`d20:${e.roll} ${e.bonus>=0?'+':''}${e.bonus}`}</span>
+        <span style="font-family:'Cinzel',serif;font-size:17px;font-weight:500;color:${e.crit?'#4CAF50':e.fail?'var(--crimson)':'var(--text)'};">${e.total}</span>
+        <span style="font-size:10px;color:var(--text-faint);">${e.ts}</span>
+      </div>
+    </div>`).join('');
+}
+
+function clearLog(){ C.rollLog=[]; renderRollLog(); }
+
+// ══════════════════════════════════════════
+// HP TRACKING
+// ══════════════════════════════════════════
+function adjustHP(delta){
+  const el=document.getElementById('currentHP'); if(!el) return;
+  const maxEl=document.getElementById('maxHPVal');
+  const max=maxEl?parseInt(maxEl.textContent)||0:0;
+  const cur=parseInt(el.textContent)||0;
+  const nv=Math.max(0,Math.min(max,cur+delta));
+  el.textContent=nv;
+  el.style.color=nv===0?'var(--crimson)':nv<=Math.floor(max/2)?'#e8a020':'var(--text)';
+  const ts=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  C.rollLog.unshift({ts,type:'HP',label:delta>0?`Healed ${delta}`:`Took ${Math.abs(delta)} damage`,roll:'—',bonus:0,total:nv,crit:false,fail:false,isDmg:false});
+  renderRollLog();
+}
+function setHP(val){
+  const el=document.getElementById('currentHP'); if(!el) return;
+  const maxEl=document.getElementById('maxHPVal');
+  const max=maxEl?parseInt(maxEl.textContent)||0:0;
+  el.textContent=val; el.style.color=val===0?'var(--crimson)':val<=Math.floor(max/2)?'#e8a020':'var(--text)';
+}
+
+// ══════════════════════════════════════════
+// WEAPON CARDS
+// ══════════════════════════════════════════
+function buildWeaponCards(){
+  const cls=C.cls?DND_DATA.classes[C.cls]:null; if(!cls) return '';
+  const allWeapons=DND_DATA.weapons?[...DND_DATA.weapons.simple_melee,...DND_DATA.weapons.simple_ranged,...DND_DATA.weapons.martial_melee,...DND_DATA.weapons.martial_ranged]:[];
+  const strM=mod(totalScore('str')), dexM=mod(totalScore('dex'));
+  const clsSp=cls.spellcastingAbility; const spM=clsSp?mod(totalScore(clsSp)):0;
+  const pb2=pbBonus();
+  const items=[];
+
+  // From equipment choices
+  const equipment=cls.equipment||[]; let ci=0;
+  equipment.forEach(choice=>{
+    if(!Array.isArray(choice)||choice.length<=1){ci++;return;}
+    const sel=C.equipChoices[ci];
+    if(sel!==undefined){
+      const opt=choice[sel];
+      const wKey=ci+'_'+sel;
+      if(C.weaponChoices&&C.weaponChoices[wKey]){
+        const w=allWeapons.find(x=>x.name===C.weaponChoices[wKey]);
+        if(w) items.push(w);
+      } else if(!DND_DATA.weaponCategories||!DND_DATA.weaponCategories[opt]){
+        const w=allWeapons.find(x=>x.name===opt);
+        if(w) items.push(w);
+      }
+    }
+    ci++;
+  });
+
+  // Class defaults
+  const defaults={
+    monk:[{name:'Unarmed Strike',damage:'1d4',type:'Bludgeoning',props:'Martial Arts — use DEX or STR'}],
+    barbarian:[{name:'Greataxe',damage:'1d12',type:'Slashing',props:'Heavy, Two-handed'}],
+    fighter:[{name:'Longsword',damage:'1d8',type:'Slashing',props:'Versatile (1d10)'}],
+    rogue:[{name:'Dagger',damage:'1d4',type:'Piercing',props:'Finesse, Light, Thrown'}],
+  };
+  if(defaults[C.cls]) defaults[C.cls].forEach(w=>{ if(!items.find(x=>x.name===w.name)) items.push(w); });
+
+  if(!items.length) return '';
+
+  return items.map(w=>{
+    const isFinesse=w.props&&w.props.includes('Finesse');
+    const isRanged=w.props&&(w.props.includes('Ammunition')||w.props.includes('Thrown'));
+    const atkM=isFinesse?Math.max(strM,dexM)+pb2:isRanged?dexM+pb2:strM+pb2;
+    const dmgM=isFinesse?Math.max(strM,dexM):isRanged?dexM:strM;
+    const dmgStr=w.damage==='—'?'Special':`${w.damage}${dmgM>=0?'+':''}${dmgM}`;
+    const dice=w.damage.match(/\d+d\d+/)?w.damage.match(/\d+d\d+/)[0]:null;
+    return `<div class="cb-weapon-card" onclick="rollWeaponAttack('${w.name.replace(/'/g,"\\'")}',${atkM},${dmgM},'${w.damage}')" title="Click to roll attack + damage">
+      <div class="cb-weapon-top">
+        <span class="cb-weapon-name">${w.name}</span>
+        <span class="cb-weapon-hint">▸ Roll</span>
+      </div>
+      <div class="cb-weapon-stats">
+        <span class="cb-weapon-atk">ATK ${atkM>=0?'+':''}${atkM}</span>
+        <span class="cb-weapon-dmg">${dmgStr} ${w.type!=='—'?w.type:''}</span>
+      </div>
+      <div class="cb-weapon-props">${w.props}</div>
+    </div>`;
+  }).join('');
+}
+
+function buildSpellCards(){
+  const cls=C.cls?DND_DATA.classes[C.cls]:null; if(!cls||!cls.spellcastingAbility) return '';
+  const sm=mod(totalScore(cls.spellcastingAbility)); const pb2=pbBonus();
+  const atkB=pb2+sm; const dc=8+pb2+sm;
+  let html='';
+  [...C.selectedCantrips,...C.selectedSpells].forEach(sp=>{
+    html+=`<div class="cb-weapon-card" onclick="rollCheck('Spell','${sp}',${atkB})" title="Click to roll spell attack">
+      <div class="cb-weapon-top"><span class="cb-weapon-name">${sp}</span><span class="cb-weapon-hint">▸ Atk</span></div>
+      <div class="cb-weapon-stats"><span class="cb-weapon-atk">ATK +${atkB}</span><span class="cb-weapon-dmg">DC ${dc}</span></div>
+    </div>`;
+  });
+  return html;
+}
+
+// ══════════════════════════════════════════
+// FINAL SHEET
+// ══════════════════════════════════════════
+function buildFinalSheet(){
+  const sheet=document.getElementById('finalSheet');
+  if(!C.race||!C.cls){ sheet.innerHTML='<div class="cb-alert">Complete all steps first.</div>'; return; }
+  const race=DND_DATA.races[C.race]; const cls=DND_DATA.classes[C.cls];
+  const bg=C.background?DND_DATA.backgrounds[C.background]:null;
+  const name=C.details.name||'Unnamed Adventurer';
+  const pb2=pbBonus(); const conM=mod(totalScore('con')); const dexM=mod(totalScore('dex'));
+  const maxHP=cls.hitDie+conM; const subrace=race.subraces.find(s=>s.id===C.subrace);
+  C.currentHP=maxHP;
+
+  let ac=10+dexM;
+  if(cls.armorProf.some(a=>a.includes('All armor')||a.includes('Heavy'))) ac=16;
+  else if(cls.armorProf.some(a=>a.includes('Medium'))) ac=14+Math.min(dexM,2);
+  else if(cls.armorProf.some(a=>a.includes('Light'))) ac=11+dexM;
+  if(cls.armorProf.some(a=>a.includes('Shield'))) ac+=2;
+  if(C.cls==='barbarian') ac=10+dexM+mod(totalScore('con'));
+  if(C.cls==='monk') ac=10+dexM+mod(totalScore('wis'));
+
+  const bgKeys=bg?bg.skills.map(s=>skKey(s)):[];
+  const allProf=[...bgKeys,...C.selectedSkills];
+
+  const equipLines=[]; const equipment=cls.equipment||[]; let ci=0;
+  equipment.forEach(ch=>{
+    if(!Array.isArray(ch)||ch.length===0) return;
+    if(ch.length===1){equipLines.push(ch[0]);}
+    else{
+      const sel=C.equipChoices[ci]; const opt=ch[sel!==undefined?sel:0];
+      const wKey=ci+'_'+(sel!==undefined?sel:0);
+      if(C.weaponChoices&&C.weaponChoices[wKey]) equipLines.push(C.weaponChoices[wKey]);
+      else equipLines.push(opt);
+      ci++;
+    }
+  });
+  if(bg) equipLines.push(bg.equipment);
+
+  const scoresHTML=Object.keys(C.abilities).map(a=>`
+    <div class="cb-score-block">
+      <div class="cb-score-label">${DND_DATA.abilityShort[a]}</div>
+      <div class="cb-score-val">${totalScore(a)}</div>
+      <div class="cb-score-mod">${modStr(totalScore(a))}</div>
+    </div>`).join('');
+
+  const skillsHTML=Object.entries(DND_DATA.skills).map(([id,sk])=>{
+    const key=skKey(sk.name); const isP=allProf.includes(key);
+    const tot=mod(totalScore(sk.ability))+(isP?pb2:0);
+    return `<div class="cb-sheet-skill" onclick="rollCheck('Skill','${sk.name}',${tot})" title="Click to roll" style="cursor:pointer;">
+      <div class="cb-sheet-skill-prof ${isP?'filled':''}"></div>
+      <span class="cb-sheet-skill-name">${sk.name}</span>
+      <span class="cb-sheet-skill-bonus">${tot>=0?'+':''}${tot}</span>
+    </div>`;
+  }).join('');
+
+  const savesHTML=Object.keys(C.abilities).map(a=>{
+    const isP=cls.saves.includes(a); const tot=mod(totalScore(a))+(isP?pb2:0);
+    return `<div class="cb-sheet-skill" onclick="rollCheck('Save','${DND_DATA.abilityNames[a]} Save',${tot})" title="Click to roll" style="cursor:pointer;">
+      <div class="cb-sheet-skill-prof ${isP?'filled':''}"></div>
+      <span class="cb-sheet-skill-name">${DND_DATA.abilityNames[a]}</span>
+      <span class="cb-sheet-skill-bonus">${tot>=0?'+':''}${tot}</span>
+    </div>`;
+  }).join('');
+
+  const clsSp=cls.spellcastingAbility; const spM=clsSp?mod(totalScore(clsSp)):0;
+  let spellSection='';
+  if(clsSp){
+    spellSection=`<div class="cb-sheet-section"><div class="cb-sheet-section-title">Spellcasting</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+        <div class="cb-stat-block" style="padding:14px;text-align:center;"><div style="font-size:22px;font-weight:300;color:var(--text);">${DND_DATA.abilityShort[clsSp]}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:4px;">Ability</div></div>
+        <div class="cb-stat-block" style="padding:14px;text-align:center;"><div style="font-size:22px;font-weight:300;color:var(--text);">${8+pb2+spM}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:4px;">Save DC</div></div>
+        <div class="cb-stat-block" style="padding:14px;text-align:center;"><div style="font-size:22px;font-weight:300;color:var(--text);">+${pb2+spM}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:4px;">Atk Bonus</div></div>
+      </div>
+      ${C.selectedCantrips.length?`<div style="margin-bottom:8px;"><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:4px;">Cantrips</div><div style="font-size:13px;color:var(--text-dim);">${C.selectedCantrips.join(', ')}</div></div>`:''}
+      ${C.selectedSpells.length?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:4px;">1st-Level Spells (2 slots)</div><div style="font-size:13px;color:var(--text-dim);">${C.selectedSpells.join(', ')}</div></div>`:''}
+    </div>`;
+  }
+
+  const weapCards=buildWeaponCards();
+  const spellCards=buildSpellCards();
+
+  sheet.innerHTML=`
+    <div class="cb-sheet-header">
+      <div>
+        <div class="cb-sheet-name">${name}</div>
+        <div class="cb-sheet-class">${race.name}${subrace?' · '+subrace.name:''} ${cls.name} · Level 1</div>
+        <div class="cb-sheet-tags">
+          ${bg?`<span class="cb-sheet-tag">${bg.name}</span>`:''}
+          ${C.details.alignment?`<span class="cb-sheet-tag">${C.details.alignment}</span>`:''}
+          <span class="cb-sheet-tag">${race.size}</span>
+          <span class="cb-sheet-tag">${subrace&&subrace.speed?subrace.speed:race.speed}ft</span>
+          <span class="cb-sheet-tag">PB +${pb2}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cb-scores-row">${scoresHTML}</div>
+
+    <div class="cb-stats-row">
+      <div class="cb-stat-block" style="position:relative;">
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;">Hit Points</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;">
+          <button onclick="adjustHP(-1)" style="width:30px;height:30px;background:var(--crimson-soft);border:1px solid var(--crimson-border);color:var(--crimson);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">−</button>
+          <span id="currentHP" style="font-size:30px;font-weight:300;color:var(--text);min-width:44px;text-align:center;">${maxHP}</span>
+          <button onclick="adjustHP(1)" style="width:30px;height:30px;background:var(--crimson-soft);border:1px solid var(--crimson-border);color:var(--crimson);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">+</button>
+        </div>
+        <div style="font-family:'Cinzel',serif;font-size:9px;color:var(--text-faint);text-align:center;">/ <span id="maxHPVal">${maxHP}</span> Max</div>
+        <div style="display:flex;gap:6px;margin-top:8px;justify-content:center;">
+          <button onclick="setHP(${maxHP})" style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Full</button>
+          <button onclick="setHP(0)" style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;padding:4px 8px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">KO</button>
+          <button onclick="rollDamage('Hit Die','1d${cls.hitDie}',0)" style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Roll HD</button>
+        </div>
+      </div>
+      <div class="cb-stat-block" style="text-align:center;padding:20px 8px;"><div style="font-size:30px;font-weight:300;color:var(--text);">${ac}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:6px;">Armor Class</div></div>
+      <div class="cb-stat-block" style="text-align:center;padding:20px 8px;cursor:pointer;" onclick="rollCheck('Initiative','Initiative',${dexM})" title="Click to roll">
+        <div style="font-size:30px;font-weight:300;color:var(--text);">${dexM>=0?'+':''}${dexM}</div>
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--crimson);text-transform:uppercase;margin-top:6px;">Initiative ▸ Roll</div>
+      </div>
+      <div class="cb-stat-block" style="text-align:center;padding:20px 8px;"><div style="font-size:30px;font-weight:300;color:var(--text);">d${cls.hitDie}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:6px;">Hit Die</div></div>
+    </div>
+
+    ${weapCards||spellCards?`<div class="cb-sheet-section" style="margin-bottom:20px;">
+      <div class="cb-sheet-section-title">Weapons &amp; Spells — Click to Roll</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">${weapCards}${spellCards}</div>
+    </div>`:''}
+
+    <div class="cb-sheet-cols">
+      <div>
+        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Skills — Click to Roll</div>${skillsHTML}</div>
+        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Saving Throws — Click to Roll</div>${savesHTML}</div>
+      </div>
+      <div>
+        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Class Features</div>${cls.features.map(f=>`<div class="cb-feature-item"><div class="cb-feature-name">${f.name}</div><div class="cb-feature-desc">${f.desc}</div></div>`).join('')}</div>
+        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Racial Traits</div>${race.traits.map(t=>`<div class="cb-feature-item"><div class="cb-feature-name">${t.name}</div><div class="cb-feature-desc">${t.desc}</div></div>`).join('')}${subrace?subrace.traits.map(t=>`<div class="cb-feature-item"><div class="cb-feature-name">${t.name}</div><div class="cb-feature-desc">${t.desc}</div></div>`).join(''):''}</div>
+        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Equipment</div><div style="font-size:13px;color:var(--text-dim);line-height:1.9;">${equipLines.join('<br>')}</div></div>
+        ${spellSection}
+      </div>
+    </div>
+
+    ${C.details.personality||C.details.backstory?`<div class="cb-sheet-section" style="margin-top:8px;">
+      <div class="cb-sheet-section-title">Character</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        ${C.details.personality?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Personality</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.personality}</div></div>`:''}
+        ${C.details.ideals?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Ideals</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.ideals}</div></div>`:''}
+        ${C.details.bonds?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Bonds</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.bonds}</div></div>`:''}
+        ${C.details.flaws?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Flaws</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.flaws}</div></div>`:''}
+      </div>
+      ${C.details.backstory?`<div style="margin-top:12px;"><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Backstory</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.backstory}</div></div>`:''}
+    </div>`:''}
+
+    <div style="margin-top:28px;border-top:2px solid var(--crimson-border);padding-top:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;color:var(--crimson);text-transform:uppercase;">◆ Dice Roller</div>
+          <div style="font-size:13px;color:var(--text-muted);font-style:italic;margin-top:4px;">Skills and saves above are also clickable</div>
+        </div>
+        <div id="rollFlash" style="text-align:right;min-width:160px;transition:opacity .4s;">
+          <div style="font-size:12px;color:var(--text-faint);font-style:italic;">Roll something...</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;">Ability Checks</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            ${Object.keys(C.abilities).map(a=>`<button class="cb-roll-btn" onclick="rollCheck('Ability','${DND_DATA.abilityNames[a]}',${mod(totalScore(a))})">${DND_DATA.abilityShort[a]}<span>${modStr(totalScore(a))}</span></button>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;">Saving Throws</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            ${Object.keys(C.abilities).map(a=>{const isP=cls.saves.includes(a);const tot=mod(totalScore(a))+(isP?pb2:0);return `<button class="cb-roll-btn" onclick="rollCheck('Save','${DND_DATA.abilityNames[a]} Save',${tot})">${DND_DATA.abilityShort[a]}<span>${tot>=0?'+':''}${tot}</span></button>`;}).join('')}
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;">Attacks &amp; Other</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <button class="cb-roll-btn" onclick="rollCheck('Attack','Melee (STR)',${mod(totalScore('str'))+pb2})">Melee STR<span>${mod(totalScore('str'))+pb2>=0?'+':''}${mod(totalScore('str'))+pb2}</span></button>
+            <button class="cb-roll-btn" onclick="rollCheck('Attack','Ranged (DEX)',${dexM+pb2})">Ranged DEX<span>${dexM+pb2>=0?'+':''}${dexM+pb2}</span></button>
+            ${clsSp?`<button class="cb-roll-btn" onclick="rollCheck('Attack','Spell Atk',${spM+pb2})">Spell Atk<span>+${spM+pb2}</span></button>`:''}
+            <button class="cb-roll-btn" onclick="rollCheck('Initiative','Initiative',${dexM})">Initiative<span>${modStr(totalScore('dex'))}</span></button>
+            <button class="cb-roll-btn" style="border-color:var(--crimson-border);color:var(--crimson);" onclick="rollCheck('Death Save','Death Save',0)">Death Save<span>d20</span></button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;">Roll Transcript</div>
+          <button onclick="clearLog()" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);background:none;border:1px solid var(--border);padding:4px 10px;cursor:pointer;">Clear</button>
+        </div>
+        <div id="rollTranscript" style="background:var(--bg-card);border:1px solid var(--border-mid);padding:14px;max-height:260px;overflow-y:auto;font-size:13px;">
+          <div style="color:var(--text-faint);font-style:italic;">No rolls yet.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid var(--border-mid);">
+      <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;">Phmurt Studios · phmurtstudios.com</div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// MINI SUMMARY
+// ══════════════════════════════════════════
+function updateMiniSummary(){
+  const el=document.getElementById('miniSummary'); if(!el) return;
+  const lines=[];
+  if(C.details&&C.details.name) lines.push({l:'Name',v:C.details.name});
+  if(C.race) lines.push({l:'Race',v:DND_DATA.races[C.race].name+(C.subrace?` (${DND_DATA.races[C.race].subraces.find(s=>s.id===C.subrace).name})`:'')});
+  if(C.cls) lines.push({l:'Class',v:DND_DATA.classes[C.cls].name});
+  if(C.background) lines.push({l:'Background',v:DND_DATA.backgrounds[C.background].name});
+  el.innerHTML=lines.map(l=>`<div class="cb-mini-stat"><span class="cb-mini-stat-label">${l.l}</span><span class="cb-mini-stat-val">${l.v}</span></div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function init(){
+  renderRaces(); renderClasses(); renderBackgrounds();
+  renderAbilityGrid(); renderArrayPool(); initDetails(); updateMiniSummary();
+  document.getElementById('rollPanel').style.display='none';
+  document.getElementById('arrayPool').style.display='flex';
+  const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
+  if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
+  if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
+  if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
+  const topBtn=document.getElementById('topBtn');
+  if(topBtn) window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+  document.querySelectorAll('a[href]').forEach(a=>{
+    const href=a.getAttribute('href');
+    if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){
+      a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});
+    }
+  });
+  const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+}
+window.addEventListener('DOMContentLoaded',init);
   </script>
 </body>
 </html>
