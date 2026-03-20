@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Characters — Phmurt Studios</title>
+  <meta name="description" content="Your saved D&D characters — Phmurt Studios." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="phmurt-auth.js"></script>
+  <script src="builder-data.js"></script>
+</head>
+<body>
+
+  <nav class="ps-nav">
+    <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html">Grimoire</a>
+      <a href="character-sheets.html">Sheets</a>
+      <a href="about.html">About</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+      <div class="nav-auth-wrap">
+        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
+        <div id="nav-user-dropdown"></div>
+      </div>
+      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a><div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a><div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html">Sheets</a><div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+  </div>
+
+  <nav class="ps-breadcrumb">
+    <a href="index.html">Home</a><span class="sep">◆</span>
+    <span class="current">My Characters</span>
+  </nav>
+
+  <div class="ps-page-hero">
+    <div class="ps-page-eyebrow">Your Roster</div>
+    <div class="ps-page-title" id="pageTitle">My Characters</div>
+    <div class="ps-page-subtitle" id="pageSubtitle">Loading...</div>
+  </div>
+
+  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
+
+  <div id="charsContainer" style="padding:0;"></div>
+
+  <footer class="ps-footer">
+    <div class="ps-footer-logo"><img src="logo.png" alt="Phmurt Studios" /><span class="ps-footer-name">Phmurt Studios</span></div>
+    <div class="ps-footer-copy">Crafted with intention. Built for your table.</div>
+  </footer>
+
+  <button class="ps-top-btn" id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
+  </button>
+
+  <script>
+    window.onAuthChange = function(){ loadPage(); };
+
+    async function loadPage(){
+      const session = PhmurtDB.getSession();
+      const container = document.getElementById('charsContainer');
+      const subtitle = document.getElementById('pageSubtitle');
+
+      if(!session){
+        subtitle.textContent = 'Sign in to view your characters';
+        container.innerHTML = `<div class="ps-logged-out-msg">
+          <div style="font-size:48px;opacity:.2;margin-bottom:24px;">⚔</div>
+          <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;">No Account Found</div>
+          <p style="font-size:16px;color:var(--text-dim);margin-bottom:28px;">Sign in or create a free account to save and load your characters.</p>
+          <button class="ps-cta" onclick="PhmurtDB.openAuth()">Sign In / Create Account</button>
+        </div>`;
+        return;
+      }
+
+      subtitle.textContent = `Welcome back, ${session.name}`;
+      container.innerHTML = '<div style="padding:40px 56px;font-style:italic;color:var(--text-faint);">Loading characters...</div>';
+
+      const chars = await PhmurtDB.loadCharacters();
+      const DND = typeof DND_DATA !== 'undefined' ? DND_DATA : null;
+
+      let html = '<div class="ps-section-header"><div class="ps-section-title">Saved Characters</div></div><div class="ps-chars-grid">';
+
+      // New character card
+      html += `<div class="ps-new-char-card" onclick="window.location.href='character-builder.html'">
+        <div class="ps-new-char-icon">+</div>
+        <div class="ps-new-char-label">Create New Character</div>
+      </div>`;
+
+      if(chars.length === 0){
+        html += `<div class="ps-char-card" style="min-height:160px;align-items:center;justify-content:center;">
+          <div style="font-size:13px;color:var(--text-faint);font-style:italic;text-align:center;">No characters yet.<br>Create your first one!</div>
+        </div>`;
+      } else {
+        chars.forEach(char => {
+          const race = char.data?.race ? (DND?.races?.[char.data.race]?.name || char.data.race) : '—';
+          const cls = char.data?.cls ? (DND?.classes?.[char.data.cls]?.name || char.data.cls) : '—';
+          const updated = char.updated ? new Date(char.updated).toLocaleDateString() : '—';
+          html += `<div class="ps-char-card">
+            <div class="ps-char-card-name">${char.name||'Unnamed'}</div>
+            <div class="ps-char-card-sub">${race} ${cls} · Level 1</div>
+            <div class="ps-char-card-date">Last saved ${updated}</div>
+            <div class="ps-char-card-actions">
+              <button class="ps-char-card-btn primary" onclick="loadCharacter('${char.id}')">Load ↗</button>
+              <button class="ps-char-card-btn danger" onclick="deleteChar('${char.id}','${char.name||'this character'}')">Delete</button>
+            </div>
+          </div>`;
+        });
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function loadCharacter(id){
+      localStorage.setItem('phmurt_load_char_id', id);
+      window.location.href = 'character-builder.html';
+    }
+
+    async function deleteChar(id, name){
+      if(!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+      await PhmurtDB.deleteCharacter(id);
+      loadPage();
+    }
+
+    // Page JS
+    const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose'),topBtn=document.getElementById('topBtn');
+    if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
+    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
+    if(topBtn) window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+    document.querySelectorAll('a[href]').forEach(a=>{const href=a.getAttribute('href');if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});}});
+    document.addEventListener('DOMContentLoaded', loadPage);
+    document.addEventListener('click', e=>{if(!e.target.closest('.nav-auth-wrap')){ document.getElementById('nav-user-dropdown')?.classList.remove('open'); }});
+  </script>
+</body>
+</html>

@@ -213,3 +213,82 @@ DND_DATA.weaponCategories = {
   "Any martial melee weapon": DND_DATA.weapons.martial_melee,
   "Any weapon":           [...DND_DATA.weapons.simple_melee, ...DND_DATA.weapons.simple_ranged, ...DND_DATA.weapons.martial_melee, ...DND_DATA.weapons.martial_ranged]
 };
+
+// ── ABILITY USE TRACKING ──
+DND_DATA.abilityUses = {
+  barbarian:[
+    {name:'Rage', uses:2, recharge:'long_rest', desc:'Advantage on STR checks/saves, bonus melee damage, resistance to B/P/S damage. Lasts 1 minute.'},
+    {name:'Unarmored Defense', uses:0, recharge:'passive', desc:'While not wearing armor: AC = 10 + DEX mod + CON mod.'}
+  ],
+  bard:[
+    {name:'Bardic Inspiration', uses:'cha_mod', recharge:'long_rest', desc:'Bonus action: grant a creature a d6 to add to one check, save, or attack roll.'}
+  ],
+  cleric:[
+    {name:'Channel Divinity', uses:1, recharge:'short_rest', desc:'Use your divine connection. Effect determined by your chosen domain.'}
+  ],
+  druid:[
+    {name:'Wild Shape', uses:2, recharge:'short_rest', desc:'Magically assume the shape of a beast you have seen before (CR 1/4, no fly/swim speed at 2nd level).'}
+  ],
+  fighter:[
+    {name:'Second Wind', uses:1, recharge:'short_rest', desc:'Bonus action: regain 1d10 + Fighter level HP.'},
+    {name:'Action Surge', uses:1, recharge:'short_rest', desc:'Take one additional action on your turn. Not another Action Surge.'}
+  ],
+  monk:[
+    {name:'Ki Points', uses:'level', recharge:'short_rest', isPool:true, desc:'Spend ki to fuel Flurry of Blows (1 ki), Patient Defense (1 ki), or Step of the Wind (1 ki).'},
+    {name:'Unarmored Defense', uses:0, recharge:'passive', desc:'While not wearing armor: AC = 10 + DEX mod + WIS mod.'}
+  ],
+  paladin:[
+    {name:'Divine Sense', uses:'1+cha_mod', recharge:'long_rest', desc:'Detect the presence of powerful celestials, fiends, and undead within 60 feet.'},
+    {name:'Lay on Hands', uses:5, recharge:'long_rest', isPool:true, desc:'Touch to restore HP. Pool = 5 × paladin level. Spend 5 to cure one disease or neutralize one poison.'}
+  ],
+  ranger:[
+    {name:'Favored Enemy', uses:0, recharge:'passive', desc:'Advantage on Survival checks to track chosen enemy type. Advantage on INT checks for info about them.'},
+    {name:'Natural Explorer', uses:0, recharge:'passive', desc:'Expertise in chosen terrain: no difficult terrain slow, never lost, advantage on initiative, extra rations, tracking more creatures.'}
+  ],
+  rogue:[
+    {name:'Sneak Attack', uses:0, recharge:'passive', desc:'Once per turn: +1d6 damage when you have advantage or ally within 5ft of target.'},
+    {name:'Cunning Action', uses:0, recharge:'passive', desc:'Bonus action: Dash, Disengage, or Hide.'}
+  ],
+  sorcerer:[
+    {name:'Sorcery Points', uses:'level', recharge:'long_rest', isPool:true, desc:'Spend to create spell slots or fuel Metamagic options like Twinned Spell, Quickened Spell, etc.'},
+    {name:'Font of Magic', uses:0, recharge:'passive', desc:'At 2nd level: convert spell slots to/from Sorcery Points.'}
+  ],
+  warlock:[
+    {name:'Pact Magic Slots', uses:1, recharge:'short_rest', desc:'Your spell slots recharge on a short or long rest. All slots are the same level.'},
+    {name:'Dark One\'s Blessing', uses:0, recharge:'passive', desc:'Fiend patron: when you reduce a creature to 0 HP, gain CHA mod + Warlock level temp HP.'}
+  ],
+  wizard:[
+    {name:'Arcane Recovery', uses:1, recharge:'long_rest', desc:'Once per day on a short rest: recover spell slots totaling up to half Wizard level (rounded up, max 5th level).'}
+  ]
+};
+
+// ── STANDARD ACTIONS (D&D 5e rulebook) ──
+DND_DATA.standardActions = [
+  {name:'Attack',          type:'Action',       desc:'Make one melee or ranged weapon attack (or more with Extra Attack).'},
+  {name:'Cast a Spell',    type:'Action/Bonus', desc:'Cast a spell with a casting time of 1 action or 1 bonus action.'},
+  {name:'Dash',            type:'Action',       desc:'Gain extra movement equal to your speed for this turn.'},
+  {name:'Disengage',       type:'Action',       desc:'Your movement doesn\'t provoke opportunity attacks for the rest of your turn.'},
+  {name:'Dodge',           type:'Action',       desc:'Until your next turn: attacks against you have disadvantage, you have advantage on DEX saves.'},
+  {name:'Help',            type:'Action',       desc:'Aid an ally: give them advantage on their next ability check or attack roll.'},
+  {name:'Hide',            type:'Action',       desc:'Make a DEX (Stealth) check to hide from creatures that can\'t clearly see you.'},
+  {name:'Ready',           type:'Action',       desc:'Prepare a reaction trigger and response for later in the round.'},
+  {name:'Search',          type:'Action',       desc:'Devote your attention to finding something. WIS (Perception) or INT (Investigation).'},
+  {name:'Use an Object',   type:'Action',       desc:'Interact with a second object or use a special object feature (some objects require the Use an Object action).'},
+  {name:'Grapple',         type:'Attack',       desc:'Replace one attack: contested STR (Athletics) vs STR (Athletics) or DEX (Acrobatics). On success: target is grappled.'},
+  {name:'Shove',           type:'Attack',       desc:'Replace one attack: knock prone or push 5ft. Contested STR (Athletics) vs STR (Athletics) or DEX (Acrobatics).'},
+  {name:'Improvise',       type:'Action',       desc:'Do something not covered by another action. DM decides if an ability check is needed.'},
+  {name:'Opportunity Attack', type:'Reaction',  desc:'When a creature you can see leaves your reach, you can use your reaction to make one melee attack.'},
+  {name:'Dodge (Reaction)', type:'Reaction',    desc:'Some spells and features let you use your reaction to impose disadvantage on an attack or halve damage.'}
+];
+
+// ── SPELL SLOT TABLES ──
+DND_DATA.spellSlots = {
+  bard:     [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
+  cleric:   [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
+  druid:    [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
+  sorcerer: [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
+  wizard:   [[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2]],
+  warlock:  [[1],[2],[2],[2],[2],[2],[2],[2],[2],[2]],
+  paladin:  [[2],[2],[3],[3],[4,2],[4,2],[4,3],[4,3],[4,3,2],[4,3,2]],
+  ranger:   [[2],[2],[3],[3],[4,2],[4,2],[4,3],[4,3],[4,3,2],[4,3,2]]
+};

@@ -15,6 +15,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="phmurt-auth.js"></script>
   <style>
     /* ── BUILDER LAYOUT ── */
     .cb-wrap { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 60px); }
@@ -214,6 +216,95 @@
     }
 
 
+
+    /* ── DICE ROLL POPUP ── */
+    #dice-popup {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(0.6);
+      background: var(--bg-card); border: 1px solid var(--crimson-border);
+      padding: 36px 44px; z-index: 9999; text-align: center;
+      min-width: 260px; pointer-events: none;
+      opacity: 0; transition: opacity 0.15s, transform 0.15s;
+      box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px var(--crimson-border);
+    }
+    #dice-popup::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+    }
+    #dice-popup.show {
+      opacity: 1; transform: translate(-50%,-50%) scale(1);
+    }
+    #dice-popup.exit {
+      opacity: 0; transform: translate(-50%,-50%) scale(0.85);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .dp-type {
+      font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 4px;
+      color: var(--text-faint); text-transform: uppercase; margin-bottom: 6px;
+    }
+    .dp-label {
+      font-size: 16px; color: var(--text-dim); font-style: italic;
+      margin-bottom: 14px; line-height: 1.3;
+    }
+    .dp-dice-row {
+      display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 14px; min-height: 44px;
+    }
+    .dp-die {
+      width: 40px; height: 40px; display: flex; align-items: center;
+      justify-content: center; font-size: 18px; font-weight: 300;
+      border: 1px solid var(--crimson-border); color: var(--text);
+      animation: dieRoll 0.3s ease both;
+      position: relative;
+    }
+    .dp-die.d20 { width: 48px; height: 48px; font-size: 22px; }
+    .dp-die.crit { border-color: #4CAF50; color: #4CAF50; box-shadow: 0 0 12px rgba(76,175,80,0.3); }
+    .dp-die.fail { border-color: var(--crimson); color: var(--crimson); box-shadow: 0 0 12px rgba(192,57,43,0.3); }
+    .dp-die-label {
+      position: absolute; bottom: -14px; left: 0; right: 0;
+      font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 1px;
+      color: var(--text-faint); text-align: center;
+    }
+    @keyframes dieRoll {
+      0%  { transform: rotate(-20deg) scale(0.5); opacity: 0; }
+      60% { transform: rotate(5deg) scale(1.1); opacity: 1; }
+      100%{ transform: rotate(0deg) scale(1); opacity: 1; }
+    }
+    .dp-total {
+      font-size: 64px; font-weight: 300; line-height: 1;
+      margin: 6px 0 4px;
+      animation: totalPop 0.25s 0.2s ease both;
+    }
+    @keyframes totalPop {
+      0%  { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.05); }
+      100%{ transform: scale(1); opacity: 1; }
+    }
+    .dp-breakdown {
+      font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px;
+      color: var(--text-faint); margin-bottom: 8px;
+    }
+    .dp-crit-label {
+      font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 4px;
+      text-transform: uppercase; margin-top: 4px;
+      animation: totalPop 0.2s 0.35s ease both; opacity: 0;
+    }
+    .dp-crit-label.hit  { color: #4CAF50; }
+    .dp-crit-label.fail { color: var(--crimson); }
+    .dp-overlay {
+      position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,0.45);
+      opacity: 0; transition: opacity 0.15s;
+      pointer-events: none;
+    }
+    .dp-overlay.show { opacity: 1; pointer-events: all; }
+    #dice-popup .dp-close {
+      position: absolute; top: 10px; right: 14px;
+      font-size: 16px; color: var(--text-faint); cursor: pointer;
+      background: none; border: none; pointer-events: all;
+      transition: color 0.2s;
+    }
+    #dice-popup .dp-close:hover { color: var(--text); }
     /* ── WEAPON CARDS ── */
     .cb-weapon-card { background: var(--bg-card); border: 1px solid var(--crimson-border); padding: 14px 16px; cursor: pointer; transition: all 0.2s; display: inline-block; margin: 0 8px 8px 0; min-width: 160px; position: relative; }
     .cb-weapon-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
@@ -243,6 +334,95 @@
     .cb-roll-all-btn:hover { background: var(--crimson-dim); }
     #rolledScores { display: flex; gap: 8px; flex-wrap: wrap; }
 
+
+    /* ── DICE ROLL POPUP ── */
+    #dice-popup {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(0.6);
+      background: var(--bg-card); border: 1px solid var(--crimson-border);
+      padding: 36px 44px; z-index: 9999; text-align: center;
+      min-width: 260px; pointer-events: none;
+      opacity: 0; transition: opacity 0.15s, transform 0.15s;
+      box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px var(--crimson-border);
+    }
+    #dice-popup::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+    }
+    #dice-popup.show {
+      opacity: 1; transform: translate(-50%,-50%) scale(1);
+    }
+    #dice-popup.exit {
+      opacity: 0; transform: translate(-50%,-50%) scale(0.85);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .dp-type {
+      font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 4px;
+      color: var(--text-faint); text-transform: uppercase; margin-bottom: 6px;
+    }
+    .dp-label {
+      font-size: 16px; color: var(--text-dim); font-style: italic;
+      margin-bottom: 14px; line-height: 1.3;
+    }
+    .dp-dice-row {
+      display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 14px; min-height: 44px;
+    }
+    .dp-die {
+      width: 40px; height: 40px; display: flex; align-items: center;
+      justify-content: center; font-size: 18px; font-weight: 300;
+      border: 1px solid var(--crimson-border); color: var(--text);
+      animation: dieRoll 0.3s ease both;
+      position: relative;
+    }
+    .dp-die.d20 { width: 48px; height: 48px; font-size: 22px; }
+    .dp-die.crit { border-color: #4CAF50; color: #4CAF50; box-shadow: 0 0 12px rgba(76,175,80,0.3); }
+    .dp-die.fail { border-color: var(--crimson); color: var(--crimson); box-shadow: 0 0 12px rgba(192,57,43,0.3); }
+    .dp-die-label {
+      position: absolute; bottom: -14px; left: 0; right: 0;
+      font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 1px;
+      color: var(--text-faint); text-align: center;
+    }
+    @keyframes dieRoll {
+      0%  { transform: rotate(-20deg) scale(0.5); opacity: 0; }
+      60% { transform: rotate(5deg) scale(1.1); opacity: 1; }
+      100%{ transform: rotate(0deg) scale(1); opacity: 1; }
+    }
+    .dp-total {
+      font-size: 64px; font-weight: 300; line-height: 1;
+      margin: 6px 0 4px;
+      animation: totalPop 0.25s 0.2s ease both;
+    }
+    @keyframes totalPop {
+      0%  { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.05); }
+      100%{ transform: scale(1); opacity: 1; }
+    }
+    .dp-breakdown {
+      font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px;
+      color: var(--text-faint); margin-bottom: 8px;
+    }
+    .dp-crit-label {
+      font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 4px;
+      text-transform: uppercase; margin-top: 4px;
+      animation: totalPop 0.2s 0.35s ease both; opacity: 0;
+    }
+    .dp-crit-label.hit  { color: #4CAF50; }
+    .dp-crit-label.fail { color: var(--crimson); }
+    .dp-overlay {
+      position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,0.45);
+      opacity: 0; transition: opacity 0.15s;
+      pointer-events: none;
+    }
+    .dp-overlay.show { opacity: 1; pointer-events: all; }
+    #dice-popup .dp-close {
+      position: absolute; top: 10px; right: 14px;
+      font-size: 16px; color: var(--text-faint); cursor: pointer;
+      background: none; border: none; pointer-events: all;
+      transition: color 0.2s;
+    }
+    #dice-popup .dp-close:hover { color: var(--text); }
     /* ── WEAPON CARDS ── */
     .cb-weapon-card { background: var(--bg-card); border: 1px solid var(--crimson-border); padding: 12px 14px; cursor: pointer; transition: all 0.2s; min-width: 150px; position: relative; flex-shrink: 0; }
     .cb-weapon-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
@@ -272,8 +452,14 @@
       <a href="about.html">About</a>
     </div>
     <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
-    <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode" title="Toggle light mode">☽</button>
-    <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+      <div class="nav-auth-wrap">
+        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
+        <div id="nav-user-dropdown"></div>
+      </div>
+      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
   </nav>
 
   <div class="ps-mobile-menu" id="mobileMenu">
@@ -506,16 +692,187 @@
         </div>
       </div>
 
-      <!-- STEP 9: FINAL SHEET -->
-      <div class="cb-panel" id="panel9">
-        <div class="cb-panel-title">Your Character</div>
-        <div class="cb-panel-sub">Ready to adventure</div>
-        <div id="finalSheet" class="cb-sheet"></div>
-        <div class="cb-nav-btns">
-          <button class="cb-btn cb-btn-secondary" onclick="prevStep(9)">← Edit Details</button>
-          <button class="cb-btn cb-btn-primary" onclick="window.print()">Print / Save as PDF</button>
-          <button class="cb-btn cb-btn-ghost" onclick="startOver()">Start Over</button>
+      <!-- STEP 9: TABBED CHARACTER SHEET -->
+      <div class="cb-panel" id="panel9" style="padding:0;">
+
+        <!-- Sheet Header -->
+        <div class="cs-header">
+          <div>
+            <div class="cs-char-name" id="cs-name">—</div>
+            <div class="cs-char-class" id="cs-class">—</div>
+            <div class="cs-tags" id="cs-tags"></div>
+          </div>
+          <div class="cs-header-actions">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+              <button class="cs-save-btn" id="cs-save-btn" onclick="saveCharacterToDB()">Save Character ↑</button>
+              <button class="cs-save-btn" style="background:transparent;color:var(--crimson);border:1px solid var(--crimson-border);" onclick="window.print()">Print / PDF</button>
+              <button class="cs-save-btn" style="background:transparent;color:var(--text-muted);border:1px solid var(--border);" onclick="prevStep(9)">← Edit</button>
+              <button class="cs-save-btn" style="background:transparent;color:var(--text-muted);border:1px solid var(--border);" onclick="startOver()">New Character</button>
+            </div>
+            <div id="cs-save-status" class="cs-save-status"></div>
+            <div class="cs-rest-btns">
+              <button class="cs-rest-btn" onclick="doShortRest()">Short Rest</button>
+              <button class="cs-rest-btn" onclick="doLongRest()">Long Rest</button>
+            </div>
+          </div>
         </div>
+
+        <!-- Tab Bar -->
+        <div class="cs-tabs" id="csTabs">
+          <button class="cs-tab active" onclick="switchTab('main')">Main</button>
+          <button class="cs-tab" onclick="switchTab('actions')">Actions</button>
+          <button class="cs-tab" onclick="switchTab('spells')" id="cs-spell-tab">Spells</button>
+          <button class="cs-tab" onclick="switchTab('inventory')">Inventory</button>
+          <button class="cs-tab" onclick="switchTab('features')">Features &amp; Traits</button>
+          <button class="cs-tab" onclick="switchTab('notes')">Notes</button>
+        </div>
+
+        <!-- MAIN TAB -->
+        <div class="cs-panel active" id="tab-main">
+          <div class="cs-main-grid">
+            <!-- Left: Abilities -->
+            <div>
+              <div class="cs-box" style="padding:14px;">
+                <div class="cs-box-title">Ability Scores</div>
+                <div class="cs-ability-grid" id="cs-ability-grid"></div>
+              </div>
+              <div class="cs-box" style="padding:14px;">
+                <div class="cs-box-title">Saving Throws</div>
+                <div id="cs-saves-list"></div>
+              </div>
+              <div class="cs-inspiration" id="cs-inspiration" onclick="toggleInspiration()">
+                <span class="cs-insp-label">Inspiration</span>
+                <div class="cs-insp-gem"></div>
+              </div>
+            </div>
+            <!-- Mid: HP + Combat Stats -->
+            <div>
+              <div class="cs-hp-block">
+                <div class="cs-hp-label">Hit Points</div>
+                <div class="cs-hp-controls">
+                  <button class="cs-hp-btn" onclick="adjustSheetHP(-1)">−</button>
+                  <input class="cs-hp-input" type="number" id="cs-hp-cur" value="0" min="0" onchange="clampHP()" />
+                  <button class="cs-hp-btn" onclick="adjustSheetHP(1)">+</button>
+                </div>
+                <div class="cs-hp-max">/ <span id="cs-hp-max">0</span> Max &nbsp;|&nbsp; Temp: <input type="number" id="cs-hp-temp" value="0" min="0" style="width:40px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);text-align:center;font-size:13px;" /></div>
+                <div class="cs-hp-adjust">
+                  <input class="cs-hp-adj-input" type="number" id="hp-adj-amt" placeholder="Amt" min="1" />
+                  <button class="cs-hp-adj-btn" onclick="applyHPAdj('dmg')">Damage</button>
+                  <button class="cs-hp-adj-btn" onclick="applyHPAdj('heal')">Heal</button>
+                </div>
+                <!-- Death Saves -->
+                <div id="cs-death-saves" style="display:none;margin-top:12px;">
+                  <div class="cs-death-saves">
+                    <div class="cs-death-group">
+                      <div class="cs-death-label">Successes</div>
+                      <div class="cs-death-boxes">
+                        <div class="cs-death-box success" onclick="toggleDeath(this,'success')"></div>
+                        <div class="cs-death-box success" onclick="toggleDeath(this,'success')"></div>
+                        <div class="cs-death-box success" onclick="toggleDeath(this,'success')"></div>
+                      </div>
+                    </div>
+                    <div class="cs-death-group">
+                      <div class="cs-death-label">Failures</div>
+                      <div class="cs-death-boxes">
+                        <div class="cs-death-box fail" onclick="toggleDeath(this,'fail')"></div>
+                        <div class="cs-death-box fail" onclick="toggleDeath(this,'fail')"></div>
+                        <div class="cs-death-box fail" onclick="toggleDeath(this,'fail')"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="text-align:center;margin-top:8px;">
+                    <button onclick="rollCheck('Death Save','Death Saving Throw',0)" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;padding:5px 12px;background:var(--crimson-soft);border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">Roll Death Save</button>
+                  </div>
+                </div>
+              </div>
+              <div class="cs-stat-row">
+                <div class="cs-stat"><div class="cs-stat-val" id="cs-ac">—</div><div class="cs-stat-label">AC</div></div>
+                <div class="cs-stat" style="cursor:pointer;" onclick="rollCheck('Initiative','Initiative',sheetState.dexMod)" title="Click to roll">
+                  <div class="cs-stat-val" id="cs-init">—</div><div class="cs-stat-label" style="color:var(--crimson);">Initiative ▸</div>
+                </div>
+                <div class="cs-stat"><div class="cs-stat-val" id="cs-speed">—</div><div class="cs-stat-label">Speed</div></div>
+              </div>
+              <div class="cs-stat-row">
+                <div class="cs-stat"><div class="cs-stat-val" id="cs-hd">—</div><div class="cs-stat-label">Hit Die</div></div>
+                <div class="cs-stat"><div class="cs-stat-val" id="cs-pb">—</div><div class="cs-stat-label">Prof Bonus</div></div>
+                <div class="cs-stat"><div class="cs-stat-val" id="cs-passive">—</div><div class="cs-stat-label">Passive Perc</div></div>
+              </div>
+              <!-- Ability Use Trackers -->
+              <div id="cs-ability-trackers"></div>
+            </div>
+            <!-- Right: Skills -->
+            <div>
+              <div class="cs-box" style="padding:14px;">
+                <div class="cs-box-title">Skills</div>
+                <div id="cs-skills-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIONS TAB -->
+        <div class="cs-panel" id="tab-actions">
+          <div id="cs-attacks-section"></div>
+          <div id="cs-features-actions"></div>
+          <div id="cs-standard-actions"></div>
+        </div>
+
+        <!-- SPELLS TAB -->
+        <div class="cs-panel" id="tab-spells">
+          <div id="cs-spells-content"></div>
+        </div>
+
+        <!-- INVENTORY TAB -->
+        <div class="cs-panel" id="tab-inventory">
+          <div style="margin-bottom:24px;">
+            <div class="cs-action-title">Currency</div>
+            <div class="cs-currency-grid">
+              <div class="cs-coin"><div class="cs-coin-label">CP</div><input class="cs-coin-input" type="number" id="coin-cp" value="0" /></div>
+              <div class="cs-coin"><div class="cs-coin-label">SP</div><input class="cs-coin-input" type="number" id="coin-sp" value="0" /></div>
+              <div class="cs-coin"><div class="cs-coin-label">EP</div><input class="cs-coin-input" type="number" id="coin-ep" value="0" /></div>
+              <div class="cs-coin"><div class="cs-coin-label">GP</div><input class="cs-coin-input" type="number" id="coin-gp" value="0" /></div>
+              <div class="cs-coin"><div class="cs-coin-label">PP</div><input class="cs-coin-input" type="number" id="coin-pp" value="0" /></div>
+            </div>
+          </div>
+          <div id="cs-equipment-list"></div>
+          <div style="margin-top:24px;">
+            <div class="cs-action-title">Add Item</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+              <input id="new-item-name" placeholder="Item name" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:14px;padding:7px 10px;flex:1;min-width:140px;" />
+              <input id="new-item-qty" type="number" value="1" min="1" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:14px;padding:7px 8px;width:60px;text-align:center;" />
+              <button onclick="addInventoryItem()" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;background:var(--crimson);border:none;color:#f5f0e8;cursor:pointer;">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FEATURES TAB -->
+        <div class="cs-panel" id="tab-features">
+          <div id="cs-features-full"></div>
+          <div id="cs-proficiencies-list" style="margin-top:28px;"></div>
+          <div id="cs-languages-list" style="margin-top:28px;"></div>
+        </div>
+
+        <!-- NOTES TAB -->
+        <div class="cs-panel" id="tab-notes">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+            <div>
+              <div class="cs-action-title" style="margin-bottom:12px;">Personality</div>
+              <div id="cs-trait-personality" class="cs-trait-row"></div>
+              <div id="cs-trait-ideals" class="cs-trait-row"></div>
+            </div>
+            <div>
+              <div id="cs-trait-bonds" class="cs-trait-row"></div>
+              <div id="cs-trait-flaws" class="cs-trait-row"></div>
+            </div>
+          </div>
+          <div id="cs-backstory-block" style="margin-bottom:24px;"></div>
+          <div class="cs-action-title" style="margin-bottom:12px;">Notes &amp; Journal</div>
+          <textarea class="cs-notes-field" id="cs-notes" placeholder="Session notes, reminders, character development..."></textarea>
+          <div style="margin-top:8px;text-align:right;">
+            <button onclick="saveNotes()" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Save Notes</button>
+          </div>
+        </div>
+
       </div>
 
     </main>
@@ -1109,14 +1466,11 @@ function rollCheck(type, label, bonus){
   const ts=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   C.rollLog.unshift({ts,type,label,roll,bonus,total,crit:isCrit,fail:isFail,isDmg:false});
   renderRollLog();
-  const flash=document.getElementById('rollFlash');
-  if(flash){
-    flash.innerHTML=`<div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:4px;">${label}</div>
-      <div style="font-size:52px;font-weight:300;line-height:1;color:${isCrit?'#4CAF50':isFail?'var(--crimson)':'var(--text)'};">${total}</div>
-      <div style="font-size:13px;color:var(--text-muted);">d20: ${roll} ${bonus>=0?'+':''}${bonus}</div>
-      ${isCrit?'<div style="color:#4CAF50;font-family:Cinzel,serif;font-size:10px;letter-spacing:3px;margin-top:4px;">CRITICAL HIT</div>':''}
-      ${isFail?'<div style="color:var(--crimson);font-family:Cinzel,serif;font-size:10px;letter-spacing:3px;margin-top:4px;">CRITICAL FAIL</div>':''}`;
-  }
+  showDicePopup({
+    type, label,
+    dice:[{val:roll, sides:20, isCrit, isFail}],
+    bonus, total, isCrit, isFail
+  });
 }
 
 function rollDamage(label, diceStr, dmgBonus){
@@ -1128,11 +1482,140 @@ function rollDamage(label, diceStr, dmgBonus){
   const ts=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   C.rollLog.unshift({ts,type:'Damage',label,roll:rolls.join('+'),bonus:dmgBonus,total,crit:false,fail:false,isDmg:true});
   renderRollLog();
+  showDicePopup({
+    type:'Damage', label,
+    dice: rolls.map(v=>({val:v, sides})),
+    bonus:dmgBonus, total, isCrit:false, isFail:false
+  });
 }
 
 function rollWeaponAttack(name, atkBonus, dmgBonus, damageDice){
-  rollCheck('Attack', name, atkBonus);
-  setTimeout(()=>rollDamage(name+' Dmg', damageDice, dmgBonus), 80);
+  const atkRoll=Math.ceil(Math.random()*20);
+  const atkTotal=atkRoll+atkBonus;
+  const isCrit=atkRoll===20; const isFail=atkRoll===1;
+  const ts=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  C.rollLog.unshift({ts,type:'Attack',label:name,roll:atkRoll,bonus:atkBonus,total:atkTotal,crit:isCrit,fail:isFail,isDmg:false});
+
+  // Roll damage too
+  const dmgDice=[]; let dmgTotal=dmgBonus;
+  const dm=damageDice.match(/(\d+)d(\d+)/);
+  if(dm){ const num=parseInt(dm[1]),sides=parseInt(dm[2]);
+    for(let i=0;i<num;i++){const r=Math.ceil(Math.random()*sides);dmgDice.push({val:isCrit?r*2:r,sides});dmgTotal+=isCrit?r*2:r;}
+  }
+  if(dmgDice.length) C.rollLog.unshift({ts,type:'Damage',label:name+' Dmg',roll:dmgDice.map(d=>d.val).join('+'),bonus:dmgBonus,total:dmgTotal,crit:false,fail:false,isDmg:true});
+  renderRollLog();
+
+  showDicePopup({
+    type: 'Attack', label: name,
+    dice: [{val:atkRoll, sides:20, isCrit, isFail}],
+    bonus: atkBonus, total: atkTotal, isCrit, isFail,
+    damage: dmgDice.length ? {dice:dmgDice, bonus:dmgBonus, total:dmgTotal, isCrit} : null
+  });
+}
+
+
+// ══════════════════════════════════════════
+// DICE POPUP
+// ══════════════════════════════════════════
+let _popupTimer = null;
+
+function showDicePopup(opts){
+  const popup = document.getElementById('dice-popup');
+  const overlay = document.getElementById('diceOverlay');
+  if(!popup) return;
+
+  // Clear any exit timer
+  if(_popupTimer){ clearTimeout(_popupTimer); }
+  popup.classList.remove('exit','show');
+  overlay.classList.remove('show');
+
+  // Fill content
+  document.getElementById('dp-type').textContent = opts.type;
+  document.getElementById('dp-label').textContent = opts.label;
+
+  // Build dice visuals
+  const diceRow = document.getElementById('dp-dice-row');
+  diceRow.innerHTML = '';
+
+  const allDice = [...opts.dice];
+
+  // If weapon attack with damage, show both sets separated
+  if(opts.damage){
+    // Attack dice
+    opts.dice.forEach((d,i)=>{
+      const el = document.createElement('div');
+      el.className = 'dp-die d20' + (d.isCrit?' crit':d.isFail?' fail':'');
+      el.style.animationDelay = (i*0.06)+'s';
+      el.innerHTML = d.val + '<span class="dp-die-label">d20</span>';
+      diceRow.appendChild(el);
+    });
+    // Separator
+    const sep = document.createElement('div');
+    sep.style.cssText = 'display:flex;align-items:center;color:var(--text-faint);font-size:18px;padding:0 4px;';
+    sep.textContent = '→';
+    diceRow.appendChild(sep);
+    // Damage dice
+    opts.damage.dice.forEach((d,i)=>{
+      const el = document.createElement('div');
+      el.className = 'dp-die' + (opts.damage.isCrit?' crit':'');
+      el.style.animationDelay = ((opts.dice.length+i)*0.06+0.1)+'s';
+      el.innerHTML = d.val + `<span class="dp-die-label">d${d.sides}${opts.damage.isCrit?'×2':''}</span>`;
+      diceRow.appendChild(el);
+    });
+    // Total display is attack total; show damage below
+    document.getElementById('dp-total').textContent = atkTotalStr(opts.total);
+    document.getElementById('dp-total').style.color = opts.isCrit?'#4CAF50':opts.isFail?'var(--crimson)':'var(--text)';
+    const bkdown = atkBonusStr(opts.dice[0].val, opts.bonus) + '  |  Dmg: ' + dmgStr(opts.damage);
+    document.getElementById('dp-breakdown').textContent = bkdown;
+  } else {
+    opts.dice.forEach((d,i)=>{
+      const el = document.createElement('div');
+      const isD20 = d.sides===20;
+      el.className = 'dp-die' + (isD20?' d20':'') + (d.isCrit?' crit':d.isFail?' fail':'');
+      el.style.animationDelay = (i*0.07)+'s';
+      el.innerHTML = d.val + `<span class="dp-die-label">d${d.sides}</span>`;
+      diceRow.appendChild(el);
+    });
+    document.getElementById('dp-total').textContent = opts.total;
+    document.getElementById('dp-total').style.color = opts.isCrit?'#4CAF50':opts.isFail?'var(--crimson)':'var(--text)';
+    // Breakdown
+    if(opts.dice.length===1 && opts.dice[0].sides===20){
+      document.getElementById('dp-breakdown').textContent = atkBonusStr(opts.dice[0].val, opts.bonus);
+    } else {
+      document.getElementById('dp-breakdown').textContent = opts.dice.map(d=>d.val).join(' + ') + (opts.bonus!==0?(opts.bonus>0?' + '+opts.bonus:' '+opts.bonus):'') + ' = ' + opts.total;
+    }
+  }
+
+  // Crit/fail label
+  const critEl = document.getElementById('dp-crit');
+  critEl.textContent = opts.isCrit ? 'Critical Hit!' : opts.isFail ? 'Critical Fail' : '';
+  critEl.className = 'dp-crit-label' + (opts.isCrit?' hit':opts.isFail?' fail':'');
+  critEl.style.opacity = (opts.isCrit||opts.isFail)?'':'0';
+
+  // Show
+  requestAnimationFrame(()=>{
+    popup.classList.add('show');
+    overlay.classList.add('show');
+  });
+
+  // Auto-dismiss after 3s (weapons stay longer since they have more info)
+  const delay = opts.damage ? 4500 : 3000;
+  _popupTimer = setTimeout(()=>closeDicePopup(), delay);
+}
+
+function atkTotalStr(total){ return total; }
+function atkBonusStr(roll, bonus){ return 'd20: '+roll+(bonus!==0?(bonus>0?' + '+bonus:' '+bonus):'')+(bonus!==0?' = '+(roll+bonus):''); }
+function dmgStr(dmg){ return dmg.dice.map(d=>d.val).join('+')+(dmg.bonus!==0?(dmg.bonus>0?'+'+dmg.bonus:dmg.bonus):'')+' = '+dmg.total+(dmg.isCrit?' (CRIT×2)':''); }
+
+function closeDicePopup(){
+  const popup = document.getElementById('dice-popup');
+  const overlay = document.getElementById('diceOverlay');
+  if(!popup) return;
+  if(_popupTimer){ clearTimeout(_popupTimer); _popupTimer=null; }
+  popup.classList.remove('show');
+  popup.classList.add('exit');
+  overlay.classList.remove('show');
+  setTimeout(()=>popup.classList.remove('exit'), 350);
 }
 
 function renderRollLog(){
@@ -1259,15 +1742,15 @@ function buildSpellCards(){
 // FINAL SHEET
 // ══════════════════════════════════════════
 function buildFinalSheet(){
-  const sheet=document.getElementById('finalSheet');
-  if(!C.race||!C.cls){ sheet.innerHTML='<div class="cb-alert">Complete all steps first.</div>'; return; }
+  if(!C.race||!C.cls) return;
   const race=DND_DATA.races[C.race]; const cls=DND_DATA.classes[C.cls];
   const bg=C.background?DND_DATA.backgrounds[C.background]:null;
-  const name=C.details.name||'Unnamed Adventurer';
-  const pb2=pbBonus(); const conM=mod(totalScore('con')); const dexM=mod(totalScore('dex'));
-  const maxHP=cls.hitDie+conM; const subrace=race.subraces.find(s=>s.id===C.subrace);
-  C.currentHP=maxHP;
+  const pb2=pbBonus();
 
+  // Init sheet state
+  const conM=mod(totalScore('con')), dexM=mod(totalScore('dex'));
+  const maxHP=cls.hitDie+conM;
+  const subrace=race.subraces.find(s=>s.id===C.subrace);
   let ac=10+dexM;
   if(cls.armorProf.some(a=>a.includes('All armor')||a.includes('Heavy'))) ac=16;
   else if(cls.armorProf.some(a=>a.includes('Medium'))) ac=14+Math.min(dexM,2);
@@ -1275,185 +1758,515 @@ function buildFinalSheet(){
   if(cls.armorProf.some(a=>a.includes('Shield'))) ac+=2;
   if(C.cls==='barbarian') ac=10+dexM+mod(totalScore('con'));
   if(C.cls==='monk') ac=10+dexM+mod(totalScore('wis'));
-
+  const speed=subrace&&subrace.speed?subrace.speed:race.speed;
   const bgKeys=bg?bg.skills.map(s=>skKey(s)):[];
   const allProf=[...bgKeys,...C.selectedSkills];
 
-  const equipLines=[]; const equipment=cls.equipment||[]; let ci=0;
-  equipment.forEach(ch=>{
-    if(!Array.isArray(ch)||ch.length===0) return;
-    if(ch.length===1){equipLines.push(ch[0]);}
-    else{
-      const sel=C.equipChoices[ci]; const opt=ch[sel!==undefined?sel:0];
-      const wKey=ci+'_'+(sel!==undefined?sel:0);
-      if(C.weaponChoices&&C.weaponChoices[wKey]) equipLines.push(C.weaponChoices[wKey]);
-      else equipLines.push(opt);
-      ci++;
-    }
-  });
-  if(bg) equipLines.push(bg.equipment);
+  // Store for event handlers
+  sheetState={race,cls,bg,pb2,maxHP,ac,speed,dexM,conM,allProf,subrace};
 
-  const scoresHTML=Object.keys(C.abilities).map(a=>`
-    <div class="cb-score-block">
-      <div class="cb-score-label">${DND_DATA.abilityShort[a]}</div>
-      <div class="cb-score-val">${totalScore(a)}</div>
-      <div class="cb-score-mod">${modStr(totalScore(a))}</div>
+  // ── Header ──
+  const name=C.details.name||'Unnamed Adventurer';
+  document.getElementById('cs-name').textContent=name;
+  document.getElementById('cs-class').textContent=`${race.name}${subrace?' ('+subrace.name+')':''} ${cls.name} · Level 1`;
+  const tagsEl=document.getElementById('cs-tags');
+  tagsEl.innerHTML=[
+    bg?`<span class="cs-tag">${bg.name}</span>`:'',
+    C.details.alignment?`<span class="cs-tag">${C.details.alignment}</span>`:'',
+    `<span class="cs-tag">${race.size}</span>`,
+    `<span class="cs-tag">${speed} ft</span>`,
+    `<span class="cs-tag">PB +${pb2}</span>`
+  ].join('');
+
+  // ── HP ──
+  document.getElementById('cs-hp-cur').value=maxHP;
+  document.getElementById('cs-hp-max').textContent=maxHP;
+
+  // ── Combat Stats ──
+  document.getElementById('cs-ac').textContent=ac;
+  document.getElementById('cs-init').textContent=(dexM>=0?'+':'')+dexM;
+  document.getElementById('cs-speed').textContent=speed+' ft';
+  document.getElementById('cs-hd').textContent='d'+cls.hitDie;
+  document.getElementById('cs-pb').textContent='+'+pb2;
+  const percMod=mod(totalScore('wis'))+(allProf.includes('perception')?pb2:0);
+  document.getElementById('cs-passive').textContent=10+percMod;
+
+  // ── Ability Scores ──
+  const abilGrid=document.getElementById('cs-ability-grid');
+  abilGrid.innerHTML=Object.keys(C.abilities).map(a=>`
+    <div class="cs-ability" onclick="rollCheck('Ability','${DND_DATA.abilityNames[a]} Check',${mod(totalScore(a))})" title="Click to roll">
+      <div class="cs-ability-label">${DND_DATA.abilityShort[a]}</div>
+      <div class="cs-ability-score">${totalScore(a)}</div>
+      <div class="cs-ability-mod">${modStr(totalScore(a))}</div>
     </div>`).join('');
 
-  const skillsHTML=Object.entries(DND_DATA.skills).map(([id,sk])=>{
+  // ── Saves ──
+  document.getElementById('cs-saves-list').innerHTML=Object.keys(C.abilities).map(a=>{
+    const isP=cls.saves.includes(a); const tot=mod(totalScore(a))+(isP?pb2:0);
+    return `<div class="cs-skill-row" onclick="rollCheck('Save','${DND_DATA.abilityNames[a]} Save',${tot})" title="Click to roll">
+      <div class="cs-skill-prof ${isP?'full':''}"></div>
+      <span class="cs-skill-ability">${DND_DATA.abilityShort[a]}</span>
+      <span class="cs-skill-name">${DND_DATA.abilityNames[a]}</span>
+      <span class="cs-skill-bonus">${tot>=0?'+':''}${tot}</span>
+    </div>`;
+  }).join('');
+
+  // ── Skills ──
+  document.getElementById('cs-skills-list').innerHTML=Object.entries(DND_DATA.skills).map(([id,sk])=>{
     const key=skKey(sk.name); const isP=allProf.includes(key);
     const tot=mod(totalScore(sk.ability))+(isP?pb2:0);
-    return `<div class="cb-sheet-skill" onclick="rollCheck('Skill','${sk.name}',${tot})" title="Click to roll" style="cursor:pointer;">
-      <div class="cb-sheet-skill-prof ${isP?'filled':''}"></div>
-      <span class="cb-sheet-skill-name">${sk.name}</span>
-      <span class="cb-sheet-skill-bonus">${tot>=0?'+':''}${tot}</span>
+    return `<div class="cs-skill-row" onclick="rollCheck('Skill','${sk.name}',${tot})" title="Click to roll">
+      <div class="cs-skill-prof ${isP?'full':''}"></div>
+      <span class="cs-skill-ability">${DND_DATA.abilityShort[sk.ability]}</span>
+      <span class="cs-skill-name">${sk.name}</span>
+      <span class="cs-skill-bonus">${tot>=0?'+':''}${tot}</span>
     </div>`;
   }).join('');
 
-  const savesHTML=Object.keys(C.abilities).map(a=>{
-    const isP=cls.saves.includes(a); const tot=mod(totalScore(a))+(isP?pb2:0);
-    return `<div class="cb-sheet-skill" onclick="rollCheck('Save','${DND_DATA.abilityNames[a]} Save',${tot})" title="Click to roll" style="cursor:pointer;">
-      <div class="cb-sheet-skill-prof ${isP?'filled':''}"></div>
-      <span class="cb-sheet-skill-name">${DND_DATA.abilityNames[a]}</span>
-      <span class="cb-sheet-skill-bonus">${tot>=0?'+':''}${tot}</span>
-    </div>`;
-  }).join('');
+  // ── Ability Use Trackers ──
+  buildAbilityTrackers();
+
+  // ── Actions Tab ──
+  buildActionsTab();
+
+  // ── Spells Tab ──
+  buildSpellsTab();
+
+  // ── Inventory Tab ──
+  buildInventoryTab();
+
+  // ── Features Tab ──
+  buildFeaturesTab();
+
+  // ── Notes Tab ──
+  buildNotesTab();
+
+  // Show/hide spell tab
+  const spellTab=document.getElementById('cs-spell-tab');
+  if(spellTab) spellTab.style.opacity=cls.spellcastingAbility?'1':'0.4';
+}
+
+// ── Shared sheet state ──
+let sheetState = {};
+let abilityUsed = {}; // {featureName: usedCount}
+let inventoryItems = [];
+let spellSlotUsed = {}; // {level: usedCount}
+
+// ── TAB SWITCHING ──
+function switchTab(tab){
+  document.querySelectorAll('.cs-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.cs-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab)?.classList.add('active');
+  const tabs=['main','actions','spells','inventory','features','notes'];
+  const idx=tabs.indexOf(tab);
+  document.querySelectorAll('.cs-tab')[idx]?.classList.add('active');
+}
+
+// ── ABILITY USE TRACKERS ──
+function buildAbilityTrackers(){
+  const cls=sheetState.cls; if(!cls) return;
+  const uses=DND_DATA.abilityUses?.[C.cls]||[];
+  const active=uses.filter(u=>u.uses!==0&&u.recharge!=='passive');
+  const el=document.getElementById('cs-ability-trackers'); if(!el) return;
+  if(!active.length){el.innerHTML='';return;}
+
+  el.innerHTML='<div class="cs-box" style="padding:14px;margin-top:12px;"><div class="cs-box-title">Limited Use Abilities</div>'+
+    active.map(u=>{
+      const max=resolveUses(u.uses);
+      const used=abilityUsed[u.name]||0;
+      const rechargeLabel=u.recharge==='short_rest'?'Short Rest':u.recharge==='long_rest'?'Long Rest':'';
+      if(u.isPool){
+        return `<div class="cs-feature-card" style="margin-bottom:8px;">
+          <div class="cs-feature-card-top">
+            <span class="cs-feature-card-name">${u.name}</span>
+            <span class="cs-use-recharge">${rechargeLabel}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <button onclick="adjustPool('${u.name}',-1)" style="width:24px;height:24px;background:var(--crimson-soft);border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">−</button>
+            <span id="pool-${u.name.replace(/\s/g,'_')}" style="font-family:'Cinzel',serif;font-size:18px;color:var(--text);min-width:36px;text-align:center;">${max-(abilityUsed[u.name]||0)}</span>
+            <button onclick="adjustPool('${u.name}',1)" style="width:24px;height:24px;background:var(--crimson-soft);border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">+</button>
+            <span style="font-family:'Cinzel',serif;font-size:10px;color:var(--text-faint);">/ ${max} remaining</span>
+          </div>
+          <div class="cs-feature-card-desc">${u.desc}</div>
+        </div>`;
+      }
+      const pips=Array.from({length:max},(_,i)=>{
+        const isUsed=i<used;
+        return `<div class="cs-use-pip ${isUsed?'used':'available'}" onclick="toggleUse('${u.name}',${i},${max})" title="${isUsed?'Click to restore':'Click to use'}"></div>`;
+      }).join('');
+      return `<div class="cs-feature-card" style="margin-bottom:8px;">
+        <div class="cs-feature-card-top">
+          <span class="cs-feature-card-name">${u.name}</span>
+          <div class="cs-use-tracker">${pips}<span class="cs-use-recharge">${rechargeLabel}</span></div>
+        </div>
+        <div class="cs-feature-card-desc">${u.desc}</div>
+      </div>`;
+    }).join('')+'</div>';
+}
+
+function resolveUses(uses){
+  if(uses==='level') return C.level||1;
+  if(uses==='cha_mod') return Math.max(1,mod(totalScore('cha')));
+  if(uses==='1+cha_mod') return 1+Math.max(0,mod(totalScore('cha')));
+  return uses||1;
+}
+
+function toggleUse(name,pipIdx,max){
+  const cur=abilityUsed[name]||0;
+  // clicking an available pip = use it; clicking a used pip = restore
+  if(pipIdx<cur) abilityUsed[name]=pipIdx; // restore to pipIdx
+  else abilityUsed[name]=Math.min(pipIdx+1,max);
+  buildAbilityTrackers();
+}
+
+function adjustPool(name,delta){
+  const max=resolveUses((DND_DATA.abilityUses?.[C.cls]||[]).find(u=>u.name===name)?.uses||1);
+  abilityUsed[name]=Math.max(0,Math.min(max,(abilityUsed[name]||0)-delta));
+  buildAbilityTrackers();
+}
+
+// ── ACTIONS TAB ──
+function buildActionsTab(){
+  const cls=sheetState.cls; const pb2=sheetState.pb2;
+  if(!cls) return;
+  const strM=mod(totalScore('str')), dexM=mod(totalScore('dex'));
+  const allWeapons=DND_DATA.weapons?[...DND_DATA.weapons.simple_melee,...DND_DATA.weapons.simple_ranged,...DND_DATA.weapons.martial_melee,...DND_DATA.weapons.martial_ranged]:[];
+
+  // Collect weapons
+  const weapons=[];
+  const equipment=cls.equipment||[]; let ci=0;
+  equipment.forEach(choice=>{
+    if(!Array.isArray(choice)||choice.length<=1){ci++;return;}
+    const sel=C.equipChoices[ci]; if(sel===undefined){ci++;return;}
+    const opt=choice[sel]; const wKey=ci+'_'+sel;
+    C.weaponChoices=C.weaponChoices||{};
+    const chosen=C.weaponChoices[wKey];
+    if(chosen){ const w=allWeapons.find(x=>x.name===chosen); if(w) weapons.push(w); }
+    else if(!DND_DATA.weaponCategories||!DND_DATA.weaponCategories[opt]){ const w=allWeapons.find(x=>x.name===opt); if(w) weapons.push(w); }
+    ci++;
+  });
+  const defaults={monk:[{name:'Unarmed Strike',damage:'1d4',type:'Bludgeoning',props:'Finesse'}],barbarian:[{name:'Greataxe',damage:'1d12',type:'Slashing',props:'Heavy, Two-handed'}],fighter:[{name:'Longsword',damage:'1d8',type:'Slashing',props:'Versatile (1d10)'}],rogue:[{name:'Shortsword',damage:'1d6',type:'Piercing',props:'Finesse, Light'}]};
+  if(defaults[C.cls]) defaults[C.cls].forEach(w=>{if(!weapons.find(x=>x.name===w.name))weapons.push(w);});
 
   const clsSp=cls.spellcastingAbility; const spM=clsSp?mod(totalScore(clsSp)):0;
-  let spellSection='';
-  if(clsSp){
-    spellSection=`<div class="cb-sheet-section"><div class="cb-sheet-section-title">Spellcasting</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
-        <div class="cb-stat-block" style="padding:14px;text-align:center;"><div style="font-size:22px;font-weight:300;color:var(--text);">${DND_DATA.abilityShort[clsSp]}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:4px;">Ability</div></div>
-        <div class="cb-stat-block" style="padding:14px;text-align:center;"><div style="font-size:22px;font-weight:300;color:var(--text);">${8+pb2+spM}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:4px;">Save DC</div></div>
-        <div class="cb-stat-block" style="padding:14px;text-align:center;"><div style="font-size:22px;font-weight:300;color:var(--text);">+${pb2+spM}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:4px;">Atk Bonus</div></div>
-      </div>
-      ${C.selectedCantrips.length?`<div style="margin-bottom:8px;"><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:4px;">Cantrips</div><div style="font-size:13px;color:var(--text-dim);">${C.selectedCantrips.join(', ')}</div></div>`:''}
-      ${C.selectedSpells.length?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:4px;">1st-Level Spells (2 slots)</div><div style="font-size:13px;color:var(--text-dim);">${C.selectedSpells.join(', ')}</div></div>`:''}
-    </div>`;
+
+  let html='<div class="cs-action-section">';
+  html+='<div class="cs-action-title">Weapons</div>';
+  if(weapons.length){
+    html+=weapons.map(w=>{
+      const isFinesse=w.props?.includes('Finesse'); const isRanged=w.props?.includes('Ammunition')||w.props?.includes('Thrown');
+      const atkM=isFinesse?Math.max(strM,dexM)+pb2:isRanged?dexM+pb2:strM+pb2;
+      const dmgM=isFinesse?Math.max(strM,dexM):isRanged?dexM:strM;
+      const dmgStr=w.damage==='—'?'Special':`${w.damage}${dmgM>=0?'+':''}${dmgM} ${w.type}`;
+      return `<div class="cs-attack-card" onclick="rollWeaponAttack('${w.name.replace(/'/g,"\'")}',${atkM},${dmgM},'${w.damage}')" title="Click to roll attack + damage">
+        <div><div class="cs-attack-name">${w.name}</div><div style="font-size:11px;color:var(--text-faint);font-style:italic;">${w.props}</div></div>
+        <div class="cs-attack-stats">
+          <span class="cs-attack-atk">ATK ${atkM>=0?'+':''}${atkM}</span>
+          <span class="cs-attack-dmg">${dmgStr}</span>
+        </div>
+        <span class="cs-attack-hint">▸ Roll</span>
+      </div>`;
+    }).join('');
+  } else {
+    html+='<div style="font-size:13px;color:var(--text-faint);font-style:italic;padding:8px 0;">No weapons equipped. Check inventory.</div>';
   }
 
-  const weapCards=buildWeaponCards();
-  const spellCards=buildSpellCards();
-
-  sheet.innerHTML=`
-    <div class="cb-sheet-header">
-      <div>
-        <div class="cb-sheet-name">${name}</div>
-        <div class="cb-sheet-class">${race.name}${subrace?' · '+subrace.name:''} ${cls.name} · Level 1</div>
-        <div class="cb-sheet-tags">
-          ${bg?`<span class="cb-sheet-tag">${bg.name}</span>`:''}
-          ${C.details.alignment?`<span class="cb-sheet-tag">${C.details.alignment}</span>`:''}
-          <span class="cb-sheet-tag">${race.size}</span>
-          <span class="cb-sheet-tag">${subrace&&subrace.speed?subrace.speed:race.speed}ft</span>
-          <span class="cb-sheet-tag">PB +${pb2}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="cb-scores-row">${scoresHTML}</div>
-
-    <div class="cb-stats-row">
-      <div class="cb-stat-block" style="position:relative;">
-        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;">Hit Points</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;">
-          <button onclick="adjustHP(-1)" style="width:30px;height:30px;background:var(--crimson-soft);border:1px solid var(--crimson-border);color:var(--crimson);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">−</button>
-          <span id="currentHP" style="font-size:30px;font-weight:300;color:var(--text);min-width:44px;text-align:center;">${maxHP}</span>
-          <button onclick="adjustHP(1)" style="width:30px;height:30px;background:var(--crimson-soft);border:1px solid var(--crimson-border);color:var(--crimson);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">+</button>
-        </div>
-        <div style="font-family:'Cinzel',serif;font-size:9px;color:var(--text-faint);text-align:center;">/ <span id="maxHPVal">${maxHP}</span> Max</div>
-        <div style="display:flex;gap:6px;margin-top:8px;justify-content:center;">
-          <button onclick="setHP(${maxHP})" style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Full</button>
-          <button onclick="setHP(0)" style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;padding:4px 8px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">KO</button>
-          <button onclick="rollDamage('Hit Die','1d${cls.hitDie}',0)" style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Roll HD</button>
-        </div>
-      </div>
-      <div class="cb-stat-block" style="text-align:center;padding:20px 8px;"><div style="font-size:30px;font-weight:300;color:var(--text);">${ac}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:6px;">Armor Class</div></div>
-      <div class="cb-stat-block" style="text-align:center;padding:20px 8px;cursor:pointer;" onclick="rollCheck('Initiative','Initiative',${dexM})" title="Click to roll">
-        <div style="font-size:30px;font-weight:300;color:var(--text);">${dexM>=0?'+':''}${dexM}</div>
-        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--crimson);text-transform:uppercase;margin-top:6px;">Initiative ▸ Roll</div>
-      </div>
-      <div class="cb-stat-block" style="text-align:center;padding:20px 8px;"><div style="font-size:30px;font-weight:300;color:var(--text);">d${cls.hitDie}</div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:6px;">Hit Die</div></div>
-    </div>
-
-    ${weapCards||spellCards?`<div class="cb-sheet-section" style="margin-bottom:20px;">
-      <div class="cb-sheet-section-title">Weapons &amp; Spells — Click to Roll</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;">${weapCards}${spellCards}</div>
-    </div>`:''}
-
-    <div class="cb-sheet-cols">
-      <div>
-        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Skills — Click to Roll</div>${skillsHTML}</div>
-        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Saving Throws — Click to Roll</div>${savesHTML}</div>
-      </div>
-      <div>
-        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Class Features</div>${cls.features.map(f=>`<div class="cb-feature-item"><div class="cb-feature-name">${f.name}</div><div class="cb-feature-desc">${f.desc}</div></div>`).join('')}</div>
-        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Racial Traits</div>${race.traits.map(t=>`<div class="cb-feature-item"><div class="cb-feature-name">${t.name}</div><div class="cb-feature-desc">${t.desc}</div></div>`).join('')}${subrace?subrace.traits.map(t=>`<div class="cb-feature-item"><div class="cb-feature-name">${t.name}</div><div class="cb-feature-desc">${t.desc}</div></div>`).join(''):''}</div>
-        <div class="cb-sheet-section"><div class="cb-sheet-section-title">Equipment</div><div style="font-size:13px;color:var(--text-dim);line-height:1.9;">${equipLines.join('<br>')}</div></div>
-        ${spellSection}
-      </div>
-    </div>
-
-    ${C.details.personality||C.details.backstory?`<div class="cb-sheet-section" style="margin-top:8px;">
-      <div class="cb-sheet-section-title">Character</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        ${C.details.personality?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Personality</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.personality}</div></div>`:''}
-        ${C.details.ideals?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Ideals</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.ideals}</div></div>`:''}
-        ${C.details.bonds?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Bonds</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.bonds}</div></div>`:''}
-        ${C.details.flaws?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Flaws</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.flaws}</div></div>`:''}
-      </div>
-      ${C.details.backstory?`<div style="margin-top:12px;"><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-bottom:5px;">Backstory</div><div style="font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.6;">${C.details.backstory}</div></div>`:''}
-    </div>`:''}
-
-    <div style="margin-top:28px;border-top:2px solid var(--crimson-border);padding-top:24px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-        <div>
-          <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;color:var(--crimson);text-transform:uppercase;">◆ Dice Roller</div>
-          <div style="font-size:13px;color:var(--text-muted);font-style:italic;margin-top:4px;">Skills and saves above are also clickable</div>
-        </div>
-        <div id="rollFlash" style="text-align:right;min-width:160px;transition:opacity .4s;">
-          <div style="font-size:12px;color:var(--text-faint);font-style:italic;">Roll something...</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
-        <div>
-          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;">Ability Checks</div>
-          <div style="display:flex;flex-direction:column;gap:4px;">
-            ${Object.keys(C.abilities).map(a=>`<button class="cb-roll-btn" onclick="rollCheck('Ability','${DND_DATA.abilityNames[a]}',${mod(totalScore(a))})">${DND_DATA.abilityShort[a]}<span>${modStr(totalScore(a))}</span></button>`).join('')}
-          </div>
-        </div>
-        <div>
-          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;">Saving Throws</div>
-          <div style="display:flex;flex-direction:column;gap:4px;">
-            ${Object.keys(C.abilities).map(a=>{const isP=cls.saves.includes(a);const tot=mod(totalScore(a))+(isP?pb2:0);return `<button class="cb-roll-btn" onclick="rollCheck('Save','${DND_DATA.abilityNames[a]} Save',${tot})">${DND_DATA.abilityShort[a]}<span>${tot>=0?'+':''}${tot}</span></button>`;}).join('')}
-          </div>
-        </div>
-        <div>
-          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;">Attacks &amp; Other</div>
-          <div style="display:flex;flex-direction:column;gap:4px;">
-            <button class="cb-roll-btn" onclick="rollCheck('Attack','Melee (STR)',${mod(totalScore('str'))+pb2})">Melee STR<span>${mod(totalScore('str'))+pb2>=0?'+':''}${mod(totalScore('str'))+pb2}</span></button>
-            <button class="cb-roll-btn" onclick="rollCheck('Attack','Ranged (DEX)',${dexM+pb2})">Ranged DEX<span>${dexM+pb2>=0?'+':''}${dexM+pb2}</span></button>
-            ${clsSp?`<button class="cb-roll-btn" onclick="rollCheck('Attack','Spell Atk',${spM+pb2})">Spell Atk<span>+${spM+pb2}</span></button>`:''}
-            <button class="cb-roll-btn" onclick="rollCheck('Initiative','Initiative',${dexM})">Initiative<span>${modStr(totalScore('dex'))}</span></button>
-            <button class="cb-roll-btn" style="border-color:var(--crimson-border);color:var(--crimson);" onclick="rollCheck('Death Save','Death Save',0)">Death Save<span>d20</span></button>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;">Roll Transcript</div>
-          <button onclick="clearLog()" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);background:none;border:1px solid var(--border);padding:4px 10px;cursor:pointer;">Clear</button>
-        </div>
-        <div id="rollTranscript" style="background:var(--bg-card);border:1px solid var(--border-mid);padding:14px;max-height:260px;overflow-y:auto;font-size:13px;">
-          <div style="color:var(--text-faint);font-style:italic;">No rolls yet.</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid var(--border-mid);">
-      <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;">Phmurt Studios · phmurtstudios.com</div>
+  // Spell attack if applicable
+  if(clsSp){
+    html+=`<div class="cs-attack-card" onclick="rollCheck('Attack','Spell Attack',${spM+pb2})" style="margin-top:4px;" title="Click to roll">
+      <div><div class="cs-attack-name">Spell Attack</div><div style="font-size:11px;color:var(--text-faint);font-style:italic;">Save DC ${8+pb2+spM}</div></div>
+      <div class="cs-attack-stats"><span class="cs-attack-atk">ATK +${spM+pb2}</span><span class="cs-attack-dmg">${DND_DATA.abilityShort[clsSp]}-based</span></div>
+      <span class="cs-attack-hint">▸ Roll</span>
     </div>`;
+  }
+  html+='</div>';
+
+  // Limited-use class features in actions
+  const uses=DND_DATA.abilityUses?.[C.cls]||[];
+  const actionUses=uses.filter(u=>u.uses!==0&&u.recharge!=='passive');
+  if(actionUses.length){
+    html+='<div class="cs-action-section"><div class="cs-action-title">Class Abilities</div>';
+    html+=actionUses.map(u=>{
+      const max=resolveUses(u.uses); const used=abilityUsed[u.name]||0;
+      const pips=u.isPool?`<span style="font-family:'Cinzel',serif;font-size:14px;color:var(--text);">${max-used}/${max}</span>`:
+        Array.from({length:max},(_,i)=>`<div class="cs-use-pip ${i<used?'used':'available'}" onclick="toggleUse('${u.name}',${i},${max})"></div>`).join('');
+      return `<div class="cs-feature-card">
+        <div class="cs-feature-card-top">
+          <span class="cs-feature-card-name">${u.name}</span>
+          <div class="cs-use-tracker">${pips}<span class="cs-use-recharge">${u.recharge==='short_rest'?'Short Rest':'Long Rest'}</span></div>
+        </div>
+        <div class="cs-feature-card-desc">${u.desc}</div>
+      </div>`;
+    }).join('');
+    html+='</div>';
+  }
+
+  // Standard actions
+  html+='<div class="cs-action-section"><div class="cs-action-title">Standard Actions</div>';
+  html+=(DND_DATA.standardActions||[]).map(a=>`
+    <div class="cs-std-action">
+      <span class="cs-std-action-name">${a.name}</span>
+      <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--crimson);text-transform:uppercase;flex-shrink:0;">${a.type}</span>
+      <span class="cs-std-action-desc">${a.desc}</span>
+    </div>`).join('');
+  html+='</div>';
+
+  document.getElementById('cs-attacks-section').innerHTML=html;
 }
+
+// ── SPELLS TAB ──
+function buildSpellsTab(){
+  const cls=sheetState.cls; const pb2=sheetState.pb2;
+  const el=document.getElementById('cs-spells-content');
+  if(!cls.spellcastingAbility){
+    el.innerHTML=`<div class="cs-no-spell"><div style="font-size:48px;opacity:.15;margin-bottom:16px;">⚔</div><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;color:var(--text-muted);text-transform:uppercase;">${cls.name} — No Spellcasting</div></div>`;
+    return;
+  }
+  const sm=mod(totalScore(cls.spellcastingAbility));
+  const slots=DND_DATA.spellSlots?.[C.cls]?.[0]||[2]; // level 1
+
+  let html=`<div class="cs-spell-stats">
+    <div class="cs-spell-stat"><div class="cs-spell-stat-val">${DND_DATA.abilityShort[cls.spellcastingAbility]}</div><div class="cs-spell-stat-label">Ability</div></div>
+    <div class="cs-spell-stat"><div class="cs-spell-stat-val">${8+pb2+sm}</div><div class="cs-spell-stat-label">Save DC</div></div>
+    <div class="cs-spell-stat"><div class="cs-spell-stat-val">+${pb2+sm}</div><div class="cs-spell-stat-label">Atk Bonus</div></div>
+  </div>`;
+
+  // Spell slots
+  html+='<div class="cs-action-title" style="margin-bottom:12px;">Spell Slots</div>';
+  slots.forEach((count,i)=>{
+    const level=i+1; const used=spellSlotUsed[level]||0;
+    const pips=Array.from({length:count},(_,j)=>`<div class="cs-slot-pip ${j<used?'used':'available'}" onclick="toggleSpellSlot(${level},${j},${count})" title="${j<used?'Restore':'Expend'} slot"></div>`).join('');
+    html+=`<div class="cs-slot-section"><div class="cs-slot-header"><span>${level==='1'||level===1?'1st':level===2?'2nd':level===3?'3rd':level+'th'} Level</span><div class="cs-slot-pips">${pips}</div></div></div>`;
+  });
+
+  // Cantrips
+  if(C.selectedCantrips.length){
+    html+='<div class="cs-action-title" style="margin:20px 0 12px;">Cantrips</div>';
+    html+=C.selectedCantrips.map(sp=>`
+      <div class="cs-spell-item cs-spell-prepared" onclick="rollCheck('Spell','${sp}',${pb2+sm})" title="Click to roll spell attack">
+        <div class="cs-spell-item-dot"></div>
+        <span class="cs-spell-name">${sp}</span>
+        <span class="cs-spell-atk">▸ ATK +${pb2+sm}</span>
+      </div>`).join('');
+  }
+
+  // Spells
+  if(C.selectedSpells.length){
+    html+=`<div class="cs-action-title" style="margin:20px 0 12px;">1st-Level Spells</div>`;
+    html+=C.selectedSpells.map(sp=>`
+      <div class="cs-spell-item cs-spell-prepared" onclick="rollCheck('Spell','${sp}',${pb2+sm})" title="Click to roll spell attack">
+        <div class="cs-spell-item-dot"></div>
+        <span class="cs-spell-name">${sp}</span>
+        <span class="cs-spell-atk">▸ Roll</span>
+      </div>`).join('');
+  }
+
+  if(cls.spellcastingAbility && !C.selectedCantrips.length && !C.selectedSpells.length &&
+     C.cls!=='cleric' && C.cls!=='druid'){
+    html+='<div class="cs-no-spell">No spells selected — go back to step 7 to choose spells.</div>';
+  }
+  if(C.cls==='cleric'||C.cls==='druid'){
+    html+=`<div class="cs-action-title" style="margin:20px 0 8px;">Prepared Caster</div>
+      <div style="font-size:14px;color:var(--text-dim);font-style:italic;line-height:1.7;">As a ${cls.name}, you prepare ${Math.max(1,sm+1)} spells each long rest from the full class list. All ${cls.name} spells are available to you — choose which to prepare after a long rest.</div>`;
+  }
+
+  el.innerHTML=html;
+}
+
+function toggleSpellSlot(level,pipIdx,max){
+  const cur=spellSlotUsed[level]||0;
+  if(pipIdx<cur) spellSlotUsed[level]=pipIdx;
+  else spellSlotUsed[level]=Math.min(pipIdx+1,max);
+  buildSpellsTab();
+}
+
+// ── INVENTORY TAB ──
+function buildInventoryTab(){
+  const cls=sheetState.cls; const bg=sheetState.bg;
+  // Build initial items from equipment choices
+  if(!inventoryItems.length){
+    const equipment=cls.equipment||[]; let ci=0;
+    equipment.forEach(choice=>{
+      if(!Array.isArray(choice)||choice.length===0) return;
+      if(choice.length===1){inventoryItems.push({name:choice[0],qty:1});}
+      else{
+        const sel=C.equipChoices[ci]; if(sel===undefined){ci++;return;}
+        const opt=choice[sel]; const wKey=ci+'_'+sel;
+        C.weaponChoices=C.weaponChoices||{};
+        inventoryItems.push({name:C.weaponChoices[wKey]||opt,qty:1});
+        ci++;
+      }
+    });
+    if(bg) bg.equipment.split(',').forEach(item=>{ const t=item.trim(); if(t) inventoryItems.push({name:t,qty:1}); });
+  }
+  renderInventory();
+}
+
+function renderInventory(){
+  const el=document.getElementById('cs-equipment-list'); if(!el) return;
+  if(!inventoryItems.length){el.innerHTML='<div style="font-size:13px;color:var(--text-faint);font-style:italic;">No items.</div>';return;}
+  el.innerHTML='<div class="cs-action-title" style="margin-bottom:12px;">Equipment</div>'+
+    inventoryItems.map((item,i)=>`<div class="cs-item-row">
+      <span class="cs-item-name">${item.name}</span>
+      <input class="cs-item-qty" type="number" value="${item.qty}" min="0" onchange="inventoryItems[${i}].qty=parseInt(this.value)||0;" title="Quantity" />
+      <button onclick="removeItem(${i})" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:16px;" title="Remove">×</button>
+    </div>`).join('');
+}
+
+function addInventoryItem(){
+  const name=document.getElementById('new-item-name')?.value.trim();
+  const qty=parseInt(document.getElementById('new-item-qty')?.value)||1;
+  if(!name) return;
+  inventoryItems.push({name,qty});
+  document.getElementById('new-item-name').value='';
+  renderInventory();
+}
+
+function removeItem(i){ inventoryItems.splice(i,1); renderInventory(); }
+
+// ── FEATURES TAB ──
+function buildFeaturesTab(){
+  const race=sheetState.race; const cls=sheetState.cls; const bg=sheetState.bg;
+  const subrace=sheetState.subrace;
+  let html='<div class="cs-action-title">Class Features</div>';
+  html+=cls.features.map(f=>`<div class="cs-feature-card" style="margin-bottom:8px;">
+    <div class="cs-feature-card-top"><span class="cs-feature-card-name">Level ${f.level}: ${f.name}</span></div>
+    <div class="cs-feature-card-desc">${f.desc}</div>
+  </div>`).join('');
+  html+='<div class="cs-action-title" style="margin-top:24px;">Racial Traits</div>';
+  html+=[...race.traits,...(subrace?subrace.traits:[])].map(t=>`<div class="cs-feature-card" style="margin-bottom:8px;">
+    <div class="cs-feature-card-top"><span class="cs-feature-card-name">${t.name}</span></div>
+    <div class="cs-feature-card-desc">${t.desc}</div>
+  </div>`).join('');
+  document.getElementById('cs-features-full').innerHTML=html;
+
+  // Proficiencies
+  document.getElementById('cs-proficiencies-list').innerHTML=`<div class="cs-action-title">Proficiencies</div>
+    <div class="cs-prof-list">
+      <span class="cs-prof-category">Armor</span>${cls.armorProf.join(', ')||'None'}
+      <span class="cs-prof-category">Weapons</span>${cls.weaponProf.join(', ')}
+      <span class="cs-prof-category">Saving Throws</span>${cls.saves.map(s=>DND_DATA.abilityNames[s]).join(', ')}
+      <span class="cs-prof-category">Skills</span>${[...(bg?bg.skills:[]),...C.selectedSkills.map(k=>Object.values(DND_DATA.skills).find(s=>skKey(s.name)===k)?.name||k)].filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'None'}
+    </div>`;
+
+  document.getElementById('cs-languages-list').innerHTML=`<div class="cs-action-title">Languages</div>
+    <div class="cs-prof-list">${race.languages.join(', ')}</div>`;
+}
+
+// ── NOTES TAB ──
+function buildNotesTab(){
+  const d=C.details;
+  const makeBlock=(label,val)=>val?`<div class="cs-trait-row"><div class="cs-trait-label">${label}</div><div class="cs-trait-text">${val}</div></div>`:'';
+  document.getElementById('cs-trait-personality').innerHTML=makeBlock('Personality Traits',d?.personality);
+  document.getElementById('cs-trait-ideals').innerHTML=makeBlock('Ideals',d?.ideals);
+  document.getElementById('cs-trait-bonds').innerHTML=makeBlock('Bonds',d?.bonds);
+  document.getElementById('cs-trait-flaws').innerHTML=makeBlock('Flaws',d?.flaws);
+  document.getElementById('cs-backstory-block').innerHTML=d?.backstory?`<div class="cs-action-title">Backstory</div><div style="font-size:14px;color:var(--text-dim);line-height:1.8;font-style:italic;">${d.backstory}</div>`:'';
+  const saved=localStorage.getItem('phmurt_notes_'+C.cls);
+  if(saved) document.getElementById('cs-notes').value=saved;
+}
+
+function saveNotes(){
+  const val=document.getElementById('cs-notes')?.value;
+  localStorage.setItem('phmurt_notes_'+C.cls, val);
+  const btn=event.target; btn.textContent='Saved ✓';
+  setTimeout(()=>btn.textContent='Save Notes',1500);
+}
+
+// ── HP MANAGEMENT ──
+function adjustSheetHP(delta){
+  const inp=document.getElementById('cs-hp-cur'); if(!inp) return;
+  const max=parseInt(document.getElementById('cs-hp-max').textContent)||0;
+  const cur=parseInt(inp.value)||0;
+  const nv=Math.max(0,Math.min(max,cur+delta));
+  inp.value=nv;
+  inp.style.color=nv===0?'var(--crimson)':nv<=Math.floor(max/2)?'#e8a020':'var(--text)';
+  document.getElementById('cs-death-saves').style.display=nv===0?'block':'none';
+}
+
+function applyHPAdj(mode){
+  const amtEl=document.getElementById('hp-adj-amt'); if(!amtEl) return;
+  const amt=parseInt(amtEl.value)||0; if(amt<=0) return;
+  adjustSheetHP(mode==='heal'?amt:-amt);
+  amtEl.value='';
+}
+
+function clampHP(){
+  const inp=document.getElementById('cs-hp-cur'); if(!inp) return;
+  const max=parseInt(document.getElementById('cs-hp-max').textContent)||0;
+  const val=Math.max(0,Math.min(max,parseInt(inp.value)||0));
+  inp.value=val;
+  inp.style.color=val===0?'var(--crimson)':val<=Math.floor(max/2)?'#e8a020':'var(--text)';
+}
+
+function toggleDeath(el,type){
+  el.classList.toggle('filled');
+}
+
+function toggleInspiration(){
+  document.getElementById('cs-inspiration')?.classList.toggle('active');
+}
+
+// ── REST ──
+function doShortRest(){
+  // Restore short-rest abilities
+  const uses=DND_DATA.abilityUses?.[C.cls]||[];
+  uses.filter(u=>u.recharge==='short_rest').forEach(u=>{ delete abilityUsed[u.name]; });
+  // Warlock spell slots
+  if(C.cls==='warlock') Object.keys(spellSlotUsed).forEach(k=>delete spellSlotUsed[k]);
+  buildAbilityTrackers();
+  buildSpellsTab();
+  if(document.querySelector('.cs-tab.active')?.textContent==='Actions') buildActionsTab();
+  showRestToast('Short Rest', 'Short-rest abilities restored.');
+}
+
+function doLongRest(){
+  // Restore all abilities
+  abilityUsed={};
+  Object.keys(spellSlotUsed).forEach(k=>delete spellSlotUsed[k]);
+  // Full HP
+  const max=parseInt(document.getElementById('cs-hp-max')?.textContent)||0;
+  const inp=document.getElementById('cs-hp-cur');
+  if(inp){ inp.value=max; inp.style.color='var(--text)'; }
+  document.getElementById('cs-death-saves').style.display='none';
+  // Clear death saves
+  document.querySelectorAll('.cs-death-box').forEach(b=>b.classList.remove('filled'));
+  document.getElementById('cs-inspiration')?.classList.remove('active');
+  buildAbilityTrackers();
+  buildSpellsTab();
+  if(document.querySelector('.cs-tab.active')?.textContent==='Actions') buildActionsTab();
+  showRestToast('Long Rest', 'All resources restored. HP fully recovered.');
+}
+
+function showRestToast(title,msg){
+  const toast=document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--crimson-border);padding:14px 24px;font-family:"Cinzel",serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);z-index:9000;text-align:center;';
+  toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${title}</div><div style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${msg}</div>`;
+  document.body.appendChild(toast);
+  setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); },2500);
+}
+
+// ── SAVE CHARACTER ──
+async function saveCharacterToDB(){
+  const btn=document.getElementById('cs-save-btn');
+  const status=document.getElementById('cs-save-status');
+  if(typeof PhmurtDB==='undefined'){ status.textContent='Auth not loaded.'; return; }
+  const session=PhmurtDB.getSession();
+  if(!session){ PhmurtDB.openAuth(); status.textContent='Sign in to save.'; return; }
+  if(btn){ btn.textContent='Saving...'; btn.disabled=true; }
+  const existingId=localStorage.getItem('phmurt_current_char_id')||undefined;
+  const r=await PhmurtDB.saveCharacter(C, existingId);
+  if(r.success){
+    localStorage.setItem('phmurt_current_char_id',r.id);
+    if(btn){ btn.textContent='Saved ✓'; btn.disabled=false; }
+    if(status) status.textContent='Saved '+(new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    setTimeout(()=>{ if(btn) btn.textContent='Save Character ↑'; },2000);
+  } else {
+    if(btn){ btn.textContent='Save Character ↑'; btn.disabled=false; }
+    if(status) status.textContent=r.error||'Save failed.';
+  }
+}
+
 
 // ══════════════════════════════════════════
 // MINI SUMMARY
@@ -1491,7 +2304,33 @@ function init(){
   const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
   document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 }
-window.addEventListener('DOMContentLoaded',init);
+
+  // Check if returning from my-characters.html with a character to load
+  async function checkLoadCharacter(){
+    const id=localStorage.getItem('phmurt_load_char_id');
+    if(!id||typeof PhmurtDB==='undefined') return;
+    localStorage.removeItem('phmurt_load_char_id');
+    const data=await PhmurtDB.loadCharacter(id);
+    if(!data) return;
+    Object.assign(C,data);
+    localStorage.setItem('phmurt_current_char_id',id);
+    goToStep(9,true);
+  }
+
+  document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
+  window.addEventListener('DOMContentLoaded',function(){ init(); setTimeout(checkLoadCharacter,200); });
   </script>
+
+  <!-- DICE POPUP -->
+  <div class="dp-overlay" id="diceOverlay" onclick="closeDicePopup()"></div>
+  <div id="dice-popup">
+    <button class="dp-close" onclick="closeDicePopup()">✕</button>
+    <div class="dp-type" id="dp-type"></div>
+    <div class="dp-label" id="dp-label"></div>
+    <div class="dp-dice-row" id="dp-dice-row"></div>
+    <div class="dp-total" id="dp-total"></div>
+    <div class="dp-breakdown" id="dp-breakdown"></div>
+    <div class="dp-crit-label" id="dp-crit"></div>
+  </div>
 </body>
 </html>

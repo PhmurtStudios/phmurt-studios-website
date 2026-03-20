@@ -10,6 +10,8 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="phmurt-auth.js"></script>
 </head>
 <body>
 
@@ -19,9 +21,17 @@
       <a href="grimoire.html">Grimoire</a>
       <a href="character-sheets.html" class="active">Sheets</a>
       <a href="about.html">About</a>
+      <a href="my-characters.html">My Characters</a>
     </div>
-    <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode" title="Toggle light mode">☽</button>
-    <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+      <div class="nav-auth-wrap">
+        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
+        <div id="nav-user-dropdown"></div>
+      </div>
+      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+    <!-- hamburger inside auth div above --> id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
 
   <div class="ps-mobile-menu" id="mobileMenu">
@@ -30,6 +40,8 @@
     <a href="grimoire.html">Grimoire</a><div class="ps-mobile-divider"></div>
     <a href="character-sheets.html" class="active">Sheets</a><div class="ps-mobile-divider"></div>
     <a href="about.html">About</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="my-characters.html">My Characters</a>
   </div>
 
   <nav class="ps-breadcrumb" aria-label="Breadcrumb">
@@ -225,6 +237,8 @@
     if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
     window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
     document.querySelectorAll('a[href]').forEach(a=>{const href=a.getAttribute('href');if(!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});}});
+
+    document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
   </script>
 </body>
 </html>
