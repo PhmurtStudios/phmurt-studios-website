@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D&D 5e Character Sheet — Phmurt Studios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="ps-nav">
+    <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html">Grimoire</a>
+      <a href="character-sheets.html" class="active">Sheets</a>
+      <a href="about.html">About</a>
+    </div>
+    <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a><div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a><div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html" class="active">Sheets</a><div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+  </div>
+
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a><span class="sep">◆</span>
+    <a href="character-sheets.html">Sheets</a><span class="sep">◆</span>
+    <span class="current">D&amp;D 5e</span>
+  </nav>
+
+  <div class="sheet-wrap">
+
+    <div class="sheet-header">
+      <div class="sheet-title">Dungeons &amp; Dragons 5th Edition</div>
+      <div class="sheet-subtitle">Character Sheet · Phmurt Studios</div>
+    </div>
+
+    <!-- CHARACTER INFO -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Character Information</div>
+      <div class="sheet-grid sheet-grid-3">
+        <div class="sheet-field"><label>Character Name</label><input type="text" placeholder="Aldric Stonemantle" /></div>
+        <div class="sheet-field"><label>Player Name</label><input type="text" /></div>
+        <div class="sheet-field"><label>Campaign</label><input type="text" /></div>
+        <div class="sheet-field"><label>Class &amp; Level</label><input type="text" placeholder="Fighter 5" /></div>
+        <div class="sheet-field"><label>Background</label><input type="text" placeholder="Soldier" /></div>
+        <div class="sheet-field"><label>Race</label><input type="text" placeholder="Human" /></div>
+        <div class="sheet-field"><label>Alignment</label><input type="text" placeholder="Lawful Good" /></div>
+        <div class="sheet-field"><label>Experience Points</label><input type="text" placeholder="0" /></div>
+        <div class="sheet-field"><label>Proficiency Bonus</label><input type="text" placeholder="+2" /></div>
+      </div>
+    </div>
+
+    <!-- ABILITY SCORES -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Ability Scores</div>
+      <div class="sheet-grid sheet-grid-6">
+        <div class="sheet-stat-box"><div class="sheet-stat-name">STR</div><input type="text" placeholder="10" id="str" oninput="updateMod('str','str-mod')"/><div class="sheet-mod" id="str-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">DEX</div><input type="text" placeholder="10" id="dex" oninput="updateMod('dex','dex-mod')"/><div class="sheet-mod" id="dex-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">CON</div><input type="text" placeholder="10" id="con" oninput="updateMod('con','con-mod')"/><div class="sheet-mod" id="con-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">INT</div><input type="text" placeholder="10" id="int" oninput="updateMod('int','int-mod')"/><div class="sheet-mod" id="int-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">WIS</div><input type="text" placeholder="10" id="wis" oninput="updateMod('wis','wis-mod')"/><div class="sheet-mod" id="wis-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">CHA</div><input type="text" placeholder="10" id="cha" oninput="updateMod('cha','cha-mod')"/><div class="sheet-mod" id="cha-mod">+0</div></div>
+      </div>
+    </div>
+
+    <!-- COMBAT + SAVES -->
+    <div class="sheet-section">
+      <div class="sheet-grid sheet-grid-2">
+        <div>
+          <div class="sheet-section-title">Combat</div>
+          <div class="sheet-hp-row">
+            <div class="sheet-box"><div class="sheet-box-label">Armor Class</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:22px;padding:4px 0;text-align:center;" placeholder="10"/></div>
+            <div class="sheet-box"><div class="sheet-box-label">Initiative</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:22px;padding:4px 0;text-align:center;" placeholder="+0"/></div>
+            <div class="sheet-box"><div class="sheet-box-label">Speed</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:22px;padding:4px 0;text-align:center;" placeholder="30 ft"/></div>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="sheet-hp-row">
+              <div class="sheet-box"><div class="sheet-box-label">Max HP</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:18px;padding:4px 0;text-align:center;" /></div>
+              <div class="sheet-box"><div class="sheet-box-label">Current HP</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:18px;padding:4px 0;text-align:center;" /></div>
+              <div class="sheet-box"><div class="sheet-box-label">Temp HP</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:18px;padding:4px 0;text-align:center;" /></div>
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="sheet-grid sheet-grid-2">
+              <div class="sheet-box"><div class="sheet-box-label">Hit Dice</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:15px;padding:4px 0;" placeholder="5d10"/></div>
+              <div class="sheet-box"><div class="sheet-box-label">Passive Perception</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:15px;padding:4px 0;" /></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="sheet-section-title">Saving Throws</div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Strength</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Dexterity</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Constitution</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Intelligence</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Wisdom</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Charisma</label><input type="text" placeholder="+0"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Skills</div>
+      <div class="sheet-grid sheet-grid-2">
+        <div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Acrobatics <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Dex)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Animal Handling <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Arcana <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Athletics <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Str)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Deception <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Cha)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>History <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Insight <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Intimidation <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Cha)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Investigation <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+        </div>
+        <div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Medicine <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Nature <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Perception <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Performance <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Cha)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Persuasion <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Cha)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Religion <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Sleight of Hand <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Dex)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Stealth <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Dex)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Survival <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTACKS -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Attacks &amp; Spellcasting</div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:8px;margin-bottom:8px;">
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;padding:6px 0;">Name</div>
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;padding:6px 0;">Atk Bonus</div>
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;padding:6px 0;">Damage / Type</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:8px;">
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;" placeholder="Longsword"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;" placeholder="+5"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;" placeholder="1d8+3 / Slashing"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+      </div>
+    </div>
+
+    <!-- EQUIPMENT + FEATURES -->
+    <div class="sheet-section">
+      <div class="sheet-grid sheet-grid-2">
+        <div class="sheet-field"><label>Equipment &amp; Treasure</label><textarea placeholder="Longsword, Shield, Chain Mail&#10;50 gp, 12 sp&#10;Backpack, Rations (5)..."></textarea></div>
+        <div class="sheet-field"><label>Features, Traits &amp; Abilities</label><textarea placeholder="Second Wind&#10;Action Surge&#10;Extra Attack..."></textarea></div>
+      </div>
+    </div>
+
+    <!-- SPELLCASTING -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Spellcasting</div>
+      <div class="sheet-grid sheet-grid-3" style="margin-bottom:16px;">
+        <div class="sheet-field"><label>Spellcasting Class</label><input type="text" /></div>
+        <div class="sheet-field"><label>Spellcasting Ability</label><input type="text" /></div>
+        <div class="sheet-field"><label>Spell Save DC / Atk Bonus</label><input type="text" /></div>
+      </div>
+      <div class="sheet-grid sheet-grid-2">
+        <div class="sheet-field"><label>Cantrips</label><textarea placeholder="Fire Bolt&#10;Prestidigitation&#10;Mage Hand" style="min-height:100px;"></textarea></div>
+        <div class="sheet-field"><label>Spells (with slot levels)</label><textarea placeholder="1st: Magic Missile, Shield&#10;2nd: Misty Step&#10;3rd: Fireball" style="min-height:100px;"></textarea></div>
+      </div>
+    </div>
+
+    <!-- BACKSTORY -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Character Background</div>
+      <div class="sheet-grid sheet-grid-2" style="margin-bottom:16px;">
+        <div class="sheet-field"><label>Personality Traits</label><textarea placeholder="I judge people by their actions..."></textarea></div>
+        <div class="sheet-field"><label>Ideals</label><textarea placeholder="Greater Good. It is each person's responsibility..."></textarea></div>
+        <div class="sheet-field"><label>Bonds</label><textarea placeholder="I fight for those who cannot fight for themselves..."></textarea></div>
+        <div class="sheet-field"><label>Flaws</label><textarea placeholder="I have a weakness for the vices of the city..."></textarea></div>
+      </div>
+      <div class="sheet-field"><label>Backstory &amp; Notes</label><textarea style="min-height:140px;" placeholder="Write your character's history, appearance, and any additional notes here..."></textarea></div>
+    </div>
+
+    <!-- PROFICIENCIES -->
+    <div class="sheet-section">
+      <div class="sheet-field"><label>Proficiencies &amp; Languages</label><textarea placeholder="Armor: All armor, shields&#10;Weapons: Simple weapons, martial weapons&#10;Languages: Common, Elvish..."></textarea></div>
+    </div>
+
+    <button class="sheet-print-btn" onclick="window.print()">Print / Save as PDF</button>
+    <p style="text-align:center;font-size:13px;color:rgba(255,255,255,0.25);font-style:italic;margin-top:16px;margin-bottom:40px;">Fill out the sheet above, then click Print. In the print dialog, choose "Save as PDF" to keep a digital copy.</p>
+
+  </div>
+
+  <footer class="ps-footer">
+    <div class="ps-footer-logo"><img src="logo.png" alt="Phmurt Studios" /><span class="ps-footer-name">Phmurt Studios</span></div>
+    <div class="ps-footer-copy">Crafted with intention. Built for your table.</div>
+  </footer>
+
+  <button class="ps-top-btn" id="topBtn" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
+  </button>
+
+  <script>
+    function calcMod(score){ const s=parseInt(score)||10; return Math.floor((s-10)/2); }
+    function updateMod(inputId, modId){
+      const val = document.getElementById(inputId).value;
+      const mod = calcMod(val);
+      document.getElementById(modId).textContent = (mod>=0?'+':'')+mod;
+    }
+    const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose'),topBtn=document.getElementById('topBtn');
+    if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
+    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
+    window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+    document.querySelectorAll('a[href]').forEach(a=>{const href=a.getAttribute('href');if(!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});}});
+  </script>
+</body>
+</html>
