@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Character Builder — Phmurt Studios</title>
+  <meta name="description" content="Build your D&D 5e character step by step with the Phmurt Studios character builder." />
+  <meta property="og:title" content="Character Builder — Phmurt Studios" />
+  <meta property="og:description" content="Step-by-step D&D 5e character creation with auto-calculations." />
+  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── BUILDER LAYOUT ── */
+    .cb-wrap { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 60px); }
+    .cb-sidebar { background: #0a0809; border-right: 1px solid rgba(192,57,43,0.2); padding: 32px 0; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+    .cb-main { padding: 48px 56px; }
+
+    /* ── SIDEBAR STEPS ── */
+    .cb-step-item { display: flex; align-items: center; gap: 14px; padding: 12px 24px; cursor: pointer; transition: background 0.2s; position: relative; }
+    .cb-step-item:hover { background: rgba(192,57,43,0.06); }
+    .cb-step-item.active { background: rgba(192,57,43,0.1); }
+    .cb-step-item.active::left { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--crimson); }
+    .cb-step-item.done .cb-step-num { background: var(--crimson); border-color: var(--crimson); color: white; }
+    .cb-step-num { width: 28px; height: 28px; border: 1px solid rgba(192,57,43,0.3); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 10px; color: rgba(255,255,255,0.4); flex-shrink: 0; transition: all 0.2s; }
+    .cb-step-item.active .cb-step-num { border-color: var(--crimson); color: var(--crimson); }
+    .cb-step-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+    .cb-step-item.active .cb-step-label { color: rgba(255,255,255,0.8); }
+    .cb-step-item.done .cb-step-label { color: rgba(255,255,255,0.5); }
+    .cb-step-sublabel { font-size: 11px; font-style: italic; color: rgba(192,57,43,0.7); margin-top: 2px; font-family: 'Cormorant Garamond', serif; }
+
+    /* ── CHARACTER SUMMARY SIDEBAR ── */
+    .cb-summary-mini { padding: 24px; border-top: 1px solid rgba(192,57,43,0.15); margin-top: 20px; }
+    .cb-summary-mini-title { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 3px; color: rgba(255,255,255,0.25); text-transform: uppercase; margin-bottom: 12px; }
+    .cb-mini-stat { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .cb-mini-stat-label { font-size: 11px; color: rgba(255,255,255,0.3); font-style: italic; }
+    .cb-mini-stat-val { font-family: 'Cinzel', serif; font-size: 10px; color: rgba(255,255,255,0.6); }
+
+    /* ── STEP PANELS ── */
+    .cb-panel { display: none; animation: fadeUp 0.3s ease both; }
+    .cb-panel.active { display: block; }
+    .cb-panel-title { font-size: 40px; font-weight: 300; color: var(--white); margin-bottom: 6px; }
+    .cb-panel-sub { font-size: 22px; font-style: italic; color: rgba(255,255,255,0.35); margin-bottom: 32px; }
+
+    /* ── CHOICE CARDS ── */
+    .cb-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: rgba(192,57,43,0.12); border: 1px solid rgba(192,57,43,0.18); margin-bottom: 32px; }
+    .cb-card { background: var(--black-card); padding: 20px 18px; cursor: pointer; transition: background 0.2s; border: 2px solid transparent; position: relative; }
+    .cb-card:hover { background: #1a1212; }
+    .cb-card.selected { background: rgba(192,57,43,0.1); border-color: var(--crimson); }
+    .cb-card-name { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; color: var(--white); text-transform: uppercase; margin-bottom: 6px; }
+    .cb-card-detail { font-size: 13px; color: rgba(255,255,255,0.45); font-style: italic; line-height: 1.5; }
+    .cb-card-badge { position: absolute; top: 12px; right: 12px; font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1px; color: var(--crimson); text-transform: uppercase; }
+
+    /* ── DETAIL PANEL ── */
+    .cb-detail { background: var(--black-mid); border: 1px solid rgba(192,57,43,0.22); padding: 28px; margin-bottom: 28px; position: relative; }
+    .cb-detail::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, var(--crimson), transparent); }
+    .cb-detail-title { font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--white); margin-bottom: 4px; }
+    .cb-detail-sub { font-size: 15px; font-style: italic; color: var(--crimson); margin-bottom: 16px; }
+    .cb-detail-body { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.8; }
+    .cb-trait { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .cb-trait:last-child { border-bottom: none; }
+    .cb-trait-name { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--crimson); text-transform: uppercase; margin-bottom: 4px; }
+    .cb-trait-desc { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.6; font-style: italic; }
+    .cb-asi-badges { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .cb-asi-badge { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1px; padding: 4px 10px; background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.3); color: var(--crimson); text-transform: uppercase; }
+
+    /* ── ABILITY SCORES ── */
+    .cb-ability-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
+    .cb-ability-box { background: var(--black-card); border: 1px solid rgba(192,57,43,0.22); padding: 16px 8px; text-align: center; position: relative; }
+    .cb-ability-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: var(--crimson); }
+    .cb-ability-name { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 8px; }
+    .cb-ability-score { font-size: 32px; font-weight: 300; color: var(--white); line-height: 1; margin-bottom: 4px; }
+    .cb-ability-mod { font-size: 13px; color: var(--crimson); font-family: 'Cinzel', serif; }
+    .cb-ability-asi { font-size: 11px; color: rgba(192,57,43,0.6); margin-top: 2px; }
+    .cb-ability-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(192,57,43,0.3); color: var(--white); font-size: 24px; text-align: center; padding: 4px 0; }
+    .cb-ability-input:focus { outline: none; border-color: var(--crimson); }
+    .cb-array-pool { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .cb-array-val { font-family: 'Cinzel', serif; font-size: 14px; padding: 8px 14px; border: 1px solid rgba(192,57,43,0.3); color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s; user-select: none; }
+    .cb-array-val:hover { border-color: var(--crimson); color: var(--white); }
+    .cb-array-val.used { opacity: 0.25; cursor: not-allowed; text-decoration: line-through; }
+    .cb-array-val.selected { background: var(--crimson); border-color: var(--crimson); color: white; }
+    .cb-ability-box.selecting { border-color: rgba(255,200,50,0.5); cursor: pointer; }
+    .cb-ability-box.selecting::before { background: rgba(255,200,50,0.5); }
+    .cb-pb-display { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+    .cb-pb-display span { color: var(--crimson); font-size: 14px; }
+    .cb-score-btns { display: flex; align-items: center; gap: 8px; justify-content: center; margin-top: 6px; }
+    .cb-score-btn { width: 22px; height: 22px; background: rgba(192,57,43,0.2); border: 1px solid rgba(192,57,43,0.3); color: var(--white); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .cb-score-btn:hover { background: var(--crimson); }
+
+    /* ── SKILLS ── */
+    .cb-skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid rgba(192,57,43,0.18); margin-bottom: 28px; }
+    .cb-skill-row { display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); background: var(--black-card); transition: background 0.15s; }
+    .cb-skill-row:hover { background: #1a1212; }
+    .cb-skill-check { width: 16px; height: 16px; border: 1px solid rgba(192,57,43,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+    .cb-skill-check.checked { background: var(--crimson); border-color: var(--crimson); }
+    .cb-skill-check.checked::after { content: '✓'; color: white; font-size: 10px; }
+    .cb-skill-check.locked { opacity: 0.5; cursor: not-allowed; }
+    .cb-skill-name { font-size: 13px; color: rgba(255,255,255,0.65); flex: 1; }
+    .cb-skill-ability { font-family: 'Cinzel', serif; font-size: 8px; color: rgba(255,255,255,0.25); width: 28px; text-transform: uppercase; }
+    .cb-skill-bonus { font-family: 'Cinzel', serif; font-size: 11px; color: var(--crimson); width: 32px; text-align: right; }
+    .cb-skill-source { font-size: 9px; color: rgba(192,57,43,0.5); font-style: italic; }
+
+    /* ── SPELLS ── */
+    .cb-spell-section { margin-bottom: 24px; }
+    .cb-spell-header { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 4px; color: var(--crimson); text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(192,57,43,0.2); }
+    .cb-spell-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+    .cb-spell-item { background: var(--black-card); border: 1px solid rgba(255,255,255,0.06); padding: 8px 12px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.55); transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+    .cb-spell-item:hover { border-color: rgba(192,57,43,0.3); color: rgba(255,255,255,0.8); }
+    .cb-spell-item.selected { background: rgba(192,57,43,0.1); border-color: var(--crimson); color: var(--white); }
+    .cb-spell-dot { width: 6px; height: 6px; border: 1px solid rgba(192,57,43,0.4); flex-shrink: 0; }
+    .cb-spell-item.selected .cb-spell-dot { background: var(--crimson); border-color: var(--crimson); }
+    .cb-spell-count { font-family: 'Cinzel', serif; font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+    .cb-spell-count span { color: var(--crimson); }
+
+    /* ── EQUIPMENT ── */
+    .cb-equip-choice { background: var(--black-card); border: 1px solid rgba(192,57,43,0.18); padding: 20px; margin-bottom: 16px; }
+    .cb-equip-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 12px; }
+    .cb-equip-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cb-equip-option { padding: 8px 16px; border: 1px solid rgba(192,57,43,0.25); font-size: 13px; color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.2s; }
+    .cb-equip-option:hover { border-color: var(--crimson); color: var(--white); }
+    .cb-equip-option.selected { background: rgba(192,57,43,0.1); border-color: var(--crimson); color: var(--white); }
+
+    /* ── DETAILS FORM ── */
+    .cb-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .cb-form-field { display: flex; flex-direction: column; gap: 6px; }
+    .cb-form-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+    .cb-form-input { background: rgba(255,255,255,0.04); border: 1px solid rgba(192,57,43,0.2); color: var(--white); font-family: 'Cormorant Garamond', serif; font-size: 15px; padding: 8px 12px; transition: border-color 0.2s; }
+    .cb-form-input:focus { outline: none; border-color: var(--crimson); background: rgba(192,57,43,0.04); }
+    select.cb-form-input option { background: #130f0f; color: var(--white); }
+    .cb-form-textarea { resize: vertical; min-height: 90px; }
+
+    /* ── FINAL SHEET ── */
+    .cb-sheet { max-width: 900px; }
+    .cb-sheet-header { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: start; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid rgba(192,57,43,0.25); }
+    .cb-sheet-name { font-size: 42px; font-weight: 300; color: var(--white); margin-bottom: 4px; }
+    .cb-sheet-class { font-size: 20px; font-style: italic; color: rgba(255,255,255,0.5); }
+    .cb-sheet-tags { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .cb-sheet-tag { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border: 1px solid rgba(192,57,43,0.3); color: rgba(192,57,43,0.8); }
+    .cb-scores-row { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; margin-bottom: 24px; }
+    .cb-score-block { background: var(--black-card); border: 1px solid rgba(192,57,43,0.22); padding: 14px 8px; text-align: center; position: relative; }
+    .cb-score-block::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
+    .cb-score-label { font-family:'Cinzel',serif; font-size:7px; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:6px; }
+    .cb-score-val { font-size:28px; font-weight:300; color:var(--white); line-height:1; }
+    .cb-score-mod { font-family:'Cinzel',serif; font-size:11px; color:var(--crimson); margin-top:4px; }
+    .cb-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .cb-stat-block { background: var(--black-card); border: 1px solid rgba(192,57,43,0.2); padding: 16px; text-align: center; }
+    .cb-stat-val { font-size: 28px; font-weight: 300; color: var(--white); }
+    .cb-stat-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-top: 4px; }
+    .cb-sheet-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .cb-sheet-section { margin-bottom: 24px; }
+    .cb-sheet-section-title { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 4px; color: var(--crimson); text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(192,57,43,0.2); display:flex; align-items:center; gap:8px; }
+    .cb-sheet-section-title::before { content:'◆'; font-size:6px; }
+    .cb-sheet-skill { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+    .cb-sheet-skill-name { color: rgba(255,255,255,0.6); }
+    .cb-sheet-skill-bonus { font-family: 'Cinzel', serif; font-size: 11px; color: var(--crimson); }
+    .cb-sheet-skill-prof { width: 8px; height: 8px; border: 1px solid rgba(192,57,43,0.4); flex-shrink: 0; }
+    .cb-sheet-skill-prof.filled { background: var(--crimson); border-color: var(--crimson); }
+    .cb-feature-item { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .cb-feature-name { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1px; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 4px; }
+    .cb-feature-desc { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.6; font-style: italic; }
+
+    /* ── NAV BUTTONS ── */
+    .cb-nav-btns { display: flex; gap: 12px; margin-top: 36px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .cb-btn { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 12px 28px; cursor: pointer; border: none; transition: all 0.2s; }
+    .cb-btn-primary { background: var(--crimson); color: white; }
+    .cb-btn-primary:hover { background: var(--crimson-dim); }
+    .cb-btn-secondary { background: transparent; color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.15); }
+    .cb-btn-secondary:hover { border-color: rgba(255,255,255,0.35); color: var(--white); }
+    .cb-btn-ghost { background: transparent; color: rgba(192,57,43,0.7); border: 1px solid rgba(192,57,43,0.3); }
+    .cb-btn-ghost:hover { background: rgba(192,57,43,0.1); color: var(--crimson); }
+
+    /* ── METHOD SELECT ── */
+    .cb-method-tabs { display: flex; gap: 2px; margin-bottom: 28px; border: 1px solid rgba(192,57,43,0.2); }
+    .cb-method-tab { flex: 1; font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 10px; cursor: pointer; background: transparent; border: none; color: rgba(255,255,255,0.4); transition: all 0.2s; text-align: center; }
+    .cb-method-tab.active { background: rgba(192,57,43,0.15); color: var(--white); border-bottom: 2px solid var(--crimson); }
+
+    /* ── SUBRACE / SUBCLASS ── */
+    .cb-subrace-section { margin-top: 24px; }
+    .cb-subrace-title { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 14px; }
+
+    /* ── PROGRESS ── */
+    .cb-progress { height: 3px; background: rgba(255,255,255,0.06); margin-bottom: 0; }
+    .cb-progress-fill { height: 100%; background: var(--crimson); transition: width 0.4s ease; }
+
+    /* ── ALERTS ── */
+    .cb-alert { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.25); padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: rgba(255,255,255,0.6); font-style: italic; }
+    .cb-alert strong { color: var(--crimson); font-style: normal; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; }
+
+    @media print {
+      .cb-sidebar, .ps-nav, .ps-breadcrumb, .cb-nav-btns, .ps-footer, .ps-top-btn, .cb-progress { display: none !important; }
+      .cb-wrap { display: block; }
+      .cb-main { padding: 20px; }
+      body { background: white !important; color: black !important; }
+    }
+    @media (max-width: 860px) {
+      .cb-wrap { grid-template-columns: 1fr; }
+      .cb-sidebar { position: static; height: auto; display: flex; overflow-x: auto; padding: 12px 0; border-right: none; border-bottom: 1px solid rgba(192,57,43,0.2); }
+      .cb-step-item { min-width: 80px; flex-direction: column; gap: 4px; padding: 8px 12px; }
+      .cb-step-sublabel { display: none; }
+      .cb-step-label { font-size: 7px; text-align: center; }
+      .cb-summary-mini { display: none; }
+      .cb-main { padding: 24px; }
+      .cb-ability-grid { grid-template-columns: repeat(3,1fr); }
+      .cb-scores-row { grid-template-columns: repeat(3,1fr); }
+      .cb-stats-row { grid-template-columns: repeat(2,1fr); }
+      .cb-sheet-cols { grid-template-columns: 1fr; }
+      .cb-skills-grid { grid-template-columns: 1fr; }
+      .cb-form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="ps-nav">
+    <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html">Grimoire</a>
+      <a href="character-sheets.html">Sheets</a>
+      <a href="about.html">About</a>
+    </div>
+    <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
+    <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a><div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a><div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html">Sheets</a><div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+  </div>
+
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a><span class="sep">◆</span>
+    <a href="character-sheets.html">Sheets</a><span class="sep">◆</span>
+    <span class="current">Character Builder</span>
+  </nav>
+
+  <div class="cb-progress"><div class="cb-progress-fill" id="progressBar" style="width:12%"></div></div>
+
+  <div class="cb-wrap">
+
+    <!-- SIDEBAR -->
+    <aside class="cb-sidebar" id="sidebar">
+      <div class="cb-step-item active" data-step="1" onclick="goToStep(1)">
+        <div class="cb-step-num">1</div>
+        <div><div class="cb-step-label">Race</div><div class="cb-step-sublabel" id="sl-race">Choose your race</div></div>
+      </div>
+      <div class="cb-step-item" data-step="2" onclick="goToStep(2)">
+        <div class="cb-step-num">2</div>
+        <div><div class="cb-step-label">Class</div><div class="cb-step-sublabel" id="sl-class">Choose your class</div></div>
+      </div>
+      <div class="cb-step-item" data-step="3" onclick="goToStep(3)">
+        <div class="cb-step-num">3</div>
+        <div><div class="cb-step-label">Background</div><div class="cb-step-sublabel" id="sl-bg">Choose background</div></div>
+      </div>
+      <div class="cb-step-item" data-step="4" onclick="goToStep(4)">
+        <div class="cb-step-num">4</div>
+        <div><div class="cb-step-label">Ability Scores</div><div class="cb-step-sublabel" id="sl-ability">Assign your scores</div></div>
+      </div>
+      <div class="cb-step-item" data-step="5" onclick="goToStep(5)">
+        <div class="cb-step-num">5</div>
+        <div><div class="cb-step-label">Proficiencies</div><div class="cb-step-sublabel" id="sl-prof">Skills &amp; tools</div></div>
+      </div>
+      <div class="cb-step-item" data-step="6" onclick="goToStep(6)">
+        <div class="cb-step-num">6</div>
+        <div><div class="cb-step-label">Equipment</div><div class="cb-step-sublabel" id="sl-equip">Starting gear</div></div>
+      </div>
+      <div class="cb-step-item" data-step="7" onclick="goToStep(7)" id="step7item">
+        <div class="cb-step-num">7</div>
+        <div><div class="cb-step-label">Spells</div><div class="cb-step-sublabel" id="sl-spells">Known spells</div></div>
+      </div>
+      <div class="cb-step-item" data-step="8" onclick="goToStep(8)">
+        <div class="cb-step-num">8</div>
+        <div><div class="cb-step-label">Details</div><div class="cb-step-sublabel" id="sl-details">Name &amp; story</div></div>
+      </div>
+      <div class="cb-step-item" data-step="9" onclick="goToStep(9)">
+        <div class="cb-step-num">9</div>
+        <div><div class="cb-step-label">Final Sheet</div><div class="cb-step-sublabel">Ready to play</div></div>
+      </div>
+
+      <div class="cb-summary-mini" id="sidebarSummary">
+        <div class="cb-summary-mini-title">Character</div>
+        <div id="miniSummary"></div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="cb-main">
+
+      <!-- STEP 1: RACE -->
+      <div class="cb-panel active" id="panel1">
+        <div class="cb-panel-title">Choose Your Race</div>
+        <div class="cb-panel-sub">Your race shapes your abilities and heritage</div>
+        <div class="cb-cards" id="raceCards"></div>
+        <div id="raceDetail"></div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-primary" onclick="nextStep(1)">Continue to Class →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: CLASS -->
+      <div class="cb-panel" id="panel2">
+        <div class="cb-panel-title">Choose Your Class</div>
+        <div class="cb-panel-sub">Your class defines your skills, powers, and playstyle</div>
+        <div class="cb-cards" id="classCards"></div>
+        <div id="classDetail"></div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-secondary" onclick="prevStep(2)">← Back</button>
+          <button class="cb-btn cb-btn-primary" onclick="nextStep(2)">Continue to Background →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: BACKGROUND -->
+      <div class="cb-panel" id="panel3">
+        <div class="cb-panel-title">Choose Your Background</div>
+        <div class="cb-panel-sub">Where did you come from before you began adventuring?</div>
+        <div class="cb-cards" id="bgCards"></div>
+        <div id="bgDetail"></div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-secondary" onclick="prevStep(3)">← Back</button>
+          <button class="cb-btn cb-btn-primary" onclick="nextStep(3)">Continue to Ability Scores →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: ABILITY SCORES -->
+      <div class="cb-panel" id="panel4">
+        <div class="cb-panel-title">Ability Scores</div>
+        <div class="cb-panel-sub">The six pillars of your character's capabilities</div>
+        <div class="cb-method-tabs">
+          <button class="cb-method-tab active" onclick="setScoreMethod('standard')">Standard Array</button>
+          <button class="cb-method-tab" onclick="setScoreMethod('pointbuy')">Point Buy</button>
+          <button class="cb-method-tab" onclick="setScoreMethod('manual')">Manual Entry</button>
+        </div>
+        <div id="scoreMethodInfo" class="cb-alert"><strong>Standard Array</strong> — Assign the values 15, 14, 13, 12, 10, 8 to your six ability scores. Click a score to assign, then click an ability box to place it.</div>
+        <div id="arrayPool" class="cb-array-pool"></div>
+        <div class="cb-ability-grid" id="abilityGrid"></div>
+        <div id="raceAsiNote" class="cb-alert" style="display:none"></div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-secondary" onclick="prevStep(4)">← Back</button>
+          <button class="cb-btn cb-btn-primary" onclick="nextStep(4)">Continue to Proficiencies →</button>
+        </div>
+      </div>
+
+      <!-- STEP 5: PROFICIENCIES -->
+      <div class="cb-panel" id="panel5">
+        <div class="cb-panel-title">Proficiencies</div>
+        <div class="cb-panel-sub">Skills, saving throws, and tools you've mastered</div>
+        <div id="profAlert" class="cb-alert"></div>
+        <div class="cb-skills-grid" id="skillsGrid"></div>
+        <div id="savingThrowsDisplay"></div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-secondary" onclick="prevStep(5)">← Back</button>
+          <button class="cb-btn cb-btn-primary" onclick="nextStep(5)">Continue to Equipment →</button>
+        </div>
+      </div>
+
+      <!-- STEP 6: EQUIPMENT -->
+      <div class="cb-panel" id="panel6">
+        <div class="cb-panel-title">Starting Equipment</div>
+        <div class="cb-panel-sub">Choose your starting gear</div>
+        <div id="equipChoices"></div>
+        <div id="fixedEquip"></div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-secondary" onclick="prevStep(6)">← Back</button>
+          <button class="cb-btn cb-btn-primary" onclick="nextStep(6)">Continue to Spells →</button>
+        </div>
+      </div>
+
+      <!-- STEP 7: SPELLS -->
+      <div class="cb-panel" id="panel7">
+        <div class="cb-panel-title">Spells</div>
+        <div class="cb-panel-sub">Choose your known spells</div>
+        <div id="spellsContent"></div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-secondary" onclick="prevStep(7)">← Back</button>
+          <button class="cb-btn cb-btn-primary" onclick="nextStep(7)">Continue to Details →</button>
+        </div>
+      </div>
+
+      <!-- STEP 8: DETAILS -->
+      <div class="cb-panel" id="panel8">
+        <div class="cb-panel-title">Character Details</div>
+        <div class="cb-panel-sub">The story behind your character</div>
+        <div class="cb-form-grid">
+          <div class="cb-form-field">
+            <label class="cb-form-label">Character Name</label>
+            <input class="cb-form-input" type="text" id="charName" placeholder="Enter name..." oninput="updateDetails()" />
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Alignment</label>
+            <select class="cb-form-input" id="charAlignment" onchange="updateDetails()"><option value="">Select alignment...</option></select>
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Age</label>
+            <input class="cb-form-input" type="text" id="charAge" placeholder="e.g. 25 years" oninput="updateDetails()" />
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Gender / Pronouns</label>
+            <input class="cb-form-input" type="text" id="charGender" placeholder="e.g. She/Her" oninput="updateDetails()" />
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Height</label>
+            <input class="cb-form-input" type="text" id="charHeight" placeholder="e.g. 5'10&quot;" oninput="updateDetails()" />
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Weight</label>
+            <input class="cb-form-input" type="text" id="charWeight" placeholder="e.g. 160 lbs" oninput="updateDetails()" />
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Eye Color</label>
+            <input class="cb-form-input" type="text" id="charEyes" oninput="updateDetails()" />
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Hair Color</label>
+            <input class="cb-form-input" type="text" id="charHair" oninput="updateDetails()" />
+          </div>
+        </div>
+        <div class="cb-form-field" style="margin-bottom:16px">
+          <label class="cb-form-label">Personality Traits</label>
+          <textarea class="cb-form-input cb-form-textarea" id="charPersonality" placeholder="Describe your character's personality..." oninput="updateDetails()"></textarea>
+        </div>
+        <div class="cb-form-grid">
+          <div class="cb-form-field">
+            <label class="cb-form-label">Ideals</label>
+            <textarea class="cb-form-input cb-form-textarea" id="charIdeals" placeholder="What does your character believe in?" oninput="updateDetails()"></textarea>
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Bonds</label>
+            <textarea class="cb-form-input cb-form-textarea" id="charBonds" placeholder="What connects your character to the world?" oninput="updateDetails()"></textarea>
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Flaws</label>
+            <textarea class="cb-form-input cb-form-textarea" id="charFlaws" placeholder="What weaknesses or vices does your character have?" oninput="updateDetails()"></textarea>
+          </div>
+          <div class="cb-form-field">
+            <label class="cb-form-label">Backstory</label>
+            <textarea class="cb-form-input cb-form-textarea" id="charBackstory" placeholder="A brief history of your character..." oninput="updateDetails()"></textarea>
+          </div>
+        </div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-secondary" onclick="prevStep(8)">← Back</button>
+          <button class="cb-btn cb-btn-primary" onclick="buildFinalSheet(); nextStep(8)">Generate Character Sheet →</button>
+        </div>
+      </div>
+
+      <!-- STEP 9: FINAL SHEET -->
+      <div class="cb-panel" id="panel9">
+        <div class="cb-panel-title">Your Character</div>
+        <div class="cb-panel-sub">Ready to adventure</div>
+        <div id="finalSheet" class="cb-sheet"></div>
+        <div class="cb-nav-btns">
+          <button class="cb-btn cb-btn-secondary" onclick="prevStep(9)">← Edit Details</button>
+          <button class="cb-btn cb-btn-primary" onclick="window.print()">Print / Save as PDF</button>
+          <button class="cb-btn cb-btn-ghost" onclick="startOver()">Start Over</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <button class="ps-top-btn" id="topBtn" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
+  </button>
+
+  <script src="builder-data.js"></script>
+  <script>
+  // ── STATE ──
+  const C = {
+    step: 1,
+    race: null, subrace: null,
+    cls: null,
+    background: null,
+    abilities: { str:10, dex:10, con:10, int:10, wis:10, cha:10 },
+    scoreMethod: 'standard',
+    arrayAssigned: {},
+    pointBuyPoints: 27,
+    pointBuyScores: { str:8, dex:8, con:8, int:8, wis:8, cha:8 },
+    selectedSkills: [],
+    equipChoices: {},
+    selectedCantrips: [],
+    selectedSpells: [],
+    selectedArrayVal: null,
+    details: {},
+    level: 1
+  };
+
+  const TOTAL_STEPS = 9;
+  const pb = { 1:2,2:2,3:2,4:2,5:3,6:3,7:3,8:3,9:4,10:4 };
+  const pbCost = { 8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9 };
+
+  // ── UTILS ──
+  function mod(score){ return Math.floor((parseInt(score)||8 - 10)/2); }
+  function modStr(score){ const m=mod(score); return (m>=0?'+':'')+m; }
+  function profBonus(){ return DND_DATA.profBonus[C.level] || 2; }
+  function totalScore(ability){
+    const base = C.abilities[ability] || 8;
+    const raceData = C.race ? DND_DATA.races[C.race] : null;
+    let asi = 0;
+    if(raceData){
+      asi += raceData.asi[ability] || 0;
+      if(C.subrace){
+        const sr = raceData.subraces.find(s=>s.id===C.subrace);
+        if(sr) asi += (sr.asi||{})[ability] || 0;
+      }
+    }
+    return base + asi;
+  }
+  function skillKey(name){ return name.toLowerCase().replace(/\s+/g,'').replace(/[^a-z]/g,''); }
+
+  // ── STEP NAVIGATION ──
+  function goToStep(n){
+    C.step = n;
+    document.querySelectorAll('.cb-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel'+n).classList.add('active');
+    document.querySelectorAll('.cb-step-item').forEach(s=>{
+      const sn = parseInt(s.dataset.step);
+      s.classList.toggle('active', sn===n);
+      s.classList.toggle('done', sn<n);
+    });
+    document.getElementById('progressBar').style.width = Math.round((n/TOTAL_STEPS)*100)+'%';
+    if(n===5) renderSkills();
+    if(n===7) renderSpells();
+    if(n===9) buildFinalSheet();
+    updateMiniSummary();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function nextStep(n){ goToStep(n+1); }
+  function prevStep(n){ goToStep(n-1); }
+  function startOver(){ location.reload(); }
+
+  // ── STEP 1: RACE ──
+  function renderRaces(){
+    const container = document.getElementById('raceCards');
+    container.innerHTML = '';
+    Object.entries(DND_DATA.races).forEach(([id, race]) => {
+      const div = document.createElement('div');
+      div.className = 'cb-card' + (C.race===id?' selected':'');
+      div.onclick = () => selectRace(id);
+      const asiText = Object.entries(race.asi).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
+      div.innerHTML = `<div class="cb-card-name">${race.name}</div><div class="cb-card-detail">${asiText} · ${race.size} · ${race.speed} ft</div>`;
+      container.appendChild(div);
+    });
+  }
+
+  function selectRace(id){
+    C.race = id; C.subrace = null;
+    document.querySelectorAll('#raceCards .cb-card').forEach((c,i)=>{
+      c.classList.toggle('selected', Object.keys(DND_DATA.races)[i]===id);
+    });
+    document.getElementById('sl-race').textContent = DND_DATA.races[id].name;
+    renderRaceDetail(id);
+    updateMiniSummary();
+    updateAsiNote();
+  }
+
+  function renderRaceDetail(id){
+    const race = DND_DATA.races[id];
+    const detail = document.getElementById('raceDetail');
+    const asiText = Object.entries(race.asi).map(([k,v])=>DND_DATA.abilityNames[k]+' +'+v).join(', ');
+    let html = `<div class="cb-detail">
+      <div class="cb-detail-title">${race.name}</div>
+      <div class="cb-detail-sub">${race.size} · Speed ${race.speed} ft · ${race.languages.join(', ')}</div>
+      <div class="cb-asi-badges">${Object.entries(race.asi).map(([k,v])=>`<span class="cb-asi-badge">${DND_DATA.abilityShort[k]} +${v}</span>`).join('')}</div>
+      <div class="cb-detail-body">`;
+    race.traits.forEach(t=>{
+      html += `<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`;
+    });
+    html += '</div>';
+    if(race.subraces.length){
+      html += `<div class="cb-subrace-section"><div class="cb-subrace-title">Choose a Subrace</div><div class="cb-cards" style="margin-bottom:16px;">`;
+      race.subraces.forEach(sr=>{
+        const asiStr = Object.entries(sr.asi||{}).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
+        html += `<div class="cb-card ${C.subrace===sr.id?'selected':''}" onclick="selectSubrace('${sr.id}')">
+          <div class="cb-card-name">${sr.name}</div>
+          <div class="cb-card-detail">${asiStr}</div>
+        </div>`;
+      });
+      html += '</div>';
+      if(C.subrace){
+        const sr = race.subraces.find(s=>s.id===C.subrace);
+        if(sr) sr.traits.forEach(t=>{ html += `<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`; });
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    detail.innerHTML = html;
+  }
+
+  function selectSubrace(id){
+    C.subrace = id;
+    renderRaceDetail(C.race);
+    updateAsiNote();
+    updateMiniSummary();
+  }
+
+  // ── STEP 2: CLASS ──
+  function renderClasses(){
+    const container = document.getElementById('classCards');
+    container.innerHTML = '';
+    Object.entries(DND_DATA.classes).forEach(([id, cls]) => {
+      const div = document.createElement('div');
+      div.className = 'cb-card' + (C.cls===id?' selected':'');
+      div.onclick = () => selectClass(id);
+      const sp = cls.spellcastingAbility ? ` · ${DND_DATA.abilityShort[cls.spellcastingAbility]} Spells` : '';
+      div.innerHTML = `<div class="cb-card-name">${cls.name}</div><div class="cb-card-detail">d${cls.hitDie} Hit Die${sp}</div><div class="cb-card-badge">${cls.primaryAbility.toUpperCase()}</div>`;
+      container.appendChild(div);
+    });
+  }
+
+  function selectClass(id){
+    C.cls = id;
+    document.querySelectorAll('#classCards .cb-card').forEach((c,i)=>{
+      c.classList.toggle('selected', Object.keys(DND_DATA.classes)[i]===id);
+    });
+    document.getElementById('sl-class').textContent = DND_DATA.classes[id].name;
+    document.getElementById('step7item').style.opacity = DND_DATA.classes[id].spellcastingAbility ? '1' : '0.4';
+    renderClassDetail(id);
+    updateMiniSummary();
+  }
+
+  function renderClassDetail(id){
+    const cls = DND_DATA.classes[id];
+    const detail = document.getElementById('classDetail');
+    const saves = cls.saves.map(s=>DND_DATA.abilityNames[s]).join(', ');
+    let html = `<div class="cb-detail">
+      <div class="cb-detail-title">${cls.name}</div>
+      <div class="cb-detail-sub">d${cls.hitDie} Hit Die · Saves: ${saves}</div>
+      <div class="cb-detail-body">
+        <div class="cb-trait"><div class="cb-trait-name">Armor</div><div class="cb-trait-desc">${cls.armorProf.join(', ') || 'None'}</div></div>
+        <div class="cb-trait"><div class="cb-trait-name">Weapons</div><div class="cb-trait-desc">${cls.weaponProf.join(', ')}</div></div>
+        <div class="cb-trait"><div class="cb-trait-name">Skills</div><div class="cb-trait-desc">Choose ${cls.skillCount} from: ${Array.isArray(cls.skillOptions)?cls.skillOptions.join(', '):cls.skillOptions}</div></div>`;
+    if(cls.spellcastingAbility) html += `<div class="cb-trait"><div class="cb-trait-name">Spellcasting</div><div class="cb-trait-desc">Uses ${DND_DATA.abilityNames[cls.spellcastingAbility]} as spellcasting ability.</div></div>`;
+    html += '<div style="margin-top:16px;">';
+    cls.features.forEach(f=>{
+      html += `<div class="cb-trait"><div class="cb-trait-name">Level ${f.level}: ${f.name}</div><div class="cb-trait-desc">${f.desc}</div></div>`;
+    });
+    html += '</div></div></div>';
+    detail.innerHTML = html;
+  }
+
+  // ── STEP 3: BACKGROUND ──
+  function renderBackgrounds(){
+    const container = document.getElementById('bgCards');
+    container.innerHTML = '';
+    Object.entries(DND_DATA.backgrounds).forEach(([id, bg]) => {
+      const div = document.createElement('div');
+      div.className = 'cb-card' + (C.background===id?' selected':'');
+      div.onclick = () => selectBackground(id);
+      div.innerHTML = `<div class="cb-card-name">${bg.name}</div><div class="cb-card-detail">${bg.skills.join(', ')}</div>`;
+      container.appendChild(div);
+    });
+  }
+
+  function selectBackground(id){
+    C.background = id;
+    document.querySelectorAll('#bgCards .cb-card').forEach((c,i)=>{
+      c.classList.toggle('selected', Object.keys(DND_DATA.backgrounds)[i]===id);
+    });
+    document.getElementById('sl-bg').textContent = DND_DATA.backgrounds[id].name;
+    renderBgDetail(id);
+    updateMiniSummary();
+  }
+
+  function renderBgDetail(id){
+    const bg = DND_DATA.backgrounds[id];
+    const detail = document.getElementById('bgDetail');
+    let extras = [];
+    if(bg.languages) extras.push(`${bg.languages} language${bg.languages>1?'s':''}`);
+    if(bg.tools) extras.push(...bg.tools);
+    let html = `<div class="cb-detail">
+      <div class="cb-detail-title">${bg.name}</div>
+      <div class="cb-detail-sub">Skills: ${bg.skills.join(', ')}${extras.length?' · '+extras.join(', '):''}</div>
+      <div class="cb-detail-body">
+        <div class="cb-trait"><div class="cb-trait-name">${bg.feature}</div><div class="cb-trait-desc">${bg.featureDesc}</div></div>
+        <div class="cb-trait"><div class="cb-trait-name">Equipment</div><div class="cb-trait-desc">${bg.equipment}</div></div>
+      </div></div>`;
+    detail.innerHTML = html;
+  }
+
+  // ── STEP 4: ABILITY SCORES ──
+  function setScoreMethod(method){
+    C.scoreMethod = method;
+    document.querySelectorAll('.cb-method-tab').forEach((t,i)=>{
+      t.classList.toggle('active', ['standard','pointbuy','manual'][i]===method);
+    });
+    const info = document.getElementById('scoreMethodInfo');
+    if(method==='standard') info.innerHTML = '<strong>Standard Array</strong> — Click a value below, then click an ability box to assign it. Values: 15, 14, 13, 12, 10, 8.';
+    else if(method==='pointbuy') info.innerHTML = '<strong>Point Buy</strong> — You have 27 points. Use +/− buttons to buy up scores. Scores start at 8 (free) and cost increases at higher values.';
+    else info.innerHTML = '<strong>Manual Entry</strong> — Type any score directly into the ability boxes.';
+    C.arrayAssigned = {};
+    C.selectedArrayVal = null;
+    C.pointBuyScores = { str:8, dex:8, con:8, int:8, wis:8, cha:8 };
+    if(method==='standard') Object.keys(C.abilities).forEach(a=>{ C.abilities[a]=8; });
+    else if(method==='pointbuy') Object.keys(C.abilities).forEach(a=>{ C.abilities[a]=8; });
+    renderAbilityGrid();
+    renderArrayPool();
+  }
+
+  function renderArrayPool(){
+    const pool = document.getElementById('arrayPool');
+    if(C.scoreMethod !== 'standard'){ pool.innerHTML=''; return; }
+    const usedVals = Object.values(C.arrayAssigned);
+    pool.innerHTML = DND_DATA.standardArray.map(v=>{
+      const used = usedVals.includes(v);
+      const sel = C.selectedArrayVal === v;
+      return `<div class="cb-array-val ${used?'used':''} ${sel?'selected':''}" onclick="selectArrayVal(${v})">${v}</div>`;
+    }).join('');
+  }
+
+  function selectArrayVal(v){
+    if(Object.values(C.arrayAssigned).includes(v)) return;
+    C.selectedArrayVal = v;
+    renderArrayPool();
+    document.querySelectorAll('.cb-ability-box').forEach(box=>box.classList.toggle('selecting', true));
+  }
+
+  function assignToAbility(ability){
+    if(C.scoreMethod==='standard'){
+      if(C.selectedArrayVal===null) return;
+      C.abilities[ability] = C.selectedArrayVal;
+      C.arrayAssigned[ability] = C.selectedArrayVal;
+      C.selectedArrayVal = null;
+      renderArrayPool();
+      renderAbilityGrid();
+    } else if(C.scoreMethod==='pointbuy'){
+      // handled by buttons
+    }
+    updateAsiNote();
+  }
+
+  function pbAdjust(ability, delta){
+    if(C.scoreMethod!=='pointbuy') return;
+    const cur = C.abilities[ability];
+    const next = cur + delta;
+    if(next < 8 || next > 15) return;
+    const curCost = pbCost[cur]||0;
+    const nextCost = pbCost[next]||0;
+    const diff = nextCost - curCost;
+    const remaining = 27 - Object.values(C.abilities).reduce((sum,s)=>{
+      const base = 8; return sum + (pbCost[s]||0);
+    },0);
+    if(diff > remaining) return;
+    C.abilities[ability] = next;
+    renderAbilityGrid();
+    updateAsiNote();
+  }
+
+  function renderAbilityGrid(){
+    const grid = document.getElementById('abilityGrid');
+    const remaining = 27 - Object.values(C.abilities).reduce((sum,s)=>(sum+(pbCost[s]||0)),0);
+    if(C.scoreMethod==='pointbuy'){
+      document.querySelector('.cb-pb-display') && (document.querySelector('.cb-pb-display').innerHTML = `Points remaining: <span>${remaining}</span> / 27`);
+      if(!document.querySelector('.cb-pb-display')){
+        const d=document.createElement('div'); d.className='cb-pb-display';
+        d.innerHTML=`Points remaining: <span>${remaining}</span> / 27`;
+        grid.before(d);
+      } else { document.querySelector('.cb-pb-display').innerHTML=`Points remaining: <span>${remaining}</span> / 27`; }
+    } else {
+      const d = document.querySelector('.cb-pb-display');
+      if(d) d.remove();
+    }
+    const race = C.race ? DND_DATA.races[C.race] : null;
+    grid.innerHTML = Object.keys(C.abilities).map(ability=>{
+      const base = C.abilities[ability];
+      const raceAsi = race ? (race.asi[ability]||0) : 0;
+      const srAsi = (C.subrace && race) ? ((race.subraces.find(s=>s.id===C.subrace)||{}).asi||{})[ability]||0 : 0;
+      const total = base + raceAsi + srAsi;
+      const m = mod(total);
+      let inner = '';
+      if(C.scoreMethod==='standard'){
+        inner = `<div class="cb-ability-score">${base||'—'}</div>`;
+      } else if(C.scoreMethod==='pointbuy'){
+        inner = `<div class="cb-score-btns"><button class="cb-score-btn" onclick="pbAdjust('${ability}',-1)">−</button><span style="font-size:28px;font-weight:300;color:var(--white);min-width:40px;text-align:center;">${base}</span><button class="cb-score-btn" onclick="pbAdjust('${ability}',1)">+</button></div>`;
+      } else {
+        inner = `<input class="cb-ability-input" type="number" min="1" max="20" value="${base}" oninput="C.abilities['${ability}']=parseInt(this.value)||8;renderAbilityGrid();updateAsiNote();" />`;
+      }
+      return `<div class="cb-ability-box ${C.scoreMethod==='standard'?'selecting':''}" onclick="${C.scoreMethod==='standard'?`assignToAbility('${ability}')`:''}" >
+        <div class="cb-ability-name">${DND_DATA.abilityShort[ability]}</div>
+        ${inner}
+        <div class="cb-ability-mod">${modStr(total)}</div>
+        ${(raceAsi+srAsi)>0?`<div class="cb-ability-asi">+${raceAsi+srAsi} racial</div>`:''}
+        <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:4px;font-style:italic;">${DND_DATA.abilityNames[ability]}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function updateAsiNote(){
+    const note = document.getElementById('raceAsiNote');
+    if(!C.race){ note.style.display='none'; return; }
+    const race = DND_DATA.races[C.race];
+    const asiBonuses = [];
+    Object.entries(race.asi).forEach(([k,v])=>asiBonuses.push(`${DND_DATA.abilityNames[k]} +${v}`));
+    if(C.subrace){
+      const sr = race.subraces.find(s=>s.id===C.subrace);
+      if(sr) Object.entries(sr.asi||{}).forEach(([k,v])=>asiBonuses.push(`${DND_DATA.abilityNames[k]} +${v}`));
+    }
+    if(asiBonuses.length){
+      note.style.display='block';
+      note.innerHTML=`<strong>Racial Bonuses</strong> — ${race.name}${C.subrace?' ('+race.subraces.find(s=>s.id===C.subrace).name+')':''} grants: ${asiBonuses.join(', ')}. These are automatically added to your totals above.`;
+    } else { note.style.display='none'; }
+  }
+
+  // ── STEP 5: PROFICIENCIES / SKILLS ──
+  function renderSkills(){
+    const grid = document.getElementById('skillsGrid');
+    const clsData = C.cls ? DND_DATA.classes[C.cls] : null;
+    const bgData = C.background ? DND_DATA.backgrounds[C.background] : null;
+    const bgSkills = bgData ? bgData.skills.map(s=>skillKey(s)) : [];
+    const clsAllSkills = clsData && clsData.skillOptions.includes('Any three skills');
+    const clsSkillKeys = clsData ? clsData.skillOptions.map(s=>skillKey(s)) : [];
+    const canChoose = clsData ? clsData.skillCount : 0;
+    const chosen = C.selectedSkills.filter(s=>!bgSkills.includes(s));
+
+    document.getElementById('profAlert').innerHTML = `<strong>Class Skills</strong> — Choose <span style="color:var(--crimson)">${canChoose - chosen.length}</span> more skills from your class list. Background grants: ${bgData?bgData.skills.join(', '):'—'}`;
+
+    grid.innerHTML = '';
+    Object.entries(DND_DATA.skills).forEach(([id, skill])=>{
+      const key = skillKey(skill.name);
+      const isBg = bgSkills.includes(key);
+      const isChosen = C.selectedSkills.includes(key);
+      const canPick = clsAllSkills || clsSkillKeys.includes(key);
+      const total = totalScore(skill.ability);
+      const m = mod(total);
+      const isProf = isBg || isChosen;
+      const bonus = m + (isProf ? profBonus() : 0);
+      const div = document.createElement('div');
+      div.className = 'cb-skill-row';
+      div.innerHTML = `
+        <div class="cb-skill-check ${isProf?'checked':''} ${!canPick&&!isBg?'locked':''}" onclick="toggleSkill('${key}','${isBg}','${canPick}',${canChoose})"></div>
+        <span class="cb-skill-ability">${DND_DATA.abilityShort[skill.ability]}</span>
+        <span class="cb-skill-name">${skill.name} ${isBg?'<span style="font-size:10px;color:rgba(192,57,43,0.6)">(bg)</span>':''}</span>
+        <span class="cb-skill-bonus">${bonus>=0?'+':''}${bonus}</span>`;
+      grid.appendChild(div);
+    });
+
+    const savesEl = document.getElementById('savingThrowsDisplay');
+    if(clsData){
+      const saves = clsData.saves.map(s=>`${DND_DATA.abilityNames[s]} ${modStr(totalScore(s)+profBonus())}`).join(' · ');
+      savesEl.innerHTML = `<div class="cb-detail" style="margin-top:16px;"><div class="cb-detail-title">Saving Throw Proficiencies</div><div class="cb-detail-sub">${saves}</div></div>`;
+    }
+  }
+
+  function toggleSkill(key, isBg, canPick, canChoose){
+    if(isBg==='true') return;
+    if(canPick==='false') return;
+    const chosen = C.selectedSkills.filter(s=>!['insight','religion','medicine','persuasion','history','athletics','intimidation','acrobatics','stealthsleightofhand','survival','perception','nature','investigation','deception','performance','animalhandling'].includes(s)).length;
+    if(C.selectedSkills.includes(key)){
+      C.selectedSkills = C.selectedSkills.filter(s=>s!==key);
+    } else {
+      const bgData = C.background ? DND_DATA.backgrounds[C.background] : null;
+      const bgSkills = bgData ? bgData.skills.map(s=>skillKey(s)) : [];
+      const alreadyChosen = C.selectedSkills.filter(s=>!bgSkills.includes(s)).length;
+      if(alreadyChosen >= canChoose) return;
+      C.selectedSkills.push(key);
+    }
+    renderSkills();
+  }
+
+  // ── STEP 6: EQUIPMENT ──
+  function renderEquipment(){
+    const clsData = C.cls ? DND_DATA.classes[C.cls] : null;
+    const container = document.getElementById('equipChoices');
+    const fixed = document.getElementById('fixedEquip');
+    container.innerHTML = '';
+    fixed.innerHTML = '';
+    if(!clsData){ container.innerHTML='<div class="cb-alert">Please select a class first.</div>'; return; }
+
+    clsData.equipment.forEach((choice, i)=>{
+      if(choice.length===1){
+        const div = document.createElement('div');
+        div.className = 'cb-equip-choice';
+        div.innerHTML = `<div class="cb-equip-label">Included</div><div style="font-size:14px;color:rgba(255,255,255,0.6);font-style:italic;">${choice[0]}</div>`;
+        fixed.appendChild(div);
+      } else {
+        const div = document.createElement('div');
+        div.className = 'cb-equip-choice';
+        div.innerHTML = `<div class="cb-equip-label">Choice ${i+1} — Select One</div>
+          <div class="cb-equip-options">${choice.map((opt,j)=>`<div class="cb-equip-option ${C.equipChoices[i]===j?'selected':''}" onclick="selectEquip(${i},${j})">${opt}</div>`).join('')}</div>`;
+        container.appendChild(div);
+      }
+    });
+  }
+
+  function selectEquip(choiceIdx, optIdx){
+    C.equipChoices[choiceIdx] = optIdx;
+    renderEquipment();
+    document.getElementById('sl-equip').textContent = 'Equipment selected';
+  }
+
+  // ── STEP 7: SPELLS ──
+  function renderSpells(){
+    const clsData = C.cls ? DND_DATA.classes[C.cls] : null;
+    const container = document.getElementById('spellsContent');
+    if(!clsData || !clsData.spellcastingAbility){
+      container.innerHTML = '<div class="cb-alert"><strong>Non-spellcaster</strong> — Your class does not use spells at 1st level. Skip this step.</div>';
+      return;
+    }
+    const spellList = DND_DATA.spells[C.cls];
+    if(!spellList){ container.innerHTML='<div class="cb-alert">Spell list not available for this class yet.</div>'; return; }
+
+    const spellAbility = DND_DATA.abilityShort[clsData.spellcastingAbility];
+    const spellMod = mod(totalScore(clsData.spellcastingAbility));
+    const saveDC = 8 + profBonus() + spellMod;
+    const atkBonus = profBonus() + spellMod;
+
+    let cantripCount=2, spellCount=2;
+    if(C.cls==='wizard') spellCount=6;
+    if(C.cls==='bard') { cantripCount=2; spellCount=4; }
+    if(C.cls==='sorcerer') { cantripCount=4; spellCount=2; }
+    if(C.cls==='cleric'||C.cls==='druid') spellCount=0;
+    if(C.cls==='paladin'||C.cls==='ranger') cantripCount=0;
+    if(C.cls==='warlock') { cantripCount=2; spellCount=2; }
+
+    let html = `<div class="cb-detail" style="margin-bottom:24px;">
+      <div class="cb-detail-title">Spellcasting — ${clsData.name}</div>
+      <div class="cb-detail-sub">Ability: ${spellAbility} · Save DC: ${saveDC} · Attack Bonus: +${atkBonus}</div>
+    </div>`;
+
+    if(spellList.cantrips && cantripCount > 0){
+      const chosen = C.selectedCantrips.length;
+      html += `<div class="cb-spell-section">
+        <div class="cb-spell-header">Cantrips</div>
+        <div class="cb-spell-count">Choose <span>${cantripCount - chosen}</span> more cantrips (${cantripCount} total)</div>
+        <div class="cb-spell-grid">${spellList.cantrips.map(sp=>`
+          <div class="cb-spell-item ${C.selectedCantrips.includes(sp)?'selected':''}" onclick="toggleSpell('${sp}','cantrip',${cantripCount})">
+            <div class="cb-spell-dot"></div>${sp}
+          </div>`).join('')}</div>
+      </div>`;
+    }
+
+    if(spellList.level1 && spellCount > 0){
+      const chosen = C.selectedSpells.length;
+      html += `<div class="cb-spell-section">
+        <div class="cb-spell-header">1st-Level Spells</div>
+        <div class="cb-spell-count">Choose <span>${spellCount - chosen}</span> more spells (${spellCount} total)</div>
+        <div class="cb-spell-grid">${spellList.level1.map(sp=>`
+          <div class="cb-spell-item ${C.selectedSpells.includes(sp)?'selected':''}" onclick="toggleSpell('${sp}','spell',${spellCount})">
+            <div class="cb-spell-dot"></div>${sp}
+          </div>`).join('')}</div>
+      </div>`;
+    }
+
+    if(C.cls==='cleric'||C.cls==='druid'){
+      html += `<div class="cb-alert"><strong>Prepared Caster</strong> — As a ${clsData.name}, you prepare your spells after a long rest. At 1st level you can prepare ${Math.max(1,mod(totalScore(clsData.spellcastingAbility))+1)} spells from the full class list.</div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  function toggleSpell(name, type, max){
+    if(type==='cantrip'){
+      if(C.selectedCantrips.includes(name)) C.selectedCantrips=C.selectedCantrips.filter(s=>s!==name);
+      else if(C.selectedCantrips.length < max) C.selectedCantrips.push(name);
+    } else {
+      if(C.selectedSpells.includes(name)) C.selectedSpells=C.selectedSpells.filter(s=>s!==name);
+      else if(C.selectedSpells.length < max) C.selectedSpells.push(name);
+    }
+    renderSpells();
+  }
+
+  // ── STEP 8: DETAILS ──
+  function initDetails(){
+    const sel = document.getElementById('charAlignment');
+    sel.innerHTML = '<option value="">Select alignment...</option>' + DND_DATA.alignments.map(a=>`<option value="${a}">${a}</option>`).join('');
+  }
+
+  function updateDetails(){
+    C.details = {
+      name: document.getElementById('charName').value,
+      alignment: document.getElementById('charAlignment').value,
+      age: document.getElementById('charAge').value,
+      gender: document.getElementById('charGender').value,
+      height: document.getElementById('charHeight').value,
+      weight: document.getElementById('charWeight').value,
+      eyes: document.getElementById('charEyes').value,
+      hair: document.getElementById('charHair').value,
+      personality: document.getElementById('charPersonality').value,
+      ideals: document.getElementById('charIdeals').value,
+      bonds: document.getElementById('charBonds').value,
+      flaws: document.getElementById('charFlaws').value,
+      backstory: document.getElementById('charBackstory').value,
+    };
+    if(C.details.name) document.getElementById('sl-details').textContent = C.details.name;
+    updateMiniSummary();
+  }
+
+  // ── FINAL SHEET ──
+  function buildFinalSheet(){
+    const sheet = document.getElementById('finalSheet');
+    if(!C.race || !C.cls) { sheet.innerHTML='<div class="cb-alert">Please complete all steps before viewing your sheet.</div>'; return; }
+    const race = DND_DATA.races[C.race];
+    const cls = DND_DATA.classes[C.cls];
+    const bg = C.background ? DND_DATA.backgrounds[C.background] : null;
+    const name = C.details.name || 'Unnamed Adventurer';
+    const pb2 = profBonus();
+    const conMod = mod(totalScore('con'));
+    const hp = cls.hitDie + conMod;
+    const dexMod = mod(totalScore('dex'));
+
+    // AC calc
+    let ac = 10 + dexMod;
+    const armors = cls.armorProf||[];
+    if(armors.includes('All armor')||armors.includes('Medium armor')) ac = 14 + Math.min(dexMod,2);
+    else if(armors.includes('Light armor')) ac = 11 + dexMod;
+    if(armors.includes('Shields')) ac += 2;
+    if(C.cls==='barbarian') ac = 10 + dexMod + mod(totalScore('con'));
+    if(C.cls==='monk') ac = 10 + dexMod + mod(totalScore('wis'));
+
+    // Spellcasting
+    let spellInfo = '';
+    if(cls.spellcastingAbility){
+      const sm = mod(totalScore(cls.spellcastingAbility));
+      spellInfo = `<div class="cb-sheet-section" style="margin-top:16px;">
+        <div class="cb-sheet-section-title">Spellcasting</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+          <div class="cb-stat-block"><div class="cb-stat-val">${DND_DATA.abilityShort[cls.spellcastingAbility]}</div><div class="cb-stat-label">Ability</div></div>
+          <div class="cb-stat-block"><div class="cb-stat-val">${8+pb2+sm}</div><div class="cb-stat-label">Save DC</div></div>
+          <div class="cb-stat-block"><div class="cb-stat-val">+${pb2+sm}</div><div class="cb-stat-label">Atk Bonus</div></div>
+        </div>
+        ${C.selectedCantrips.length?`<div style="margin-bottom:8px;"><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Cantrips</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">${C.selectedCantrips.join(', ')}</div></div>`:''}
+        ${C.selectedSpells.length?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">1st Level Spells (Slots: 2)</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">${C.selectedSpells.join(', ')}</div></div>`:''}
+      </div>`;
+    }
+
+    // Equipment
+    const equipLines = [];
+    cls.equipment.forEach((choice,i)=>{
+      const sel = C.equipChoices[i];
+      if(sel !== undefined) equipLines.push(choice[sel]);
+      else if(choice.length===1) equipLines.push(choice[0]);
+      else equipLines.push(choice[0]);
+    });
+    if(bg) equipLines.push(bg.equipment);
+
+    // Skills
+    const bgSkills = bg ? bg.skills.map(s=>skillKey(s)) : [];
+    const allProf = [...bgSkills, ...C.selectedSkills];
+    const skillRows = Object.entries(DND_DATA.skills).map(([id,skill])=>{
+      const key = skillKey(skill.name);
+      const isProf = allProf.includes(key);
+      const total = mod(totalScore(skill.ability)) + (isProf ? pb2 : 0);
+      return `<div class="cb-sheet-skill">
+        <div class="cb-sheet-skill-prof ${isProf?'filled':''}"></div>
+        <span class="cb-sheet-skill-name">${skill.name}</span>
+        <span class="cb-sheet-skill-bonus">${total>=0?'+':''}${total}</span>
+      </div>`;
+    }).join('');
+
+    // Saving throws
+    const saveRows = Object.keys(C.abilities).map(ability=>{
+      const isProf = cls.saves.includes(ability);
+      const total = mod(totalScore(ability)) + (isProf ? pb2 : 0);
+      return `<div class="cb-sheet-skill">
+        <div class="cb-sheet-skill-prof ${isProf?'filled':''}"></div>
+        <span class="cb-sheet-skill-name">${DND_DATA.abilityNames[ability]}</span>
+        <span class="cb-sheet-skill-bonus">${total>=0?'+':''}${total}</span>
+      </div>`;
+    }).join('');
+
+    // Features
+    const featRows = cls.features.map(f=>`<div class="cb-feature-item"><div class="cb-feature-name">${f.name}</div><div class="cb-feature-desc">${f.desc}</div></div>`).join('');
+
+    // Race traits
+    const traitRows = race.traits.map(t=>`<div class="cb-feature-item"><div class="cb-feature-name">${t.name}</div><div class="cb-feature-desc">${t.desc}</div></div>`).join('');
+
+    const subrace = race.subraces.find(s=>s.id===C.subrace);
+    const srTraits = subrace ? subrace.traits.map(t=>`<div class="cb-feature-item"><div class="cb-feature-name">${t.name}</div><div class="cb-feature-desc">${t.desc}</div></div>`).join('') : '';
+
+    sheet.innerHTML = `
+      <div class="cb-sheet-header">
+        <div>
+          <div class="cb-sheet-name">${name}</div>
+          <div class="cb-sheet-class">${race.name}${subrace?' · '+subrace.name:''} ${cls.name} · Level 1</div>
+          <div class="cb-sheet-tags">
+            ${bg?`<span class="cb-sheet-tag">${bg.name}</span>`:''}
+            ${C.details.alignment?`<span class="cb-sheet-tag">${C.details.alignment}</span>`:''}
+            <span class="cb-sheet-tag">${race.size}</span>
+            <span class="cb-sheet-tag">Speed ${subrace&&subrace.speed?subrace.speed:race.speed} ft</span>
+            <span class="cb-sheet-tag">PB +${pb2}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${C.details.age?`<div style="font-size:13px;color:rgba(255,255,255,0.4);"><span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);">Age</span><br>${C.details.age}</div>`:''}
+          ${C.details.alignment?`<div style="font-size:13px;color:rgba(255,255,255,0.4);"><span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);">Alignment</span><br>${C.details.alignment}</div>`:''}
+        </div>
+      </div>
+
+      <div class="cb-scores-row">
+        ${Object.keys(C.abilities).map(ability=>`
+          <div class="cb-score-block">
+            <div class="cb-score-label">${DND_DATA.abilityShort[ability]}</div>
+            <div class="cb-score-val">${totalScore(ability)}</div>
+            <div class="cb-score-mod">${modStr(totalScore(ability))}</div>
+          </div>`).join('')}
+      </div>
+
+      <div class="cb-stats-row">
+        <div class="cb-stat-block"><div class="cb-stat-val">${hp}</div><div class="cb-stat-label">Max HP</div></div>
+        <div class="cb-stat-block"><div class="cb-stat-val">${ac}</div><div class="cb-stat-label">Armor Class</div></div>
+        <div class="cb-stat-block"><div class="cb-stat-val">${dexMod>=0?'+':''}${dexMod}</div><div class="cb-stat-label">Initiative</div></div>
+        <div class="cb-stat-block"><div class="cb-stat-val">d${cls.hitDie}</div><div class="cb-stat-label">Hit Die</div></div>
+      </div>
+
+      <div class="cb-sheet-cols">
+        <div>
+          <div class="cb-sheet-section">
+            <div class="cb-sheet-section-title">Skills</div>
+            ${skillRows}
+          </div>
+          <div class="cb-sheet-section">
+            <div class="cb-sheet-section-title">Saving Throws</div>
+            ${saveRows}
+          </div>
+        </div>
+        <div>
+          <div class="cb-sheet-section">
+            <div class="cb-sheet-section-title">Class Features</div>
+            ${featRows}
+          </div>
+          <div class="cb-sheet-section">
+            <div class="cb-sheet-section-title">Racial Traits — ${race.name}</div>
+            ${traitRows}${srTraits}
+          </div>
+          <div class="cb-sheet-section">
+            <div class="cb-sheet-section-title">Equipment</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.8;">${equipLines.join('<br>')}</div>
+          </div>
+          ${spellInfo}
+        </div>
+      </div>
+
+      ${C.details.personality||C.details.ideals||C.details.bonds||C.details.flaws||C.details.backstory?`
+      <div class="cb-sheet-section" style="margin-top:16px;">
+        <div class="cb-sheet-section-title">Character Details</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          ${C.details.personality?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Personality</div><div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;font-style:italic;">${C.details.personality}</div></div>`:''}
+          ${C.details.ideals?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Ideals</div><div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;font-style:italic;">${C.details.ideals}</div></div>`:''}
+          ${C.details.bonds?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Bonds</div><div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;font-style:italic;">${C.details.bonds}</div></div>`:''}
+          ${C.details.flaws?`<div><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Flaws</div><div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;font-style:italic;">${C.details.flaws}</div></div>`:''}
+        </div>
+        ${C.details.backstory?`<div style="margin-top:16px;"><div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:6px;">Backstory</div><div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;font-style:italic;">${C.details.backstory}</div></div>`:''}
+      </div>`:''
+    }
+
+      <div style="text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid rgba(192,57,43,0.2);">
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.15);text-transform:uppercase;">Phmurt Studios · phmurtstudios.com</div>
+      </div>
+    `;
+  }
+
+  // ── MINI SUMMARY ──
+  function updateMiniSummary(){
+    const el = document.getElementById('miniSummary');
+    const lines = [];
+    if(C.details.name) lines.push({l:'Name', v:C.details.name});
+    if(C.race) lines.push({l:'Race', v:DND_DATA.races[C.race].name+(C.subrace?` (${DND_DATA.races[C.race].subraces.find(s=>s.id===C.subrace).name})`:'')});
+    if(C.cls) lines.push({l:'Class', v:DND_DATA.classes[C.cls].name});
+    if(C.background) lines.push({l:'Background', v:DND_DATA.backgrounds[C.background].name});
+    el.innerHTML = lines.map(l=>`<div class="cb-mini-stat"><span class="cb-mini-stat-label">${l.l}</span><span class="cb-mini-stat-val">${l.v}</span></div>`).join('');
+  }
+
+  // ── INIT ──
+  function init(){
+    renderRaces();
+    renderClasses();
+    renderBackgrounds();
+    renderAbilityGrid();
+    renderArrayPool();
+    renderEquipment();
+    initDetails();
+    updateMiniSummary();
+    const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
+    if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
+    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
+    if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
+    const topBtn=document.getElementById('topBtn');
+    window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+    document.querySelectorAll('a[href]').forEach(a=>{
+      const href=a.getAttribute('href');
+      if(href&&!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){
+        a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});
+      }
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
