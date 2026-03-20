@@ -4,7 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Legendary Soups — Phmurt Studios</title>
-  <meta name="description" content="Legendary Soups — recipes forged from the remains of the mightiest creatures in existence. A Soup Savant supplement by Phmurt Studios." />
+  <meta name="description" content="Legendary Soups — recipes forged from the remains of the most powerful creatures in existence. A Soup Savant supplement by Phmurt Studios." />
+  <meta property="og:title" content="Legendary Soups — Phmurt Studios" />
+  <meta property="og:description" content="Legendary Soups — recipes forged from the remains of the most powerful creatures in existence. A Soup Savant supplement by Phmurt Studios." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://phmurtstudios.com/legendary.html" />
+  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Legendary Soups — Phmurt Studios" />
+  <meta name="twitter:description" content="Legendary Soups — recipes forged from the remains of the most powerful creatures in existence. A Soup Savant supplement by Phmurt Studios." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
@@ -18,12 +26,15 @@
   <nav class="ps-nav">
     <div class="ps-nav-links">
       <a href="index.html">Home</a>
-      <a href="soup-savant.html">Soup Savant</a>
-      <a href="legendary.html" class="active">Legendary Soups</a>
+      <a href="grimoire.html">Grimoire</a>
       <a href="about.html">About</a>
     </div>
-    <a class="ps-nav-action" href="soup-savant.html">← Back to Class</a>
+    <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
+    <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
+
+
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="sep">◆</span><a href="grimoire.html">Grimoire</a><span class="sep">◆</span><span class="current">Legendary Soups</span></nav>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">Supplement · Soup Savant</div>
@@ -33,115 +44,13 @@
   </div>
 
   <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
-
-  <div class="ps-content">
-
-    <h2>Rules</h2>
-    <p>Legendary soups <strong>do not require a thermos</strong>. They are cooked in a full cauldron and require a minimum of 8 hours of uninterrupted preparation unless stated otherwise. They cannot be enhanced by Soup of the Day, Culinary Edge, or Divinely Delicious. Each legendary soup can only be cooked once per ingredient harvested — the ingredient is consumed in the cooking and cannot be recovered.</p>
-    <p>Your Dungeon Master must approve the harvesting of a legendary ingredient and determine what that process requires. In most cases, you must have dealt the killing blow, participated in the final battle, or been present at the creature's death. Some ingredients require specific handling within a short time after the creature's death.</p>
-
-    <h2>The Recipes</h2>
-
-    <div class="ps-legendary-card">
-      <div class="ps-legendary-name">Tarrasque Tail Consomé</div>
-      <div class="ps-legendary-subtitle">From the tail of the world's most unkillable creature</div>
-      <p class="ps-legendary-lore">There is one Tarrasque. It has been killed before, barely and at tremendous cost, and each time it has come back. When it finally stays dead, the tail is the first thing a soup savant goes for. The resulting consomé is the clearest, most golden broth any savant has ever seen.</p>
-      <div class="ps-legendary-stats">
-        <div class="ps-legendary-stat">
-          <div class="ps-legendary-stat-label">Legendary Ingredient</div>
-          <div class="ps-legendary-stat-val">Tarrasque tail marrow, sawn within 1 hour of death before regeneration seals the wound</div>
-        </div>
-        <div class="ps-legendary-stat">
-          <div class="ps-legendary-stat-label">Cooking Time</div>
-          <div class="ps-legendary-stat-val">8 hours over open flame. The marrow does not liquefy until the sixth hour.</div>
-        </div>
-        <div class="ps-legendary-stat">
-          <div class="ps-legendary-stat-label">Serves</div>
-          <div class="ps-legendary-stat-val">1 creature (permanent effects)</div>
-        </div>
-        <div class="ps-legendary-stat">
-          <div class="ps-legendary-stat-label">Effects</div>
-          <div class="ps-legendary-stat-val">+50 max HP · Resistance to nonmagical bludgeoning, piercing, slashing · Regenerate 10 HP per turn · Immunity to frightened</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ps-legendary-card">
-      <div class="ps-legendary-name">Beholder Eye Bisque</div>
-      <div class="ps-legendary-subtitle">From the central eye of a creature that hates everything it sees</div>
-      <p class="ps-legendary-lore">A beholder's central eye is the organ of its antimagic cone. It is also, it turns out, the most flavorful part of the creature. The eye socket contains a saline humor of extraordinary magical density, and when slow-roasted in its own fluid, it produces a bisque that tastes of ozone and, strangely, of comfort.</p>
-      <div class="ps-legendary-stats">
-        <div class="ps-legendary-stat">
-          <div class="ps-legendary-stat-label">Legendary Ingredient</div>
-          <div class="ps-legendary-stat-val">Central eye removed whole within 10 minutes of death. Antimagic humor must be skimmed and discarded throughout cooking.</div>
-        </div>
-        <div class="ps-legendary-stat">
-          <div class="ps-legendary-stat-label">Cooking Time</div>
-          <div class="ps-legendary-stat-val">12 hours, slow roast with constant skimming required</div>
-        </div>
-        <div class="ps-legendary-stat">
-          <div class="ps-legendary-stat-label">Serves</div>
-          <div class="ps-legendary-stat-val">1 creature (permanent effects)</div>
-        </div>
-        <div class="ps-legendary-stat">
-          <div class="ps-legendary-stat-label">Effects</div>
-          <div class="ps-legendary-stat-val">See the full document for the complete effects of this legendary recipe</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="ps-divider" style="margin: 48px 0;"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
-
-    <div style="text-align:center; padding: 8px 0 24px;">
-      <a href="soup-savant.html" class="ps-cta">← Back to Soup Savant</a>
-    </div>
-
-  </div>
-
-  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
-
   <section class="ps-connect">
-    <div class="ps-section-header">
-      <div class="ps-section-title">Find Us</div>
-    </div>
+    <div class="ps-section-header"><div class="ps-section-title">Find Us</div></div>
     <div class="ps-connect-grid">
-
-      <a href="https://startplaying.games/gm/phmurt-studios" target="_blank" rel="noopener" class="ps-connect-card">
-        <div class="ps-connect-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 22,12 5,21" fill="currentColor"/></svg>
-        </div>
-        <div class="ps-connect-label">Start Playing</div>
-        <div class="ps-connect-sub">Book a session</div>
-        <div class="ps-connect-url">startplaying.games/gm/phmurt-studios</div>
-      </a>
-
-      <a href="https://www.youtube.com/@PhmurtStudios" target="_blank" rel="noopener" class="ps-connect-card">
-        <div class="ps-connect-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.6 12 21.6 12 21.6s4.2 0 6.8-.3c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5V8.5l8 3.5-8 3.5z" fill="currentColor"/></svg>
-        </div>
-        <div class="ps-connect-label">YouTube</div>
-        <div class="ps-connect-sub">Videos &amp; updates</div>
-        <div class="ps-connect-url">@PhmurtStudios</div>
-      </a>
-
-      <a href="https://www.instagram.com/phmurt_studios/" target="_blank" rel="noopener" class="ps-connect-card">
-        <div class="ps-connect-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg>
-        </div>
-        <div class="ps-connect-label">Instagram</div>
-        <div class="ps-connect-sub">Behind the scenes</div>
-        <div class="ps-connect-url">@phmurt_studios</div>
-      </a>
-
-      <a href="mailto:phmurtstudios@gmail.com" class="ps-connect-card">
-        <div class="ps-connect-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="2,4 12,13 22,4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-        </div>
-        <div class="ps-connect-label">Email</div>
-        <div class="ps-connect-sub">Get in touch</div>
-        <div class="ps-connect-url">phmurtstudios@gmail.com</div>
-      </a>
-
+      <a href="https://startplaying.games/gm/phmurt-studios" target="_blank" rel="noopener" class="ps-connect-card"><div class="ps-connect-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 22,12 5,21" fill="currentColor"/></svg></div><div class="ps-connect-label">Start Playing</div><div class="ps-connect-sub">Book a session</div><div class="ps-connect-url">startplaying.games/gm/phmurt-studios</div></a>
+      <a href="https://www.youtube.com/@PhmurtStudios" target="_blank" rel="noopener" class="ps-connect-card"><div class="ps-connect-icon"><svg viewBox="0 0 24 24"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.6 12 21.6 12 21.6s4.2 0 6.8-.3c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5V8.5l8 3.5-8 3.5z" fill="currentColor"/></svg></div><div class="ps-connect-label">YouTube</div><div class="ps-connect-sub">Videos &amp; updates</div><div class="ps-connect-url">@PhmurtStudios</div></a>
+      <a href="https://www.instagram.com/phmurt_studios/" target="_blank" rel="noopener" class="ps-connect-card"><div class="ps-connect-icon"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg></div><div class="ps-connect-label">Instagram</div><div class="ps-connect-sub">Behind the scenes</div><div class="ps-connect-url">@phmurt_studios</div></a>
+      <a href="mailto:phmurtstudios@gmail.com" class="ps-connect-card"><div class="ps-connect-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="2,4 12,13 22,4" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div class="ps-connect-label">Email</div><div class="ps-connect-sub">Get in touch</div><div class="ps-connect-url">phmurtstudios@gmail.com</div></a>
     </div>
   </section>
 
@@ -153,5 +62,13 @@
     </div>
     <div class="ps-footer-copy">Crafted with intention. Built for your table.</div>
   </footer>
+  <script>
+    const ham = document.getElementById('hamburger');
+    const menu = document.getElementById('mobileMenu');
+    const close = document.getElementById('mobileClose');
+    ham.addEventListener('click', () => { ham.classList.toggle('open'); menu.classList.toggle('open'); });
+    close.addEventListener('click', () => { ham.classList.remove('open'); menu.classList.remove('open'); });
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { ham.classList.remove('open'); menu.classList.remove('open'); }));
+  </script>
 </body>
 </html>

@@ -4,7 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Soup Savant — Phmurt Studios</title>
-  <meta name="description" content="The Soup Savant — a full D&D 5e homebrew class by Phmurt Studios. Weaponize broth, heal with bisque, and build a traveling culinary empire across the realms." />
+  <meta name="description" content="The Soup Savant — a full 20-level D&D 5e homebrew class by Phmurt Studios. Weaponize broth, heal with bisque, and build a traveling culinary empire." />
+  <meta property="og:title" content="Soup Savant — Phmurt Studios" />
+  <meta property="og:description" content="The Soup Savant — a full 20-level D&D 5e homebrew class by Phmurt Studios. Weaponize broth, heal with bisque, and build a traveling culinary empire." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://phmurtstudios.com/soup-savant.html" />
+  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Soup Savant — Phmurt Studios" />
+  <meta name="twitter:description" content="The Soup Savant — a full 20-level D&D 5e homebrew class by Phmurt Studios. Weaponize broth, heal with bisque, and build a traveling culinary empire." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
@@ -18,12 +26,15 @@
   <nav class="ps-nav">
     <div class="ps-nav-links">
       <a href="index.html">Home</a>
-      <a href="soup-savant.html" class="active">Soup Savant</a>
-      <a href="legendary.html">Legendary Soups</a>
+      <a href="grimoire.html">Grimoire</a>
       <a href="about.html">About</a>
     </div>
-    <a class="ps-nav-action" href="legendary.html">Legendary Soups ↗</a>
+    <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
+    <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
+
+
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="sep">◆</span><a href="grimoire.html">Grimoire</a><span class="sep">◆</span><span class="current">Soup Savant</span></nav>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">Full Class · D&amp;D 5e</div>
@@ -33,165 +44,13 @@
   </div>
 
   <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
-
-  <div class="ps-content">
-
-    <!-- OPENING VIGNETTES -->
-    <h2>In the Field</h2>
-    <blockquote><p>The halfling had been cornered for ten minutes before the wolf pack finally broke ranks. It was not a sword that drove them off. It was the smell — a slow-simmered fish stew wafting from the thermos at his hip, so deeply and impossibly good that the wolves sat down in the snow and waited with their ears flat and their tails going. He served them all a bowl. They let him pass.</p></blockquote>
-    <blockquote><p>Stand down, the gnome said pleasantly, and when the bandits laughed, she twisted the valve on the thermos she had been quietly heating for the last thirty seconds. The jet of scalding bisque caught three of them across the chest. The other two ran. She wiped down her bandolier, set up her stand, and had customers within the hour.</p></blockquote>
-    <blockquote><p>The paladin would have died on that hillside if the elf had not found her. She did not have a spell slot left. What she had was a thermos of bone broth she had been slow-cooking since dawn, and hands that had served soup in worse conditions than this. The paladin drank. Her wounds closed. She never forgot the taste.</p></blockquote>
-
-    <!-- CLASS OVERVIEW -->
-    <h2>The Class</h2>
-    <p>A soup savant is not just a cook. They are the entire operation — sourcing ingredients, developing the recipe, crafting the vessel, building the stand, running the commerce, and moving on when the town has had enough. There is no step of the soup business that a savant handles carelessly, because no step is beneath them and no step can be trusted to someone who does not care as much as they do.</p>
-    <p>To reach that ideal, a soup savant learns everything. They study alchemical theory to understand how heat transforms a stock. They practice conjuration to build the perfect extradimensional pantry. They master herbalism, divination, and even a little enchantment — not for its own sake, but because the perfect soup might require any of it.</p>
-    <p>A soup savant's toolkit is purposeful and specific. They do not cast spells in the traditional sense. <strong>They cook them.</strong> Their grimoire is a cookbook. Their spell slots are thermoses, prepared in advance and carried on a bandolier. They weaponize soup, heal with it, charm with it, and build a traveling business around it.</p>
-
-    <!-- STAT BLOCK -->
-    <h2>Class Stats</h2>
-    <div class="ps-stat-block">
-      <div class="ps-stat-block-title">Base Attributes</div>
-      <div class="ps-stats-row">
-        <div class="ps-stat"><div class="ps-stat-label">Hit Dice</div><div class="ps-stat-val">1d6 per level</div></div>
-        <div class="ps-stat"><div class="ps-stat-label">Saving Throws</div><div class="ps-stat-val">Charisma, Constitution</div></div>
-        <div class="ps-stat"><div class="ps-stat-label">Spellcasting Ability</div><div class="ps-stat-val">Charisma</div></div>
-        <div class="ps-stat"><div class="ps-stat-label">Armor</div><div class="ps-stat-val">Light armor</div></div>
-        <div class="ps-stat"><div class="ps-stat-label">Weapons</div><div class="ps-stat-val">Simple weapons, nets</div></div>
-        <div class="ps-stat"><div class="ps-stat-label">Tools</div><div class="ps-stat-val">Cook's utensils, alchemist's supplies</div></div>
-      </div>
-    </div>
-
-    <!-- QUICK BUILD -->
-    <h2>Quick Build</h2>
-    <p>Put your highest ability score in <strong>Charisma</strong>, followed by Constitution or Dexterity. Choose the <strong>Guild Artisan</strong> background. For your starting instant soups, choose <strong>Bad Batch</strong> and <strong>Hot N' Ready</strong>. For your 1st-level recipes, begin with <strong>Chicken Noodle</strong> and <strong>Magic Mushroom</strong>.</p>
-
-    <!-- KEY FEATURES -->
-    <h2>Key Features</h2>
-    <div class="ps-features">
-      <div class="ps-feature">
-        <div class="ps-feature-level">1st Level</div>
-        <div class="ps-feature-name">Soupcooking</div>
-        <div class="ps-feature-desc">Your cookbook holds magical soup recipes. Your thermoses function as spell slots — prepared in advance, carried on a bandolier, and expended when you cook a recipe. Charisma governs your Soup save DC and attack rolls.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">1st Level</div>
-        <div class="ps-feature-name">Soup Cabinet</div>
-        <div class="ps-feature-desc">As an action, conjure a set of cabinet doors on any solid surface — a wall, a stone, even a tree. Inside: an extradimensional space stocked with ingredients, spices, and everything you need. Expands at 5th, 10th, and 15th level.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">2nd Level</div>
-        <div class="ps-feature-name">Culinary Edge</div>
-        <div class="ps-feature-desc">Enter a flow state of pure culinary focus. Roll a culinary die (d4 at 2nd level, scaling to d12 at 20th) and add the result to a damage or healing roll from a soup cooked this turn. Regains on long rest.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">2nd Level</div>
-        <div class="ps-feature-name">Entrepreneur's Expertise</div>
-        <div class="ps-feature-desc">Choose one Charisma-based skill you are proficient in. Your proficiency bonus is doubled for any ability check using that skill. Because the soup business rewards confidence.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">3rd Level</div>
-        <div class="ps-feature-name">Soup of the Day</div>
-        <div class="ps-feature-desc">When you finish a long rest, roll on the Soup of the Day table to determine a secret enhancement. Apply it to a number of your thermoses equal to a culinary die roll. At 9th level, roll twice and choose which result applies to each group.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">5th Level</div>
-        <div class="ps-feature-name">Gritty Gut</div>
-        <div class="ps-feature-desc">Years of tasting catastrophically wrong experiments have hardened your constitution. You have advantage on saving throws against ingested hazards — poison, disease, and anything you probably should not have sampled.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">6th Level</div>
-        <div class="ps-feature-name">Trained Tongue</div>
-        <div class="ps-feature-desc">Your palate is a precision instrument. Advantage on Perception checks relying on taste or smell. You can identify any nonmagical food or substance by taste alone, and automatically know whether something you are about to consume is safe.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">7th Level</div>
-        <div class="ps-feature-name">Pop-up Stand</div>
-        <div class="ps-feature-desc">You have mastered the art of setting up shop anywhere. Given 4 hours and basic lumber, you can construct a fully operational covered soup stand — complete with a prep area, display counter, and signage. Open for business.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">10th Level</div>
-        <div class="ps-feature-name">Soup Kitchen</div>
-        <div class="ps-feature-desc">Your extradimensional pantry expands into a full 10×10×10 ft. kitchen — furnished with a magical stone hearth that burns without fuel, a long preparation counter, and racks of hanging cookware. Home, wherever you are.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">14th Level</div>
-        <div class="ps-feature-name">Divinely Delicious Soup</div>
-        <div class="ps-feature-desc">Designate a number of thermoses equal to your Charisma modifier as Divinely Delicious. These soups gain enhanced effects and force creatures that consume them to make a Wisdom saving throw or suffer disadvantage on their next save.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">18th Level</div>
-        <div class="ps-feature-name">Interdimensional Cauldron</div>
-        <div class="ps-feature-desc">Cook a Planar Broth over 1 hour. Pour it onto a solid surface and a shimmering portal opens — large enough for a Medium creature, connecting your location to a plane of existence you choose. The portal remains open for 10 minutes.</div>
-      </div>
-      <div class="ps-feature">
-        <div class="ps-feature-level">20th Level</div>
-        <div class="ps-feature-name">Legendary Chef</div>
-        <div class="ps-feature-desc">Your Charisma increases by 2 (max 22). Your culinary die becomes a d12 with five dice. Once per long rest, cook your Magnum Opus: a legendary soup that doubles all healing from your recipes for 24 hours and grants immunity to frightened and charmed.</div>
-      </div>
-    </div>
-
-    <!-- EQUIPMENT -->
-    <h2>Starting Equipment</h2>
-    <p>You begin with a <strong>magical soup cookbook</strong>, a <strong>bandolier of magical thermoses</strong>, a butcher's knife (functions as a dagger), a net, leather armor, and a pack containing cook's utensils, alchemist's supplies, a hatchet, and a tinderbox.</p>
-
-    <!-- LORE -->
-    <h2>Creating Your Soup Savant</h2>
-    <p>When creating a soup savant, consider when and where they first developed their love of soup. When did your character really commit to making the best soup possible, and who did they acquire their interdisciplinary training from? Were they apprenticed to a traveling chef who doubled as a hedge wizard? Did they stumble upon an ancient cookbook in a crumbling library? Or did they discover, one cold winter's night, that a bowl of their own soup made them feel something they had never felt before?</p>
-    <p>One question every soup savant must answer is how they became capable of storing ingredients in an extradimensional space. Did a deity reward their passion? Did they make a deal with a powerful spellcaster? The answer shapes how your character relates to the magic they wield — whether with reverence, casual ownership, or lingering debt.</p>
-
-    <div class="ps-divider" style="margin: 48px 0;"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
-
-    <div style="text-align:center; padding: 8px 0 24px;">
-      <a href="legendary.html" class="ps-cta">Legendary Soups →</a>
-    </div>
-
-  </div>
-
-  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
-
   <section class="ps-connect">
-    <div class="ps-section-header">
-      <div class="ps-section-title">Find Us</div>
-    </div>
+    <div class="ps-section-header"><div class="ps-section-title">Find Us</div></div>
     <div class="ps-connect-grid">
-
-      <a href="https://startplaying.games/gm/phmurt-studios" target="_blank" rel="noopener" class="ps-connect-card">
-        <div class="ps-connect-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 22,12 5,21" fill="currentColor"/></svg>
-        </div>
-        <div class="ps-connect-label">Start Playing</div>
-        <div class="ps-connect-sub">Book a session</div>
-        <div class="ps-connect-url">startplaying.games/gm/phmurt-studios</div>
-      </a>
-
-      <a href="https://www.youtube.com/@PhmurtStudios" target="_blank" rel="noopener" class="ps-connect-card">
-        <div class="ps-connect-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.6 12 21.6 12 21.6s4.2 0 6.8-.3c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5V8.5l8 3.5-8 3.5z" fill="currentColor"/></svg>
-        </div>
-        <div class="ps-connect-label">YouTube</div>
-        <div class="ps-connect-sub">Videos &amp; updates</div>
-        <div class="ps-connect-url">@PhmurtStudios</div>
-      </a>
-
-      <a href="https://www.instagram.com/phmurt_studios/" target="_blank" rel="noopener" class="ps-connect-card">
-        <div class="ps-connect-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg>
-        </div>
-        <div class="ps-connect-label">Instagram</div>
-        <div class="ps-connect-sub">Behind the scenes</div>
-        <div class="ps-connect-url">@phmurt_studios</div>
-      </a>
-
-      <a href="mailto:phmurtstudios@gmail.com" class="ps-connect-card">
-        <div class="ps-connect-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="2,4 12,13 22,4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-        </div>
-        <div class="ps-connect-label">Email</div>
-        <div class="ps-connect-sub">Get in touch</div>
-        <div class="ps-connect-url">phmurtstudios@gmail.com</div>
-      </a>
-
+      <a href="https://startplaying.games/gm/phmurt-studios" target="_blank" rel="noopener" class="ps-connect-card"><div class="ps-connect-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 22,12 5,21" fill="currentColor"/></svg></div><div class="ps-connect-label">Start Playing</div><div class="ps-connect-sub">Book a session</div><div class="ps-connect-url">startplaying.games/gm/phmurt-studios</div></a>
+      <a href="https://www.youtube.com/@PhmurtStudios" target="_blank" rel="noopener" class="ps-connect-card"><div class="ps-connect-icon"><svg viewBox="0 0 24 24"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.6 12 21.6 12 21.6s4.2 0 6.8-.3c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5V8.5l8 3.5-8 3.5z" fill="currentColor"/></svg></div><div class="ps-connect-label">YouTube</div><div class="ps-connect-sub">Videos &amp; updates</div><div class="ps-connect-url">@PhmurtStudios</div></a>
+      <a href="https://www.instagram.com/phmurt_studios/" target="_blank" rel="noopener" class="ps-connect-card"><div class="ps-connect-icon"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg></div><div class="ps-connect-label">Instagram</div><div class="ps-connect-sub">Behind the scenes</div><div class="ps-connect-url">@phmurt_studios</div></a>
+      <a href="mailto:phmurtstudios@gmail.com" class="ps-connect-card"><div class="ps-connect-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="2,4 12,13 22,4" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div class="ps-connect-label">Email</div><div class="ps-connect-sub">Get in touch</div><div class="ps-connect-url">phmurtstudios@gmail.com</div></a>
     </div>
   </section>
 
@@ -203,5 +62,13 @@
     </div>
     <div class="ps-footer-copy">Crafted with intention. Built for your table.</div>
   </footer>
+  <script>
+    const ham = document.getElementById('hamburger');
+    const menu = document.getElementById('mobileMenu');
+    const close = document.getElementById('mobileClose');
+    ham.addEventListener('click', () => { ham.classList.toggle('open'); menu.classList.toggle('open'); });
+    close.addEventListener('click', () => { ham.classList.remove('open'); menu.classList.remove('open'); });
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { ham.classList.remove('open'); menu.classList.remove('open'); }));
+  </script>
 </body>
 </html>

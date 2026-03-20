@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grimoire — Phmurt Studios</title>
+  <meta name="description" content="The Phmurt Studios Grimoire — all published D&D classes, supplements, and original RPG systems." />
+  <meta property="og:title" content="Grimoire — Phmurt Studios" />
+  <meta property="og:description" content="Browse all published D&D classes, supplements, and original RPG systems from Phmurt Studios." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://phmurtstudios.com/grimoire.html" />
+  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Grimoire — Phmurt Studios" />
+  <meta name="twitter:description" content="Browse all published D&D classes, supplements, and original RPG systems from Phmurt Studios." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="ps-nav">
+    <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html" class="active">Grimoire</a>
+      <a href="about.html">About</a>
+    </div>
+    <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
+    <button class="ps-hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="grimoire.html" class="active">Grimoire</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+  </div>
+
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a>
+    <span class="sep">◆</span>
+    <span class="current">Grimoire</span>
+  </nav>
+
+  <div class="ps-page-hero">
+    <div class="ps-page-eyebrow">The Archive</div>
+    <div class="ps-page-title">Grimoire</div>
+    <div class="ps-page-subtitle">All Published Work</div>
+    <p class="ps-page-intro">Every class, supplement, and system published by Phmurt Studios. Playtested, refined, and built for storytellers who demand more from their table.</p>
+  </div>
+
+  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
+
+  <div class="ps-section-header">
+    <div class="ps-section-title">All Content</div>
+  </div>
+
+  <div class="ps-grimoire-filters" id="filters">
+    <button class="ps-filter-btn active" data-filter="all">All</button>
+    <button class="ps-filter-btn" data-filter="class">Classes</button>
+    <button class="ps-filter-btn" data-filter="supplement">Supplements</button>
+    <button class="ps-filter-btn" data-filter="system">Systems</button>
+  </div>
+
+  <div class="ps-grimoire-grid" id="grimoire">
+
+    <a href="soup-savant.html" class="ps-grimoire-card" data-type="class">
+      <div class="ps-card-type">Full Class</div>
+      <div class="ps-card-title">The Soup Savant</div>
+      <div class="ps-card-excerpt">A spellcaster devoted to crafting the perfect soup — weaponizing broth, healing with bisque, and building a traveling culinary empire across the realms. 20 levels, full progression.</div>
+      <div class="ps-card-footer">
+        <span class="ps-card-tag">D&amp;D 5e</span>
+        <span class="ps-card-arrow">↗</span>
+      </div>
+      <span class="ps-grimoire-status">Available</span>
+    </a>
+
+    <a href="legendary.html" class="ps-grimoire-card" data-type="supplement">
+      <div class="ps-card-type">Supplement</div>
+      <div class="ps-card-title">Legendary Soups</div>
+      <div class="ps-card-excerpt">Recipes forged from the remains of the mightiest creatures in existence. Requires harvesting an ingredient from a defeated legendary monster. Not for the faint of heart.</div>
+      <div class="ps-card-footer">
+        <span class="ps-card-tag">Soup Savant</span>
+        <span class="ps-card-arrow">↗</span>
+      </div>
+      <span class="ps-grimoire-status">Available</span>
+    </a>
+
+    <div class="ps-grimoire-card" data-type="class" style="cursor:default;">
+      <div class="ps-card-type">Full Class</div>
+      <div class="ps-card-title">The Runewright</div>
+      <div class="ps-card-excerpt">An artificer variant who carves living magic into stone, metal, and bone. Magic that endures long after the caster is gone.</div>
+      <div class="ps-card-footer">
+        <span class="ps-card-tag">D&amp;D 5e</span>
+      </div>
+      <span class="ps-grimoire-status coming">In Development</span>
+    </div>
+
+    <div class="ps-grimoire-card" data-type="system" style="cursor:default;">
+      <div class="ps-card-type">Original RPG</div>
+      <div class="ps-card-title">Ashen Crown</div>
+      <div class="ps-card-excerpt">A standalone tabletop RPG set in the dying age of a fallen empire. Grim, political, mortal. A complete system built from the ground up.</div>
+      <div class="ps-card-footer">
+        <span class="ps-card-tag">Original System</span>
+      </div>
+      <span class="ps-grimoire-status coming">In Development</span>
+    </div>
+
+    <div class="ps-grimoire-card" data-type="supplement" style="cursor:default;">
+      <div class="ps-card-type">Supplement</div>
+      <div class="ps-card-title">More Coming Soon</div>
+      <div class="ps-card-excerpt">New content is always in development. Follow us on Instagram or subscribe to be notified when new releases drop.</div>
+      <div class="ps-card-footer">
+        <span class="ps-card-tag">Phmurt Studios</span>
+      </div>
+      <span class="ps-grimoire-status coming">Coming Soon</span>
+    </div>
+
+  </div>
+
+  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
+
+  <section class="ps-connect">
+    <div class="ps-section-header"><div class="ps-section-title">Find Us</div></div>
+    <div class="ps-connect-grid">
+      <a href="https://startplaying.games/gm/phmurt-studios" target="_blank" rel="noopener" class="ps-connect-card">
+        <div class="ps-connect-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 22,12 5,21" fill="currentColor"/></svg></div>
+        <div class="ps-connect-label">Start Playing</div>
+        <div class="ps-connect-sub">Book a session</div>
+        <div class="ps-connect-url">startplaying.games/gm/phmurt-studios</div>
+      </a>
+      <a href="https://www.youtube.com/@PhmurtStudios" target="_blank" rel="noopener" class="ps-connect-card">
+        <div class="ps-connect-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.6 12 21.6 12 21.6s4.2 0 6.8-.3c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5V8.5l8 3.5-8 3.5z" fill="currentColor"/></svg></div>
+        <div class="ps-connect-label">YouTube</div>
+        <div class="ps-connect-sub">Videos &amp; updates</div>
+        <div class="ps-connect-url">@PhmurtStudios</div>
+      </a>
+      <a href="https://www.instagram.com/phmurt_studios/" target="_blank" rel="noopener" class="ps-connect-card">
+        <div class="ps-connect-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg></div>
+        <div class="ps-connect-label">Instagram</div>
+        <div class="ps-connect-sub">Behind the scenes</div>
+        <div class="ps-connect-url">@phmurt_studios</div>
+      </a>
+      <a href="mailto:phmurtstudios@gmail.com" class="ps-connect-card">
+        <div class="ps-connect-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="2,4 12,13 22,4" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+        <div class="ps-connect-label">Email</div>
+        <div class="ps-connect-sub">Get in touch</div>
+        <div class="ps-connect-url">phmurtstudios@gmail.com</div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="ps-footer">
+    <div class="ps-footer-logo">
+      <img src="logo.png" alt="Phmurt Studios" />
+      <span class="ps-footer-name">Phmurt Studios</span>
+    </div>
+    <div class="ps-footer-copy">Crafted with intention. Built for your table.</div>
+  </footer>
+
+  <script>
+    const ham = document.getElementById('hamburger');
+    const menu = document.getElementById('mobileMenu');
+    const close = document.getElementById('mobileClose');
+    ham.addEventListener('click', () => { ham.classList.toggle('open'); menu.classList.toggle('open'); });
+    close.addEventListener('click', () => { ham.classList.remove('open'); menu.classList.remove('open'); });
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { ham.classList.remove('open'); menu.classList.remove('open'); }));
+
+    document.querySelectorAll('.ps-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.ps-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.ps-grimoire-card').forEach(card => {
+          if (filter === 'all' || card.dataset.type === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
