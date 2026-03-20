@@ -76,10 +76,10 @@ a { text-decoration: none; color: inherit; }
 .ps-logo-wrap { display: flex; justify-content: center; margin-bottom: 28px; }
 .ps-logo-img {
   width: 112px; height: 112px; object-fit: contain;
-  transition: opacity 0.3s;
-  opacity: 0.92;
+  transition: filter 0.3s;
+  filter: drop-shadow(0 0 12px rgba(192,57,43,0.35));
 }
-.ps-logo-img:hover { opacity: 1; }
+.ps-logo-img:hover { filter: drop-shadow(0 0 22px rgba(192,57,43,0.6)); }
 .ps-studio-name {
   font-family: 'Cinzel', serif; font-size: 30px; letter-spacing: 11px;
   color: var(--white); text-transform: uppercase; font-weight: 400; margin-bottom: 10px;
