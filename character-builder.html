@@ -306,6 +306,21 @@
       transition: color 0.2s;
     }
     #dice-popup .dp-close:hover { color: var(--text); }
+
+    /* ── SPELL DESCRIPTION POPUP ── */
+    .spell-info-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:8000; display:flex; align-items:center; justify-content:center; animation:fadeIn .15s ease; }
+    .spell-info-box { background:var(--bg-card); border:1px solid var(--crimson-border); padding:32px; max-width:420px; width:90%; position:relative; }
+    .spell-info-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--crimson),transparent); }
+    .spell-info-name { font-family:'Cinzel',serif; font-size:14px; letter-spacing:2px; text-transform:uppercase; color:var(--text); margin-bottom:4px; }
+    .spell-info-school { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--crimson); text-transform:uppercase; margin-bottom:16px; }
+    .spell-info-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+    .spell-info-stat { background:var(--bg); padding:8px 10px; }
+    .spell-info-stat-label { font-family:'Cinzel',serif; font-size:7px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; margin-bottom:3px; }
+    .spell-info-stat-val { font-size:13px; color:var(--text-dim); }
+    .spell-info-desc { font-size:14px; color:var(--text-dim); line-height:1.75; font-style:italic; }
+    .spell-info-close { position:absolute; top:10px; right:14px; background:none; border:none; color:var(--text-faint); font-size:18px; cursor:pointer; }
+    .spell-info-close:hover { color:var(--text); }
+
     /* ── WEAPON CARDS ── */
     .cb-weapon-card { background: var(--bg-card); border: 1px solid var(--crimson-border); padding: 14px 16px; cursor: pointer; transition: all 0.2s; display: inline-block; margin: 0 8px 8px 0; min-width: 160px; position: relative; }
     .cb-weapon-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
@@ -424,6 +439,21 @@
       transition: color 0.2s;
     }
     #dice-popup .dp-close:hover { color: var(--text); }
+
+    /* ── SPELL DESCRIPTION POPUP ── */
+    .spell-info-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:8000; display:flex; align-items:center; justify-content:center; animation:fadeIn .15s ease; }
+    .spell-info-box { background:var(--bg-card); border:1px solid var(--crimson-border); padding:32px; max-width:420px; width:90%; position:relative; }
+    .spell-info-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--crimson),transparent); }
+    .spell-info-name { font-family:'Cinzel',serif; font-size:14px; letter-spacing:2px; text-transform:uppercase; color:var(--text); margin-bottom:4px; }
+    .spell-info-school { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--crimson); text-transform:uppercase; margin-bottom:16px; }
+    .spell-info-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+    .spell-info-stat { background:var(--bg); padding:8px 10px; }
+    .spell-info-stat-label { font-family:'Cinzel',serif; font-size:7px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; margin-bottom:3px; }
+    .spell-info-stat-val { font-size:13px; color:var(--text-dim); }
+    .spell-info-desc { font-size:14px; color:var(--text-dim); line-height:1.75; font-style:italic; }
+    .spell-info-close { position:absolute; top:10px; right:14px; background:none; border:none; color:var(--text-faint); font-size:18px; cursor:pointer; }
+    .spell-info-close:hover { color:var(--text); }
+
     /* ── WEAPON CARDS ── */
     .cb-weapon-card { background: var(--bg-card); border: 1px solid var(--crimson-border); padding: 12px 14px; cursor: pointer; transition: all 0.2s; min-width: 150px; position: relative; flex-shrink: 0; }
     .cb-weapon-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
@@ -449,8 +479,9 @@
     <div class="ps-nav-links">
       <a href="index.html">Home</a>
       <a href="grimoire.html">Grimoire</a>
-      <a href="character-sheets.html">Sheets</a>
+      <a href="character-sheets.html" class="active">Sheets</a>
       <a href="about.html">About</a>
+      <a href="my-characters.html">My Characters</a>
     </div>
     <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -465,11 +496,17 @@
 
   <div class="ps-mobile-menu" id="mobileMenu">
     <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
-    <a href="index.html">Home</a><div class="ps-mobile-divider"></div>
-    <a href="grimoire.html">Grimoire</a><div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a><div class="ps-mobile-divider"></div>
+    <a href="index.html">Home</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html" class="active">Sheets</a>
+    <div class="ps-mobile-divider"></div>
     <a href="about.html">About</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="my-characters.html">My Characters</a>
   </div>
+
 
   <nav class="ps-breadcrumb" aria-label="Breadcrumb">
     <a href="index.html">Home</a><span class="sep">◆</span>
@@ -1328,15 +1365,23 @@ function renderEquipment(){
       let weapDrop='';
       if(C.equipChoices[idx]!==undefined){
         const selOpt=choice[C.equipChoices[idx]];
-        if(DND_DATA.weaponCategories&&DND_DATA.weaponCategories[selOpt]){
-          const wpns=DND_DATA.weaponCategories[selOpt];
+        // Check item/weapon categories, also fuzzy-match "Any X" patterns
+        const cats = {...(DND_DATA.itemCategories||{}), ...(DND_DATA.weaponCategories||{})};
+        const catItems = cats[selOpt] || (
+          selOpt && selOpt.toLowerCase().startsWith('any ')
+            ? Object.entries(cats).find(([k])=>k.toLowerCase()===selOpt.toLowerCase())?.[1]
+            : null
+        );
+        if(catItems && catItems.length){
+          const wpns = Array.isArray(catItems[0]) ? catItems : catItems.map(w=>typeof w==='object'?w:{name:w,damage:'—',type:'—',props:'—'});
           const wKey=idx+'_'+C.equipChoices[idx];
           const curW=C.weaponChoices[wKey]||'';
           weapDrop=`<div style="margin-top:12px;">
             <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;">Choose Specific Weapon</div>
             <select style="background:var(--bg-card);border:1px solid var(--crimson-border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:14px;padding:7px 10px;width:100%;" onchange="C.weaponChoices['${wKey}']=this.value;renderEquipment();">
               <option value="">Select a weapon...</option>
-              ${wpns.map(w=>`<option value="${w.name}" ${curW===w.name?'selected':''}>${w.name} — ${w.damage} ${w.type} (${w.props})</option>`).join('')}
+              ${wpns.map(w=>{const n=typeof w==='object'?w.name:w;const d=typeof w==='object'?` — ${w.damage} ${w.type}${w.props&&w.props!=='—'?' ('+w.props+')':''}`:'';
+return `<option value="${n}" ${curW===n?'selected':''}>${n}${d}</option>`;}).join('')}
             </select>
             ${curW?`<div style="font-size:12px;color:var(--text-muted);font-style:italic;margin-top:5px;">✓ ${curW}</div>`:''}
           </div>`;
@@ -1405,13 +1450,23 @@ function renderSpells(){
     const ch=C.selectedCantrips.length;
     html+=`<div class="cb-spell-section"><div class="cb-spell-header">Cantrips — Choose ${cantripCount}</div>
       <div class="cb-spell-count"><span style="color:${ch>=cantripCount?'#5a9a5a':'var(--crimson)'}">${ch}/${cantripCount}</span> selected</div>
-      <div class="cb-spell-grid">${spellList.cantrips.map(sp=>`<div class="cb-spell-item ${C.selectedCantrips.includes(sp)?'selected':''}" onclick="toggleSpell('${sp}','c',${cantripCount})"><div class="cb-spell-dot"></div>${sp}</div>`).join('')}</div></div>`;
+      <div class="cb-spell-grid">${spellList.cantrips.map(sp=>`
+          <div class="cb-spell-item ${C.selectedCantrips.includes(sp)?'selected':''}">
+            <div class="cb-spell-dot" onclick="toggleSpell('${sp}','c',${cantripCount})" style="cursor:pointer;flex-shrink:0;"></div>
+            <span style="flex:1;cursor:pointer;" onclick="toggleSpell('${sp}','c',${cantripCount})">${sp}</span>
+            <span onclick="event.stopPropagation();showSpellInfo('${sp}')" style="font-family:'Cinzel',serif;font-size:10px;color:var(--text-faint);cursor:pointer;padding:0 6px;flex-shrink:0;" title="View description">ℹ</span>
+          </div>`).join('')}</div></div>`;
   }
   if(spellList.level1&&spellCount>0){
     const ch=C.selectedSpells.length;
     html+=`<div class="cb-spell-section"><div class="cb-spell-header">1st-Level Spells — Choose ${spellCount}</div>
       <div class="cb-spell-count"><span style="color:${ch>=spellCount?'#5a9a5a':'var(--crimson)'}">${ch}/${spellCount}</span> selected</div>
-      <div class="cb-spell-grid">${spellList.level1.map(sp=>`<div class="cb-spell-item ${C.selectedSpells.includes(sp)?'selected':''}" onclick="toggleSpell('${sp}','s',${spellCount})"><div class="cb-spell-dot"></div>${sp}</div>`).join('')}</div></div>`;
+      <div class="cb-spell-grid">${spellList.level1.map(sp=>`
+          <div class="cb-spell-item ${C.selectedSpells.includes(sp)?'selected':''}">
+            <div class="cb-spell-dot" onclick="toggleSpell('${sp}','s',${spellCount})" style="cursor:pointer;flex-shrink:0;"></div>
+            <span style="flex:1;cursor:pointer;" onclick="toggleSpell('${sp}','s',${spellCount})">${sp}</span>
+            <span onclick="event.stopPropagation();showSpellInfo('${sp}')" style="font-family:'Cinzel',serif;font-size:10px;color:var(--text-faint);cursor:pointer;padding:0 6px;flex-shrink:0;" title="View description">ℹ</span>
+          </div>`).join('')}</div></div>`;
   }
   if(C.cls==='cleric'||C.cls==='druid')
     html+=`<div class="cb-alert"><strong>Prepared Caster</strong> — You prepare ${Math.max(1,sm+1)} spells per long rest from the full list. No selection needed now.</div>`;
@@ -1617,6 +1672,44 @@ function closeDicePopup(){
   popup.classList.add('exit');
   overlay.classList.remove('show');
   setTimeout(()=>popup.classList.remove('exit'), 350);
+}
+
+
+function showSpellInfo(spellName){
+  // Remove any existing popup
+  const existing = document.getElementById('spell-info-popup');
+  if(existing) existing.remove();
+
+  const data = DND_DATA.spellDescriptions && DND_DATA.spellDescriptions[spellName];
+  const overlay = document.createElement('div');
+  overlay.className = 'spell-info-overlay';
+  overlay.id = 'spell-info-popup';
+  overlay.onclick = e => { if(e.target === overlay) overlay.remove(); };
+
+  if(data){
+    overlay.innerHTML = `<div class="spell-info-box">
+      <button class="spell-info-close" onclick="document.getElementById('spell-info-popup').remove()">✕</button>
+      <div class="spell-info-name">${spellName}</div>
+      <div class="spell-info-school">${data.school}</div>
+      <div class="spell-info-stats">
+        <div class="spell-info-stat"><div class="spell-info-stat-label">Casting Time</div><div class="spell-info-stat-val">${data.castTime}</div></div>
+        <div class="spell-info-stat"><div class="spell-info-stat-label">Range</div><div class="spell-info-stat-val">${data.range}</div></div>
+        <div class="spell-info-stat" style="grid-column:1/-1;"><div class="spell-info-stat-label">Duration</div><div class="spell-info-stat-val">${data.duration}</div></div>
+      </div>
+      <div class="spell-info-desc">${data.desc}</div>
+    </div>`;
+  } else {
+    overlay.innerHTML = `<div class="spell-info-box">
+      <button class="spell-info-close" onclick="document.getElementById('spell-info-popup').remove()">✕</button>
+      <div class="spell-info-name">${spellName}</div>
+      <div class="spell-info-school">Spell</div>
+      <div class="spell-info-desc" style="margin-top:8px;">No description available for this spell yet.</div>
+    </div>`;
+  }
+  document.body.appendChild(overlay);
+  // ESC to close
+  const esc = e => { if(e.key==='Escape'){ overlay.remove(); document.removeEventListener('keydown',esc); }};
+  document.addEventListener('keydown', esc);
 }
 
 function renderRollLog(){
@@ -2044,10 +2137,10 @@ function buildSpellsTab(){
   if(C.selectedCantrips.length){
     html+='<div class="cs-action-title" style="margin:20px 0 12px;">Cantrips</div>';
     html+=C.selectedCantrips.map(sp=>`
-      <div class="cs-spell-item cs-spell-prepared" onclick="rollCheck('Spell','${sp}',${pb2+sm})" title="Click to roll spell attack">
-        <div class="cs-spell-item-dot"></div>
-        <span class="cs-spell-name">${sp}</span>
-        <span class="cs-spell-atk">▸ ATK +${pb2+sm}</span>
+      <div class="cs-spell-item cs-spell-prepared">
+        <div class="cs-spell-item-dot" onclick="rollCheck('Spell','${sp}',${pb2+sm})"></div>
+        <span class="cs-spell-name" onclick="showSpellInfo('${sp}')" style="cursor:pointer;" title="View spell details">${sp}</span>
+        <span class="cs-spell-atk" onclick="rollCheck('Spell','${sp}',${pb2+sm})" style="cursor:pointer;">▸ ATK +${pb2+sm}</span>
       </div>`).join('');
   }
 
@@ -2055,10 +2148,10 @@ function buildSpellsTab(){
   if(C.selectedSpells.length){
     html+=`<div class="cs-action-title" style="margin:20px 0 12px;">1st-Level Spells</div>`;
     html+=C.selectedSpells.map(sp=>`
-      <div class="cs-spell-item cs-spell-prepared" onclick="rollCheck('Spell','${sp}',${pb2+sm})" title="Click to roll spell attack">
-        <div class="cs-spell-item-dot"></div>
-        <span class="cs-spell-name">${sp}</span>
-        <span class="cs-spell-atk">▸ Roll</span>
+      <div class="cs-spell-item cs-spell-prepared">
+        <div class="cs-spell-item-dot" onclick="rollCheck('Spell','${sp}',${pb2+sm})"></div>
+        <span class="cs-spell-name" onclick="showSpellInfo('${sp}')" style="cursor:pointer;" title="View spell details">${sp}</span>
+        <span class="cs-spell-atk" onclick="rollCheck('Spell','${sp}',${pb2+sm})" style="cursor:pointer;">▸ Roll</span>
       </div>`).join('');
   }
 
@@ -2251,20 +2344,42 @@ function showRestToast(title,msg){
 async function saveCharacterToDB(){
   const btn=document.getElementById('cs-save-btn');
   const status=document.getElementById('cs-save-status');
-  if(typeof PhmurtDB==='undefined'){ status.textContent='Auth not loaded.'; return; }
+  if(typeof PhmurtDB==='undefined'){ if(status) status.textContent='Auth not loaded.'; return; }
   const session=PhmurtDB.getSession();
-  if(!session){ PhmurtDB.openAuth(); status.textContent='Sign in to save.'; return; }
+  if(!session){ PhmurtDB.openAuth(); if(status) status.textContent='Sign in to save.'; return; }
   if(btn){ btn.textContent='Saving...'; btn.disabled=true; }
-  const existingId=localStorage.getItem('phmurt_current_char_id')||undefined;
-  const r=await PhmurtDB.saveCharacter(C, existingId);
-  if(r.success){
-    localStorage.setItem('phmurt_current_char_id',r.id);
+
+  // Build a clean serializable snapshot (strip non-data fields)
+  const snapshot = {
+    race:             C.race,
+    subrace:          C.subrace,
+    cls:              C.cls,
+    background:       C.background,
+    abilities:        {...C.abilities},
+    scoreMethod:      C.scoreMethod,
+    arrayAssigned:    {...C.arrayAssigned},
+    selectedSkills:   [...C.selectedSkills],
+    equipChoices:     {...C.equipChoices},
+    weaponChoices:    {...(C.weaponChoices||{})},
+    selectedCantrips: [...C.selectedCantrips],
+    selectedSpells:   [...C.selectedSpells],
+    details:          {...C.details},
+    level:            C.level||1,
+    savedAt:          Date.now(),
+  };
+
+  const existingId = localStorage.getItem('phmurt_current_char_id')||undefined;
+  const r = await PhmurtDB.saveCharacter(snapshot, existingId);
+
+  if(r && r.success){
+    localStorage.setItem('phmurt_current_char_id', r.id);
     if(btn){ btn.textContent='Saved ✓'; btn.disabled=false; }
     if(status) status.textContent='Saved '+(new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
     setTimeout(()=>{ if(btn) btn.textContent='Save Character ↑'; },2000);
   } else {
     if(btn){ btn.textContent='Save Character ↑'; btn.disabled=false; }
-    if(status) status.textContent=r.error||'Save failed.';
+    if(status) status.textContent=(r&&r.error)||'Save failed — check console.';
+    console.error('Save failed:', r);
   }
 }
 
@@ -2313,9 +2428,18 @@ function init(){
     localStorage.removeItem('phmurt_load_char_id');
     const data=await PhmurtDB.loadCharacter(id);
     if(!data) return;
-    Object.assign(C,data);
-    localStorage.setItem('phmurt_current_char_id',id);
-    goToStep(9,true);
+    // Restore all state fields safely
+    const fields=['race','subrace','cls','background','abilities','scoreMethod',
+                  'arrayAssigned','selectedSkills','equipChoices','weaponChoices',
+                  'selectedCantrips','selectedSpells','details','level'];
+    fields.forEach(k=>{ if(data[k]!==undefined) C[k]=data[k]; });
+    C.weaponChoices = C.weaponChoices || {};
+    C.rollLog = [];
+    localStorage.setItem('phmurt_current_char_id', id);
+    // Re-init scored method display
+    renderAbilityGrid();
+    renderArrayPool();
+    goToStep(9, true);
   }
 
   document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
