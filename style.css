@@ -71,11 +71,12 @@ a{text-decoration:none;color:inherit;}
    NAV
    ═══════════════════════════════ */
 .ps-nav{
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;gap:0;
   padding:18px 56px;border-bottom:1px solid var(--border);
   background:var(--bg-nav);position:sticky;top:0;z-index:200;
   backdrop-filter:blur(8px);transition:background .25s;
 }
+.ps-nav-links{flex:1;}
 .ps-nav::after{content:'';position:absolute;bottom:0;left:56px;right:56px;height:1px;background:linear-gradient(90deg,transparent,var(--crimson-border),transparent);}
 .ps-nav-links{display:flex;gap:36px;}
 .ps-nav-links a{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;transition:color .25s;position:relative;}
@@ -85,6 +86,19 @@ a{text-decoration:none;color:inherit;}
 .ps-nav-links a.active{color:var(--text);}
 .ps-nav-action{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--crimson);text-transform:uppercase;transition:all .25s;border:1px solid var(--crimson-border);padding:6px 14px;}
 .ps-nav-action:hover{color:var(--text);background:var(--crimson-soft);}
+
+
+/* ── NAV RIGHT CLUSTER ── */
+.ps-nav-right {
+  display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0;
+}
+/* Move Browse All inside nav-right so it doesn't float in the middle */
+.ps-nav-right .ps-nav-action { margin-right: 4px; }
+
+/* On mobile, hide Browse All but keep toggle/auth/hamburger */
+@media (max-width: 860px) {
+  .ps-nav-right .ps-nav-action { display: none; }
+}
 
 /* ── HAMBURGER ── */
 .ps-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;}
@@ -104,7 +118,8 @@ a{text-decoration:none;color:inherit;}
 @media(max-width:860px){
   .ps-nav{padding:16px 24px;}
   .ps-nav::after{left:24px;right:24px;}
-  .ps-nav-links,.ps-nav-action{display:none;}
+  .ps-nav-links{display:none;}
+  .ps-nav-right .ps-nav-action{display:none;}
   .ps-hamburger{display:flex;}
 }
 

@@ -483,8 +483,8 @@
       <a href="about.html">About</a>
       <a href="my-characters.html">My Characters</a>
     </div>
-    <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div class="ps-nav-right">
+      <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
       <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
       <div class="nav-auth-wrap">
         <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
@@ -506,6 +506,7 @@
     <div class="ps-mobile-divider"></div>
     <a href="my-characters.html">My Characters</a>
   </div>
+
 
 
   <nav class="ps-breadcrumb" aria-label="Breadcrumb">
@@ -1021,6 +1022,19 @@ function goToStep(n, skipVal){
     s.classList.toggle('done',sn<n);
   });
   document.getElementById('progressBar').style.width = Math.round(n/TOTAL_STEPS*100)+'%';
+  // Hide sidebar and progress bar on final sheet, show on other steps
+  const sidebar = document.getElementById('sidebar');
+  const progressBar = document.getElementById('progressBar');
+  const cbWrap = document.querySelector('.cb-wrap');
+  if(n === 9){
+    if(sidebar) sidebar.style.display = 'none';
+    if(progressBar) progressBar.parentElement.style.display = 'none';
+    if(cbWrap) cbWrap.style.gridTemplateColumns = '1fr';
+  } else {
+    if(sidebar) sidebar.style.display = '';
+    if(progressBar) progressBar.parentElement.style.display = '';
+    if(cbWrap) cbWrap.style.gridTemplateColumns = '';
+  }
   if(n===5) renderSkills();
   if(n===6) renderEquipment();
   if(n===7) renderSpells();
@@ -1935,9 +1949,20 @@ function buildFinalSheet(){
   // ── Notes Tab ──
   buildNotesTab();
 
-  // Show/hide spell tab
+  // Show/hide spell tab based on spellcasting ability
   const spellTab=document.getElementById('cs-spell-tab');
-  if(spellTab) spellTab.style.opacity=cls.spellcastingAbility?'1':'0.4';
+  if(spellTab){
+    if(cls.spellcastingAbility){
+      spellTab.style.display='';
+      spellTab.style.opacity='1';
+    } else {
+      spellTab.style.display='none';
+      // If currently on spells tab, switch to main
+      if(document.getElementById('tab-spells')?.classList.contains('active')){
+        switchTab('main');
+      }
+    }
+  }
 }
 
 // ── Shared sheet state ──
