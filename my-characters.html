@@ -92,7 +92,14 @@
       subtitle.textContent = `Welcome back, ${session.name}`;
       container.innerHTML = '<div style="padding:40px 56px;font-style:italic;color:var(--text-faint);">Loading characters...</div>';
 
-      const chars = await PhmurtDB.loadCharacters();
+      let chars = [];
+      try {
+        const loadTimeout = new Promise(resolve => setTimeout(() => resolve([]), 5000));
+        chars = await Promise.race([PhmurtDB.loadCharacters(), loadTimeout]);
+      } catch(e) {
+        console.warn('Load characters error:', e);
+        chars = [];
+      }
       const DND = typeof DND_DATA !== 'undefined' ? DND_DATA : null;
 
       let html = '<div class="ps-section-header"><div class="ps-section-title">Saved Characters</div></div><div class="ps-chars-grid">';
@@ -144,7 +151,16 @@
     if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
     if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}});
     document.querySelectorAll('a[href]').forEach(a=>{const href=a.getAttribute('href');if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});}});
-    document.addEventListener('DOMContentLoaded', loadPage);
+    document.addEventListener('DOMContentLoaded', async function(){
+      // Restore Supabase session if cloudEnabled
+      if(typeof PHMURT_CONFIG !== 'undefined' && PHMURT_CONFIG.cloudEnabled && typeof window.supabase !== 'undefined'){
+        try {
+          const _sb = window.supabase.createClient(PHMURT_CONFIG.supabaseUrl, PHMURT_CONFIG.supabaseAnonKey);
+          await _sb.auth.getSession(); // restore persisted session
+        } catch(e) {}
+      }
+      loadPage();
+    });
     document.addEventListener('click', e=>{if(!e.target.closest('.nav-auth-wrap')){ document.getElementById('nav-user-dropdown')?.classList.remove('open'); }});
 
     // Scroll fade effect

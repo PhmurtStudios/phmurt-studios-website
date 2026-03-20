@@ -114,12 +114,18 @@ const PhmurtDB = (function(){
     // Supabase
     const client = sb();
     if(client){
-      const row = {id:char.id, user_id:session.userId, name:char.name, data:char.data, updated_at:new Date().toISOString()};
-      if(!existingId) row.created_at = new Date().toISOString();
-      const {error} = existingId
-        ? await client.from('characters').update(row).eq('id',existingId)
-        : await client.from('characters').insert(row);
-      if(error) console.warn('Supabase save failed, using local', error);
+      try {
+        // Restore auth session before writing
+        await client.auth.getSession();
+        const row = {id:char.id, user_id:session.userId, name:char.name, data:char.data, updated_at:new Date().toISOString()};
+        if(!existingId) row.created_at = new Date().toISOString();
+        const {error} = existingId
+          ? await client.from('characters').update(row).eq('id',existingId)
+          : await client.from('characters').insert(row);
+        if(error) console.warn('Supabase save failed, using local only:', error);
+      } catch(e) {
+        console.warn('Supabase save exception:', e);
+      }
     }
 
     // Always save local
@@ -136,18 +142,31 @@ const PhmurtDB = (function(){
     const session = getSession();
     if(!session) return [];
 
-    // Try Supabase
+    // Try Supabase with a timeout
     const client = sb();
     if(client){
-      const {data,error} = await client.from('characters').select('*').eq('user_id',session.userId).order('updated_at',{ascending:false});
-      if(!error && data){
-        // Sync to local
-        lsSet(CHARS_PREFIX+session.userId, data.map(r=>({id:r.id,userId:r.user_id,name:r.name,data:r.data,created:new Date(r.created_at).getTime(),updated:new Date(r.updated_at).getTime()})));
-        return data.map(r=>({id:r.id,name:r.name,race:r.data?.race,cls:r.data?.cls,updated:r.updated_at,data:r.data}));
+      try {
+        // Restore Supabase auth session first
+        const {data: sessionData} = await client.auth.getSession();
+        const {data, error} = await client.from('characters')
+          .select('*')
+          .eq('user_id', session.userId)
+          .order('updated_at', {ascending:false});
+        if(!error && data && data.length >= 0){
+          // Sync to local cache
+          lsSet(CHARS_PREFIX+session.userId, data.map(r=>({
+            id:r.id, userId:r.user_id, name:r.name, data:r.data,
+            created:new Date(r.created_at).getTime(),
+            updated:new Date(r.updated_at).getTime()
+          })));
+          return data.map(r=>({id:r.id, name:r.name, race:r.data?.race, cls:r.data?.cls, updated:r.updated_at, data:r.data}));
+        }
+      } catch(e) {
+        console.warn('Supabase loadCharacters failed, using local cache:', e);
       }
     }
 
-    // Local fallback
+    // Local fallback — always works
     return (lsGet(CHARS_PREFIX+session.userId)||[]).sort((a,b)=>(b.updated||0)-(a.updated||0));
   }
 
