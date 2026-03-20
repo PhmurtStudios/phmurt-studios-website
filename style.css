@@ -256,7 +256,7 @@ a { text-decoration: none; color: inherit; }
 .ps-footer-copy { font-size: 13px; color: rgba(255,255,255,0.35); font-style: italic; }
 
 /* ── PAGE HERO ── */
-.ps-page-hero { padding: 64px 56px 52px; border-bottom: 1px solid var(--border); animation: fadeUp 0.7s ease both; position: relative; overflow: hidden; }
+.ps-page-hero { padding: 64px 56px 52px; animation: fadeUp 0.7s ease both; position: relative; overflow: hidden; }
 .ps-page-hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 0% 50%, rgba(192,57,43,0.06) 0%, transparent 60%); pointer-events: none; }
 .ps-page-eyebrow { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 5px; color: var(--crimson); text-transform: uppercase; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
 .ps-page-eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--crimson); }
