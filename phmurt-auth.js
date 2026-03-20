@@ -187,12 +187,16 @@ const PhmurtDB = (function(){
         <div class="pam-tabs">
           <button class="pam-tab active" onclick="PhmurtDB.authTab('login')">Sign In</button>
           <button class="pam-tab" onclick="PhmurtDB.authTab('signup')">Create Account</button>
+          <button class="pam-tab" onclick="PhmurtDB.authTab('forgot')">Reset Password</button>
         </div>
         <div id="pam-login" class="pam-form">
           <div class="pam-field"><label>Email</label><input type="email" id="pam-login-email" placeholder="you@example.com" /></div>
           <div class="pam-field"><label>Password</label><input type="password" id="pam-login-pw" placeholder="••••••••" /></div>
           <div class="pam-error" id="pam-login-err"></div>
           <button class="pam-submit" onclick="PhmurtDB.doLogin()">Sign In</button>
+          <div style="text-align:center;margin-top:10px;">
+            <button onclick="PhmurtDB.authTab('forgot')" style="background:none;border:none;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:color .2s;" onmouseover="this.style.color='var(--crimson)'" onmouseout="this.style.color='var(--text-muted)'">Forgot Password?</button>
+          </div>
         </div>
         <div id="pam-signup" class="pam-form" style="display:none">
           <div class="pam-field"><label>Name</label><input type="text" id="pam-signup-name" placeholder="Adventurer name" /></div>
@@ -200,6 +204,15 @@ const PhmurtDB = (function(){
           <div class="pam-field"><label>Password</label><input type="password" id="pam-signup-pw" placeholder="Min. 6 characters" /></div>
           <div class="pam-error" id="pam-signup-err"></div>
           <button class="pam-submit" onclick="PhmurtDB.doSignup()">Create Account</button>
+        </div>
+        <div id="pam-forgot" class="pam-form" style="display:none">
+          <div style="font-size:14px;color:var(--text-dim);font-style:italic;line-height:1.7;margin-bottom:16px;">Enter your email and we'll send you a link to reset your password.</div>
+          <div class="pam-field"><label>Email</label><input type="email" id="pam-forgot-email" placeholder="you@example.com" /></div>
+          <div class="pam-error" id="pam-forgot-err"></div>
+          <button class="pam-submit" onclick="PhmurtDB.doForgotPassword()">Send Reset Link</button>
+          <div style="text-align:center;margin-top:12px;">
+            <button onclick="PhmurtDB.authTab('login')" style="background:none;border:none;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);cursor:pointer;">← Back to Sign In</button>
+          </div>
         </div>
         <div class="pam-note">Characters are saved locally${typeof PHMURT_CONFIG!=='undefined'&&PHMURT_CONFIG.cloudEnabled?' and synced to the cloud':'. Enable cloud sync in supabase-config.js'}.</div>
       </div>`;
@@ -212,9 +225,30 @@ const PhmurtDB = (function(){
   function openAuth(){ buildAuthModal(); document.getElementById('phmurt-auth-modal').classList.add('open'); }
   function closeAuth(){ const m=document.getElementById('phmurt-auth-modal'); if(m) m.classList.remove('open'); }
   function authTab(tab){
-    document.querySelectorAll('.pam-tab').forEach((t,i)=>t.classList.toggle('active',['login','signup'][i]===tab));
+    document.querySelectorAll('.pam-tab').forEach((t,i)=>t.classList.toggle('active',['login','signup','forgot'][i]===tab));
     document.getElementById('pam-login').style.display=tab==='login'?'block':'none';
     document.getElementById('pam-signup').style.display=tab==='signup'?'block':'none';
+    document.getElementById('pam-forgot').style.display=tab==='forgot'?'block':'none';
+  }
+
+  async function doForgotPassword(){
+    const email=document.getElementById('pam-forgot-email').value.trim();
+    const errEl=document.getElementById('pam-forgot-err');
+    if(!email){errEl.textContent='Please enter your email.';return;}
+    errEl.textContent='Sending...';
+
+    const client=sb();
+    if(client){
+      const {error}=await client.auth.resetPasswordForEmail(email,{
+        redirectTo: window.location.origin+'/reset-password.html'
+      });
+      if(error){errEl.textContent=error.message;return;}
+    }
+    // Always show success (don't reveal if email exists)
+    errEl.style.color='#4CAF50';
+    errEl.textContent='✓ Reset link sent! Check your email.';
+    document.getElementById('pam-forgot-email').value='';
+    setTimeout(()=>{errEl.style.color='';errEl.textContent='';},5000);
   }
 
   async function doLogin(){
@@ -263,5 +297,5 @@ const PhmurtDB = (function(){
   // Init on load
   document.addEventListener('DOMContentLoaded', updateNavAuth);
 
-  return { signup, login, logout, getSession, saveCharacter, loadCharacters, loadCharacter, deleteCharacter, openAuth, closeAuth, authTab, doLogin, doSignup, updateNavAuth };
+  return { signup, login, logout, getSession, saveCharacter, loadCharacters, loadCharacter, deleteCharacter, openAuth, closeAuth, authTab, doLogin, doSignup, doForgotPassword, updateNavAuth };
 })();
