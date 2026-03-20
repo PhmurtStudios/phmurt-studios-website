@@ -12,7 +12,7 @@
   }
 
   // Run immediately — html element always exists
-  var saved=localStorage.getItem('ps-theme')||'dark';
+  var saved=localStorage.getItem('ps-theme')||'light';
   applyTheme(saved);
 
   // Expose global toggle
@@ -25,6 +25,6 @@
 
   // Re-sync button text once DOM is ready
   document.addEventListener('DOMContentLoaded',function(){
-    applyTheme(localStorage.getItem('ps-theme')||'dark');
+    applyTheme(localStorage.getItem('ps-theme')||'light');
   });
 })();

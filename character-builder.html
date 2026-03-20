@@ -382,6 +382,61 @@
     .cb-roll-btn:hover { background: var(--crimson); border-color: var(--crimson); color: #f5f0e8; }
     .cb-roll-btn span { font-size: 11px; color: var(--crimson); }
     .cb-roll-btn:hover span { color: #f5f0e8; }
+
+  /* ── LIGHT MODE OVERRIDES FOR BUILDER ── */
+  html.light-mode .cb-sidebar { background: var(--bg-nav); border-right-color: var(--crimson-border); }
+  html.light-mode .cb-step-num { color: var(--text-muted); border-color: var(--crimson-border); }
+  html.light-mode .cb-step-item.active .cb-step-num { color: var(--crimson); }
+  html.light-mode .cb-step-label { color: var(--text-muted); }
+  html.light-mode .cb-step-item.active .cb-step-label { color: var(--text); }
+  html.light-mode .cb-step-item.done .cb-step-label { color: var(--text-dim); }
+  html.light-mode .cb-summary-mini-title { color: var(--text-faint); }
+  html.light-mode .cb-mini-stat-label { color: var(--text-muted); }
+  html.light-mode .cb-mini-stat-val { color: var(--text-dim); }
+  html.light-mode .cb-panel-title { color: var(--text); }
+  html.light-mode .cb-panel-sub { color: var(--text-muted); }
+  html.light-mode .cb-card { background: var(--bg-card); }
+  html.light-mode .cb-card:hover { background: var(--bg-hover); }
+  html.light-mode .cb-card-name { color: var(--text); }
+  html.light-mode .cb-card-detail { color: var(--text-muted); }
+  html.light-mode .cb-detail { background: var(--bg-card); }
+  html.light-mode .cb-detail-title { color: var(--text); }
+  html.light-mode .cb-detail-sub { color: var(--crimson); }
+  html.light-mode .cb-detail-body { color: var(--text-dim); }
+  html.light-mode .cb-trait { border-bottom-color: var(--border); }
+  html.light-mode .cb-trait-name { color: var(--crimson); }
+  html.light-mode .cb-trait-desc { color: var(--text-muted); }
+  html.light-mode .cb-ability-name { color: var(--text-faint); }
+  html.light-mode .cb-ability-score { color: var(--text); }
+  html.light-mode .cb-ability-input { color: var(--text); }
+  html.light-mode .cb-ability-mod { color: var(--crimson); }
+  html.light-mode .cb-ability-asi { color: var(--crimson); }
+  html.light-mode .cb-ability-box { background: var(--bg-card); }
+  html.light-mode .cb-array-val { color: var(--text-dim); }
+  html.light-mode .cb-spell-item { background: var(--bg-card); color: var(--text-dim); border-color: var(--border); }
+  html.light-mode .cb-spell-item:hover { color: var(--text); }
+  html.light-mode .cb-skill-row { background: var(--bg-card); }
+  html.light-mode .cb-skill-row:hover { background: var(--bg-hover); }
+  html.light-mode .cb-skill-name { color: var(--text-dim); }
+  html.light-mode .cb-skill-ability { color: var(--text-faint); }
+  html.light-mode .cb-equip-choice { background: var(--bg-card); }
+  html.light-mode .cb-equip-option { color: var(--text-muted); }
+  html.light-mode .cb-equip-option:hover { color: var(--text); }
+  html.light-mode .cb-form-input { background: var(--bg-card); color: var(--text); border-color: var(--crimson-border); }
+  html.light-mode .cb-form-label { color: var(--text-muted); }
+  html.light-mode .cb-form-input::placeholder { color: var(--text-faint); }
+  html.light-mode .cb-alert { background: var(--crimson-soft); color: var(--text-dim); border-color: var(--crimson-border); }
+  html.light-mode .cb-alert strong { color: var(--crimson); }
+  html.light-mode .cb-btn-secondary { color: var(--text-muted); border-color: var(--border); }
+  html.light-mode .cb-btn-secondary:hover { color: var(--text); border-color: var(--crimson-border); }
+  html.light-mode .cb-step-item.active { background: var(--crimson-soft); }
+  html.light-mode .cb-card.selected { background: var(--crimson-soft); }
+  html.light-mode .cb-asi-badge { background: var(--crimson-soft); }
+  html.light-mode .cb-pb-display { color: var(--text-muted); }
+  html.light-mode .cb-score-btns span { color: var(--text); }
+  html.light-mode #rollPanel { background: transparent; }
+  html.light-mode .cb-rolled-scores-wrap > div { color: var(--text-faint); }
+  html.light-mode select.cb-form-input option { background: var(--bg-card); color: var(--text); }
   </style>
 </head>
 <body>

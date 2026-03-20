@@ -28,24 +28,33 @@
    LIGHT MODE — html.light-mode
    ═══════════════════════════════ */
 html.light-mode{
-  --bg:        #f0e8d6;
-  --bg-nav:    #f7f0e2;
-  --bg-card:   #e8dcc8;
-  --bg-hover:  #ddd0b8;
-  --bg-mid:    #d8ccb4;
-  --text:      #1a0e04;
-  --text-dim:  rgba(26,14,4,0.75);
-  --text-muted:rgba(26,14,4,0.50);
-  --text-faint:rgba(26,14,4,0.30);
-  --crimson:        #9a1f14;
-  --crimson-dim:    #6e1509;
-  --crimson-soft:   rgba(154,31,20,0.10);
-  --crimson-border: rgba(154,31,20,0.28);
-  --border:         rgba(26,14,4,0.10);
-  --border-mid:     rgba(26,14,4,0.06);
+  /* Backgrounds — warm parchment */
+  --bg:        #f2e9d8;
+  --bg-nav:    #faf4e8;
+  --bg-card:   #ece2cc;
+  --bg-hover:  #e2d5bc;
+  --bg-mid:    #d8ccb0;
+  /* Text — rich dark ink, high contrast at every level */
+  --text:      #160b02;
+  --text-dim:  #3a2010;
+  --text-muted:#6b4530;
+  --text-faint:#9a7055;
+  /* Crimson — slightly deeper for contrast on light bg */
+  --crimson:        #8b1a10;
+  --crimson-dim:    #5e1009;
+  --crimson-soft:   rgba(139,26,16,0.10);
+  --crimson-border: rgba(139,26,16,0.32);
+  /* Borders — visible but subtle */
+  --border:         rgba(22,11,2,0.14);
+  --border-mid:     rgba(22,11,2,0.08);
+  /* Asset filters */
   --castle-filter:  invert(1) sepia(0.4) brightness(0.35);
   --castle-opacity: 1;
   --logo-filter:    sepia(0.8) saturate(2.5) hue-rotate(330deg) brightness(0.65);
+  /* Builder dark overrides — force readable text inside builder */
+  --white: #160b02;
+  --black-card: #ece2cc;
+  --black-mid:  #e2d5bc;
 }
 
 /* ═══════════════════════════════
