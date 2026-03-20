@@ -142,32 +142,53 @@ const PhmurtDB = (function(){
     const session = getSession();
     if(!session) return [];
 
-    // Try Supabase with a timeout
+    // ── LOCAL FIRST: always return localStorage immediately ──
+    // This guarantees we NEVER hang, even if Supabase is down/paused/slow.
+    const localChars = (lsGet(CHARS_PREFIX+session.userId)||[])
+      .sort((a,b)=>(b.updated||0)-(a.updated||0));
+
+    // ── BACKGROUND SYNC: try Supabase with a hard 4-second timeout ──
+    // We do this asynchronously and only update local cache — callers get local data.
     const client = sb();
     if(client){
-      try {
-        // Restore Supabase auth session first
-        const {data: sessionData} = await client.auth.getSession();
-        const {data, error} = await client.from('characters')
-          .select('*')
-          .eq('user_id', session.userId)
-          .order('updated_at', {ascending:false});
-        if(!error && data && data.length >= 0){
-          // Sync to local cache
-          lsSet(CHARS_PREFIX+session.userId, data.map(r=>({
-            id:r.id, userId:r.user_id, name:r.name, data:r.data,
-            created:new Date(r.created_at).getTime(),
-            updated:new Date(r.updated_at).getTime()
-          })));
-          return data.map(r=>({id:r.id, name:r.name, race:r.data?.race, cls:r.data?.cls, updated:r.updated_at, data:r.data}));
+      const timeout = new Promise(resolve => setTimeout(() => resolve(null), 4000));
+      const fetchFromSupabase = (async () => {
+        try {
+          await client.auth.getSession();
+          const {data, error} = await client
+            .from('characters')
+            .select('*')
+            .eq('user_id', session.userId)
+            .order('updated_at', {ascending:false});
+          if(!error && Array.isArray(data)){
+            // Update local cache silently
+            lsSet(CHARS_PREFIX+session.userId, data.map(r=>({
+              id:r.id, userId:r.user_id, name:r.name, data:r.data,
+              created: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+              updated: r.updated_at ? new Date(r.updated_at).getTime() : Date.now()
+            })));
+            return data.map(r=>({
+              id:r.id, name:r.name,
+              race: r.data && r.data.race ? r.data.race : null,
+              cls:  r.data && r.data.cls  ? r.data.cls  : null,
+              updated: r.updated_at,
+              data: r.data
+            }));
+          }
+        } catch(e){
+          console.warn('Supabase sync skipped:', e.message);
         }
-      } catch(e) {
-        console.warn('Supabase loadCharacters failed, using local cache:', e);
+        return null;
+      })();
+
+      // Race: if Supabase responds within 4s, use its data. Otherwise use local.
+      const remote = await Promise.race([fetchFromSupabase, timeout]);
+      if(remote !== null && Array.isArray(remote)){
+        return remote;
       }
     }
 
-    // Local fallback — always works
-    return (lsGet(CHARS_PREFIX+session.userId)||[]).sort((a,b)=>(b.updated||0)-(a.updated||0));
+    return localChars;
   }
 
   async function deleteCharacter(id){
@@ -182,13 +203,32 @@ const PhmurtDB = (function(){
   async function loadCharacter(id){
     const session = getSession();
     if(!session) return null;
+
+    // Always try local first — guaranteed to be fast
+    const chars = lsGet(CHARS_PREFIX+(session.userId))||[];
+    const local = chars.find(c=>c.id===id);
+
+    // Try Supabase with timeout, fall back to local
     const client = sb();
     if(client){
-      const {data} = await client.from('characters').select('*').eq('id',id).single();
-      if(data) return data.data;
+      try {
+        const timeout = new Promise(resolve => setTimeout(() => resolve(null), 4000));
+        const remote = await Promise.race([
+          (async () => {
+            await client.auth.getSession();
+            const {data, error} = await client.from('characters').select('*').eq('id',id).single();
+            if(!error && data) return data.data;
+            return null;
+          })(),
+          timeout
+        ]);
+        if(remote !== null) return remote;
+      } catch(e){
+        console.warn('loadCharacter Supabase failed:', e.message);
+      }
     }
-    const chars = lsGet(CHARS_PREFIX+(session.userId))||[];
-    return chars.find(c=>c.id===id)?.data || null;
+
+    return local ? local.data : null;
   }
 
   // ══════════════════════════
