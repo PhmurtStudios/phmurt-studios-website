@@ -104,8 +104,9 @@ a { text-decoration: none; color: inherit; }
 }
 .ps-castle-wrap {
   position: relative; width: 100%; margin-top: 32px; line-height: 0;
-  overflow: hidden;
+  overflow: hidden; min-height: 0;
 }
+.ps-castle-wrap:empty { display: none; }
 .ps-castle-img {
   width: 100%; height: auto; display: block;
   opacity: 0.75; pointer-events: none;
