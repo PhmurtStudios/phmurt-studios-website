@@ -51,16 +51,6 @@
     <a href="my-characters.html">My Characters</a>
   </div>
 
-
-    <a href="grimoire.html">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html">My Characters</a>
-  </div>
-
   <div class="ps-404">
     <img src="owlbear-purple.png" alt="Phmurt Studios owlbear mascot" class="ps-404-img" />
     <div class="ps-404-code">Error 404</div>
@@ -71,7 +61,6 @@
       <a href="index.html" class="ps-cta">Return Home</a>
       <a href="grimoire.html" class="ps-cta" style="background:transparent;border-color:rgba(192,57,43,0.4);color:rgba(255,255,255,0.6);">Browse the Grimoire</a>
     </div>
-  </div>
 
   <footer class="ps-footer">
     <div class="ps-footer-logo">
@@ -87,9 +76,7 @@
     if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
     if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
     if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
-    // Back to top
-    const topBtn=document.getElementById('topBtn');
-    if(topBtn) window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+    // Back to top});
     // Page transitions
     document.querySelectorAll('a[href]').forEach(a=>{
       const href=a.getAttribute('href');

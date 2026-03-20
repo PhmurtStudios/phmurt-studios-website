@@ -195,7 +195,7 @@
     .cb-alert strong { color: var(--crimson); font-style: normal; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; }
 
     @media print {
-      .cb-sidebar, .ps-nav, .ps-breadcrumb, .cb-nav-btns, .ps-footer, .ps-top-btn, .cb-progress { display: none !important; }
+      .cb-sidebar, .ps-nav, .ps-breadcrumb, .cb-nav-btns, .ps-footer, .cb-progress { display: none !important; }
       .cb-wrap { display: block; }
       .cb-main { padding: 20px; }
       body { background: white !important; color: black !important; }
@@ -507,8 +507,6 @@
     <a href="my-characters.html">My Characters</a>
   </div>
 
-
-
   <nav class="ps-breadcrumb" aria-label="Breadcrumb">
     <a href="index.html">Home</a><span class="sep">◆</span>
     <a href="character-sheets.html">Sheets</a><span class="sep">◆</span>
@@ -620,7 +618,7 @@
             <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:8px;">Click a result, then click an ability box to assign it</div>
             <div id="rolledScores" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"></div>
           </div>
-        </div>
+
         <div class="cb-ability-grid" id="abilityGrid"></div>
         <div id="raceAsiNote" class="cb-alert" style="display:none"></div>
         <div class="cb-nav-btns">
@@ -702,7 +700,7 @@
             <label class="cb-form-label">Hair Color</label>
             <input class="cb-form-input" type="text" id="charHair" oninput="updateDetails()" />
           </div>
-        </div>
+
         <div class="cb-form-field" style="margin-bottom:16px">
           <label class="cb-form-label">Personality Traits</label>
           <textarea class="cb-form-input cb-form-textarea" id="charPersonality" placeholder="Describe your character's personality..." oninput="updateDetails()"></textarea>
@@ -724,7 +722,7 @@
             <label class="cb-form-label">Backstory</label>
             <textarea class="cb-form-input cb-form-textarea" id="charBackstory" placeholder="A brief history of your character..." oninput="updateDetails()"></textarea>
           </div>
-        </div>
+
         <div class="cb-nav-btns">
           <button class="cb-btn cb-btn-secondary" onclick="prevStep(8)">← Back</button>
           <button class="cb-btn cb-btn-primary" onclick="buildFinalSheet(); nextStep(8)">Generate Character Sheet →</button>
@@ -817,8 +815,7 @@
                         <div class="cs-death-box fail" onclick="toggleDeath(this,'fail')"></div>
                         <div class="cs-death-box fail" onclick="toggleDeath(this,'fail')"></div>
                       </div>
-                    </div>
-                  </div>
+
                   <div style="text-align:center;margin-top:8px;">
                     <button onclick="rollCheck('Death Save','Death Saving Throw',0)" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;padding:5px 12px;background:var(--crimson-soft);border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">Roll Death Save</button>
                   </div>
@@ -916,10 +913,6 @@
 
     </main>
   </div>
-
-  <button class="ps-top-btn" id="topBtn" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-    <svg viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
-  </button>
 
   <script src="builder-data.js"></script>
   <script>
@@ -2433,9 +2426,7 @@ function init(){
   const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
   if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
   if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
-  if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
-  const topBtn=document.getElementById('topBtn');
-  if(topBtn) window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+  if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}});
   document.querySelectorAll('a[href]').forEach(a=>{
     const href=a.getAttribute('href');
     if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){

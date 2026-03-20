@@ -50,11 +50,10 @@
     <a href="my-characters.html" class="active">My Characters</a>
   </div>
 
-
-    <a href="grimoire.html">Grimoire</a><div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a><div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
   </div>
+
+
+    <a href="grimoire.html">Grimoire</a>    <a href="character-sheets.html">Sheets</a>  </div>
 
   <nav class="ps-breadcrumb">
     <a href="index.html">Home</a><span class="sep">◆</span>
@@ -75,10 +74,6 @@
     <div class="ps-footer-logo"><img src="logo.png" alt="Phmurt Studios" /><span class="ps-footer-name">Phmurt Studios</span></div>
     <div class="ps-footer-copy">Crafted with intention. Built for your table.</div>
   </footer>
-
-  <button class="ps-top-btn" id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-    <svg viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
-  </button>
 
   <script>
     window.onAuthChange = function(){ loadPage(); };
@@ -152,8 +147,7 @@
     // Page JS
     const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose'),topBtn=document.getElementById('topBtn');
     if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
-    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
-    if(topBtn) window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}});
     document.querySelectorAll('a[href]').forEach(a=>{const href=a.getAttribute('href');if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){a.addEventListener('click',e=>{e.preventDefault();document.body.classList.add('page-out');setTimeout(()=>{window.location.href=href;},200);});}});
     document.addEventListener('DOMContentLoaded', loadPage);
     document.addEventListener('click', e=>{if(!e.target.closest('.nav-auth-wrap')){ document.getElementById('nav-user-dropdown')?.classList.remove('open'); }});

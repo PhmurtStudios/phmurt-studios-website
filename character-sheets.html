@@ -58,16 +58,6 @@
     <a href="my-characters.html">My Characters</a>
   </div>
 
-
-    <a href="grimoire.html">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html" class="active">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html">My Characters</a>
-  </div>
-
   <nav class="ps-breadcrumb" aria-label="Breadcrumb">
     <a href="index.html">Home</a>
     <span class="sep">◆</span>
@@ -157,19 +147,13 @@
     <div class="ps-footer-copy">Crafted with intention. Built for your table.</div>
   </footer>
 
-  <button class="ps-top-btn" id="topBtn" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-    <svg viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
-  </button>
-
   <script>
     // Mobile nav
     const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
     if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
     if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
     if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
-    // Back to top
-    const topBtn=document.getElementById('topBtn');
-    if(topBtn) window.addEventListener('scroll',()=>{topBtn.classList.toggle('visible',window.scrollY>300);});
+    // Back to top});
     // Page transitions
     document.querySelectorAll('a[href]').forEach(a=>{
       const href=a.getAttribute('href');

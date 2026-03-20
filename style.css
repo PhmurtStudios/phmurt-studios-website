@@ -371,10 +371,7 @@ a{text-decoration:none;color:inherit;}
 /* ═══════════════════════════════
    BACK TO TOP
    ═══════════════════════════════ */
-.ps-top-btn{position:fixed;bottom:32px;right:32px;z-index:500;width:42px;height:42px;background:var(--crimson);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;clip-path:polygon(50% 0%,100% 100%,0% 100%);}
-.ps-top-btn.visible{opacity:1;pointer-events:all;}
-.ps-top-btn:hover{transform:translateY(-4px);}
-.ps-top-btn svg{width:18px;height:18px;fill:#f5f0e8;}
+
 
 /* ═══════════════════════════════
    SCROLL REVEAL + TRANSITIONS
@@ -429,7 +426,7 @@ body{animation:pageIn .3s ease both;}
 /* ═══════════════════════════════════════
    AUTH MODAL
    ═══════════════════════════════════════ */
-#phmurt-auth-modal { display:none; position:fixed; inset:0; z-index:9000; align-items:center; justify-content:center; }
+#phmurt-auth-modal { display:none; position:fixed; inset:0; z-index:9000; align-items:center; justify-content:center; padding:20px; }
 #phmurt-auth-modal.open { display:flex; }
 .pam-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); }
 .pam-box { position:relative; background:var(--bg-card); border:1px solid var(--crimson-border); padding:40px; width:100%; max-width:400px; z-index:1; }
@@ -509,7 +506,7 @@ body{animation:pageIn .3s ease both;}
 .cs-hp-controls { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:8px; }
 .cs-hp-btn { width:32px; height:32px; background:var(--crimson-soft); border:1px solid var(--crimson-border); color:var(--crimson); font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; line-height:1; }
 .cs-hp-btn:hover { background:var(--crimson); color:#f5f0e8; }
-.cs-hp-input { width:64px; text-align:center; font-size:36px; font-weight:300; color:var(--text); background:transparent; border:none; border-bottom:1px solid var(--crimson-border); padding:2px 0; }
+.cs-hp-input { width:90px; min-width:3ch; text-align:center; font-size:32px; font-weight:300; color:var(--text); background:transparent; border:none; border-bottom:1px solid var(--crimson-border); padding:2px 4px; }
 .cs-hp-input:focus { outline:none; border-color:var(--crimson); }
 .cs-hp-max { font-family:'Cinzel',serif; font-size:10px; color:var(--text-faint); }
 .cs-hp-adjust { display:flex; gap:6px; justify-content:center; margin-top:10px; }
