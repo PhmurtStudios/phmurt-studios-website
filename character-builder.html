@@ -1539,26 +1539,31 @@ function rollDamage(label, diceStr, dmgBonus){
 }
 
 function rollWeaponAttack(name, atkBonus, dmgBonus, damageDice){
-  const atkRoll=Math.ceil(Math.random()*20);
-  const atkTotal=atkRoll+atkBonus;
-  const isCrit=atkRoll===20; const isFail=atkRoll===1;
-  const ts=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  C.rollLog.unshift({ts,type:'Attack',label:name,roll:atkRoll,bonus:atkBonus,total:atkTotal,crit:isCrit,fail:isFail,isDmg:false});
+  const atkRoll = Math.ceil(Math.random()*20);
+  const atkTotal = atkRoll + atkBonus;
+  const isCrit = atkRoll===20;
+  const isFail = atkRoll===1;
+  const ts = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
-  // Roll damage too
-  const dmgDice=[]; let dmgTotal=dmgBonus;
-  const dm=damageDice.match(/(\d+)d(\d+)/);
-  if(dm){ const num=parseInt(dm[1]),sides=parseInt(dm[2]);
-    for(let i=0;i<num;i++){const r=Math.ceil(Math.random()*sides);dmgDice.push({val:isCrit?r*2:r,sides});dmgTotal+=isCrit?r*2:r;}
-  }
-  if(dmgDice.length) C.rollLog.unshift({ts,type:'Damage',label:name+' Dmg',roll:dmgDice.map(d=>d.val).join('+'),bonus:dmgBonus,total:dmgTotal,crit:false,fail:false,isDmg:true});
+  // Log attack roll
+  C.rollLog.unshift({ts,type:'Attack',label:name,roll:atkRoll,bonus:atkBonus,total:atkTotal,crit:isCrit,fail:isFail,isDmg:false});
   renderRollLog();
 
+  // Parse damage dice so the Roll Damage button knows what to roll
+  let pendingDmg = null;
+  const dm = damageDice.match(/(\d+)d(\d+)/);
+  if(dm){
+    pendingDmg = {num:parseInt(dm[1]), sides:parseInt(dm[2]), bonus:dmgBonus, label:name};
+  }
+
   showDicePopup({
-    type: 'Attack', label: name,
+    type: isFail ? 'Miss' : isCrit ? 'Critical Hit!' : 'Attack Roll',
+    label: name,
     dice: [{val:atkRoll, sides:20, isCrit, isFail}],
-    bonus: atkBonus, total: atkTotal, isCrit, isFail,
-    damage: dmgDice.length ? {dice:dmgDice, bonus:dmgBonus, total:dmgTotal, isCrit} : null
+    bonus: atkBonus,
+    total: atkTotal,
+    isCrit, isFail,
+    pendingDmg  // pass to showDicePopup so it shows the Roll Damage button
   });
 }
 
@@ -1568,88 +1573,119 @@ function rollWeaponAttack(name, atkBonus, dmgBonus, damageDice){
 // ══════════════════════════════════════════
 let _popupTimer = null;
 
+// Stored pending damage info for two-stage weapon rolls
+let _pendingDmg = null;
+
 function showDicePopup(opts){
   const popup = document.getElementById('dice-popup');
   const overlay = document.getElementById('diceOverlay');
   if(!popup) return;
 
-  // Clear any exit timer
-  if(_popupTimer){ clearTimeout(_popupTimer); }
+  if(_popupTimer){ clearTimeout(_popupTimer); _popupTimer=null; }
   popup.classList.remove('exit','show');
   overlay.classList.remove('show');
 
-  // Fill content
+  // Reset stages
+  const stageAtk = document.getElementById('dp-stage-attack');
+  const stageDmg = document.getElementById('dp-stage-damage');
+  if(stageAtk) stageAtk.style.display = '';
+  if(stageDmg) stageDmg.style.display = 'none';
+
+  // Fill attack stage
   document.getElementById('dp-type').textContent = opts.type;
   document.getElementById('dp-label').textContent = opts.label;
 
-  // Build dice visuals
   const diceRow = document.getElementById('dp-dice-row');
   diceRow.innerHTML = '';
+  opts.dice.forEach((d,i)=>{
+    const el = document.createElement('div');
+    const isD20 = d.sides===20;
+    el.className = 'dp-die' + (isD20?' d20':'') + (d.isCrit?' crit':d.isFail?' fail':'');
+    el.style.animationDelay = (i*0.07)+'s';
+    el.innerHTML = d.val + `<span class="dp-die-label">d${d.sides}</span>`;
+    diceRow.appendChild(el);
+  });
 
-  const allDice = [...opts.dice];
+  const totalEl = document.getElementById('dp-total');
+  totalEl.textContent = opts.total;
+  totalEl.style.color = opts.isCrit?'#4CAF50':opts.isFail?'var(--crimson)':'var(--text)';
 
-  // If weapon attack with damage, show both sets separated
-  if(opts.damage){
-    // Attack dice
-    opts.dice.forEach((d,i)=>{
-      const el = document.createElement('div');
-      el.className = 'dp-die d20' + (d.isCrit?' crit':d.isFail?' fail':'');
-      el.style.animationDelay = (i*0.06)+'s';
-      el.innerHTML = d.val + '<span class="dp-die-label">d20</span>';
-      diceRow.appendChild(el);
-    });
-    // Separator
-    const sep = document.createElement('div');
-    sep.style.cssText = 'display:flex;align-items:center;color:var(--text-faint);font-size:18px;padding:0 4px;';
-    sep.textContent = '→';
-    diceRow.appendChild(sep);
-    // Damage dice
-    opts.damage.dice.forEach((d,i)=>{
-      const el = document.createElement('div');
-      el.className = 'dp-die' + (opts.damage.isCrit?' crit':'');
-      el.style.animationDelay = ((opts.dice.length+i)*0.06+0.1)+'s';
-      el.innerHTML = d.val + `<span class="dp-die-label">d${d.sides}${opts.damage.isCrit?'×2':''}</span>`;
-      diceRow.appendChild(el);
-    });
-    // Total display is attack total; show damage below
-    document.getElementById('dp-total').textContent = atkTotalStr(opts.total);
-    document.getElementById('dp-total').style.color = opts.isCrit?'#4CAF50':opts.isFail?'var(--crimson)':'var(--text)';
-    const bkdown = atkBonusStr(opts.dice[0].val, opts.bonus) + '  |  Dmg: ' + dmgStr(opts.damage);
-    document.getElementById('dp-breakdown').textContent = bkdown;
+  if(opts.dice.length===1 && opts.dice[0].sides===20){
+    document.getElementById('dp-breakdown').textContent = atkBonusStr(opts.dice[0].val, opts.bonus);
   } else {
-    opts.dice.forEach((d,i)=>{
-      const el = document.createElement('div');
-      const isD20 = d.sides===20;
-      el.className = 'dp-die' + (isD20?' d20':'') + (d.isCrit?' crit':d.isFail?' fail':'');
-      el.style.animationDelay = (i*0.07)+'s';
-      el.innerHTML = d.val + `<span class="dp-die-label">d${d.sides}</span>`;
-      diceRow.appendChild(el);
-    });
-    document.getElementById('dp-total').textContent = opts.total;
-    document.getElementById('dp-total').style.color = opts.isCrit?'#4CAF50':opts.isFail?'var(--crimson)':'var(--text)';
-    // Breakdown
-    if(opts.dice.length===1 && opts.dice[0].sides===20){
-      document.getElementById('dp-breakdown').textContent = atkBonusStr(opts.dice[0].val, opts.bonus);
-    } else {
-      document.getElementById('dp-breakdown').textContent = opts.dice.map(d=>d.val).join(' + ') + (opts.bonus!==0?(opts.bonus>0?' + '+opts.bonus:' '+opts.bonus):'') + ' = ' + opts.total;
-    }
+    document.getElementById('dp-breakdown').textContent = opts.dice.map(d=>d.val).join(' + ') + (opts.bonus!==0?(opts.bonus>0?' + '+opts.bonus:' '+opts.bonus):'') + ' = ' + opts.total;
   }
 
-  // Crit/fail label
   const critEl = document.getElementById('dp-crit');
   critEl.textContent = opts.isCrit ? 'Critical Hit!' : opts.isFail ? 'Critical Fail' : '';
   critEl.className = 'dp-crit-label' + (opts.isCrit?' hit':opts.isFail?' fail':'');
   critEl.style.opacity = (opts.isCrit||opts.isFail)?'':'0';
 
-  // Show
+  // Show "Roll Damage" button only for weapon attacks that have damage info
+  const dmgBtn = document.getElementById('dp-dmg-btn');
+  if(opts.pendingDmg){
+    _pendingDmg = {...opts.pendingDmg, isCrit: opts.isCrit, label: opts.label};
+    if(dmgBtn) dmgBtn.style.display = '';
+  } else {
+    _pendingDmg = null;
+    if(dmgBtn) dmgBtn.style.display = 'none';
+    // Auto-dismiss non-weapon rolls after 3s
+    _popupTimer = setTimeout(()=>closeDicePopup(), 3000);
+  }
+
   requestAnimationFrame(()=>{
     popup.classList.add('show');
     overlay.classList.add('show');
   });
+}
 
-  // Auto-dismiss after 3s (weapons stay longer since they have more info)
-  const delay = opts.damage ? 4500 : 3000;
-  _popupTimer = setTimeout(()=>closeDicePopup(), delay);
+function dpRollDamage(){
+  if(!_pendingDmg) return;
+  const p = _pendingDmg;
+
+  // Hide attack stage, show damage stage
+  document.getElementById('dp-stage-attack').style.display = 'none';
+  document.getElementById('dp-stage-damage').style.display = '';
+
+  // Roll the dice
+  const rolls = [];
+  for(let i=0;i<p.num;i++){
+    const r = Math.ceil(Math.random()*p.sides);
+    rolls.push(p.isCrit ? r*2 : r);
+  }
+  const total = rolls.reduce((s,v)=>s+v,0) + p.bonus;
+
+  // Fill damage stage
+  document.getElementById('dp-dmg-label').textContent = p.label + (p.isCrit?' — CRIT':'');
+
+  const dmgRow = document.getElementById('dp-dmg-row');
+  dmgRow.innerHTML = '';
+  rolls.forEach((val,i)=>{
+    const el = document.createElement('div');
+    el.className = 'dp-die' + (p.isCrit?' crit':'');
+    el.style.animationDelay = (i*0.07)+'s';
+    el.innerHTML = val + `<span class="dp-die-label">d${p.sides}${p.isCrit?'×2':''}</span>`;
+    dmgRow.appendChild(el);
+  });
+
+  const totalEl = document.getElementById('dp-dmg-total');
+  totalEl.textContent = total;
+  totalEl.style.color = p.isCrit?'#4CAF50':'var(--text)';
+
+  document.getElementById('dp-dmg-breakdown').textContent =
+    rolls.join(' + ') + (p.bonus!==0?(p.bonus>0?' + '+p.bonus:' '+p.bonus):'') + ' = ' + total;
+
+  const critEl = document.getElementById('dp-dmg-crit');
+  critEl.textContent = p.isCrit?'Critical — Double Dice!':'';
+  critEl.className = 'dp-crit-label' + (p.isCrit?' hit':'');
+  critEl.style.opacity = p.isCrit?'':'0';
+
+  // Log it
+  const ts = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  C.rollLog.unshift({ts,type:'Damage',label:p.label+' Dmg',roll:rolls.join('+'),bonus:p.bonus,total,crit:false,fail:false,isDmg:true});
+  renderRollLog();
+
+  _pendingDmg = null;
 }
 
 function atkTotalStr(total){ return total; }
@@ -2459,12 +2495,29 @@ function init(){
   <div class="dp-overlay" id="diceOverlay" onclick="closeDicePopup()"></div>
   <div id="dice-popup">
     <button class="dp-close" onclick="closeDicePopup()">✕</button>
-    <div class="dp-type" id="dp-type"></div>
-    <div class="dp-label" id="dp-label"></div>
-    <div class="dp-dice-row" id="dp-dice-row"></div>
-    <div class="dp-total" id="dp-total"></div>
-    <div class="dp-breakdown" id="dp-breakdown"></div>
-    <div class="dp-crit-label" id="dp-crit"></div>
+
+    <!-- ATTACK STAGE -->
+    <div id="dp-stage-attack">
+      <div class="dp-type" id="dp-type"></div>
+      <div class="dp-label" id="dp-label"></div>
+      <div class="dp-dice-row" id="dp-dice-row"></div>
+      <div class="dp-total" id="dp-total"></div>
+      <div class="dp-breakdown" id="dp-breakdown"></div>
+      <div class="dp-crit-label" id="dp-crit"></div>
+      <!-- Roll Damage button — only shown for weapon attacks -->
+      <button id="dp-dmg-btn" onclick="dpRollDamage()" style="display:none;margin-top:18px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:9px 22px;background:var(--crimson);color:#f5f0e8;border:none;cursor:pointer;width:100%;">Roll Damage ▸</button>
+    </div>
+
+    <!-- DAMAGE STAGE (hidden until Roll Damage clicked) -->
+    <div id="dp-stage-damage" style="display:none;">
+      <div class="dp-type" style="color:var(--text-faint);">Damage</div>
+      <div class="dp-label" id="dp-dmg-label"></div>
+      <div class="dp-dice-row" id="dp-dmg-row"></div>
+      <div class="dp-total" id="dp-dmg-total"></div>
+      <div class="dp-breakdown" id="dp-dmg-breakdown"></div>
+      <div class="dp-crit-label" id="dp-dmg-crit"></div>
+      <button onclick="closeDicePopup()" style="margin-top:14px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:7px 18px;background:transparent;color:var(--text-muted);border:1px solid var(--border);cursor:pointer;width:100%;">Close</button>
+    </div>
   </div>
 </body>
 </html>
