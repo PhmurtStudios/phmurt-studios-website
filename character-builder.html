@@ -2428,7 +2428,7 @@ function init(){
   const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
   if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
   if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
-  if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}});
+  if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
   document.querySelectorAll('a[href]').forEach(a=>{
     const href=a.getAttribute('href');
     if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){
