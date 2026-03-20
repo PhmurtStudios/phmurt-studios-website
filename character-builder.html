@@ -237,6 +237,7 @@
       <a href="about.html">About</a>
     </div>
     <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
+    <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode" title="Toggle light mode">☽</button>
     <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
 
@@ -490,8 +491,6 @@
   </button>
 
   <script src="builder-data.js"></script>
-  <script>
-
   <script>
   // ── STATE ──
   const C = {
@@ -1371,6 +1370,13 @@
     el.innerHTML=lines.map(l=>`<div class="cb-mini-stat"><span class="cb-mini-stat-label">${l.l}</span><span class="cb-mini-stat-val">${l.v}</span></div>`).join('');
   }
 
+
+  function toggleTheme(){
+    const isLight = document.body.classList.toggle('light-mode');
+    localStorage.setItem('ps-theme', isLight ? 'light' : 'dark');
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.textContent = isLight ? '☀' : '☽';
+  }
   // ── INIT ──
   function init(){
     renderRaces();renderClasses();renderBackgrounds();renderAbilityGrid();renderArrayPool();initDetails();updateMiniSummary();
@@ -1389,7 +1395,15 @@
       }
     });
   }
-  window.addEventListener('DOMContentLoaded',init);
+  window.addEventListener('DOMContentLoaded', function(){
+    init();
+    // Apply saved theme
+    if(localStorage.getItem('ps-theme')==='light'){
+      document.body.classList.add('light-mode');
+      const btn=document.getElementById('themeToggle');
+      if(btn)btn.textContent='☀';
+    }
+  });
   </script>
 </body>
 </html>
