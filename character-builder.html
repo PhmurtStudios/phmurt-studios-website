@@ -451,6 +451,14 @@
   html.light-mode .cb-skill-source { color: var(--crimson); }
   html.light-mode .cb-roll-all-btn { background: var(--crimson); color: #f5f0e8; }
   html.light-mode .cb-subrace-section .cb-cards { background: var(--bg-hover); }
+
+  @keyframes levelup-pulse {
+    0%   { box-shadow: 0 0 10px rgba(139,26,16,0.5); }
+    50%  { box-shadow: 0 0 22px rgba(139,26,16,0.85), 0 0 6px rgba(139,26,16,0.4); }
+    100% { box-shadow: 0 0 10px rgba(139,26,16,0.5); }
+  }
+  #cs-levelup-btn { animation: levelup-pulse 2s ease-in-out infinite; }
+  html.light-mode #cs-levelup-btn { box-shadow: 0 0 14px rgba(139,26,16,0.55); }
   </style>
 </head>
 <body>
@@ -745,7 +753,7 @@
             <div class="cs-tags" id="cs-tags"></div>
             <div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;">
               <div id="cs-xp-display" style="display:none;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;"></div>
-              <button id="cs-levelup-btn" onclick="openLevelUp()" style="display:none;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">Level Up ▸</button>
+              <button id="cs-levelup-btn" onclick="openLevelUp()" style="display:none;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:8px 20px;background:var(--crimson);color:#f5f0e8;border:none;cursor:pointer;box-shadow:0 0 12px rgba(139,26,16,0.45);font-weight:600;">⬆ Level Up</button>
             </div>
           </div>
           <div class="cs-header-actions">
@@ -2447,6 +2455,7 @@ function calcMaxHP(){
     var gain = (stored !== undefined) ? stored : (Math.floor(hitDie/2)+1);
     hp += gain + conM;
   }
+  if(C.toughBonus) hp += C.toughBonus;
   return Math.max(1, hp);
 }
 
@@ -2467,7 +2476,7 @@ function addXP(amount){
   var thresh = DND_DATA.xpThresholds;
   if(thresh && C.level < 20 && C.xp >= thresh[C.level]){
     var btn = document.getElementById('cs-levelup-btn');
-    if(btn){ btn.style.display=''; btn.textContent='Level Up! ▸'; }
+    if(btn){ btn.style.display=''; btn.textContent='⬆ Level Up!'; }
   }
   scheduleSave();
 }
@@ -2497,6 +2506,328 @@ function updateXPDisplay(){
 // ══════════════════════════════════════════
 // LEVEL UP MODAL FUNCTIONS
 // ══════════════════════════════════════════
+
+
+// ══════════════════════════════════════════
+// LEVEL UP SPELL SELECTION HELPERS
+// ══════════════════════════════════════════
+
+function luGetMaxSpellLevel(cls, level) {
+  var rawSlots = DND_DATA.spellSlots && DND_DATA.spellSlots[cls];
+  if (!rawSlots) return 0;
+  var slots = rawSlots[level - 1];
+  if (!slots) return 0;
+  if (cls === 'warlock') return slots[1] || 0;
+  return slots.length;
+}
+
+function luGetNewSpellCount(cls, oldLevel, newLevel) {
+  if (cls === 'wizard') return 2;
+  if (cls === 'cleric' || cls === 'druid' || cls === 'paladin') return 0;
+  var known = DND_DATA.spellsKnownTable && DND_DATA.spellsKnownTable[cls];
+  if (!known) return 0;
+  return Math.max(0, (known[newLevel - 1] || 0) - (known[oldLevel - 1] || 0));
+}
+
+function luGetNewCantripCount(cls, oldLevel, newLevel) {
+  var known = DND_DATA.cantripsKnownTable && DND_DATA.cantripsKnownTable[cls];
+  if (!known) return 0;
+  return Math.max(0, (known[newLevel - 1] || 0) - (known[oldLevel - 1] || 0));
+}
+
+function luGetAvailableCantrips(cls) {
+  var already = new Set(C.selectedCantrips);
+  var spellData = DND_DATA.spells && DND_DATA.spells[cls];
+  if (!spellData || !spellData.cantrips) return [];
+  return spellData.cantrips.filter(function(sp) { return !already.has(sp); });
+}
+
+function luGetAvailableSpells(cls, maxSpellLevel) {
+  var already = new Set(C.selectedSpells.concat(C.selectedCantrips));
+  var spellData = DND_DATA.spells && DND_DATA.spells[cls];
+  if (!spellData) return [];
+  var result = [];
+  for (var lv = 1; lv <= maxSpellLevel; lv++) {
+    var list = spellData['level' + lv];
+    if (!list) continue;
+    list.forEach(function(sp) {
+      if (!already.has(sp)) result.push({ name: sp, level: lv });
+    });
+  }
+  return result;
+}
+
+function luBuildSpellSection(cls, oldLevel, newLevel) {
+  var spellsNeeded   = luGetNewSpellCount(cls, oldLevel, newLevel);
+  var cantripsNeeded = luGetNewCantripCount(cls, oldLevel, newLevel);
+  var maxLv          = luGetMaxSpellLevel(cls, newLevel);
+  var oldMaxLv       = luGetMaxSpellLevel(cls, oldLevel);
+  var newLvUnlocked  = maxLv > oldMaxLv;
+  var levelNames     = ['Cantrip','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
+
+  // Prepared casters still need cantrip picks if table increased
+  var isPrepared = (cls === 'cleric' || cls === 'druid' || cls === 'paladin');
+  var needsAny   = (spellsNeeded > 0 || cantripsNeeded > 0);
+  if (!needsAny) return '';
+
+  // Store counts into _luState
+  window._luState.spellsNeeded   = spellsNeeded;
+  window._luState.cantripsNeeded = cantripsNeeded;
+  window._luState.spellChoices   = [];
+  window._luState.cantripChoices = [];
+
+  var html = '';
+  html += '<div style="background:var(--bg);border:2px solid var(--crimson-border);padding:20px;margin-bottom:20px;position:relative;">';
+  html += '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--crimson),transparent);"></div>';
+  html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;">Spells</div>';
+
+  // New spell level unlocked banner
+  if (newLvUnlocked && maxLv > 0) {
+    html += '<div style="background:var(--crimson);color:#f5f0e8;font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;margin-bottom:14px;display:inline-block;">New: ' + levelNames[maxLv] + ' Level Spells Unlocked</div><br><br>';
+  }
+
+  // Note for prepared casters
+  if (isPrepared && cantripsNeeded > 0) {
+    html += '<div style="font-size:13px;color:var(--text-dim);margin-bottom:14px;">As a ' + (DND_DATA.classes[cls] ? DND_DATA.classes[cls].name : cls) + ', you prepare your spells each day from the full class list. You do need to choose your new cantrip permanently though.</div>';
+  } else if (cls === 'wizard') {
+    html += '<div style="font-size:13px;color:var(--text-dim);margin-bottom:14px;">You add 2 spells of any level you can cast to your spellbook. You can copy additional spells you find on your travels.</div>';
+  } else {
+    html += '<div style="font-size:13px;color:var(--text-dim);margin-bottom:14px;">Choose your new spells from the list below. Hover any spell to see its description.</div>';
+  }
+
+  html += '<div id="lu-spell-picker"></div>';
+  html += '</div>';
+  return html;
+}
+
+function luRenderSpellPicker() {
+  var container = document.getElementById('lu-spell-picker');
+  if (!container || !window._luState) return;
+  var cls            = C.cls;
+  var newLevel       = window._luState.newLevel;
+  var oldLevel       = newLevel - 1;
+  var maxLv          = luGetMaxSpellLevel(cls, newLevel);
+  var spellChoices   = window._luState.spellChoices   || [];
+  var cantripChoices = window._luState.cantripChoices || [];
+  var spellsNeeded   = window._luState.spellsNeeded   || 0;
+  var cantripsNeeded = window._luState.cantripsNeeded || 0;
+  var levelNames     = ['Cantrip','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
+  var html = '';
+
+  // ── Cantrip picker ──────────────────────────────
+  if (cantripsNeeded > 0) {
+    var availCantrips  = luGetAvailableCantrips(cls);
+    var cantripPicked  = cantripChoices.length;
+    var cantripRemain  = cantripsNeeded - cantripPicked;
+    var cantripLabel   = cantripsNeeded === 1 ? 'Choose 1 New Cantrip' : 'Choose ' + cantripsNeeded + ' New Cantrips';
+
+    html += '<div style="margin-bottom:20px;">';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:4px;">' + cantripLabel + '</div>';
+    html += cantripRemain > 0
+      ? '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;color:#c97c30;margin-bottom:10px;">&#9650; ' + cantripRemain + ' more to choose</div>'
+      : '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;color:#4a9e5c;margin-bottom:10px;">&#10003; Cantrip chosen</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    availCantrips.forEach(function(sp) {
+      var isPicked = cantripChoices.indexOf(sp) !== -1;
+      var desc     = (DND_DATA.spellDescriptions && DND_DATA.spellDescriptions[sp]) || {};
+      var tooltip  = (desc.castTime || '') + (desc.range ? ' \u00b7 ' + desc.range : '') + (desc.desc ? '\n' + desc.desc : '');
+      html += '<div onclick="luToggleSpell(\'' + sp.replace(/'/g, "\\'") + '\',true)"'
+            + ' title="' + tooltip.replace(/"/g, '&quot;') + '"'
+            + ' style="padding:7px 13px;font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;'
+            + 'border:1px solid ' + (isPicked ? 'var(--crimson)' : 'var(--border)') + ';'
+            + 'background:' + (isPicked ? 'var(--crimson)' : 'var(--bg-card)') + ';'
+            + 'color:' + (isPicked ? '#f5f0e8' : 'var(--text-muted)') + ';">' + sp + '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // ── Spell picker ────────────────────────────────
+  if (spellsNeeded > 0) {
+    var available   = luGetAvailableSpells(cls, maxLv);
+    var pickedCount = spellChoices.length;
+    var remaining   = spellsNeeded - pickedCount;
+    var wizardNote  = cls === 'wizard' ? ' for your Spellbook' : '';
+    var spellLabel  = spellsNeeded === 1
+      ? 'Choose 1 Spell' + wizardNote
+      : 'Choose ' + spellsNeeded + ' Spells' + wizardNote;
+
+    html += '<div>';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:4px;">' + spellLabel + '</div>';
+    html += remaining > 0
+      ? '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;color:#c97c30;margin-bottom:12px;">&#9650; ' + remaining + ' more to choose</div>'
+      : '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;color:#4a9e5c;margin-bottom:12px;">&#10003; All spells chosen</div>';
+
+    // Group by spell level
+    var byLevel = {};
+    available.forEach(function(sp) {
+      if (!byLevel[sp.level]) byLevel[sp.level] = [];
+      byLevel[sp.level].push(sp.name);
+    });
+
+    var sortedLevels = Object.keys(byLevel).map(Number).sort(function(a,b){return a-b;});
+    sortedLevels.forEach(function(lv) {
+      html += '<div style="margin-bottom:16px;">';
+      html += '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:7px;">' + levelNames[lv] + ' Level Spells</div>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:5px;">';
+      byLevel[lv].forEach(function(sp) {
+        var isPicked = spellChoices.indexOf(sp) !== -1;
+        var desc     = (DND_DATA.spellDescriptions && DND_DATA.spellDescriptions[sp]) || {};
+        var tooltip  = (desc.school ? desc.school : '') + (desc.castTime ? ' \u00b7 ' + desc.castTime : '') + (desc.range ? ' \u00b7 ' + desc.range : '') + (desc.desc ? '\n' + desc.desc : '');
+        html += '<div onclick="luToggleSpell(\'' + sp.replace(/'/g, "\\'") + '\',false)"'
+              + ' title="' + tooltip.replace(/"/g, '&quot;') + '"'
+              + ' style="padding:7px 13px;font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;'
+              + 'border:1px solid ' + (isPicked ? 'var(--crimson)' : 'var(--border)') + ';'
+              + 'background:' + (isPicked ? 'var(--crimson)' : 'var(--bg-card)') + ';'
+              + 'color:' + (isPicked ? '#f5f0e8' : 'var(--text-muted)') + ';">' + sp + '</div>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+function luToggleSpell(spellName, isCantrip) {
+  if (!window._luState) return;
+  var arr    = isCantrip ? window._luState.cantripChoices : window._luState.spellChoices;
+  var needed = isCantrip ? window._luState.cantripsNeeded : window._luState.spellsNeeded;
+  var idx    = arr.indexOf(spellName);
+  if (idx !== -1) {
+    arr.splice(idx, 1);
+  } else {
+    if (arr.length >= needed) return;
+    arr.push(spellName);
+  }
+  luRenderSpellPicker();
+  luCheckConfirm();
+}
+
+
+
+// ══════════════════════════════════════════
+// ASI / FEAT TOGGLE AND FEAT PICKER
+// ══════════════════════════════════════════
+
+function luSetASIFeatMode(mode) {
+  // mode: 'asi' or 'feat'
+  if (!window._luState) return;
+  window._luState.asiFeatMode = mode;
+  window._luState.asiChoices  = {};
+  window._luState.featChoice  = null;
+
+  var asiTab  = document.getElementById('lu-tab-asi');
+  var featTab = document.getElementById('lu-tab-feat');
+  var asiPanel  = document.getElementById('lu-panel-asi');
+  var featPanel = document.getElementById('lu-panel-feat');
+
+  var activeTab   = 'font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:var(--crimson);color:#f5f0e8;border:1px solid var(--crimson);cursor:pointer;';
+  var inactiveTab = 'font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;';
+
+  if (asiTab)  asiTab.style.cssText  = mode === 'asi'  ? activeTab : inactiveTab;
+  if (featTab) featTab.style.cssText = mode === 'feat' ? activeTab : inactiveTab;
+
+  if (asiPanel)  asiPanel.style.display  = mode === 'asi'  ? '' : 'none';
+  if (featPanel) featPanel.style.display = mode === 'feat' ? '' : 'none';
+
+  if (mode === 'feat') luRenderFeatPicker();
+  luCheckConfirm();
+}
+
+function luRenderFeatPicker() {
+  var container = document.getElementById('lu-feat-list');
+  if (!container || !window._luState) return;
+  var feats      = DND_DATA.feats || [];
+  var selected   = window._luState.featChoice;
+  var takenFeats = (C.asiChoices || []).filter(function(c){ return c.feat; }).map(function(c){ return c.feat; });
+
+  var html = '';
+  feats.forEach(function(feat) {
+    var isTaken    = takenFeats.indexOf(feat.name) !== -1;
+    var isSelected = selected === feat.name;
+    var prereqMet  = luFeatPrereqMet(feat);
+    var disabled   = isTaken || !prereqMet;
+
+    html += '<div onclick="' + (disabled ? '' : 'luSelectFeat(\'' + feat.name.replace(/'/g,"\\'") + '\')') + '"';
+    html += ' style="padding:14px 16px;margin-bottom:6px;border:2px solid ';
+    html += isSelected ? 'var(--crimson)' : disabled ? 'var(--border)' : 'var(--border)';
+    html += ';background:';
+    html += isSelected ? 'rgba(139,26,16,0.1)' : 'var(--bg-card)';
+    html += ';cursor:' + (disabled ? 'not-allowed' : 'pointer') + ';opacity:' + (disabled ? '0.4' : '1') + ';">';
+
+    // Name row
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:' + (isSelected ? 'var(--crimson)' : 'var(--text)') + ';">' + feat.name + '</div>';
+    if (isTaken) {
+      html += '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:1px;color:var(--text-faint);text-transform:uppercase;">Already taken</div>';
+    } else if (!prereqMet && feat.prereq) {
+      html += '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:1px;color:var(--text-faint);text-transform:uppercase;">Requires: ' + feat.prereq + '</div>';
+    }
+    html += '</div>';
+
+    // Benefits list
+    html += '<div style="font-size:12px;color:var(--text-dim);line-height:1.6;">';
+    if (feat.benefits && feat.benefits.length) {
+      feat.benefits.forEach(function(b) {
+        html += '<div style="margin-bottom:2px;">&#8226; ' + b + '</div>';
+      });
+    }
+    html += '</div>';
+
+    // Full description (collapsed unless selected)
+    if (isSelected) {
+      html += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.65;">' + feat.desc + '</div>';
+    }
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+function luFeatPrereqMet(feat) {
+  if (!feat.prereq) return true;
+  var prereq = feat.prereq.toLowerCase();
+
+  // Spell prereqs
+  if (prereq.includes('cast at least one spell')) {
+    var cls = C.cls ? DND_DATA.classes[C.cls] : null;
+    return !!(cls && cls.spellcastingAbility);
+  }
+  // Armor proficiency prereqs
+  if (prereq.includes('proficiency with medium armor')) {
+    var cls2 = C.cls ? DND_DATA.classes[C.cls] : null;
+    return !!(cls2 && cls2.armorProf && cls2.armorProf.some(function(p){ return p.toLowerCase().includes('medium'); }));
+  }
+  if (prereq.includes('proficiency with heavy armor')) {
+    var cls3 = C.cls ? DND_DATA.classes[C.cls] : null;
+    return !!(cls3 && cls3.armorProf && cls3.armorProf.some(function(p){ return p.toLowerCase().includes('heavy'); }));
+  }
+  if (prereq.includes('proficiency with light armor')) {
+    var cls4 = C.cls ? DND_DATA.classes[C.cls] : null;
+    return !!(cls4 && cls4.armorProf && cls4.armorProf.length > 0);
+  }
+  // Ability score prereqs
+  var abilityMap = { strength:13, dexterity:13, constitution:13, intelligence:13, wisdom:13, charisma:13 };
+  var abbrMap = { str:'strength', dex:'dexterity', con:'constitution', int:'intelligence', wis:'wisdom', cha:'charisma' };
+  for (var full in abilityMap) {
+    var match = prereq.match(new RegExp(full + '\\s+(\\d+)'));
+    if (match) {
+      var required = parseInt(match[1]);
+      var abbr = Object.keys(abbrMap).find(function(k){ return abbrMap[k] === full; });
+      return abbr ? totalScore(abbr) >= required : false;
+    }
+  }
+  return true; // default allow if we can't parse the prereq
+}
+
+function luSelectFeat(featName) {
+  if (!window._luState) return;
+  window._luState.featChoice = window._luState.featChoice === featName ? null : featName;
+  luRenderFeatPicker();
+  luCheckConfirm();
+}
+
 
 function openLevelUp(){
   if(C.level >= 20) return;
@@ -2546,16 +2877,20 @@ function renderLevelUpBody(newLevel){
 
   var html = '';
 
-  // HP section
-  html += '<div style="background:var(--bg);border:1px solid var(--crimson-border);padding:20px;margin-bottom:20px;position:relative;">';
+  // HP section — shared button style vars
+  var hpBtnBase = 'font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;transition:background 0.15s,color 0.15s,border-color 0.15s;';
+
+  html += '<div id="lu-hp-section" style="background:var(--bg);border:2px solid var(--crimson-border);padding:20px;margin-bottom:20px;position:relative;">';
   html += '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--crimson),transparent);"></div>';
-  html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:12px;">Hit Points</div>';
-  html += '<div style="font-size:14px;color:var(--text-dim);margin-bottom:14px;">Roll a d'+hitDie+' or take the average. Your CON modifier <span style="color:var(--crimson);">('+conStr+')</span> is added automatically.</div>';
+  html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;">Hit Points</div>';
+  html += '<div style="font-size:14px;color:var(--text-dim);margin-bottom:6px;">Roll a d'+hitDie+' or take the average. Your CON modifier <span style="color:var(--crimson);">('+conStr+')</span> is added automatically.</div>';
+  html += '<div id="lu-hp-required" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#c97c30;margin-bottom:14px;">&#9650; Choose one to continue</div>';
   html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">';
-  html += '<button onclick="luTakeAverage('+avgHp+','+newLevel+')" id="lu-avg-btn" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:var(--crimson);color:#f5f0e8;border:none;cursor:pointer;">Take Average ('+avgHp+'+CON)</button>';
-  html += '<button onclick="luRollHP('+hitDie+','+newLevel+')" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">Roll d'+hitDie+'</button>';
-  html += '<span id="lu-hp-result" style="font-family:\'Cinzel\',serif;font-size:16px;color:var(--text);"></span>';
-  html += '</div></div>';
+  html += '<button onclick="luTakeAverage('+avgHp+','+newLevel+')" id="lu-avg-btn" style="'+hpBtnBase+'">Take Average ('+avgHp+'+CON)</button>';
+  html += '<button onclick="luRollHP('+hitDie+','+newLevel+')" id="lu-roll-btn" style="'+hpBtnBase+'">Roll d'+hitDie+'</button>';
+  html += '</div>';
+  html += '<div id="lu-hp-result" style="margin-top:12px;font-family:\'Cinzel\',serif;font-size:15px;color:var(--text);min-height:22px;"></div>';
+  html += '</div>';
 
   // Prof bonus change
   if(pbChanged){
@@ -2568,32 +2903,66 @@ function renderLevelUpBody(newLevel){
   // Spell slots
   if(spellInfo) html += spellInfo;
 
-  // ASI section
+  // ASI or Feat section
   if(hasASI){
-    html += '<div style="background:var(--bg);border:1px solid var(--crimson-border);padding:20px;margin-bottom:20px;position:relative;">';
+    var activeTabStyle   = 'font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:var(--crimson);color:#f5f0e8;border:1px solid var(--crimson);cursor:pointer;';
+    var inactiveTabStyle = 'font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;';
+
+    html += '<div style="background:var(--bg);border:2px solid var(--crimson-border);padding:20px;margin-bottom:20px;position:relative;">';
     html += '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--crimson),transparent);"></div>';
-    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;">Ability Score Improvement</div>';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:12px;">Ability Score Improvement or Feat</div>';
+
+    // Tab switcher
+    html += '<div style="display:flex;gap:8px;margin-bottom:20px;">';
+    html += '<button onclick="luSetASIFeatMode(\'asi\')" id="lu-tab-asi" style="'+activeTabStyle+'">Ability Score Improvement</button>';
+    html += '<button onclick="luSetASIFeatMode(\'feat\')" id="lu-tab-feat" style="'+inactiveTabStyle+'">Take a Feat</button>';
+    html += '</div>';
+
+    // ASI Panel
+    html += '<div id="lu-panel-asi">';
     html += '<div style="font-size:14px;color:var(--text-dim);margin-bottom:16px;">Increase one score by 2, or two different scores by 1. No score may exceed 20.</div>';
     html += '<div style="display:flex;gap:8px;margin-bottom:14px;">';
-    html += '<button onclick="luSetASIMode(\'two\')" id="lu-asi-two" style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;background:var(--crimson);color:#f5f0e8;border:1px solid var(--crimson);cursor:pointer;">+2 to One Score</button>';
-    html += '<button onclick="luSetASIMode(\'one\')" id="lu-asi-one" style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">+1 to Two Scores</button>';
+    html += '<button onclick="luSetASIMode(\'two\')" id="lu-asi-two" style="'+activeTabStyle+'">+2 to One Score</button>';
+    html += '<button onclick="luSetASIMode(\'one\')" id="lu-asi-one" style="'+inactiveTabStyle+'">+1 to Two Scores</button>';
     html += '</div>';
     html += '<div id="lu-asi-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>';
     html += '<div id="lu-asi-summary" style="margin-top:10px;font-size:13px;color:var(--text-muted);font-style:italic;">Click ability scores to assign your increase.</div>';
+    html += '</div>';
+
+    // Feat Panel
+    html += '<div id="lu-panel-feat" style="display:none;">';
+    html += '<div style="font-size:14px;color:var(--text-dim);margin-bottom:14px;">Choose one feat. Prerequisites are checked against your current character. Click a feat to select it — click again to see the full description.</div>';
+    html += '<div id="lu-feat-list" style="max-height:360px;overflow-y:auto;padding-right:4px;"></div>';
+    html += '</div>';
+
     html += '</div>';
   }
 
   // New features
   if(nonASI.length > 0){
-    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:12px;">New Features</div>';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:14px;">New Features</div>';
     nonASI.forEach(function(f){
-      html += '<div style="background:var(--bg);border:1px solid var(--border);padding:16px 18px;margin-bottom:8px;">';
-      html += '<div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:2px;color:var(--text);text-transform:uppercase;margin-bottom:6px;">'+f.name+'</div>';
-      html += '<div style="font-size:13px;color:var(--text-dim);line-height:1.65;font-style:italic;">'+f.desc+'</div>';
+      var isSubclassHolder = f.name.indexOf('Feature') !== -1 || f.name.indexOf('Progression') !== -1;
+      var isUpgrade        = f.name.indexOf('(') !== -1; // e.g. Rage (4/day), Brutal Critical (2 dice)
+      html += '<div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--crimson);padding:16px 18px;margin-bottom:10px;">';
+
+      // Name row with optional tag
+      html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
+      html += '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:2px;color:var(--text);text-transform:uppercase;line-height:1.4;">'+f.name+'</div>';
+      if(isSubclassHolder){
+        html += '<div style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);background:var(--bg-card);border:1px solid var(--border);padding:3px 8px;white-space:nowrap;margin-left:10px;">Subclass</div>';
+      } else if(isUpgrade){
+        html += '<div style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--crimson);background:transparent;border:1px solid var(--crimson-border);padding:3px 8px;white-space:nowrap;margin-left:10px;">Upgrade</div>';
+      }
+      html += '</div>';
+
+      // Description
+      html += '<div style="font-size:13px;color:var(--text-dim);line-height:1.7;">'+f.desc+'</div>';
+
       html += '</div>';
     });
   } else if(!hasASI && !spellInfo){
-    html += '<div style="font-size:14px;color:var(--text-faint);font-style:italic;padding:8px 0;">No base class features at this level — your spell slots and prepared spells increase.</div>';
+    html += '<div style="font-size:14px;color:var(--text-faint);padding:8px 0;">No new base features at this level. Your spell slots and prepared spells increase if applicable.</div>';
   }
 
   // XP input
@@ -2606,6 +2975,12 @@ function renderLevelUpBody(newLevel){
     html += '</div></div>';
   }
 
+  // Spell selection section (for casters)
+  var clsObj = C.cls ? DND_DATA.classes[C.cls] : null;
+  if (clsObj && clsObj.spellcastingAbility) {
+    html += luBuildSpellSection(C.cls, C.level, newLevel);
+  }
+
   // Confirm / Cancel
   html += '<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;">';
   html += '<button onclick="closeLevelUp()" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Cancel</button>';
@@ -2615,16 +2990,42 @@ function renderLevelUpBody(newLevel){
   body.innerHTML = html;
 
   // Store modal state
-  window._luState = { newLevel:newLevel, hasASI:hasASI, asiMode:'two', asiChoices:{}, hpChosen:false };
+  window._luState = { newLevel:newLevel, hasASI:hasASI, asiMode:'two', asiFeatMode:'asi', asiChoices:{}, featChoice:null, hpChosen:false, spellsNeeded:0, cantripsNeeded:0, spellChoices:[], cantripChoices:[] };
 
   if(hasASI) luRenderASIGrid();
+  // Render spell picker if it was added to HTML
+  if(document.getElementById('lu-spell-picker')) luRenderSpellPicker();
+  luCheckConfirm();
+}
+
+// Called from the feat tab — re-renders ASI grid when switching back
+function luSetASIMode(mode){
+  if(!window._luState) return;
+  window._luState.asiMode = mode;
+  window._luState.asiChoices = {};
+  var twoBtn = document.getElementById('lu-asi-two');
+  var oneBtn = document.getElementById('lu-asi-one');
+  var activeStyle   = 'font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:var(--crimson);color:#f5f0e8;border:1px solid var(--crimson);cursor:pointer;';
+  var inactiveStyle = 'font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;';
+  if(twoBtn){ twoBtn.style.cssText = mode==='two' ? activeStyle : inactiveStyle; }
+  if(oneBtn){ oneBtn.style.cssText = mode==='one' ? activeStyle : inactiveStyle; }
+  luRenderASIGrid();
   luCheckConfirm();
 }
 
 function luTakeAverage(avg, newLevel){
   C.hpRolls[newLevel-1] = avg;
+  // Highlight chosen, dim unchosen
+  var avgBtn  = document.getElementById('lu-avg-btn');
+  var rollBtn = document.getElementById('lu-roll-btn');
+  var chosen  = 'background:var(--crimson);color:#f5f0e8;border-color:var(--crimson);font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;cursor:pointer;';
+  var unchosen= 'background:var(--bg);color:var(--text-faint);border:1px solid var(--border);font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;cursor:pointer;opacity:0.45;';
+  if(avgBtn)  avgBtn.style.cssText  = chosen;
+  if(rollBtn) rollBtn.style.cssText = unchosen;
+  var req = document.getElementById('lu-hp-required');
+  if(req) req.style.display = 'none';
   var el = document.getElementById('lu-hp-result');
-  if(el){ el.textContent = '+'+avg+' hp (average)'; el.style.color='var(--text)'; }
+  if(el){ el.textContent = '+' + avg + ' hp (average)'; el.style.color = 'var(--text)'; }
   window._luState.hpChosen = true;
   luCheckConfirm();
 }
@@ -2632,34 +3033,26 @@ function luTakeAverage(avg, newLevel){
 function luRollHP(hitDie, newLevel){
   var roll = Math.ceil(Math.random()*hitDie);
   C.hpRolls[newLevel-1] = roll;
+  // Highlight chosen, dim unchosen
+  var avgBtn  = document.getElementById('lu-avg-btn');
+  var rollBtn = document.getElementById('lu-roll-btn');
+  var chosen  = 'background:var(--crimson);color:#f5f0e8;border-color:var(--crimson);font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;cursor:pointer;';
+  var unchosen= 'background:var(--bg);color:var(--text-faint);border:1px solid var(--border);font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;cursor:pointer;opacity:0.45;';
+  if(rollBtn) rollBtn.style.cssText = chosen;
+  if(avgBtn)  avgBtn.style.cssText  = unchosen;
+  var req = document.getElementById('lu-hp-required');
+  if(req) req.style.display = 'none';
+  var resultColor = roll === hitDie ? '#4a9e5c' : roll === 1 ? '#b94040' : 'var(--text)';
   var el = document.getElementById('lu-hp-result');
   if(el){
-    el.textContent = '+'+roll+' hp (rolled d'+hitDie+')';
-    el.style.color = roll===hitDie ? '#4CAF50' : roll===1 ? 'var(--crimson)' : 'var(--text)';
+    el.textContent = '+' + roll + ' hp (rolled d' + hitDie + ')' + (roll === hitDie ? ' — max roll!' : roll === 1 ? ' — minimum.' : '');
+    el.style.color = resultColor;
   }
   window._luState.hpChosen = true;
   luCheckConfirm();
 }
 
-function luSetASIMode(mode){
-  if(!window._luState) return;
-  window._luState.asiMode = mode;
-  window._luState.asiChoices = {};
-  var twoBtn = document.getElementById('lu-asi-two');
-  var oneBtn = document.getElementById('lu-asi-one');
-  if(twoBtn){
-    twoBtn.style.background = mode==='two' ? 'var(--crimson)' : 'transparent';
-    twoBtn.style.color = mode==='two' ? '#f5f0e8' : 'var(--text-muted)';
-    twoBtn.style.borderColor = mode==='two' ? 'var(--crimson)' : 'var(--border)';
-  }
-  if(oneBtn){
-    oneBtn.style.background = mode==='one' ? 'var(--crimson)' : 'transparent';
-    oneBtn.style.color = mode==='one' ? '#f5f0e8' : 'var(--text-muted)';
-    oneBtn.style.borderColor = mode==='one' ? 'var(--crimson)' : 'var(--border)';
-  }
-  luRenderASIGrid();
-  luCheckConfirm();
-}
+// luSetASIMode defined below with feat support
 
 function luRenderASIGrid(){
   var grid = document.getElementById('lu-asi-grid');
@@ -2721,22 +3114,33 @@ function luToggleASI(ability){
 
 function luCheckConfirm(){
   if(!window._luState) return;
-  var hasASI = window._luState.hasASI;
-  var hpChosen = window._luState.hpChosen;
-  var asiMode = window._luState.asiMode;
-  var asiChoices = window._luState.asiChoices;
+  var hasASI        = window._luState.hasASI;
+  var hpChosen      = window._luState.hpChosen;
+  var asiMode       = window._luState.asiMode;
+  var asiChoices    = window._luState.asiChoices;
+  var spellsNeeded  = window._luState.spellsNeeded  || 0;
+  var cantripsNeeded= window._luState.cantripsNeeded || 0;
+  var spellChoices  = window._luState.spellChoices   || [];
+  var cantripChoices= window._luState.cantripChoices || [];
   var btn = document.getElementById('lu-confirm-btn');
   if(!btn) return;
 
   var ready = hpChosen;
   if(hasASI){
-    if(asiMode==='two'){
-      ready = ready && Object.values(asiChoices).some(function(v){ return v===2; });
+    var asiFeatMode = window._luState.asiFeatMode || 'asi';
+    if(asiFeatMode === 'feat'){
+      ready = ready && !!window._luState.featChoice;
     } else {
-      ready = ready && Object.values(asiChoices).filter(function(v){ return v>0; }).length === 2;
+      if(asiMode==='two'){
+        ready = ready && Object.values(asiChoices).some(function(v){ return v===2; });
+      } else {
+        ready = ready && Object.values(asiChoices).filter(function(v){ return v>0; }).length === 2;
+      }
     }
   }
-  btn.style.opacity = ready ? '1' : '0.4';
+  if(spellsNeeded > 0)   ready = ready && spellChoices.length   >= spellsNeeded;
+  if(cantripsNeeded > 0) ready = ready && cantripChoices.length >= cantripsNeeded;
+  btn.style.opacity     = ready ? '1' : '0.4';
   btn.style.pointerEvents = ready ? 'all' : 'none';
 }
 
@@ -2752,16 +3156,35 @@ function confirmLevelUp(newLevel){
   var hasASI = window._luState.hasASI;
   var asiChoices = window._luState.asiChoices;
 
-  // Apply ASI to C.abilities
+  // Apply ASI or Feat
   if(hasASI){
-    Object.keys(asiChoices).forEach(function(a){
-      if(asiChoices[a] > 0){
-        C.abilities[a] = Math.min(20, C.abilities[a] + asiChoices[a]);
-      }
-    });
+    var asiFeatMode = window._luState.asiFeatMode || 'asi';
     if(!C.asiChoices) C.asiChoices = [];
-    C.asiChoices.push({ level:newLevel, choices: Object.assign({}, asiChoices) });
+    if(asiFeatMode === 'feat' && window._luState.featChoice){
+      // Record feat; apply any partial ASI embedded in the feat
+      var featName = window._luState.featChoice;
+      var featData = (DND_DATA.feats || []).find(function(f){ return f.name === featName; });
+      C.asiChoices.push({ level:newLevel, feat:featName });
+      // Apply Tough feat HP bonus
+      if(featName === 'Tough'){
+        if(!C.toughBonus) C.toughBonus = 0;
+        C.toughBonus += newLevel * 2; // 2 per level retroactively
+      }
+    } else {
+      Object.keys(asiChoices).forEach(function(a){
+        if(asiChoices[a] > 0){
+          C.abilities[a] = Math.min(20, C.abilities[a] + asiChoices[a]);
+        }
+      });
+      C.asiChoices.push({ level:newLevel, choices: Object.assign({}, asiChoices) });
+    }
   }
+
+  // Apply spell choices
+  var spellChoices   = window._luState.spellChoices   || [];
+  var cantripChoices = window._luState.cantripChoices || [];
+  spellChoices.forEach(function(sp)   { if(C.selectedSpells.indexOf(sp)   === -1) C.selectedSpells.push(sp); });
+  cantripChoices.forEach(function(sp) { if(C.selectedCantrips.indexOf(sp) === -1) C.selectedCantrips.push(sp); });
 
   // Advance level
   C.level = newLevel;
@@ -2815,6 +3238,7 @@ async function saveCharacterToDB(){
     xp:               C.xp||0,
     hpRolls:          [...(C.hpRolls||[])],
     asiChoices:       [...(C.asiChoices||[])],
+    toughBonus:       C.toughBonus||0,
   };
 
   const existingId = localStorage.getItem('phmurt_current_char_id')||undefined;
@@ -2878,7 +3302,7 @@ function init(){
     const fields=['race','subrace','cls','background','abilities','scoreMethod',
                   'arrayAssigned','selectedSkills','equipChoices','weaponChoices',
                   'selectedCantrips','selectedSpells','details','level',
-                  'levelingMethod','xp','hpRolls','asiChoices'];
+                  'levelingMethod','xp','hpRolls','asiChoices','toughBonus'];
     fields.forEach(k=>{ if(data[k]!==undefined) C[k]=data[k]; });
     C.weaponChoices = C.weaponChoices || {};
     C.rollLog = [];

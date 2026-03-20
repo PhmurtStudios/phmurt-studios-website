@@ -43,7 +43,7 @@ classes: {
   },
   cleric: { name:"Cleric", hitDie:8, saves:["wis","cha"], primaryAbility:"wis", spellcastingAbility:"wis", armorProf:["Light armor","Medium armor","Shields"], weaponProf:["Simple weapons"], skillCount:2, skillOptions:["History","Insight","Medicine","Persuasion","Religion"],
     features:[{level:1,name:"Spellcasting",desc:"Wis-based spellcasting. Prepare spells = Wis mod + Cleric level. Ritual Casting."},{level:1,name:"Divine Domain",desc:"Choose your domain — grants bonus spells and features from 1st level."}],
-    subclasses:["Life","Light","Trickery","War","Nature","Tempest","Knowledge","Death"],
+    subclasses:["Life","Light","Trickery","War","Nature","Tempest","Knowledge"],
     equipment:[["Mace","Warhammer"],["Scale mail","Leather armor","Chain mail"],["Light crossbow & 20 bolts","Any simple weapon"],["Priest's pack","Explorer's pack"],["Shield","Any simple weapon"]]
   },
   druid: { name:"Druid", hitDie:8, saves:["int","wis"], primaryAbility:"wis", spellcastingAbility:"wis", armorProf:["Light armor","Medium armor","Shields (nonmetal)"], weaponProf:["Clubs","Daggers","Darts","Javelins","Maces","Quarterstaffs","Scimitars","Sickles","Slings","Spears"], skillCount:2, skillOptions:["Arcana","Animal Handling","Insight","Medicine","Nature","Perception","Religion","Survival"],
@@ -116,7 +116,7 @@ skills: {
 spells: {
   wizard: {
     cantrips:["Fire Bolt","Ray of Frost","Shocking Grasp","Mage Hand","Prestidigitation","Minor Illusion","Acid Splash","Poison Spray","True Strike","Light","Message","Dancing Lights","Friends","Blade Ward"],
-    level1:["Magic Missile","Sleep","Charm Person","Shield","Mage Armor","Detect Magic","Identify","Comprehend Languages","Feather Fall","Fog Cloud","Thunderwave","Burning Hands","Grease","Jump","Longstrider","Unseen Servant","Alarm","Disguise Self","Illusory Script","Witch Bolt","False Life","Ray of Sickness","Cause Fear","Absorb Elements","Catapult","Ice Knife","Chromatic Orb","Expeditious Retreat"]
+    level1:["Magic Missile","Sleep","Charm Person","Shield","Mage Armor","Detect Magic","Identify","Comprehend Languages","Feather Fall","Fog Cloud","Thunderwave","Burning Hands","Grease","Jump","Longstrider","Unseen Servant","Alarm","Disguise Self","Illusory Script","Witch Bolt","False Life","Ray of Sickness","Absorb Elements","Catapult","Ice Knife","Chromatic Orb","Expeditious Retreat"]
   },
   sorcerer: {
     cantrips:["Fire Bolt","Chill Touch","Shocking Grasp","Ray of Frost","Mage Hand","Prestidigitation","Minor Illusion","True Strike","Light","Message","Dancing Lights","Friends","Blade Ward","Thunderclap","Acid Splash"],
@@ -842,3 +842,665 @@ DND_DATA.levelFeatures = {
   }
 
 }; // end DND_DATA.levelFeatures
+
+// ══════════════════════════════════════════════════════════════
+// EXTENDED SPELL LISTS — levels 2 through 9
+// These append to DND_DATA.spells[cls] which already has
+// cantrips and level1 for each class.
+// ══════════════════════════════════════════════════════════════
+
+// ── WIZARD ──────────────────────────────────────────────────
+DND_DATA.spells.wizard.level2 = [
+  "Alter Self","Arcane Lock","Blindness/Deafness","Blur","Cloud of Daggers",
+  "Crown of Madness","Darkness","Darkvision","Detect Thoughts","Enlarge/Reduce","Flaming Sphere","Gentle Repose","Hold Person","Invisibility",
+  "Knock","Levitate","Locate Object","Magic Mouth","Melf's Acid Arrow",
+  "Mirror Image","Misty Step","Nystul's Magic Aura","Phantasmal Force",
+  "Ray of Enfeeblement","Rope Trick","Scorching Ray","See Invisibility","Shatter","Skywrite","Spider Climb","Suggestion","Web"
+];
+DND_DATA.spells.wizard.level3 = [
+  "Animate Dead","Bestow Curse","Blink","Clairvoyance","Counterspell",
+  "Dispel Magic","Fear","Feign Death","Fireball",
+  "Fly","Gaseous Form","Glyph of Warding","Haste","Hypnotic Pattern","Leomund's Tiny Hut",
+  "Lightning Bolt","Magic Circle","Major Image","Nondetection","Phantom Steed","Protection from Energy","Remove Curse","Sending",
+  "Sleet Storm","Slow","Stinking Cloud","Summon Lesser Demons","Tongues","Vampiric Touch","Water Breathing"
+];
+DND_DATA.spells.wizard.level4 = [
+  "Arcane Eye","Banishment","Black Tentacles","Blight","Charm Monster","Confusion",
+  "Conjure Minor Elementals","Control Water","Dimension Door","Divination",
+  "Elemental Bane","Fabricate","Fire Shield","Greater Invisibility","Hallucinatory Terrain",
+  "Ice Storm","Leomund's Secret Chest","Locate Creature","Mordenkainen's Faithful Hound",
+  "Mordenkainen's Private Sanctum","Otiluke's Resilient Sphere",
+  "Phantasmal Killer","Polymorph","Sickening Radiance",
+  "Stone Shape","Stoneskin","Storm Sphere","Summon Construct","Summon Elemental",
+  "Summon Greater Demon","Vitriolic Sphere","Wall of Fire","Watery Sphere"
+];
+DND_DATA.spells.wizard.level5 = [
+  "Animate Objects","Bigby's Hand","Cloudkill","Cone of Cold","Conjure Elemental",
+  "Contact Other Plane","Contingency","Control Winds","Creation","Danse Macabre",
+  "Dawn","Dominate Person","Dream","Far Step","Geas","Hold Monster",
+  "Immolation","Infernal Calling","Legend Lore","Mislead","Modify Memory",
+  "Negative Energy Flood","Passwall","Planar Binding","Rary's Telepathic Bond",
+  "Scrying","Seeming","Skill Empowerment","Steel Wind Strike","Summon Draconic Spirit",
+  "Synaptic Static","Telekinesis","Teleportation Circle","Wall of Force","Wall of Light",
+  "Wall of Stone"
+];
+DND_DATA.spells.wizard.level6 = [
+  "Arcane Gate","Chain Lightning","Circle of Death","Contingency","Create Undead",
+  "Disintegrate","Drawmij's Instant Summons","Eyebite","Flesh to Stone",
+  "Globe of Invulnerability","Guards and Wards","Investiture of Flame",
+  "Investiture of Ice","Investiture of Stone","Investiture of Wind","Magic Jar",
+  "Mass Suggestion","Mental Prison","Move Earth","Otiluke's Freezing Sphere",
+  "Otto's Irresistible Dance","Programmed Illusion","Scatter","Soul Cage",
+  "Summon Fiend","Sunbeam","Tenser's Transformation","True Seeing","Wall of Ice"
+];
+DND_DATA.spells.wizard.level7 = [
+  "Crown of Stars","Delayed Blast Fireball","Divine Word","Etherealness",
+  "Finger of Death","Fire Storm","Forcecage","Mirage Arcane","Mordenkainen's Magnificent Mansion",
+  "Mordenkainen's Sword","Plane Shift","Power Word Pain","Prismatic Spray",
+  "Project Image","Reverse Gravity","Sequester","Simulacrum","Symbol",
+  "Teleport","Whirlwind"
+];
+DND_DATA.spells.wizard.level8 = [
+  "Abi-Dalzim's Horrid Wilting","Antimagic Field","Antipathy/Sympathy",
+  "Clone","Control Weather","Demiplane","Dominate Monster","Earthquake",
+  "Feeblemind","Illusory Dragon","Incendiary Cloud","Maddening Darkness",
+  "Maze","Mind Blank","Power Word Stun","Sunburst","Telepathy",
+  "Tsunami"
+];
+DND_DATA.spells.wizard.level9 = [
+  "Astral Projection","Blade of Disaster","Foresight","Gate","Imprisonment",
+  "Mass Polymorph","Meteor Swarm","Power Word Kill","Prismatic Wall",
+  "Psychic Scream","Shapechange","Time Stop","True Polymorph","Weird","Wish"
+];
+
+// ── SORCERER ────────────────────────────────────────────────
+DND_DATA.spells.sorcerer.level2 = [
+  "Blindness/Deafness","Blur","Cloud of Daggers","Crown of Madness","Darkness",
+  "Darkvision","Detect Thoughts","Enhance Ability",
+  "Enlarge/Reduce","Flaming Sphere","Hold Person","Invisibility","Knock",
+  "Levitate","Magic Mouth","Mirror Image","Misty Step",
+  "Phantasmal Force","Ray of Enfeeblement","Scorching Ray","See Invisibility",
+  "Shatter","Spider Climb","Suggestion","Web"
+];
+DND_DATA.spells.sorcerer.level3 = [
+  "Blink","Clairvoyance","Counterspell","Daylight","Dispel Magic",
+  "Fear","Fireball","Fly","Gaseous Form",
+  "Haste","Hypnotic Pattern","Lightning Bolt","Major Image","Protection from Energy","Sleet Storm","Slow","Stinking Cloud","Tongues","Vampiric Touch","Water Breathing"
+];
+DND_DATA.spells.sorcerer.level4 = [
+  "Banishment","Blight","Charm Monster","Confusion","Dimension Door",
+  "Dominate Beast","Elemental Bane","Fire Shield","Greater Invisibility",
+  "Ice Storm","Sickening Radiance",
+  "Storm Sphere","Stoneskin","Summon Elemental","Summon Greater Demon",
+  "Vitriolic Sphere","Wall of Fire","Watery Sphere"
+];
+DND_DATA.spells.sorcerer.level5 = [
+  "Animate Objects","Bigby's Hand","Cloudkill","Cone of Cold","Conjure Elemental",
+  "Control Winds","Creation","Dawn","Dominate Person","Far Step","Geas",
+  "Hold Monster","Immolation","Seeming","Skill Empowerment","Steel Wind Strike",
+  "Summon Draconic Spirit","Synaptic Static","Telekinesis","Teleportation Circle",
+  "Wall of Force","Wall of Light","Wall of Stone"
+];
+DND_DATA.spells.sorcerer.level6 = [
+  "Arcane Gate","Chain Lightning","Circle of Death","Create Undead","Disintegrate",
+  "Eyebite","Flesh to Stone","Globe of Invulnerability","Investiture of Flame",
+  "Investiture of Ice","Investiture of Stone","Investiture of Wind","Mass Suggestion",
+  "Mental Prison","Move Earth","Otiluke's Freezing Sphere","Scatter","Soul Cage",
+  "Summon Fiend","Sunbeam","True Seeing"
+];
+DND_DATA.spells.sorcerer.level7 = [
+  "Crown of Stars","Delayed Blast Fireball","Etherealness","Finger of Death",
+  "Fire Storm","Forcecage","Plane Shift","Power Word Pain","Prismatic Spray",
+  "Reverse Gravity","Symbol","Teleport","Whirlwind"
+];
+DND_DATA.spells.sorcerer.level8 = [
+  "Abi-Dalzim's Horrid Wilting","Antimagic Field","Control Weather","Demiplane",
+  "Dominate Monster","Earthquake","Feeblemind","Incendiary Cloud","Maddening Darkness",
+  "Power Word Stun","Sunburst"
+];
+DND_DATA.spells.sorcerer.level9 = [
+  "Blade of Disaster","Gate","Mass Polymorph","Meteor Swarm","Power Word Kill",
+  "Psychic Scream","Time Stop","True Polymorph","Wish"
+];
+
+// ── BARD ────────────────────────────────────────────────────
+DND_DATA.spells.bard.level2 = [
+  "Blindness/Deafness","Cloud of Daggers","Crown of Madness","Detect Thoughts",
+  "Enhance Ability","Enthrall","Heat Metal","Hold Person","Invisibility","Knock",
+  "Lesser Restoration","Locate Animals or Plants","Locate Object","Magic Mouth",
+  "Mirror Image","Phantasmal Force","Pyrotechnics",
+  "See Invisibility","Shatter","Silence","Skywrite","Suggestion","Zone of Truth"
+];
+DND_DATA.spells.bard.level3 = [
+  "Bestow Curse","Clairvoyance","Counterspell","Dispel Magic",
+  "Fear","Feign Death","Gaseous Form","Glyph of Warding",
+  "Hypnotic Pattern","Leomund's Tiny Hut","Major Image","Mass Healing Word",
+  "Nondetection","Plant Growth","Sending","Slow","Speak with Dead",
+  "Speak with Plants","Stinking Cloud","Tongues"
+];
+DND_DATA.spells.bard.level4 = [
+  "Charm Monster","Confusion","Dimension Door","Freedom of Movement",
+  "Greater Invisibility","Hallucinatory Terrain","Locate Creature",
+  "Phantasmal Killer","Polymorph"
+];
+DND_DATA.spells.bard.level5 = [
+  "Animate Objects","Awaken","Dominate Person","Dream","Geas","Greater Restoration",
+  "Hold Monster","Legend Lore","Mass Cure Wounds","Mislead","Modify Memory",
+  "Planar Binding","Raise Dead","Rary's Telepathic Bond","Scrying","Seeming",
+  "Skill Empowerment","Steel Wind Strike","Synaptic Static","Teleportation Circle"
+];
+DND_DATA.spells.bard.level6 = [
+  "Eyebite","Find the Path","Guards and Wards","Heroes' Feast","Mass Suggestion",
+  "Otto's Irresistible Dance","Programmed Illusion","Scatter","Soul Cage","True Seeing"
+];
+DND_DATA.spells.bard.level7 = [
+  "Etherealness","Forcecage","Mirage Arcane","Mordenkainen's Magnificent Mansion",
+  "Plane Shift","Power Word Pain","Prismatic Spray","Project Image","Regenerate",
+  "Resurrection","Symbol","Teleport","Whirlwind"
+];
+DND_DATA.spells.bard.level8 = [
+  "Antipathy/Sympathy","Befuddlement","Dominate Monster","Feeblemind","Glibness",
+  "Mind Blank","Power Word Stun","True Polymorph"
+];
+DND_DATA.spells.bard.level9 = [
+  "Foresight","Mass Polymorph","Power Word Heal","Power Word Kill",
+  "Prismatic Wall","Psychic Scream","True Polymorph","Weird"
+];
+
+// ── CLERIC ──────────────────────────────────────────────────
+DND_DATA.spells.cleric.level2 = [
+  "Aid","Augury","Blindness/Deafness","Calm Emotions","Continual Flame",
+  "Enhance Ability","Find Traps","Gentle Repose","Hold Person","Lesser Restoration",
+  "Locate Object","Prayer of Healing","Protection from Poison",
+  "Silence","Spiritual Weapon","Warding Bond","Zone of Truth"
+];
+DND_DATA.spells.cleric.level3 = [
+  "Animate Dead","Beacon of Hope","Bestow Curse","Clairvoyance",
+  "Create Food and Water","Daylight","Dispel Magic","Feign Death",
+  "Glyph of Warding","Magic Circle","Mass Healing Word",
+  "Meld into Stone","Protection from Energy","Remove Curse","Revivify",
+  "Sending","Speak with Dead","Spirit Guardians","Spirit Shroud","Tongues",
+  "Water Walk","Wind Wall"
+];
+DND_DATA.spells.cleric.level4 = [
+  "Aura of Life","Aura of Purity","Banishment","Control Water","Death Ward",
+  "Divination","Freedom of Movement","Guardian of Faith","Locate Creature",
+  "Stone Shape"
+];
+DND_DATA.spells.cleric.level5 = [
+  "Commune","Contagion","Dawn","Dispel Evil and Good","Flame Strike",
+  "Geas","Greater Restoration","Hallow","Holy Weapon","Hold Monster",
+  "Insect Plague","Legend Lore","Mass Cure Wounds","Planar Binding",
+  "Raise Dead","Scrying","Summon Celestial"
+];
+DND_DATA.spells.cleric.level6 = [
+  "Blade Barrier","Create Undead","Find the Path","Forbiddance","Harm",
+  "Heal","Heroes' Feast","Planar Ally","Sunbeam","True Seeing","Word of Recall"
+];
+DND_DATA.spells.cleric.level7 = [
+  "Conjure Celestial","Divine Word","Etherealness","Fire Storm","Plane Shift",
+  "Regenerate","Resurrection","Symbol","Temple of the Gods"
+];
+DND_DATA.spells.cleric.level8 = [
+  "Antimagic Field","Control Weather","Earthquake","Holy Aura","Sunburst"
+];
+DND_DATA.spells.cleric.level9 = [
+  "Astral Projection","Gate","Mass Heal","Power Word Heal","True Resurrection"
+];
+
+// ── DRUID ───────────────────────────────────────────────────
+DND_DATA.spells.druid.level2 = [
+  "Animal Messenger","Barkskin","Beast Sense","Continual Flame","Darkvision",
+  "Dust Devil","Earthbind","Enhance Ability","Find Traps","Flame Blade",
+  "Flaming Sphere","Gust of Wind","Heat Metal","Lesser Restoration",
+  "Locate Animals or Plants","Locate Object","Moonbeam","Pass Without Trace","Protection from Poison","Skywrite","Spike Growth",
+  "Summon Beast"
+];
+DND_DATA.spells.druid.level3 = [
+  "Aura of Vitality","Call Lightning","Conjure Animals","Daylight",
+  "Dispel Magic","Feign Death","Flame Arrows",
+  "Meld into Stone","Plant Growth","Protection from Energy","Revivify",
+  "Sleet Storm","Speak with Plants","Summon Fey","Water Breathing","Water Walk","Wind Wall"
+];
+DND_DATA.spells.druid.level4 = [
+  "Blight","Conjure Minor Elementals","Conjure Woodland Beings","Control Water",
+  "Dominate Beast","Freedom of Movement","Giant Insect","Grasping Vine",
+  "Guardian of Nature","Hallucinatory Terrain","Ice Storm","Locate Creature",
+  "Polymorph","Stone Shape","Stoneskin","Summon Construct","Summon Elemental",
+  "Wall of Fire","Watery Sphere"
+];
+DND_DATA.spells.druid.level5 = [
+  "Antilife Shell","Awaken","Commune with Nature","Conjure Elemental","Contagion",
+  "Control Winds","Geas","Greater Restoration","Hold Monster","Insect Plague",
+  "Maelstrom","Mass Cure Wounds","Planar Binding","Reincarnate","Scrying",
+  "Steel Wind Strike","Summon Draconic Spirit","Tree Stride","Wall of Stone",
+  "Wrath of Nature"
+];
+DND_DATA.spells.druid.level6 = [
+  "Conjure Fey","Find the Path","Heal","Heroes' Feast","Investiture of Flame",
+  "Investiture of Ice","Investiture of Stone","Investiture of Wind","Move Earth",
+  "Primordial Ward","Sunbeam","Transport via Plants","True Seeing",
+  "Wall of Thorns","Wind Walk"
+];
+DND_DATA.spells.druid.level7 = [
+  "Fire Storm","Mirage Arcane","Plane Shift","Regenerate","Reverse Gravity",
+  "Symbol","Whirlwind"
+];
+DND_DATA.spells.druid.level8 = [
+  "Animal Shapes","Antipathy/Sympathy","Control Weather","Earthquake",
+  "Feeblemind","Incendiary Cloud","Sunburst","Tsunami"
+];
+DND_DATA.spells.druid.level9 = [
+  "Foresight","Mass Polymorph","Shapechange","Storm of Vengeance","True Resurrection"
+];
+
+// ── PALADIN (max 5th level slots) ───────────────────────────
+DND_DATA.spells.paladin.level2 = [
+  "Aid","Branding Smite","Find Steed","Gentle Repose","Lesser Restoration",
+  "Locate Object","Magic Weapon","Prayer of Healing","Protection from Poison",
+  "Warding Bond","Zone of Truth"
+];
+DND_DATA.spells.paladin.level3 = [
+  "Aura of Vitality","Blinding Smite","Create Food and Water","Crusader's Mantle",
+  "Daylight","Dispel Magic","Elemental Weapon","Magic Circle","Remove Curse","Revivify"
+];
+DND_DATA.spells.paladin.level4 = [
+  "Aura of Life","Aura of Purity","Banishment","Death Ward",
+  "Find Greater Steed","Locate Creature","Staggering Smite"
+];
+DND_DATA.spells.paladin.level5 = [
+  "Banishing Smite","Circle of Power","Destructive Wave","Dispel Evil and Good",
+  "Geas","Holy Weapon","Raise Dead","Summon Celestial"
+];
+
+// ── RANGER (max 5th level slots, first slot at level 2) ─────
+DND_DATA.spells.ranger.level2 = [
+  "Animal Messenger","Beast Sense","Cordon of Arrows","Darkvision",
+  "Find Traps","Gust of Wind","Lesser Restoration","Locate Animals or Plants",
+  "Locate Object","Pass Without Trace","Protection from Poison","Silence",
+  "Spike Growth","Summon Beast"
+];
+DND_DATA.spells.ranger.level3 = [
+  "Conjure Animals","Conjure Barrage","Daylight","Dispel Magic",
+  "Flame Arrows","Lightning Arrow","Nondetection","Plant Growth",
+  "Protection from Energy","Speak with Plants","Summon Fey","Water Breathing","Water Walk","Wind Wall"
+];
+DND_DATA.spells.ranger.level4 = [
+  "Conjure Woodland Beings","Freedom of Movement","Grasping Vine",
+  "Guardian of Nature","Locate Creature","Stoneskin","Summon Elemental"
+];
+DND_DATA.spells.ranger.level5 = [
+  "Commune with Nature","Conjure Volley","Greater Restoration","Hold Monster",
+  "Steel Wind Strike","Swift Quiver","Tree Stride","Wrath of Nature"
+];
+
+// ── WARLOCK ─────────────────────────────────────────────────
+DND_DATA.spells.warlock.level2 = [
+  "Cloud of Daggers","Crown of Madness","Darkness","Enthrall","Hold Person",
+  "Invisibility","Mirror Image","Misty Step","Ray of Enfeeblement",
+  "Shatter","Spider Climb","Suggestion"
+];
+DND_DATA.spells.warlock.level3 = [
+  "Counterspell","Dispel Magic","Fear","Fly","Gaseous Form",
+  "Hunger of Hadar","Hypnotic Pattern","Magic Circle","Major Image",
+  "Remove Curse","Spirit Shroud","Summon Fey","Summon Lesser Demons",
+  "Tongues","Vampiric Touch"
+];
+DND_DATA.spells.warlock.level4 = [
+  "Banishment","Blight","Charm Monster","Dimension Door","Elemental Bane",
+  "Hallucinatory Terrain","Shadow of Moil",
+  "Sickening Radiance","Summon Aberration","Summon Greater Demon","Wall of Fire"
+];
+DND_DATA.spells.warlock.level5 = [
+  "Contact Other Plane","Danse Macabre","Dream","Far Step","Hold Monster",
+  "Infernal Calling","Jallarzi's Storm of Radiance","Mislead","Modify Memory",
+  "Negative Energy Flood","Planar Binding","Scrying","Synaptic Static","Teleportation Circle"
+];
+
+// ══════════════════════════════════════════════════════════════
+// SPELLCASTER PROGRESSION TABLES
+// ══════════════════════════════════════════════════════════════
+
+// What type of spellcaster is each class?
+// 'known'    = bard, sorcerer, warlock, ranger — pick spells, know them permanently
+// 'book'     = wizard — adds spells to spellbook, prepares from it
+// 'prepared' = cleric, druid, paladin — no fixed known list, prepare daily from full list
+DND_DATA.spellcasterType = {
+  bard:'known', sorcerer:'known', warlock:'known', ranger:'known',
+  wizard:'book', cleric:'prepared', druid:'prepared', paladin:'prepared'
+};
+
+// Highest spell level accessible at each class level (index = classLevel - 1)
+DND_DATA.maxSpellLevel = {
+  fullcaster: [1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,9,9],
+  halfcaster: [0,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5],
+  warlock:    [1,1,2,2,3,3,4,4,5,5,5,5,5,5,5,5,5,5,5,5]
+};
+
+// Which max-spell-level table does each caster use?
+DND_DATA.spellLevelTableType = {
+  bard:'fullcaster', cleric:'fullcaster', druid:'fullcaster',
+  sorcerer:'fullcaster', wizard:'fullcaster',
+  paladin:'halfcaster', ranger:'halfcaster',
+  warlock:'warlock'
+};
+
+// Total spells known at each level for 'known' casters (index = classLevel - 1)
+// Cantrips are tracked separately below.
+DND_DATA.spellsKnownTable = {
+  bard:    [4,5,6,7,8,9,10,11,12,14,15,15,16,18,19,19,20,22,22,22],
+  sorcerer:[2,3,4,5,6,7,8,9,10,11,12,12,13,13,14,14,15,15,15,15],
+  warlock: [2,3,4,5,6,7,8,9,10,10,11,11,12,12,13,13,14,14,15,15],
+  ranger:  [0,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11]
+};
+
+// Total cantrips known at each level (index = classLevel - 1)
+DND_DATA.cantripsKnownTable = {
+  bard:    [2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+  cleric:  [3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5],
+  druid:   [2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
+  sorcerer:[4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6],
+  warlock: [2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
+  wizard:  [3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5]
+};
+
+// ══════════════════════════════════════════════════════════════
+// SPELL LEVEL LOOKUP — maps every spell name to its level
+// 0 = cantrip, 1-9 = spell level
+// ══════════════════════════════════════════════════════════════
+(function(){
+  var data = DND_DATA;
+  var levelMap = {};
+
+  // Cantrips = level 0
+  ['wizard','sorcerer','bard','cleric','druid','warlock'].forEach(function(cls){
+    var list = data.spells[cls];
+    if(list && list.cantrips) list.cantrips.forEach(function(s){ levelMap[s] = 0; });
+  });
+
+  // Levels 1-9
+  var levelKeys = ['level1','level2','level3','level4','level5','level6','level7','level8','level9'];
+  Object.keys(data.spells).forEach(function(cls){
+    var list = data.spells[cls];
+    levelKeys.forEach(function(lk, i){
+      if(list[lk]) list[lk].forEach(function(s){ if(levelMap[s] === undefined) levelMap[s] = i+1; });
+    });
+  });
+
+  data.spellLevel = levelMap;
+})();
+
+
+// ══════════════════════════════════════════════════════════════
+// FEATS — D&D 5e PHB + Common Sourcebooks
+// Each feat: name, prereq (null or string), desc, asi (optional partial ASI)
+// ══════════════════════════════════════════════════════════════
+DND_DATA.feats = [
+
+  // ── General Feats ───────────────────────────────
+  {
+    name: "Alert",
+    prereq: null,
+    desc: "You gain +5 to initiative. You cannot be surprised while you are conscious. Other creatures do not gain advantage on attack rolls against you as a result of being hidden from you before initiative is rolled.",
+    benefits: ["+5 to initiative", "Cannot be surprised while conscious", "No advantage against you from hidden attackers before initiative"]
+  },
+  {
+    name: "Athlete",
+    prereq: null,
+    desc: "Increase your Strength or Dexterity by 1. When you are prone, standing up uses only 5 feet of movement. Climbing does not cost extra movement. Running long and high jumps only require 5 feet of running start.",
+    asi: {choice: ["str","dex"], amount: 1},
+    benefits: ["+1 STR or DEX", "Standing from prone costs only 5 ft of movement", "Climbing costs no extra movement", "Running jumps need only 5 ft of running start"]
+  },
+  {
+    name: "Actor",
+    prereq: null,
+    desc: "Increase your Charisma by 1. You have advantage on Deception and Performance checks when trying to pass yourself off as a different person. You can mimic the speech of another person or the sounds made by other creatures after hearing them for at least 1 minute.",
+    asi: {choice: ["cha"], amount: 1},
+    benefits: ["+1 CHA", "Advantage on Deception and Performance when disguising as someone else", "Can mimic voices after 1 minute of listening"]
+  },
+  {
+    name: "Charger",
+    prereq: null,
+    desc: "When you use your action to Dash, you can use a bonus action to make one melee weapon attack or to shove a creature. If you move at least 10 feet in a straight line before using this bonus action, you either gain a +5 bonus to the attack's damage roll (if you chose the melee attack) or push the target up to 10 feet away from you (if you chose the shove).",
+    benefits: ["Dash then bonus action melee attack or shove", "+5 damage or 10 ft push if you moved 10 ft straight before the attack"]
+  },
+  {
+    name: "Crossbow Expert",
+    prereq: null,
+    desc: "You ignore the loading quality of crossbows you are proficient with. Being within 5 feet of a hostile creature does not impose disadvantage on your ranged attack rolls. When you use the Attack action and attack with a one-handed weapon, you can use a bonus action to attack with a hand crossbow you are holding.",
+    benefits: ["Ignore loading on crossbows", "No disadvantage on ranged attacks in melee", "Bonus action hand crossbow attack after one-handed weapon attack"]
+  },
+  {
+    name: "Defensive Duelist",
+    prereq: "Dexterity 13 or higher",
+    desc: "When you are wielding a finesse weapon you are proficient with and another creature hits you with a melee attack, you can use your reaction to add your proficiency bonus to your AC for that attack, potentially causing the attack to miss.",
+    benefits: ["Reaction: add proficiency bonus to AC against one melee attack", "Requires finesse weapon you are proficient with"]
+  },
+  {
+    name: "Dual Wielder",
+    prereq: null,
+    desc: "You gain +1 to AC while wielding a separate melee weapon in each hand. You can use two-weapon fighting even when the weapons you wield are not light. You can draw or stow two one-handed weapons when you would normally only draw or stow one.",
+    benefits: ["+1 AC while dual wielding", "Can two-weapon fight with non-light melee weapons", "Draw or stow two weapons at once"]
+  },
+  {
+    name: "Dungeon Delver",
+    prereq: null,
+    desc: "Advantage on Perception and Investigation checks made to detect secret doors. Advantage on saving throws made to avoid or resist traps. Resistance to the damage dealt by traps. You can search for traps while traveling at a normal pace instead of slow pace.",
+    benefits: ["Advantage on checks to detect secret doors", "Advantage on saves vs traps", "Resistance to trap damage", "Search for traps at normal travel pace"]
+  },
+  {
+    name: "Durable",
+    prereq: null,
+    desc: "Increase your Constitution by 1. When you roll a Hit Die to recover hit points, the minimum number of hit points you regain from the roll equals twice your Constitution modifier (minimum of 2).",
+    asi: {choice: ["con"], amount: 1},
+    benefits: ["+1 CON", "Minimum HP regained from Hit Dice equals 2x CON modifier"]
+  },
+  {
+    name: "Elemental Adept",
+    prereq: "Ability to cast at least one spell",
+    desc: "Choose one of the following damage types: acid, cold, fire, lightning, or thunder. Spells you cast ignore resistance to damage of the chosen type. In addition, when you roll damage for a spell you cast that deals damage of that type, you can treat any 1 on a damage die as a 2. You can select this feat multiple times, choosing a different damage type each time.",
+    benefits: ["Spells ignore resistance to chosen damage type (acid/cold/fire/lightning/thunder)", "Treat 1s on damage dice as 2s for that damage type", "Can take multiple times for different types"]
+  },
+  {
+    name: "Grappler",
+    prereq: "Strength 13 or higher",
+    desc: "You have advantage on attack rolls against a creature you are grappling. You can use your action to try to pin a creature grappled by you. To do so, make another grapple check. If you succeed, you and the creature are both restrained until the grapple ends.",
+    benefits: ["Advantage on attacks vs grappled creatures", "Action: pin a grappled creature, restraining both of you"]
+  },
+  {
+    name: "Great Weapon Master",
+    prereq: null,
+    desc: "On your turn, when you score a critical hit with a melee weapon or reduce a creature to 0 HP with one, you can make one melee weapon attack as a bonus action. Before you make a melee attack with a heavy weapon you are proficient with, you can choose to take a -5 penalty to the attack roll. If the attack hits, you add +10 to the attack's damage.",
+    benefits: ["Bonus action melee attack on crit or kill", "-5 to hit / +10 damage option with heavy weapons"]
+  },
+  {
+    name: "Healer",
+    prereq: null,
+    desc: "When you use a healer's kit to stabilize a dying creature, that creature also regains 1 HP. As an action, you can spend one use of a healer's kit to tend to a creature and restore 1d6+4 HP, plus additional HP equal to the creature's maximum number of Hit Dice. A creature can only benefit from this feat's healing once per short rest.",
+    benefits: ["Stabilizing also restores 1 HP", "Action + healer's kit: restore 1d6+4 + max Hit Dice HP (once per short rest per creature)"]
+  },
+  {
+    name: "Heavily Armored",
+    prereq: "Proficiency with medium armor",
+    desc: "Increase your Strength by 1. You gain proficiency with heavy armor.",
+    asi: {choice: ["str"], amount: 1},
+    benefits: ["+1 STR", "Gain heavy armor proficiency"]
+  },
+  {
+    name: "Heavy Armor Master",
+    prereq: "Proficiency with heavy armor",
+    desc: "Increase your Strength by 1. While you are wearing heavy armor, bludgeoning, piercing, and slashing damage that you take from non-magical weapons is reduced by 3.",
+    asi: {choice: ["str"], amount: 1},
+    benefits: ["+1 STR", "Reduce non-magical bludgeoning, piercing, and slashing damage by 3 while in heavy armor"]
+  },
+  {
+    name: "Inspiring Leader",
+    prereq: "Charisma 13 or higher",
+    desc: "You can spend 10 minutes inspiring your companions. When you do, up to six friendly creatures (including yourself) within 30 feet of you gain temporary HP equal to your level + your Charisma modifier. A creature cannot benefit from this feat again until it finishes a short or long rest.",
+    benefits: ["10 min: up to 6 allies gain temp HP = your level + CHA mod", "Once per short or long rest per creature"]
+  },
+  {
+    name: "Keen Mind",
+    prereq: null,
+    desc: "Increase your Intelligence by 1. You always know which way is north. You always know the number of hours left before the next sunrise or sunset. You can accurately recall anything you have seen or heard within the past month.",
+    asi: {choice: ["int"], amount: 1},
+    benefits: ["+1 INT", "Always know which direction is north", "Always know hours until next sunrise/sunset", "Recall anything seen or heard in the past month"]
+  },
+  {
+    name: "Lightly Armored",
+    prereq: null,
+    desc: "Increase your Strength or Dexterity by 1. You gain proficiency with light armor.",
+    asi: {choice: ["str","dex"], amount: 1},
+    benefits: ["+1 STR or DEX", "Gain light armor proficiency"]
+  },
+  {
+    name: "Linguist",
+    prereq: null,
+    desc: "Increase your Intelligence by 1. You learn three languages of your choice. You can ably create written ciphers. Others cannot decipher a code you create unless you teach them, they succeed on an Intelligence check (DC = your INT score + your proficiency bonus), or they use magic to decipher it.",
+    asi: {choice: ["int"], amount: 1},
+    benefits: ["+1 INT", "Learn 3 languages of your choice", "Create written ciphers others can't read without your help"]
+  },
+  {
+    name: "Lucky",
+    prereq: null,
+    desc: "You have 3 luck points. Whenever you make an attack roll, ability check, or saving throw, you can spend one luck point to roll an additional d20. You can choose to spend one of your luck points after you roll but before the outcome is determined. You choose which of the d20s is used. You can also spend one luck point when an attack roll is made against you, forcing the attacker to reroll. Luck points are regained when you finish a long rest.",
+    benefits: ["3 luck points per long rest", "Spend a point to roll an extra d20 on any attack, check, or save (choose which result)", "Spend a point to force an enemy to reroll an attack against you"]
+  },
+  {
+    name: "Mage Slayer",
+    prereq: null,
+    desc: "When a creature within 5 feet of you casts a spell, you can use your reaction to make a melee weapon attack against that creature. When you damage a creature that is concentrating on a spell, that creature has disadvantage on the saving throw to maintain its concentration. You have advantage on saving throws against spells cast by creatures within 5 feet of you.",
+    benefits: ["Reaction: melee attack when adjacent creature casts a spell", "Concentration saves have disadvantage when you damage the caster", "Advantage on saves vs spells from adjacent casters"]
+  },
+  {
+    name: "Magic Initiate",
+    prereq: null,
+    desc: "Choose a class: bard, cleric, druid, sorcerer, warlock, or wizard. You learn two cantrips of your choice from that class's spell list. You also learn one 1st-level spell from that class. You can cast the 1st-level spell once per long rest at its lowest level without a spell slot. Your spellcasting ability is the same as the chosen class (CHA for bard/sorcerer/warlock, WIS for cleric/druid, INT for wizard).",
+    benefits: ["Learn 2 cantrips from chosen class list", "Learn 1 first-level spell from chosen class list", "Cast that spell once per long rest without a slot"]
+  },
+  {
+    name: "Martial Adept",
+    prereq: null,
+    desc: "You have martial training that allows you to perform special combat maneuvers. You learn two maneuvers of your choice from among those available to the Battle Master archetype. You gain one superiority die, a d6 (this die is added to any superiority dice you have from another source). The die is expended when you use it, and is regained when you finish a short or long rest.",
+    benefits: ["Learn 2 Battle Master maneuvers", "Gain 1 superiority die (d6), regained on short rest"]
+  },
+  {
+    name: "Medium Armor Master",
+    prereq: "Proficiency with medium armor",
+    desc: "Wearing medium armor does not impose disadvantage on your Dexterity (Stealth) checks. The maximum Dexterity bonus to AC you can apply from medium armor increases to 3 instead of 2.",
+    benefits: ["No Stealth disadvantage from medium armor", "Max DEX bonus to AC from medium armor increases to +3"]
+  },
+  {
+    name: "Mobile",
+    prereq: null,
+    desc: "Your speed increases by 10 feet. When you use the Dash action, difficult terrain does not cost extra movement for the rest of that turn. When you make a melee attack against a creature, you do not provoke opportunity attacks from that creature for the rest of the turn, whether or not the attack hits.",
+    benefits: ["+10 ft speed", "Dash: ignore difficult terrain that turn", "No opportunity attacks from creatures you attack in melee (that turn)"]
+  },
+  {
+    name: "Moderately Armored",
+    prereq: "Proficiency with light armor",
+    desc: "Increase your Strength or Dexterity by 1. You gain proficiency with medium armor and shields.",
+    asi: {choice: ["str","dex"], amount: 1},
+    benefits: ["+1 STR or DEX", "Gain medium armor and shield proficiency"]
+  },
+  {
+    name: "Mounted Combatant",
+    prereq: null,
+    desc: "You have advantage on melee attack rolls against unmounted creatures that are smaller than your mount. You can force an attack targeted at your mount to target you instead. If your mount is subjected to an effect that allows a DEX save for half damage, it takes no damage on a success and half on a failure (if it lacks the Evasion feature).",
+    benefits: ["Advantage on melee attacks vs unmounted smaller creatures", "Redirect attacks targeting your mount to yourself", "Mount takes no damage on DEX saves it succeeds on"]
+  },
+  {
+    name: "Observant",
+    prereq: null,
+    desc: "Increase your Intelligence or Wisdom by 1. If you can see a creature's mouth while it is speaking a language you understand, you can interpret what it's saying by reading its lips. You have a +5 bonus to your passive Perception and passive Investigation scores.",
+    asi: {choice: ["int","wis"], amount: 1},
+    benefits: ["+1 INT or WIS", "Lip-read creatures speaking a known language", "+5 to passive Perception and passive Investigation"]
+  },
+  {
+    name: "Polearm Master",
+    prereq: null,
+    desc: "When you take the Attack action and attack with only a glaive, halberd, quarterstaff, or spear, you can use a bonus action to make a melee attack with the opposite end of the weapon. This attack uses the same ability modifier as the primary attack and deals 1d4 bludgeoning damage. While wielding a glaive, halberd, pike, or quarterstaff, other creatures provoke an opportunity attack from you when they enter your reach.",
+    benefits: ["Bonus action butt-end attack (1d4 bludgeoning) with polearms/quarterstaff/spear", "Creatures entering your reach provoke opportunity attacks"]
+  },
+  {
+    name: "Resilient",
+    prereq: null,
+    desc: "Choose one ability score. Increase the chosen ability score by 1. You gain proficiency in saving throws using the chosen ability.",
+    asi: {choice: ["str","dex","con","int","wis","cha"], amount: 1},
+    benefits: ["+1 to chosen ability score", "Gain proficiency in saving throws for that ability"]
+  },
+  {
+    name: "Ritual Caster",
+    prereq: "Intelligence or Wisdom 13 or higher",
+    desc: "You have learned a number of spells that you can cast as rituals. These spells are written in a ritual book. Choose one class: bard, cleric, druid, sorcerer, warlock, or wizard. You learn two 1st-level spells with the ritual tag from that class's spell list. You can cast them as rituals but not as regular spells unless you have spell slots. You can add ritual spells found on adventures to your book.",
+    benefits: ["Learn 2 first-level ritual spells from chosen class", "Cast them as rituals only (10 extra minutes)", "Can copy ritual spells found on adventures into your book"]
+  },
+  {
+    name: "Savage Attacker",
+    prereq: null,
+    desc: "Once per turn when you roll damage for a melee weapon attack, you can reroll the weapon's damage dice and use either total.",
+    benefits: ["Once per turn: reroll melee weapon damage dice and use either result"]
+  },
+  {
+    name: "Sentinel",
+    prereq: null,
+    desc: "When you hit a creature with an opportunity attack, the creature's speed becomes 0 for the rest of the turn. Creatures within 5 feet of you provoke opportunity attacks even if they took the Disengage action. When a creature within 5 feet of you makes an attack against a target other than you, you can use your reaction to make a melee weapon attack against the attacking creature.",
+    benefits: ["Opportunity attacks reduce creature speed to 0", "Disengage does not prevent opportunity attacks from you", "Reaction: attack creatures within 5 ft that attack others"]
+  },
+  {
+    name: "Sharpshooter",
+    prereq: null,
+    desc: "Attacking at long range does not impose disadvantage on your ranged weapon attack rolls. Your ranged weapon attacks ignore half cover and three-quarters cover. Before you make an attack with a ranged weapon that you are proficient with, you can choose to take a -5 penalty to the attack roll. If the attack hits, you add +10 to the attack's damage.",
+    benefits: ["No disadvantage at long range", "Ranged attacks ignore half and three-quarters cover", "-5 to hit / +10 damage option with ranged weapons"]
+  },
+  {
+    name: "Shield Master",
+    prereq: null,
+    desc: "If you take the Attack action on your turn, you can use a bonus action to try to shove a creature within 5 feet of you with your shield. If you are not incapacitated, you can add your shield's AC bonus to DEX saving throws you make against a spell or effect that targets only you. If you are subjected to an effect that allows a DEX save for half damage, you can use your reaction to take no damage if you succeed, interposing your shield between yourself and the source of the effect.",
+    benefits: ["Bonus action shield shove after attacking", "+2 (shield bonus) to DEX saves vs single-target spells", "Reaction: take no damage on successful DEX save (half-damage effects)"]
+  },
+  {
+    name: "Skilled",
+    prereq: null,
+    desc: "You gain proficiency in any combination of three skills or tools of your choice.",
+    benefits: ["Gain proficiency in 3 skills or tools of your choice"]
+  },
+  {
+    name: "Skulker",
+    prereq: "Dexterity 13 or higher",
+    desc: "You can try to hide when you are lightly obscured from the creature from which you are hiding. When you are hidden from a creature and miss it with a ranged weapon attack, making the attack does not reveal your position. Dim light does not impose disadvantage on your Perception checks that rely on sight.",
+    benefits: ["Can hide when lightly obscured", "Missing with a ranged attack does not reveal your position", "No disadvantage on Perception in dim light"]
+  },
+  {
+    name: "Spell Sniper",
+    prereq: "Ability to cast at least one spell",
+    desc: "When you cast a spell that requires an attack roll, the spell's range is doubled. Your ranged spell attacks ignore half cover and three-quarters cover. You learn one cantrip that requires an attack roll, chosen from the bard, cleric, druid, sorcerer, warlock, or wizard spell list. Your spellcasting ability for this cantrip uses the same class's ability.",
+    benefits: ["Double range on spell attack spells", "Spell attacks ignore half and three-quarters cover", "Learn 1 attack-roll cantrip from any spell list"]
+  },
+  {
+    name: "Tavern Brawler",
+    prereq: null,
+    desc: "Increase your Strength or Constitution by 1. You are proficient with improvised weapons and unarmed strikes. Your unarmed strike uses a d4 for damage. When you hit a creature with an unarmed strike or an improvised weapon on your turn, you can use a bonus action to attempt to grapple the creature.",
+    asi: {choice: ["str","con"], amount: 1},
+    benefits: ["+1 STR or CON", "Proficiency with improvised weapons and unarmed strikes", "Unarmed strikes deal 1d4", "Bonus action grapple attempt after hitting with an unarmed strike or improvised weapon"]
+  },
+  {
+    name: "Tough",
+    prereq: null,
+    desc: "Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.",
+    benefits: ["HP maximum increases by 2 per character level (retroactive and ongoing)"]
+  },
+  {
+    name: "War Caster",
+    prereq: "Ability to cast at least one spell",
+    desc: "You have advantage on Constitution saving throws that you make to maintain your concentration on a spell when you take damage. You can perform the somatic components of spells even when you have weapons or a shield in one or both hands. When a hostile creature's movement provokes an opportunity attack from you, you can use your reaction to cast a spell at the creature rather than making an opportunity attack. The spell must have a casting time of 1 action and target only that creature.",
+    benefits: ["Advantage on concentration saves when taking damage", "Can cast spells with somatic components while holding weapons or a shield", "Reaction: cast a spell as an opportunity attack"]
+  },
+  {
+    name: "Weapon Master",
+    prereq: null,
+    desc: "Increase your Strength or Dexterity by 1. You gain proficiency with four weapons of your choice. Each one must be a simple or martial weapon.",
+    asi: {choice: ["str","dex"], amount: 1},
+    benefits: ["+1 STR or DEX", "Gain proficiency with 4 weapons of your choice"]
+  }
+];
