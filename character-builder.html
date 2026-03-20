@@ -464,7 +464,6 @@
       <a href="my-characters.html">My Characters</a>
     </div>
     <div class="ps-nav-right">
-      <a class="ps-nav-action" href="grimoire.html">Browse All ↗</a>
       <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
       <div class="nav-auth-wrap">
         <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
@@ -726,10 +725,8 @@
           </div>
           <div class="cs-header-actions">
             <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-              <button class="cs-save-btn" id="cs-save-btn" onclick="saveCharacterToDB()">Save Character ↑</button>
               <button class="cs-save-btn" style="background:transparent;color:var(--crimson);border:1px solid var(--crimson-border);" onclick="window.print()">Print / PDF</button>
               <button class="cs-save-btn" style="background:transparent;color:var(--text-muted);border:1px solid var(--border);" onclick="prevStep(9)">← Edit</button>
-              <button class="cs-save-btn" style="background:transparent;color:var(--text-muted);border:1px solid var(--border);" onclick="startOver()">New Character</button>
             </div>
             <div id="cs-save-status" class="cs-save-status"></div>
             <div class="cs-rest-btns">
@@ -1018,7 +1015,7 @@ function goToStep(n, skipVal){
   if(n===5) renderSkills();
   if(n===6) renderEquipment();
   if(n===7) renderSpells();
-  if(n===9){ buildFinalSheet(); }
+  if(n===9){ buildFinalSheet(); scheduleSave(); }
   updateMiniSummary();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -2046,7 +2043,7 @@ function resolveUses(uses){
   return uses||1;
 }
 
-function toggleUse(name,pipIdx,max){
+function toggleUse(name,pipIdx,max){ scheduleSave();
   const cur=abilityUsed[name]||0;
   // clicking an available pip = use it; clicking a used pip = restore
   if(pipIdx<cur) abilityUsed[name]=pipIdx; // restore to pipIdx
@@ -2054,7 +2051,7 @@ function toggleUse(name,pipIdx,max){
   buildAbilityTrackers();
 }
 
-function adjustPool(name,delta){
+function adjustPool(name,delta){ scheduleSave();
   const max=resolveUses((DND_DATA.abilityUses?.[C.cls]||[]).find(u=>u.name===name)?.uses||1);
   abilityUsed[name]=Math.max(0,Math.min(max,(abilityUsed[name]||0)-delta));
   buildAbilityTrackers();
@@ -2208,7 +2205,7 @@ function buildSpellsTab(){
   el.innerHTML=html;
 }
 
-function toggleSpellSlot(level,pipIdx,max){
+function toggleSpellSlot(level,pipIdx,max){ scheduleSave();
   const cur=spellSlotUsed[level]||0;
   if(pipIdx<cur) spellSlotUsed[level]=pipIdx;
   else spellSlotUsed[level]=Math.min(pipIdx+1,max);
@@ -2306,12 +2303,13 @@ function buildNotesTab(){
 function saveNotes(){
   const val=document.getElementById('cs-notes')?.value;
   localStorage.setItem('phmurt_notes_'+C.cls, val);
+  scheduleSave();
   const btn=event.target; btn.textContent='Saved ✓';
   setTimeout(()=>btn.textContent='Save Notes',1500);
 }
 
 // ── HP MANAGEMENT ──
-function adjustSheetHP(delta){
+function adjustSheetHP(delta){ scheduleSave();
   const inp=document.getElementById('cs-hp-cur'); if(!inp) return;
   const max=parseInt(document.getElementById('cs-hp-max').textContent)||0;
   const cur=parseInt(inp.value)||0;
@@ -2325,7 +2323,7 @@ function applyHPAdj(mode){
   const amtEl=document.getElementById('hp-adj-amt'); if(!amtEl) return;
   const amt=parseInt(amtEl.value)||0; if(amt<=0) return;
   adjustSheetHP(mode==='heal'?amt:-amt);
-  amtEl.value='';
+  amtEl.value=0;
 }
 
 function clampHP(){
@@ -2355,6 +2353,7 @@ function doShortRest(){
   buildSpellsTab();
   if(document.querySelector('.cs-tab.active')?.textContent==='Actions') buildActionsTab();
   showRestToast('Short Rest', 'Short-rest abilities restored.');
+  scheduleSave();
 }
 
 function doLongRest(){
@@ -2373,6 +2372,7 @@ function doLongRest(){
   buildSpellsTab();
   if(document.querySelector('.cs-tab.active')?.textContent==='Actions') buildActionsTab();
   showRestToast('Long Rest', 'All resources restored. HP fully recovered.');
+  scheduleSave();
 }
 
 function showRestToast(title,msg){
@@ -2383,16 +2383,21 @@ function showRestToast(title,msg){
   setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); },2500);
 }
 
-// ── SAVE CHARACTER ──
-async function saveCharacterToDB(){
-  const btn=document.getElementById('cs-save-btn');
-  const status=document.getElementById('cs-save-status');
-  if(typeof PhmurtDB==='undefined'){ if(status) status.textContent='Auth not loaded.'; return; }
-  const session=PhmurtDB.getSession();
-  if(!session){ PhmurtDB.openAuth(); if(status) status.textContent='Sign in to save.'; return; }
-  if(btn){ btn.textContent='Saving...'; btn.disabled=true; }
+// ── SAVE CHARACTER (auto-save, silent) ──
+let _saveTimer = null;
 
-  // Build a clean serializable snapshot (strip non-data fields)
+function scheduleSave(){
+  // Debounce — save 1.5s after last change
+  if(_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>{ saveCharacterToDB(); }, 1500);
+}
+
+async function saveCharacterToDB(){
+  const status = document.getElementById('cs-save-status');
+  if(typeof PhmurtDB==='undefined') return;
+  const session = PhmurtDB.getSession();
+  if(!session) return; // not signed in — silent skip
+
   const snapshot = {
     race:             C.race,
     subrace:          C.subrace,
@@ -2416,16 +2421,15 @@ async function saveCharacterToDB(){
 
   if(r && r.success){
     localStorage.setItem('phmurt_current_char_id', r.id);
-    if(btn){ btn.textContent='Saved ✓'; btn.disabled=false; }
-    if(status) status.textContent='Saved '+(new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
-    setTimeout(()=>{ if(btn) btn.textContent='Save Character ↑'; },2000);
+    if(status){
+      status.textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      setTimeout(()=>{ if(status) status.textContent=''; }, 3000);
+    }
   } else {
-    if(btn){ btn.textContent='Save Character ↑'; btn.disabled=false; }
-    if(status) status.textContent=(r&&r.error)||'Save failed — check console.';
-    console.error('Save failed:', r);
+    if(status) status.textContent = 'Save failed';
+    setTimeout(()=>{ if(status) status.textContent=''; }, 3000);
   }
 }
-
 
 // ══════════════════════════════════════════
 // MINI SUMMARY
