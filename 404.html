@@ -11,50 +11,18 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
 </head>
-<body>
+<body data-nav-active="" data-footer-copy="Crafted with intention. Built for your table." data-breadcrumb="Home|index.html;Page Not Found">
 
-  <nav class="ps-nav">
-        <div class="ps-nav-links">
-      <a href="index.html">Home</a>
-      <a href="grimoire.html">Grimoire</a>
-      <a href="compendium.html">Compendium</a>
-      <a href="character-builder.html">Builder</a>
-      <a href="character-sheets.html">Sheets</a>
-      <a href="about.html">About</a>
-      <a href="my-characters.html">My Characters</a>
-    </div>
-    <div class="ps-nav-right">
-      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
-      <div class="nav-auth-wrap">
-        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
-        <div id="nav-user-dropdown"></div>
-      </div>
-      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
+  <div id="ps-site-shell"></div>
 
-  <div class="ps-mobile-menu" id="mobileMenu">
-    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
-    <a href="index.html">Home</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="grimoire.html">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="compendium.html">Compendium</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-builder.html">Builder</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html">My Characters</a>
-  </div>
+  <div id="ps-page-breadcrumb"></div>
 
 
 
@@ -70,38 +38,8 @@
     </div>
   </div>
 
-  <footer class="ps-footer">
-    <div class="ps-footer-logo">
-      <img src="logo.png" alt="Phmurt Studios" />
-      <span class="ps-footer-name">Phmurt Studios</span>
-    </div>
-    <div class="ps-footer-copy">Crafted with intention. Built for your table.</div>
-  </footer>
+  <div id="ps-site-footer"></div>
 
-  <script>
-    // Mobile nav
-    const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
-    if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
-    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
-    if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
-    // Back to top});
-    // Page transitions
-    document.querySelectorAll('a[href]').forEach(a=>{
-      const href=a.getAttribute('href');
-      if(href&&!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){
-        a.addEventListener('click',e=>{e.preventDefault();window.location.href=href;});
-      }
-    });
-    // Scroll reveal
-    const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
-    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-    document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
-
-    // Scroll fade effect
-    (function(){
-      
-    })();
-  </script>
+  <script src="phmurt-shell.js"></script>
 </body>
 </html>

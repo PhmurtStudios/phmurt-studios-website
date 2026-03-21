@@ -64,6 +64,10 @@
     'reset-password.html': [
       { href: 'index.html', label: 'Home' },
       { label: 'Reset Password', current: true }
+    ],
+    '404.html': [
+      { href: 'index.html', label: 'Home' },
+      { label: 'Page Not Found', current: true }
     ]
   };
 

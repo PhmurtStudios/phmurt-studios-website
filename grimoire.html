@@ -20,59 +20,18 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
 </head>
-<body>
+<body data-nav-active="Grimoire" data-footer-copy="Crafted with intention. Built for your table." data-breadcrumb="Home|index.html;Grimoire">
 
-  <nav class="ps-nav">
-        <div class="ps-nav-links">
-      <a href="index.html">Home</a>
-      <a href="grimoire.html" class="active">Grimoire</a>
-      <a href="compendium.html">Compendium</a>
-      <a href="character-builder.html">Builder</a>
-      <a href="character-sheets.html">Sheets</a>
-      <a href="about.html">About</a>
-      <a href="my-characters.html">My Characters</a>
-    </div>
-    <div class="ps-nav-right">
-      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
-      <div class="nav-auth-wrap">
-        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
-        <div id="nav-user-dropdown"></div>
-      </div>
-      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
+  <div id="ps-site-shell"></div>
 
-  <div class="ps-mobile-menu" id="mobileMenu">
-    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
-    <a href="index.html">Home</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="grimoire.html" class="active">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="compendium.html">Compendium</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-builder.html">Builder</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html">My Characters</a>
-  
-    </div>
-
-
-
-  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
-    <a href="index.html">Home</a>
-    <span class="sep">◆</span>
-    <span class="current">Grimoire</span>
-  </nav>
+  <div id="ps-page-breadcrumb"></div>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">The Archive</div>
@@ -206,13 +165,7 @@
     </div>
   </section>
 
-  <footer class="ps-footer">
-    <div class="ps-footer-logo">
-      <img src="logo.png" alt="Phmurt Studios" />
-      <span class="ps-footer-name">Phmurt Studios</span>
-    </div>
-    <div class="ps-footer-copy">Roll well. Play weird.</div>
-  </footer>
+  <div id="ps-site-footer"></div>
 
   <script>
     var _grimHbData = null;
@@ -356,7 +309,30 @@
         grimHbFilter(this, this.getAttribute('data-gf'));
       });
     });
+
+    // Main grimoire filter
+    document.querySelectorAll('.ps-filter-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var filterValue = this.getAttribute('data-filter');
+
+        // Update active button
+        document.querySelectorAll('.ps-filter-btn').forEach(function(b) {
+          b.classList.remove('active');
+        });
+        this.classList.add('active');
+
+        // Filter cards
+        document.querySelectorAll('.ps-grimoire-card').forEach(function(card) {
+          if (filterValue === 'all' || card.getAttribute('data-type') === filterValue) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
   </script>
 
+  <script src="phmurt-shell.js"></script>
 </body>
 </html>

@@ -22,6 +22,9 @@
   --castle-filter:  none;
   --castle-opacity: 0.75;
   --logo-filter:    none;
+  --white:      #f5ede0;
+  --black-card: #111010;
+  --black-mid:  #181212;
 }
 
 /* ═══════════════════════════════
@@ -46,6 +49,9 @@ html.light-mode{
   --castle-filter:  invert(1) sepia(0.4) brightness(0.35);
   --castle-opacity: 1;
   --logo-filter:    sepia(0.8) saturate(2.5) hue-rotate(330deg) brightness(0.65);
+  --white:      #140902;
+  --black-card: #e9dfc9;
+  --black-mid:  #d4c8ac;
 }
 
 /* ═══════════════════════════════
