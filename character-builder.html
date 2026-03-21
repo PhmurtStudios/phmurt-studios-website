@@ -986,7 +986,6 @@ function openLevelUp(){
 function renderLevelUpChoice(){
   ensureClassesArray();
   var body = document.getElementById('levelup-body');
-  var newTotal = totalCharLevel() + 1;
 
   // Build existing class options
   var clsOptions = '';
@@ -1003,56 +1002,64 @@ function renderLevelUpChoice(){
       + '</div>';
   });
 
-  // Multiclass option — list eligible new classes
   var alreadyHas = C.classes.map(function(e){ return e.cls; });
   var eligible = Object.keys(DND_DATA.classes).filter(function(k){
     return alreadyHas.indexOf(k) === -1 && canMulticlassInto(k);
   });
   var ineligible = Object.keys(DND_DATA.classes).filter(function(k){
-    return alreadyHas.indexOf(k) === -1 && !canMulticlassInto(k);
-  });
+    return alreadyHas.indexOf(k) === -1 && !canMulticlassInto(k);  });
+
+  // Build multiclass list (hidden by default)
+  var mcHtml = '';
+  if(eligible.length){
+    eligible.forEach(function(k){
+      var clsData = DND_DATA.classes[k];
+      var prereqStr = _luPrereqStr(k);
+      mcHtml += '<div onclick="luChooseNewClass(\'' + k + '\')"'
+        + ' style="padding:14px 18px;border:1px solid var(--border);background:var(--bg-card);margin-bottom:6px;cursor:pointer;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:baseline;">'
+        + '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text);">'
+        + clsData.name + ' 1</div>'
+        + '<div style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:#2e8b57;border:1px solid #2e8b57;padding:1px 6px;">Eligible</div>'
+        + '</div>'
+        + '<div style="font-size:12px;color:var(--text-faint);margin-top:4px;">Requires: ' + prereqStr + '</div>'
+        + '</div>';
+    });
+  }
+  if(ineligible.length){
+    ineligible.forEach(function(k){
+      var clsData = DND_DATA.classes[k];
+      var prereqStr = _luPrereqStr(k);
+      var missingStr = _luPrereqMissingStr(k);
+      mcHtml += '<div style="padding:14px 18px;border:1px solid var(--border);background:var(--bg-card);margin-bottom:4px;opacity:0.45;cursor:not-allowed;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:baseline;">'
+        + '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);">'
+        + clsData.name + ' 1</div>'
+        + '<div style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--crimson);border:1px solid var(--crimson-border);padding:1px 6px;">Locked</div>'
+        + '</div>'
+        + '<div style="font-size:12px;color:var(--text-faint);margin-top:4px;">Requires: ' + prereqStr + '</div>'
+        + (missingStr ? '<div style="font-size:11px;color:var(--crimson);margin-top:3px;font-style:italic;">Missing: ' + missingStr + '</div>' : '')
+        + '</div>';
+    });
+  }
 
   var html = '';
-  html += '<div style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">Choose which class to advance, or take your first level in a new class.</div>';
-  html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:10px;">Level Up Existing Class</div>';
+  html += '<div style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">Choose which class to advance.</div>';
+  html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:10px;">Level Up</div>';
   html += clsOptions;
 
+  // Multiclass toggle button
   if(Object.keys(DND_DATA.classes).length - alreadyHas.length > 0){
-    html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin:20px 0 10px;">Multiclass Into New Class</div>';
-
-    if(eligible.length){
-      eligible.forEach(function(k){
-        var clsData = DND_DATA.classes[k];
-        var prereq  = DND_DATA.multiclassPrereqs && DND_DATA.multiclassPrereqs[k];
-        var prereqStr = prereq ? Object.keys(prereq).filter(function(p){ return p!=='or'; }).map(function(p){
-          return DND_DATA.abilityShort[p] + ' ' + prereq[p];
-        }).join(', ') + (prereq.or ? ' or ' + DND_DATA.abilityShort[prereq.or] + ' 13' : '') : 'None';
-
-        html += '<div onclick="luChooseNewClass(\'' + k + '\')"'
-          + ' style="padding:14px 18px;border:1px solid var(--border);background:var(--bg-card);margin-bottom:6px;cursor:pointer;">'
-          + '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text);">'
-          + clsData.name + ' 1</div>'
-          + '<div style="font-size:12px;color:var(--text-faint);margin-top:3px;">Requires: ' + prereqStr + '</div>'
-          + '</div>';
-      });
-    }
-
-    if(ineligible.length){
-      html += '<div style="margin-top:10px;">';
-      ineligible.forEach(function(k){
-        var clsData = DND_DATA.classes[k];
-        var prereq  = DND_DATA.multiclassPrereqs && DND_DATA.multiclassPrereqs[k];
-        var prereqStr = prereq ? Object.keys(prereq).filter(function(p){ return p!=='or'; }).map(function(p){
-          return DND_DATA.abilityShort[p] + ' ' + prereq[p];
-        }).join(', ') + (prereq.or ? ' or ' + DND_DATA.abilityShort[prereq.or] + ' 13' : '') : 'None';
-        html += '<div style="padding:12px 18px;border:1px solid var(--border);background:var(--bg-card);margin-bottom:4px;opacity:0.4;cursor:not-allowed;">'
-          + '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);">'
-          + clsData.name + ' 1</div>'
-          + '<div style="font-size:12px;color:var(--text-faint);margin-top:3px;">Requires: ' + prereqStr + '</div>'
-          + '</div>';
-      });
-      html += '</div>';
-    }
+    html += '<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">';
+    html += '<button onclick="_luToggleMulticlass()" id="lu-mc-toggle-btn"'
+      + ' style="width:100%;font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;'
+      + 'padding:10px 20px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;'
+      + 'display:flex;justify-content:space-between;align-items:center;">'
+      + '<span>✦ Multiclass Into New Class</span>'
+      + '<span id="lu-mc-arrow" style="font-size:12px;">▸</span>'
+      + '</button>';
+    html += '<div id="lu-mc-panel" style="display:none;margin-top:10px;">' + mcHtml + '</div>';
+    html += '</div>';
   }
 
   html += '<div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">';
@@ -1062,6 +1069,50 @@ function renderLevelUpChoice(){
   body.innerHTML = html;
   window._luState = null;
 }
+
+function _luToggleMulticlass(){
+  var panel = document.getElementById('lu-mc-panel');
+  var arrow = document.getElementById('lu-mc-arrow');
+  if(!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : '';
+  if(arrow) arrow.textContent = open ? '▸' : '▾';
+}
+
+function _luPrereqStr(clsKey){
+  var prereq = DND_DATA.multiclassPrereqs && DND_DATA.multiclassPrereqs[clsKey];
+  if(!prereq) return 'None';
+  var abilityNames = DND_DATA.abilityShort || {};
+  var parts = Object.keys(prereq).filter(function(p){ return p !== 'or'; }).map(function(p){
+    return abilityNames[p] + ' ' + prereq[p];
+  });
+  if(prereq.or){
+    // fighter: STR 13 or DEX 13
+    return parts[0] + ' or ' + abilityNames[prereq.or] + ' 13';
+  }
+  return parts.join(', ');
+}
+
+function _luPrereqMissingStr(clsKey){
+  var prereq = DND_DATA.multiclassPrereqs && DND_DATA.multiclassPrereqs[clsKey];
+  if(!prereq) return '';
+  var abilityNames = DND_DATA.abilityShort || {};
+  var missing = [];
+  if(prereq.or){
+    var mainKey = Object.keys(prereq).find(function(p){ return p !== 'or'; });
+    if(totalScore(mainKey) < prereq[mainKey] && totalScore(prereq.or) < 13){
+      missing.push(abilityNames[mainKey] + ' ' + prereq[mainKey] + ' or ' + abilityNames[prereq.or] + ' 13');
+    }
+  } else {
+    Object.keys(prereq).forEach(function(p){
+      if(p !== 'or' && totalScore(p) < prereq[p]){
+        missing.push(abilityNames[p] + ' ' + prereq[p] + ' (have ' + totalScore(p) + ')');
+      }
+    });
+  }
+  return missing.join(', ');
+}
+
 
 function luChooseExistingClass(clsKey){
   var entry = C.classes.find(function(e){ return e.cls===clsKey; });
@@ -1559,6 +1610,11 @@ function pbAdjust(ability,delta){
   C.abilities[ability]=nxt; renderAbilityGrid(); updateAsiNote();
 }
 
+function manualAdjust(ability, delta){
+  C.abilities[ability] = Math.max(1, Math.min(20, (C.abilities[ability]||8) + delta));
+  renderAbilityGrid(); updateAsiNote();
+}
+
 function renderAbilityGrid(){
   const grid=document.getElementById('abilityGrid');
   const race=C.race?DND_DATA.races[C.race]:null;
@@ -1582,7 +1638,7 @@ function renderAbilityGrid(){
     } else if(C.scoreMethod==='pointbuy'){
       inner=`<div class="cb-score-btns"><button class="cb-score-btn" onclick="event.stopPropagation();pbAdjust('${ability}',-1)">−</button><span style="font-size:26px;font-weight:300;color:var(--text);min-width:38px;text-align:center;">${base}</span><button class="cb-score-btn" onclick="event.stopPropagation();pbAdjust('${ability}',1)">+</button></div>`;
     } else {
-      inner=`<input class="cb-ability-input" type="number" min="1" max="20" value="${base}" onclick="event.stopPropagation()" oninput="C.abilities['${ability}']=Math.max(1,Math.min(20,parseInt(this.value)||1));renderAbilityGrid();updateAsiNote();">`;
+      inner=`<div class="cb-score-btns"><button class="cb-score-btn" onclick="event.stopPropagation();manualAdjust('${ability}',-1)">−</button><span style="font-size:26px;font-weight:300;color:var(--text);min-width:38px;text-align:center;">${base}</span><button class="cb-score-btn" onclick="event.stopPropagation();manualAdjust('${ability}',1)">+</button></div>`;
     }
     return `<div class="cb-ability-box ${isSelecting?'selecting':''}" onclick="assignAbility('${ability}')">
       <div class="cb-ability-name">${DND_DATA.abilityShort[ability]}</div>
@@ -2043,23 +2099,52 @@ function closeDicePopup(){
 
 
 function showSpellInfo(spellName, spellLevel){
-  const d=DND_DATA.spellDescriptions&&DND_DATA.spellDescriptions[spellName];
+  var d = DND_DATA.spellDescriptions && DND_DATA.spellDescriptions[spellName];
+  var slotNames = ['Cantrip','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
+  var lvNum  = parseInt(spellLevel) || 0;
+  var lvLabel = slotNames[lvNum] || (lvNum+'th');
+
+  // Remove any existing spell popup
+  var existing = document.getElementById('spell-info-overlay');
+  if(existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'spell-info-overlay';
+  overlay.className = 'spell-info-overlay';
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+
   if(!d){
-    showDicePopup({label:spellName, lines:['No description available.'], autoDismiss:3000});
+    overlay.innerHTML = '<div class="spell-info-box">'
+      + '<button class="spell-info-close" onclick="document.getElementById(\'spell-info-overlay\').remove()">×</button>'
+      + '<div class="spell-info-name">' + spellName + '</div>'
+      + '<div class="spell-info-school">No description available</div>'
+      + '</div>';
+    document.body.appendChild(overlay);
     return;
   }
-  const slotNames=['Cantrip','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
-  const lvNum=parseInt(spellLevel)||0;
-  const lvLabel=slotNames[lvNum]||(lvNum+'th');
-  const lines=[
-    `${d.school} · ${lvLabel} Level`,
-    `Cast: ${d.castTime} · Range: ${d.range}`,
-    `Duration: ${d.duration}`,
-    '',
-    d.desc
-  ];
-  showDicePopup({label:spellName, lines, autoDismiss:6000});
+
+  var atkBadge = d.attackRoll
+    ? '<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--crimson);border:1px solid var(--crimson-border);padding:2px 7px;margin-left:8px;">ATK</span>'
+    : (d.save && d.save !== 'none'
+      ? '<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:#7a6b30;border:1px solid #7a6b30;padding:2px 7px;margin-left:8px;">' + d.save.toUpperCase() + ' SAVE</span>'
+      : '');
+
+  overlay.innerHTML = '<div class="spell-info-box">'
+    + '<button class="spell-info-close" onclick="document.getElementById(\'spell-info-overlay\').remove()">×</button>'
+    + '<div class="spell-info-name">' + spellName + atkBadge + '</div>'
+    + '<div class="spell-info-school">' + (d.school||'') + ' · ' + lvLabel + ' Level</div>'
+    + '<div class="spell-info-stats">'
+    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Casting Time</div><div class="spell-info-stat-val">' + (d.castTime||'—') + '</div></div>'
+    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Range</div><div class="spell-info-stat-val">' + (d.range||'—') + '</div></div>'
+    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Duration</div><div class="spell-info-stat-val">' + (d.duration||'—') + '</div></div>'
+    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Components</div><div class="spell-info-stat-val">' + (d.components||'—') + '</div></div>'
+    + '</div>'
+    + '<div class="spell-info-desc">' + (d.desc||'') + '</div>'
+    + '</div>';
+
+  document.body.appendChild(overlay);
 }
+
 
 function renderRollLog(){
   const el=document.getElementById('rollTranscript');
@@ -3189,12 +3274,16 @@ function luRenderSpellPicker() {
       var isPicked = cantripChoices.indexOf(sp) !== -1;
       var desc     = (DND_DATA.spellDescriptions && DND_DATA.spellDescriptions[sp]) || {};
       var tooltip  = (desc.castTime || '') + (desc.range ? ' \u00b7 ' + desc.range : '') + (desc.desc ? '\n' + desc.desc : '');
-      html += '<div onclick="luToggleSpell(\'' + sp.replace(/'/g, "\\'") + '\',true)"'
-            + ' title="' + tooltip.replace(/"/g, '&quot;') + '"'
-            + ' style="padding:7px 13px;font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;'
-            + 'border:1px solid ' + (isPicked ? 'var(--crimson)' : 'var(--border)') + ';'
-            + 'background:' + (isPicked ? 'var(--crimson)' : 'var(--bg-card)') + ';'
-            + 'color:' + (isPicked ? '#f5f0e8' : 'var(--text-muted)') + ';">' + sp + '</div>';
+      html += '<div style="display:inline-flex;align-items:center;gap:0;margin-bottom:0;">'
+              + '<div onclick="luToggleSpell(\'' + sp.replace(/'/g, "\\'") + '\',true)"'
+              + ' style="padding:7px 13px;font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;'
+              + 'border:1px solid ' + (isPicked ? 'var(--crimson)' : 'var(--border)') + ';border-right:none;'
+              + 'background:' + (isPicked ? 'var(--crimson)' : 'var(--bg-card)') + ';'
+              + 'color:' + (isPicked ? '#f5f0e8' : 'var(--text-muted)') + ';">' + sp + '</div>'
+              + '<button onclick="showSpellInfo(\'' + sp.replace(/'/g,"\\'") + '\',0)" title="Spell details"'
+              + ' style="padding:5px 7px;background:' + (isPicked?'var(--crimson)':'var(--bg-card)') + ';border:1px solid ' + (isPicked?'var(--crimson)':'var(--border)') + ';'
+              + 'color:' + (isPicked?'rgba(245,240,232,0.7)':'var(--text-faint)') + ';cursor:pointer;font-size:11px;line-height:1;">ℹ</button>'
+              + '</div>';
     });
     html += '</div></div>';
   }
@@ -3231,12 +3320,16 @@ function luRenderSpellPicker() {
         var isPicked = spellChoices.indexOf(sp) !== -1;
         var desc     = (DND_DATA.spellDescriptions && DND_DATA.spellDescriptions[sp]) || {};
         var tooltip  = (desc.school ? desc.school : '') + (desc.castTime ? ' \u00b7 ' + desc.castTime : '') + (desc.range ? ' \u00b7 ' + desc.range : '') + (desc.desc ? '\n' + desc.desc : '');
-        html += '<div onclick="luToggleSpell(\'' + sp.replace(/'/g, "\\'") + '\',false)"'
-              + ' title="' + tooltip.replace(/"/g, '&quot;') + '"'
+        html += '<div style="display:inline-flex;align-items:center;gap:0;margin-bottom:0;">'
+              + '<div onclick="luToggleSpell(\'' + sp.replace(/'/g, "\\'") + '\',false)"'
               + ' style="padding:7px 13px;font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;'
-              + 'border:1px solid ' + (isPicked ? 'var(--crimson)' : 'var(--border)') + ';'
+              + 'border:1px solid ' + (isPicked ? 'var(--crimson)' : 'var(--border)') + ';border-right:none;'
               + 'background:' + (isPicked ? 'var(--crimson)' : 'var(--bg-card)') + ';'
-              + 'color:' + (isPicked ? '#f5f0e8' : 'var(--text-muted)') + ';">' + sp + '</div>';
+              + 'color:' + (isPicked ? '#f5f0e8' : 'var(--text-muted)') + ';">' + sp + '</div>'
+              + '<button onclick="showSpellInfo(\'' + sp.replace(/'/g,"\\'") + '\',\'' + sp.level + '\')" title="Spell details"'
+              + ' style="padding:5px 7px;background:' + (isPicked?'var(--crimson)':'var(--bg-card)') + ';border:1px solid ' + (isPicked?'var(--crimson)':'var(--border)') + ';'
+              + 'color:' + (isPicked?'rgba(245,240,232,0.7)':'var(--text-faint)') + ';cursor:pointer;font-size:11px;line-height:1;">ℹ</button>'
+              + '</div>';
       });
       html += '</div></div>';
     });
@@ -5269,46 +5362,86 @@ function _injectHomebrewEntity(type, entry) {
     DND_DATA.races[entry.id] = entry;
   } else if (type === 'class') {
     DND_DATA.classes[entry.id] = entry;
-    // Spells: If class has a spellList key, copy that class's spells
-    if (entry.spellcastingAbility && entry.spellList && DND_DATA.spells[entry.spellList]) {
+
+    // Spell list
+    if(entry.spellcastingAbility && entry.spellList && DND_DATA.spells[entry.spellList]){
       DND_DATA.spells[entry.id] = DND_DATA.spells[entry.spellList];
     }
-    // Level features: inject if provided
-    if (entry.levelFeatures && Object.keys(entry.levelFeatures).length) {
-      if (!DND_DATA.levelFeatures) DND_DATA.levelFeatures = {};
+    // Level features 2-20
+    if(entry.levelFeatures && Object.keys(entry.levelFeatures).length){
+      if(!DND_DATA.levelFeatures) DND_DATA.levelFeatures = {};
       DND_DATA.levelFeatures[entry.id] = entry.levelFeatures;
     }
-    // Spell slot table: default to chosen archetype
-    if (entry.spellcastingAbility && entry.slotArchetype) {
-      if (!DND_DATA.spellSlots) DND_DATA.spellSlots = {};
+    // Spell slot table
+    if(entry.spellcastingAbility && entry.slotArchetype){
+      if(!DND_DATA.spellSlots) DND_DATA.spellSlots = {};
       var archSlots = DND_DATA.spellSlots[entry.slotArchetype];
-      if (archSlots) DND_DATA.spellSlots[entry.id] = archSlots;
-      // spellsKnownTable
-      if (!DND_DATA.spellsKnownTable) DND_DATA.spellsKnownTable = {};
+      if(archSlots) DND_DATA.spellSlots[entry.id] = archSlots;
+      if(!DND_DATA.spellsKnownTable) DND_DATA.spellsKnownTable = {};
       var archKnown = DND_DATA.spellsKnownTable[entry.slotArchetype];
-      if (archKnown) DND_DATA.spellsKnownTable[entry.id] = archKnown;
+      if(archKnown) DND_DATA.spellsKnownTable[entry.id] = archKnown;
     }
+    // Limited-use abilities
+    if(entry.abilityUses && entry.abilityUses.length){
+      if(!DND_DATA.abilityUses) DND_DATA.abilityUses = {};
+      DND_DATA.abilityUses[entry.id] = entry.abilityUses;
+    }
+    // Passive features -> levelFeatures[1]
+    if(entry.passiveFeatures && entry.passiveFeatures.length){
+      if(!DND_DATA.levelFeatures) DND_DATA.levelFeatures = {};
+      if(!DND_DATA.levelFeatures[entry.id]) DND_DATA.levelFeatures[entry.id] = {};
+      if(!DND_DATA.levelFeatures[entry.id][1]) DND_DATA.levelFeatures[entry.id][1] = [];
+      entry.passiveFeatures.forEach(function(f){
+        DND_DATA.levelFeatures[entry.id][1].push(Object.assign({level:1,isPassive:true},f));
+      });
+    }
+    // Spellcasting note -> levelFeatures[1]
+    if(entry.spellcastingAbility){
+      var scName = DND_DATA.abilityNames[entry.spellcastingAbility]||entry.spellcastingAbility;
+      var scDesc = 'Spellcasting ability: '+scName+'.'
+        +(entry.ritualCasting?' Ritual Casting: you can cast ritual spells without expending a slot.':'')
+        +(entry.hasFocus?' You can use an arcane/druidic/holy focus as a spellcasting focus.':'')
+        +(entry.spellcastingNotes?' '+entry.spellcastingNotes:'');
+      if(!DND_DATA.levelFeatures) DND_DATA.levelFeatures = {};
+      if(!DND_DATA.levelFeatures[entry.id]) DND_DATA.levelFeatures[entry.id] = {};
+      if(!DND_DATA.levelFeatures[entry.id][1]) DND_DATA.levelFeatures[entry.id][1] = [];
+      DND_DATA.levelFeatures[entry.id][1].push({level:1,name:'Spellcasting',desc:scDesc});
+    }
+    // Subclass level
+    if(entry.subclassLevel){
+      if(!DND_DATA.subclassLevel) DND_DATA.subclassLevel = {};
+      DND_DATA.subclassLevel[entry.id] = entry.subclassLevel;
+    }
+
   } else if (type === 'background') {
     DND_DATA.backgrounds[entry.id] = entry;
   } else if (type === 'subclass') {
-    // Inject subclass features into the parent class's levelFeatures
     var parentId = entry.parentClass;
-    if (!DND_DATA.levelFeatures) DND_DATA.levelFeatures = {};
-    if (!DND_DATA.levelFeatures[parentId]) DND_DATA.levelFeatures[parentId] = {};
-    (entry.features || []).forEach(function(f) {
-      if (!DND_DATA.levelFeatures[parentId][f.level]) DND_DATA.levelFeatures[parentId][f.level] = [];
-      // Mark as subclass so level-up modal can badge it
-      var feat = Object.assign({}, f, { isSubclass: true, subclassName: entry.name });
+    // Inject level features into parent class's levelFeatures
+    if(!DND_DATA.levelFeatures) DND_DATA.levelFeatures = {};
+    if(!DND_DATA.levelFeatures[parentId]) DND_DATA.levelFeatures[parentId] = {};
+    (entry.features||[]).forEach(function(f){
+      if(!DND_DATA.levelFeatures[parentId][f.level]) DND_DATA.levelFeatures[parentId][f.level] = [];
+      var feat = Object.assign({},f,{isSubclass:true,subclassName:entry.name});
       DND_DATA.levelFeatures[parentId][f.level].push(feat);
     });
-    // Add subclass name to parent class's subclasses list
+    // Add subclass name to parent's subclasses list (for level-up picker)
     var parentCls = DND_DATA.classes[parentId];
-    if (parentCls) {
-      if (!parentCls.subclasses) parentCls.subclasses = [];
-      if (parentCls.subclasses.indexOf(entry.name) === -1) {
-        parentCls.subclasses.push(entry.name);
-      }
+    if(parentCls){
+      if(!parentCls.subclasses) parentCls.subclasses = [];
+      if(parentCls.subclasses.indexOf(entry.name)===-1) parentCls.subclasses.push(entry.name);
     }
+    // Inject abilityUses into DND_DATA.abilityUses (merge with parent class)
+    if(entry.abilityUses && entry.abilityUses.length){
+      if(!DND_DATA.abilityUses) DND_DATA.abilityUses = {};
+      if(!DND_DATA.abilityUses[parentId]) DND_DATA.abilityUses[parentId] = [];
+      entry.abilityUses.forEach(function(u){
+        if(!DND_DATA.abilityUses[parentId].some(function(x){return x.name===u.name;}))
+          DND_DATA.abilityUses[parentId].push(u);
+      });
+    }
+    // Store expanded spells on the entry (injected into class spells in buildFeaturesTab)
+    // No DND_DATA patch needed — expanded spells are shown via the subclass data directly
   }
 }
 
@@ -5323,6 +5456,8 @@ function _removeHomebrewEntity(type, id) {
     if (DND_DATA.spells) delete DND_DATA.spells[id];
     if (DND_DATA.spellSlots) delete DND_DATA.spellSlots[id];
     if (DND_DATA.levelFeatures) delete DND_DATA.levelFeatures[id];
+    if (DND_DATA.abilityUses) delete DND_DATA.abilityUses[id];
+    if (DND_DATA.subclassLevel) delete DND_DATA.subclassLevel[id];
   } else if (type === 'background') {
     delete DND_DATA.backgrounds[id];
   } else if (type === 'subclass') {
@@ -5526,123 +5661,281 @@ function renderHBEForm(type, existing) {
   var html = '';
 
   if (type === 'race') {
-    var asiVal = e.asi ? Object.entries(e.asi).map(function(kv) { return kv[0]+':'+kv[1]; }).join(', ') : '';
-    var traitVal = (e.traits||[]).map(function(t) { return t.name + '|' + t.desc; }).join('\n');
-    var subraceVal = (e.subraces||[]).map(function(sr) {
-      return sr.name + '|' + Object.entries(sr.asi||{}).map(function(kv){ return kv[0]+':'+kv[1]; }).join(',') + '|' + (sr.traits||[]).map(function(t){ return t.name+':'+t.desc; }).join(';');
+    var asiVal = e.asi ? Object.entries(e.asi).map(function(kv){ return kv[0]+':'+kv[1]; }).join(', ') : '';
+    var traitVal = (e.traits||[]).map(function(t){ return t.name+'|'+t.desc; }).join('\n');
+    var subraceVal = (e.subraces||[]).map(function(sr){
+      var asiStr = Object.entries(sr.asi||{}).map(function(kv){ return kv[0]+':'+kv[1]; }).join(',');
+      var traitStr = (sr.traits||[]).map(function(t){ return t.name+':'+t.desc; }).join(';');
+      return sr.name+'|'+asiStr+(traitStr?'|'+traitStr:'');
     }).join('\n');
 
     html += F.head('Identity');
     html += F.grid([
-      F.inp('name', 'Race Name *', e.name, 'e.g. Aasimar'),
-      F.sel('size', 'Size', ['Small','Medium','Large'], e.size||'Medium'),
+      F.inp('name','Race Name *',e.name,'e.g. Aasimar'),
+      F.sel('size','Size',['Small','Medium','Large'],e.size||'Medium'),
     ]);
-    html += F.inp('speed', 'Walk Speed (ft)', e.speed||30, '30', 'number');
-    html += F.inp('languages', 'Languages (comma-separated)', (e.languages||[]).join(', '), 'Common, Elvish');
-
+    html += F.grid([
+      F.inp('speed','Walk Speed (ft)',e.speed||30,'30','number'),
+      F.inp('flySpeed','Fly Speed (ft, 0 = none)',e.flySpeed||0,'0','number'),
+    ]);
+    html += F.inp('languages','Languages (comma-separated)',(e.languages||[]).join(', '),'Common, Elvish');
+    html += F.head('Optional Proficiencies');
+    html += F.inp('toolProf',  'Tool Proficiencies',  (e.toolProf||[]).join(', '),  "Smith's tools");
+    html += F.inp('weaponProf','Weapon Proficiencies',(e.weaponProf||[]).join(', '),'Longsword, shortsword');
+    html += F.inp('armorProf', 'Armor Proficiencies', (e.armorProf||[]).join(', '), 'Light armor');
     html += F.head('Ability Score Increases');
-    html += F.note('Format: str:2, dex:1 (use ability abbreviations: str dex con int wis cha)');
-    html += F.inp('asi', 'ASI *', asiVal, 'str:2, cha:1');
-
+    html += F.note('Format: str:2, dex:1 — abbreviations: str dex con int wis cha');
+    html += F.inp('asi','ASI *',asiVal,'str:2, cha:1');
+    html += F.head('Resistances & Immunities');
+    html += F.inp('resistances','Damage Resistances (comma-separated)',(e.resistances||[]).join(', '),'Necrotic, Radiant');
+    html += F.inp('immunities', 'Damage Immunities (comma-separated)', (e.immunities||[]).join(', '),'Poison');
+    html += F.inp('conditionImmunities','Condition Immunities (comma-separated)',(e.conditionImmunities||[]).join(', '),'Disease');
     html += F.head('Racial Traits');
-    html += F.note('One trait per line: TraitName|Description');
-    html += F.tex('traits', 'Traits', traitVal, 'Darkvision|You can see in darkness up to 60 ft.\nCelestial Resistance|You have resistance to necrotic and radiant damage.', 5);
-
+    html += F.note('One per line: TraitName|Description');
+    html += F.tex('traits','Traits',traitVal,'Darkvision|You can see in dim light within 60 ft as if bright light, and in darkness as dim light.\nCelestial Resistance|You have resistance to necrotic and radiant damage.\nHealing Hands|As an action, touch a creature and restore HP equal to your proficiency bonus.\nLight Bearer|You know the Light cantrip. Charisma is your spellcasting ability for it.',7);
     html += F.head('Subraces (Optional)');
-    html += F.note('One per line: Name|str:1,dex:1|TraitName:TraitDesc;TraitName2:Desc2');
-    html += F.tex('subraces', 'Subraces', subraceVal, 'High Elf|int:1|Elf Weapon Training:Proficiency with longsword\nWood Elf|wis:1|Fleet of Foot:Speed increases to 35 ft.', 4);
+    html += F.note('One per line: Name|str:1,dex:1|TraitName:TraitDesc;Trait2:Desc2');
+    html += F.tex('subraces','Subraces',subraceVal,'Protector|wis:1|Radiant Soul:You can manifest wings as an action gaining a fly speed equal to your walk speed for 1 minute (once per long rest).\nScourge|con:1|Radiant Consumption:As an action emit searing light in a 10 ft radius dealing 1d4 radiant damage to nearby creatures (once per long rest).',5);
+
 
   } else if (type === 'class') {
-    var abilities = ['str','dex','con','int','wis','cha'];
-    var abilityOpts = abilities.map(function(a) { return {v:a, l:DND_DATA.abilityNames[a]||a}; });
-    var abilityOptsNone = [{v:'',l:'None (non-caster)'}].concat(abilityOpts);
-    var spellListOpts = [{v:'',l:'None'},'wizard','bard','cleric','druid','sorcerer','warlock','paladin','ranger'].map(function(v) {
-      return typeof v === 'string' ? {v:v, l:v ? (v.charAt(0).toUpperCase()+v.slice(1)+' spell list') : 'None'} : v;
+    var abilities     = ['str','dex','con','int','wis','cha'];
+    var abilityOpts   = abilities.map(function(a){ return {v:a,l:DND_DATA.abilityNames[a]||a}; });
+    var abilityNone   = [{v:'',l:'None (non-caster)'}].concat(abilityOpts);
+    var hitDieOpts    = [6,8,10,12].map(function(n){ return {v:n,l:'d'+n}; });
+    var spellListOpts = [{v:'',l:'None'},'wizard','bard','cleric','druid','sorcerer','warlock','paladin','ranger'].map(function(v){
+      return typeof v==='string'?{v:v,l:v?(v[0].toUpperCase()+v.slice(1)+' list'):'None'}:v;
     });
-    var slotOpts = [{v:'',l:'None'},'wizard','bard','cleric','sorcerer','warlock','paladin','ranger'].map(function(v) {
-      return typeof v === 'string' ? {v:v, l:v ? (v.charAt(0).toUpperCase()+v.slice(1)+' slots') : 'None'} : v;
+    var slotOpts = [{v:'',l:'None'},'wizard','bard','cleric','sorcerer','warlock','paladin','ranger'].map(function(v){
+      return typeof v==='string'?{v:v,l:v?(v[0].toUpperCase()+v.slice(1)+' slots'):'None'}:v;
     });
-    var hitDieOpts = [6,8,10,12].map(function(n){ return {v:n,l:'d'+n}; });
-    var save1 = e.saves ? e.saves[0] : 'str';
-    var save2 = e.saves ? e.saves[1] : 'con';
-    var featVal = (e.features||[]).map(function(f) { return f.name + '|' + f.desc; }).join('\n');
-    var subclassVal = (e.subclasses||[]).join(', ');
-    var skillOptVal = (e.skillOptions||[]).join(', ');
-    var armorVal = (e.armorProf||[]).join(', ');
-    var weaponVal = (e.weaponProf||[]).join(', ');
+    var scLvOpts  = [1,2,3,4,5,6,7].map(function(n){ return {v:n,l:'Level '+n}; });
+    var save1 = e.saves?e.saves[0]:'str';
+    var save2 = e.saves?e.saves[1]:'con';
 
-    html += F.head('Identity');
-    html += F.grid([
-      F.inp('name', 'Class Name *', e.name, 'e.g. Blood Hunter'),
-      F.sel('hitDie', 'Hit Die', hitDieOpts, e.hitDie||8),
-    ]);
-    html += F.grid([
-      F.sel('primaryAbility', 'Primary Ability', abilityOpts, e.primaryAbility||'str'),
-      F.inp('skillCount', 'Skill Choices', e.skillCount||2, '2', 'number'),
-    ]);
-    html += F.inp('skillOptions', 'Skill Options (comma-separated, or "Any")', skillOptVal, 'Athletics, Stealth, Perception');
+    // Serialise level features for textarea
+    var lvFeatVal = '';
+    if(e.levelFeatures){
+      Object.keys(e.levelFeatures).sort(function(a,b){return a-b;}).forEach(function(lv){
+        (e.levelFeatures[lv]||[]).forEach(function(f){
+          if(f.isPassive) return; // passives in own tab
+          lvFeatVal += lv+'|'+f.name+'|'+(f.desc||'')+(f.isASI?'|ASI':'')+'\n';
+        });
+      });
+    }
+    // Serialise ability uses
+    var usesVal = '';
+    if(e.abilityUses){
+      e.abilityUses.forEach(function(u){
+        usesVal += u.name+'|'+u.uses+'|'+u.recharge+'|'+(u.desc||'')+(u.isPool?'|pool':'')+'\n';
+      });
+    }
+    // Serialise passive features
+    var passVal = (e.passiveFeatures||[]).map(function(f){ return f.name+'|'+(f.desc||''); }).join('\n');
 
-    html += F.head('Proficiencies');
-    html += F.inp('armorProf', 'Armor (comma-separated)', armorVal, 'Light armor, Medium armor, Shields');
-    html += F.inp('weaponProf', 'Weapons (comma-separated)', weaponVal, 'Simple weapons, Martial weapons');
-    html += F.grid([
-      F.sel('save1', 'Saving Throw 1', abilityOpts, save1),
-      F.sel('save2', 'Saving Throw 2', abilityOpts, save2),
-    ]);
+    // Inner tab state
+    var innerTab = window._hbcInnerTab || 'basics';
+    var tabLabel = {basics:'Basics',features:'Level Features',spellcasting:'Spellcasting',abilities:'Abilities',equipment:'Equipment'};
+    var tabBar = '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;">';
+    ['basics','features','spellcasting','abilities','equipment'].forEach(function(t){
+      var active = innerTab===t;
+      tabBar += '<button onclick="window._hbcInnerTab=\''+t+'\';renderHBEForm(\'class\',_hbeEditId?(_homebrewEntities.classes[_hbeEditId]||null):null)" '
+        +'style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;cursor:pointer;border:none;'
+        +'border-bottom:2px solid '+(active?'var(--crimson)':'transparent')+';background:transparent;'
+        +'color:'+(active?'var(--crimson)':'var(--text-muted)')+';white-space:nowrap;">'+tabLabel[t]+'</button>';
+    });
+    tabBar += '</div>';
+    html += tabBar;
 
-    html += F.head('Spellcasting (Optional)');
-    html += F.grid([
-      F.sel('spellcastingAbility', 'Casting Ability', abilityOptsNone, e.spellcastingAbility||''),
-      F.sel('spellList', 'Spell List', spellListOpts, e.spellList||''),
-    ]);
-    html += F.sel('slotArchetype', 'Spell Slot Archetype', slotOpts, e.slotArchetype||'');
-    html += F.note('Spell List determines which spells players pick from. Slot Archetype copies that class\'s slot progression.');
+    // ── BASICS ──────────────────────────────────────────────────
+    if(innerTab==='basics'){
+      html += F.head('Identity');
+      html += F.grid([
+        F.inp('name','Class Name *',e.name,'e.g. Blood Hunter'),
+        F.sel('hitDie','Hit Die',hitDieOpts,e.hitDie||8),
+      ]);
+      html += F.grid([
+        F.sel('primaryAbility','Primary Ability',abilityOpts,e.primaryAbility||'str'),
+        F.inp('skillCount','Skill Choices',e.skillCount||2,'2','number'),
+      ]);
+      html += F.inp('skillOptions','Skill Options (comma-separated, blank = Any)',(e.skillOptions||[]).join(', '),'Athletics, Stealth, Perception');
+      html += F.head('Proficiencies');
+      html += F.inp('armorProf', 'Armor',   (e.armorProf||[]).join(', '),  'Light armor, Medium armor, Shields');
+      html += F.inp('weaponProf','Weapons', (e.weaponProf||[]).join(', '), 'Simple weapons, Martial weapons');
+      html += F.inp('toolProf',  'Tools (optional)', (e.toolProf||[]).join(', '), "Thieves' tools");
+      html += F.grid([
+        F.sel('save1','Saving Throw 1',abilityOpts,save1),
+        F.sel('save2','Saving Throw 2',abilityOpts,save2),
+      ]);
+      html += F.head('Subclass');
+      html += F.grid([
+        F.inp('subclassTitle','Subclass Title',e.subclassTitle||'','e.g. Primal Path, Sacred Oath'),
+        F.sel('subclassLevel','Subclass Gained At',scLvOpts,e.subclassLevel||3),
+      ]);
+      html += F.note('Players choose their subclass at this level. The title appears in the level-up modal.');
+      html += F.head('1st Level Features');
+      html += F.note('Core class features gained at level 1. One per line: Name|Description');
+      html += F.tex('features','Features',(e.features||[]).map(function(f){return f.name+'|'+f.desc;}).join('\n'),'Crimson Rite|Imbue a weapon with dark energy as a bonus action.\nHunter\'s Bane|Advantage on Survival checks to track Undead, Fey, and Fiends.',5);
+    }
 
-    html += F.head('Subclasses');
-    html += F.inp('subclasses', 'Subclass Names (comma-separated)', subclassVal, 'Path of the Berserker, Path of the Totem');
+    // ── LEVEL FEATURES ──────────────────────────────────────────
+    else if(innerTab==='features'){
+      html += F.head('Level Features (Levels 2–20)');
+      html += F.note('One per line: Level|Name|Description — append |ASI for Ability Score Improvement levels.');
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">'
+        +'<button onclick="hbcInsertASIs()" style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;'
+        +'padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">'
+        +'✦ Insert Standard ASI Levels (4,8,12,16,19)</button>'
+        +'<button onclick="hbcInsertExtraAttack()" style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;'
+        +'padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">'
+        +'✦ Insert Extra Attack (Lv 5)</button>'
+        +'</div>';
+      html += F.tex('levelFeatures','Level Features',lvFeatVal,
+        '2|Fighting Style|Choose a fighting style: Archery, Defense, Dueling, or Great Weapon Fighting.\n3|Crimson Rite (Tier 2)|Your Crimson Rite damage increases to 2d6.\n4|Ability Score Improvement||ASI\n5|Extra Attack|You can attack twice when you take the Attack action.\n6|Brand of Castigation|When you damage a branded creature it takes psychic damage equal to your Proficiency Bonus.\n7|Grim Psychometry|When you touch a non-magical object you may ask the DM for one impression about it.\n8|Ability Score Improvement||ASI\n9|Dark Velocity|Your speed increases by 10 ft while concentrating on a Crimson Rite.\n10|Advanced Brand|Brand of Castigation range increases to 60 ft.\n11|Improved Crimson Rite|Choose a second Crimson Rite.\n12|Ability Score Improvement||ASI\n13|Brand of Tethering|Branded creatures cannot willingly move more than 60 ft from you.\n14|Hardened Soul|Advantage on saves against frightened and charmed.\n15|Sanguine Mastery|Critical hits with rite-imbued weapons deal maximum rite damage.\n16|Ability Score Improvement||ASI\n17|Primal Rite|Your Crimson Rites count as magical for overcoming resistance.\n18|Brand of Sundering|Branded creatures cannot use teleportation or planar travel.\n19|Ability Score Improvement||ASI\n20|Unstoppable|Once per long rest if reduced to 0 HP while your Crimson Rite is active, drop to 1 HP instead.',
+        24);
+    }
 
-    html += F.head('1st Level Features');
-    html += F.note('One per line: FeatureName|Description');
-    html += F.tex('features', 'Features', featVal, 'Crimson Rite|As a bonus action, imbue your weapon with a Crimson Rite for 1 minute...', 5);
+    // ── SPELLCASTING ────────────────────────────────────────────
+    else if(innerTab==='spellcasting'){
+      html += F.head('Spellcasting');
+      html += F.note('Leave Casting Ability blank for non-caster classes.');
+      html += F.grid([
+        F.sel('spellcastingAbility','Casting Ability',abilityNone,e.spellcastingAbility||''),
+        F.sel('spellList','Spell List',spellListOpts,e.spellList||''),
+      ]);
+      html += F.sel('slotArchetype','Spell Slot Progression',slotOpts,e.slotArchetype||'');
+      html += F.note('Spell List controls which spells appear in Step 7 of the builder. Slot Progression copies that class\'s spell slot table for leveling.');
+      html += F.head('Options');
+      html += '<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;">'
+        +'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">'
+        +'<input id="hbe-ritualCasting" type="checkbox"'+(e.ritualCasting?' checked':'')+' style="width:14px;height:14px;accent-color:var(--crimson);"/>Ritual Casting</label>'
+        +'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">'
+        +'<input id="hbe-hasFocus" type="checkbox"'+(e.hasFocus?' checked':'')+' style="width:14px;height:14px;accent-color:var(--crimson);"/>Arcane/Druidic/Holy Focus</label>'
+        +'</div>';
+      html += F.tex('spellcastingNotes','Flavor Text (optional)',e.spellcastingNotes||'','e.g. You draw upon the life force of your enemies to fuel your dark magic...',3);
+    }
 
-    html += F.head('Equipment (Simplified)');
-    html += F.inp('equipment', 'Starting Equipment', (e._equipmentStr||''), 'e.g. Longsword, explorer\'s pack, 25 gp');
+    // ── ABILITIES & USES ────────────────────────────────────────
+    else if(innerTab==='abilities'){
+      html += F.head('Limited-Use Abilities');
+      html += F.note('Tracked on the character sheet. One per line: Name|Uses|Recharge|Description'
+        +'<br>Uses: number, "level" (= char level), "cha_mod", "1+cha_mod". Recharge: short_rest or long_rest. Append |pool for a point-pool tracker.');
+      html += F.tex('abilityUses','Abilities',usesVal,
+        'Crimson Rite|level|long_rest|Imbue a weapon with a Crimson Rite. Uses = character level.|pool\nHunter\'s Mark|3|long_rest|Brand a creature within 60 ft, dealing extra necrotic or psychic damage.\nChannel Divinity|1|short_rest|Invoke a powerful divine effect specific to your subclass.',
+        7);
+
+      html += F.head('Passive Features');
+      html += F.note('Always-on features with no tracker. One per line: Name|Description');
+      html += F.tex('passiveFeatures','Passive Features',passVal,
+        'Unarmored Defense|While not wearing armor, AC = 10 + DEX modifier + CON modifier.\nFeral Instinct|You have advantage on initiative rolls.',4);
+
+      html += F.head('Extra Attack');
+      html += F.note('If this class gains Extra Attack, specify the level. This auto-injects an Extra Attack feature into Level Features.');
+      html += F.grid([
+        F.inp('extraAttackLevel','Unlocked at Level',e.extraAttackLevel||'','5','number'),
+        F.inp('extraAttackTotal','Total Attacks',e.extraAttackTotal||'','2','number'),
+      ]);
+    }
+
+    // ── EQUIPMENT ───────────────────────────────────────────────
+    else if(innerTab==='equipment'){
+      html += F.head('Starting Equipment');
+      html += F.note('All items below are granted at character creation.');
+      html += F.tex('equipment','Equipment (comma-separated)',e._equipmentStr||'','Longsword or two shortswords, leather armor, a dungeoneer\'s pack, 25 gp',3);
+      html += F.head('Starting Wealth (Alternative)');
+      html += F.inp('startingGold','Starting Gold',e.startingGold||'','e.g. 4d4 × 10 gp');
+    }
+
 
   } else if (type === 'background') {
     var bgSkillVal = (e.skills||[]).join(', ');
     var bgToolVal  = (e.tools||[]).join(', ');
+    var bgPersonalityVal = (e.personalityTraits||[]).join('\n');
+    var bgIdealVal = (e.ideals||[]).join('\n');
+    var bgBondVal  = (e.bonds||[]).join('\n');
+    var bgFlawVal  = (e.flaws||[]).join('\n');
 
     html += F.head('Identity');
-    html += F.inp('name', 'Background Name *', e.name, 'e.g. Bounty Hunter');
-
+    html += F.inp('name','Background Name *',e.name,'e.g. Bounty Hunter');
     html += F.head('Proficiencies');
-    html += F.inp('skills', 'Skills (2, comma-separated) *', bgSkillVal, 'Deception, Intimidation');
     html += F.grid([
-      F.inp('tools', 'Tool Proficiencies (optional)', bgToolVal, "Thieves' tools"),
-      F.inp('languages', 'Extra Languages', e.languages||0, '0', 'number'),
+      F.inp('skills',   'Skills (2, comma-separated) *', bgSkillVal, 'Deception, Intimidation'),
+      F.inp('tools',    'Tool Proficiencies (optional)',  bgToolVal,  "Thieves' tools, dice set"),
     ]);
+    html += F.grid([
+      F.inp('languages',    'Extra Languages (number)',     e.languages||0,             '0','number'),
+      F.inp('languageNames','Language Names (if specific)', (e.languageNames||[]).join(', '),"Thieves' Cant"),
+    ]);
+    html += F.head('Background Feature');
+    html += F.inp('featureName','Feature Name *',e.feature||'','e.g. Criminal Contact');
+    html += F.tex('featureDesc','Feature Description *',e.featureDesc||'','You have a reliable and trustworthy contact who acts as your liaison to a network of other criminals...',3);
+    html += F.head('Equipment & Wealth');
+    html += F.inp('equipment','Starting Equipment (comma-separated)',e.equipment||'','Crowbar, dark common clothes, belt pouch containing 15 gp');
+    html += F.inp('startingGold','Starting Gold (optional)',e.startingGold||'','1d4 × 10 gp');
+    html += F.head('Suggested Characteristics');
+    html += F.note('Optional. Players can roll or choose. One entry per line.');
+    html += F.tex('personalityTraits','Personality Traits (d8)',bgPersonalityVal,'I always have a plan for when things go wrong.\nI am always calm, no matter what the situation.',4);
+    html += F.tex('ideals','Ideals (d6)',bgIdealVal,'Freedom. Chains are meant to be broken, as are those who would forge them. (Chaotic)\nHonor. I do not steal from others in the trade. (Lawful)',3);
+    html += F.tex('bonds','Bonds (d6)',bgBondVal,'I am trying to pay off an old debt I owe to a generous benefactor.\nMy ill-gotten gains go to support my family.',3);
+    html += F.tex('flaws','Flaws (d6)',bgFlawVal,'When I see something valuable I cannot think of anything but how to steal it.\nI turn tail and run when things look bad.',3);
 
-    html += F.head('Feature');
-    html += F.inp('featureName', 'Feature Name *', e.feature, 'e.g. Underworld Contacts');
-    html += F.tex('featureDesc', 'Feature Description *', e.featureDesc, 'Your criminal contacts allow you to...', 3);
-
-    html += F.head('Equipment');
-    html += F.inp('equipment', 'Equipment (comma-separated)', e.equipment||'', 'Common clothes, belt pouch, 10 gp');
 
   } else if (type === 'subclass') {
-    var parentOpts = Object.entries(DND_DATA.classes).map(function(kv) {
-      return {v:kv[0], l:kv[1].name};
+    var parentOpts = Object.entries(DND_DATA.classes).map(function(kv){
+      return {v:kv[0],l:kv[1].name};
     });
-    var scFeatVal = (e.features||[]).map(function(f) { return f.level + '|' + f.name + '|' + f.desc; }).join('\n');
+    var scFeatVal = (e.features||[]).map(function(f){
+      return f.level+'|'+f.name+'|'+(f.desc||'')+(f.isASI?'|ASI':'');
+    }).join('\n');
+    var usesVal = '';
+    if(e.abilityUses) e.abilityUses.forEach(function(u){
+      usesVal += u.name+'|'+u.uses+'|'+u.recharge+'|'+(u.desc||'')+(u.isPool?'|pool':'')+'\n';
+    });
 
-    html += F.head('Identity');
-    html += F.sel('parentClass', 'Parent Class *', parentOpts, e.parentClass||Object.keys(DND_DATA.classes)[0]);
-    html += F.inp('name', 'Subclass Name *', e.name, 'e.g. School of Pyromancy');
-    html += F.tex('desc', 'Subclass Description', e.desc||'', 'A brief flavour text...', 2);
+    var innerTab = window._hbcInnerTab || 'basics';
+    var scTabBar = '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;">';
+    [{k:'basics',l:'Identity'},{k:'features',l:'Features'},{k:'abilities',l:'Abilities'}].forEach(function(t){
+      var active = innerTab===t.k;
+      scTabBar += '<button onclick="window._hbcInnerTab=\''+t.k+'\';renderHBEForm(\'subclass\',_hbeEditId?(_homebrewEntities.subclasses[_hbeEditId]||null):null)" '
+        +'style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;cursor:pointer;border:none;'
+        +'border-bottom:2px solid '+(active?'var(--crimson)':'transparent')+';background:transparent;'
+        +'color:'+(active?'var(--crimson)':'var(--text-muted)')+';white-space:nowrap;">'+t.l+'</button>';
+    });
+    scTabBar += '</div>';
+    html += scTabBar;
 
-    html += F.head('Subclass Features');
-    html += F.note('One per line: Level|FeatureName|Description (typical levels: 3, 7, 10, 14, 18)');
-    html += F.tex('features', 'Features', scFeatVal, '3|Pyromantic Spark|When you cast a fire spell...\n7|Ignis Embodiment|You gain resistance to fire damage...', 7);
+    if(innerTab==='basics'){
+      html += F.head('Identity');
+      html += F.grid([
+        F.sel('parentClass','Parent Class *',parentOpts,e.parentClass||Object.keys(DND_DATA.classes)[0]),
+        F.inp('name','Subclass Name *',e.name||'','e.g. School of Pyromancy'),
+      ]);
+      html += F.tex('desc','Flavor Description',e.desc||'','Pyromancers channel the destructive power of fire, seeing beauty in its consuming brilliance...',3);
+      html += F.head('Expanded Spell List (Optional)');
+      html += F.note('For subclasses that add spells to a class spell list. One per line: Level|Spell1,Spell2');
+      html += F.tex('expandedSpells','Expanded Spells',(e.expandedSpells||[]).map(function(r){return r.level+'|'+r.spells.join(',');}).join('\n'),
+        '1|Burning Hands,Hellish Rebuke\n2|Scorching Ray,Flaming Sphere\n3|Fireball,Hypnotic Pattern\n4|Wall of Fire,Fire Shield\n5|Flame Strike,Immolation',6);
+    } else if(innerTab==='features'){
+      html += F.head('Subclass Features');
+      html += F.note('One per line: Level|Name|Description — typical levels: 3, 6, 10, 14 (varies by class). Append |ASI for ability score improvement levels.');
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">'
+        +'<button onclick="hbcSubclassTemplate()" style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">✦ Standard (3,6,10,14)</button>'
+        +'<button onclick="hbcSubclassTemplateFull()" style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">✦ Domain (1,2,6,8,17)</button>'
+        +'</div>';
+      html += F.tex('features','Features',scFeatVal,
+        '3|Pyromantic Spark|When you cast a fire spell, add your Proficiency Bonus to one fire damage roll.\n'
+        +'6|Ignis Embodiment|You gain resistance to fire damage and your fire spells ignore fire resistance.\n'
+        +'10|Pillar of Flame|Once per short rest, creatures that succeed on a DEX save against your fire spells still take half damage.\n'
+        +'14|Phoenix Form|Once per long rest, when reduced to 0 HP, drop to 1 HP instead and deal 2d10 fire damage to creatures within 10 ft.',
+        14);
+    } else if(innerTab==='abilities'){
+      html += F.head('Subclass Abilities');
+      html += F.note('Tracked on the character sheet. Name|Uses|Recharge|Description — append |pool for point-pool tracker.');
+      html += F.tex('abilityUses','Abilities',usesVal,
+        'Channel Divinity: Sacred Flame|1|short_rest|Deal 2d6+WIS radiant damage to a creature within 60 ft (CON save negates).\n'
+        +'Pyre Shield|1|long_rest|As a reaction when hit, surround yourself in fire until start of your next turn causing 1d8 fire damage to attackers.|pool',6);
+    }
+
   }
 
   // Error area
@@ -5679,150 +5972,243 @@ function saveHBEntity() {
     var name = g('name');
     if (!name) errors.push('Race name is required.');
     var asiRaw = g('asi');
-    if (!asiRaw) errors.push('ASI is required.');
-    if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
+    if (!asiRaw) errors.push('ASI is required (e.g. str:2, cha:1).');
+    if (errors.length) { errEl.innerHTML=errors.join('<br>'); errEl.style.display=''; return; }
 
-    // Parse ASI
     var asi = {};
-    asiRaw.split(',').forEach(function(part) {
+    asiRaw.split(',').forEach(function(part){
       var kv = part.trim().split(':');
-      if (kv.length === 2) asi[kv[0].trim()] = parseInt(kv[1].trim()) || 0;
+      if(kv.length===2) asi[kv[0].trim()] = parseInt(kv[1].trim())||0;
     });
-
-    // Parse traits
-    var traitsRaw = g('traits');
-    var traits = traitsRaw ? traitsRaw.split('\n').filter(Boolean).map(function(line) {
-      var parts = line.split('|');
-      return { name: (parts[0]||'').trim(), desc: (parts[1]||'').trim() };
+    var traits = g('traits') ? g('traits').split('\n').filter(Boolean).map(function(line){
+      var p=line.split('|'); return {name:(p[0]||'').trim(),desc:(p[1]||'').trim()};
+    }) : [];
+    var subraces = g('subraces') ? g('subraces').split('\n').filter(Boolean).map(function(line){
+      var parts=line.split('|');
+      var srName=(parts[0]||'').trim();
+      var srAsi={};
+      if(parts[1]) parts[1].split(',').forEach(function(kv){var p=kv.trim().split(':');if(p.length===2)srAsi[p[0].trim()]=parseInt(p[1].trim())||0;});
+      var srTraits=[];
+      if(parts[2]) parts[2].split(';').forEach(function(t){var tp=t.split(':');if(tp.length>=2)srTraits.push({name:tp[0].trim(),desc:tp.slice(1).join(':').trim()});});
+      return {id:srName.toLowerCase().replace(/\s+/g,'-'),name:srName,asi:srAsi,traits:srTraits};
     }) : [];
 
-    // Parse subraces
-    var subracesRaw = g('subraces');
-    var subraces = subracesRaw ? subracesRaw.split('\n').filter(Boolean).map(function(line) {
-      var parts = line.split('|');
-      var srName = (parts[0]||'').trim();
-      var srAsi  = {};
-      if (parts[1]) parts[1].split(',').forEach(function(kv) {
-        var p = kv.trim().split(':');
-        if (p.length===2) srAsi[p[0].trim()] = parseInt(p[1].trim())||0;
-      });
-      var srTraits = [];
-      if (parts[2]) parts[2].split(';').forEach(function(t) {
-        var tp = t.split(':');
-        if (tp.length>=2) srTraits.push({ name:tp[0].trim(), desc:tp.slice(1).join(':').trim() });
-      });
-      return { id: srName.toLowerCase().replace(/\s+/g,'-'), name: srName, asi: srAsi, traits: srTraits };
-    }) : [];
-
-    var langs = g('languages').split(',').map(function(l){ return l.trim(); }).filter(Boolean);
+    var langs       = g('languages').split(',').map(function(v){return v.trim();}).filter(Boolean);
+    var flySpeed    = parseInt(g('flySpeed'))||0;
+    var resistances = g('resistances') ? g('resistances').split(',').map(function(v){return v.trim();}).filter(Boolean) : [];
+    var immunities  = g('immunities')  ? g('immunities').split(',').map(function(v){return v.trim();}).filter(Boolean)  : [];
+    var condImm     = g('conditionImmunities') ? g('conditionImmunities').split(',').map(function(v){return v.trim();}).filter(Boolean) : [];
+    var toolProf    = g('toolProf')   ? g('toolProf').split(',').map(function(v){return v.trim();}).filter(Boolean)   : [];
+    var weaponProf  = g('weaponProf') ? g('weaponProf').split(',').map(function(v){return v.trim();}).filter(Boolean) : [];
+    var armorProf   = g('armorProf')  ? g('armorProf').split(',').map(function(v){return v.trim();}).filter(Boolean)  : [];
+    var langNames   = g('languageNames') ? g('languageNames').split(',').map(function(v){return v.trim();}).filter(Boolean) : [];
 
     entry = {
-      id:         _hbeEditId || _homebrewEntityId('race', name),
-      name:       name,
-      asi:        asi,
-      speed:      gn('speed') || 30,
-      size:       g('size') || 'Medium',
-      languages:  langs.length ? langs : ['Common'],
-      traits:     traits,
-      subraces:   subraces,
+      id:        _hbeEditId || _homebrewEntityId('race', name),
+      name:      name,
+      asi:       asi,
+      speed:     gn('speed')||30,
+      size:      g('size')||'Medium',
+      languages: langs.length ? langs : ['Common'],
+      traits:    traits,
+      subraces:  subraces,
     };
+    if(flySpeed>0)      entry.flySpeed=flySpeed;
+    if(resistances.length) entry.resistances=resistances;
+    if(immunities.length)  entry.immunities=immunities;
+    if(condImm.length)     entry.conditionImmunities=condImm;
+    if(toolProf.length)    entry.toolProf=toolProf;
+    if(weaponProf.length)  entry.weaponProf=weaponProf;
+    if(armorProf.length)   entry.armorProf=armorProf;
+    if(langNames.length)   entry.languageNames=langNames;
+
 
   } else if (type === 'class') {
     var name = g('name');
     if (!name) errors.push('Class name is required.');
-    if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
+    if (errors.length) { errEl.innerHTML=errors.join('<br>'); errEl.style.display=''; return; }
 
-    var featRaw = g('features');
-    var features = featRaw ? featRaw.split('\n').filter(Boolean).map(function(line) {
-      var parts = line.split('|');
-      return { level:1, name:(parts[0]||'').trim(), desc:(parts[1]||'').trim() };
+    var skillOpts  = g('skillOptions') ? g('skillOptions').split(',').map(function(v){return v.trim();}).filter(Boolean) : ['Any skill'];
+    var armorProf  = g('armorProf')  ? g('armorProf').split(',').map(function(v){return v.trim();}).filter(Boolean) : [];
+    var weaponProf = g('weaponProf') ? g('weaponProf').split(',').map(function(v){return v.trim();}).filter(Boolean) : ['Simple weapons'];
+    var toolProf   = g('toolProf')   ? g('toolProf').split(',').map(function(v){return v.trim();}).filter(Boolean)  : [];
+    var subclasses = g('subclasses') ? g('subclasses').split(',').map(function(v){return v.trim();}).filter(Boolean) : [];
+
+    // 1st level features
+    var features = g('features') ? g('features').split('\n').filter(Boolean).map(function(line){
+      var p=line.split('|'); return {level:1,name:(p[0]||'').trim(),desc:(p[1]||'').trim()};
     }) : [];
 
-    var skillOptRaw = g('skillOptions');
-    var skillOpts = skillOptRaw ? skillOptRaw.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
-    if (!skillOpts.length) skillOpts = ['Any skill'];
+    // Level features 2-20
+    var levelFeatures = {};
+    var lvFeatRaw = g('levelFeatures');
+    if(lvFeatRaw){
+      lvFeatRaw.split('\n').filter(Boolean).forEach(function(line){
+        var p=line.split('|');
+        var lv=parseInt(p[0]); if(!lv||lv<2||lv>20) return;
+        var feat={name:(p[1]||'').trim(),desc:(p[2]||'').trim(),level:lv};
+        if((p[3]||'').trim().toUpperCase()==='ASI') feat.isASI=true;
+        if(!levelFeatures[lv]) levelFeatures[lv]=[];
+        levelFeatures[lv].push(feat);
+      });
+    }
+    // Auto-inject ASIs at standard levels if not already present
+    [4,8,12,16,19].forEach(function(lv){
+      if(!levelFeatures[lv]) levelFeatures[lv]=[];
+      if(!levelFeatures[lv].some(function(f){return f.isASI;})){
+        levelFeatures[lv].unshift({level:lv,name:'Ability Score Improvement',
+          desc:'Increase one ability score by 2, or two scores by 1 each. No score may exceed 20.',isASI:true});
+      }
+    });
 
-    var armorRaw  = g('armorProf');
-    var weaponRaw = g('weaponProf');
-    var armorProf  = armorRaw  ? armorRaw.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
-    var weaponProf = weaponRaw ? weaponRaw.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : ['Simple weapons'];
+    // Extra Attack
+    var extraAtkLv  = parseInt(g('extraAttackLevel'))||null;
+    var extraAtkTot = parseInt(g('extraAttackTotal'))||2;
+    if(extraAtkLv && extraAtkLv>=2 && extraAtkLv<=20){
+      if(!levelFeatures[extraAtkLv]) levelFeatures[extraAtkLv]=[];
+      if(!levelFeatures[extraAtkLv].some(function(f){return f.name==='Extra Attack';})){
+        levelFeatures[extraAtkLv].unshift({level:extraAtkLv,name:'Extra Attack',
+          desc:'You can attack '+extraAtkTot+' times instead of once when you take the Attack action on your turn.'});
+      }
+    }
 
-    var subclassRaw = g('subclasses');
-    var subclasses  = subclassRaw ? subclassRaw.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    // Limited-use abilities
+    var abilityUses = [];
+    var usesRaw = g('abilityUses');
+    if(usesRaw){
+      usesRaw.split('\n').filter(Boolean).forEach(function(line){
+        var p=line.split('|');
+        if(!p[0].trim()) return;
+        var uses = p[1]?( isNaN(p[1].trim())?p[1].trim():parseInt(p[1].trim()) ):1;
+        var obj={name:p[0].trim(),uses:uses,recharge:(p[2]||'long_rest').trim(),desc:(p[3]||'').trim()};
+        if((p[4]||'').trim()==='pool') obj.isPool=true;
+        abilityUses.push(obj);
+      });
+    }
 
-    var spellcasting = g('spellcastingAbility') || null;
-    var spellList    = g('spellList') || null;
-    var slotArch     = g('slotArchetype') || null;
+    // Passive features
+    var passiveFeatures = [];
+    var passRaw = g('passiveFeatures');
+    if(passRaw){
+      passRaw.split('\n').filter(Boolean).forEach(function(line){
+        var p=line.split('|');
+        if(p[0].trim()) passiveFeatures.push({name:p[0].trim(),desc:(p[1]||'').trim()});
+      });
+    }
+
+    var spellcasting = g('spellcastingAbility')||null;
+    var spellList    = g('spellList')||null;
+    var slotArch     = g('slotArchetype')||null;
     var equipStr     = g('equipment');
-    var equipment    = equipStr ? [[equipStr]] : [];
+    var equipment    = equipStr ? equipStr.split(',').map(function(v){return v.trim();}).filter(Boolean).map(function(item){return [item];}) : [];
 
     entry = {
-      id:                  _hbeEditId || _homebrewEntityId('class', name),
-      name:                name,
-      hitDie:              parseInt(g('hitDie'))||8,
-      saves:               [g('save1')||'str', g('save2')||'con'],
-      primaryAbility:      g('primaryAbility')||'str',
-      armorProf:           armorProf,
-      weaponProf:          weaponProf,
-      skillCount:          parseInt(g('skillCount'))||2,
-      skillOptions:        skillOpts,
-      features:            features,
-      subclasses:          subclasses,
-      equipment:           equipment,
-      _equipmentStr:       equipStr,
+      id:              _hbeEditId || _homebrewEntityId('class', name),
+      name:            name,
+      hitDie:          parseInt(g('hitDie'))||8,
+      saves:           [g('save1')||'str', g('save2')||'con'],
+      primaryAbility:  g('primaryAbility')||'str',
+      armorProf:       armorProf,
+      weaponProf:      weaponProf,
+      toolProf:        toolProf,
+      skillCount:      parseInt(g('skillCount'))||2,
+      skillOptions:    skillOpts,
+      features:        features,
+      levelFeatures:   Object.keys(levelFeatures).length ? levelFeatures : undefined,
+      subclasses:      subclasses,
+      subclassTitle:   g('subclassTitle')||'',
+      subclassLevel:   parseInt(g('subclassLevel'))||3,
+      abilityUses:     abilityUses.length ? abilityUses : undefined,
+      passiveFeatures: passiveFeatures.length ? passiveFeatures : undefined,
+      equipment:       equipment,
+      _equipmentStr:   equipStr,
+      startingGold:    g('startingGold')||'',
+      ritualCasting:   gc('ritualCasting')||false,
+      hasFocus:        gc('hasFocus')||false,
+      spellcastingNotes: g('spellcastingNotes')||'',
+      extraAttackLevel:  extraAtkLv||undefined,
+      extraAttackTotal:  extraAtkTot||undefined,
     };
-    if (spellcasting) { entry.spellcastingAbility = spellcasting; }
-    if (spellList)    { entry.spellList = spellList; }
-    if (slotArch)     { entry.slotArchetype = slotArch; }
+    if(spellcasting) entry.spellcastingAbility=spellcasting;
+    if(spellList)    entry.spellList=spellList;
+    if(slotArch)     entry.slotArchetype=slotArch;
+
 
   } else if (type === 'background') {
-    var name = g('name');
-    var feat = g('featureName');
+    var name     = g('name');
+    var feat     = g('featureName');
     var featDesc = g('featureDesc');
-    if (!name)     errors.push('Background name is required.');
-    if (!feat)     errors.push('Feature name is required.');
-    if (!featDesc) errors.push('Feature description is required.');
+    if(!name)     errors.push('Background name is required.');
+    if(!feat)     errors.push('Feature name is required.');
+    if(!featDesc) errors.push('Feature description is required.');
+    var skills = g('skills').split(',').map(function(v){return v.trim();}).filter(Boolean);
+    if(!skills.length) errors.push('At least one skill is required.');
+    if(errors.length){ errEl.innerHTML=errors.join('<br>'); errEl.style.display=''; return; }
 
-    var skills = g('skills').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-    if (skills.length < 1) errors.push('At least one skill is required.');
-
-    if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
-
-    var tools = g('tools') ? g('tools').split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    var tools     = g('tools')     ? g('tools').split(',').map(function(v){return v.trim();}).filter(Boolean)  : [];
+    var langNames = g('languageNames') ? g('languageNames').split(',').map(function(v){return v.trim();}).filter(Boolean) : [];
+    var personality = g('personalityTraits') ? g('personalityTraits').split('\n').filter(Boolean) : [];
+    var ideals    = g('ideals') ? g('ideals').split('\n').filter(Boolean) : [];
+    var bonds     = g('bonds')  ? g('bonds').split('\n').filter(Boolean)  : [];
+    var flaws     = g('flaws')  ? g('flaws').split('\n').filter(Boolean)  : [];
 
     entry = {
       id:          _hbeEditId || _homebrewEntityId('background', name),
       name:        name,
       skills:      skills,
-      tools:       tools.length ? tools : undefined,
-      languages:   gn('languages') || 0,
       feature:     feat,
       featureDesc: featDesc,
-      equipment:   g('equipment') || '',
+      equipment:   g('equipment')||'',
+      languages:   gn('languages')||0,
     };
+    if(tools.length)       entry.tools=tools;
+    if(langNames.length)   entry.languageNames=langNames;
+    if(g('startingGold'))  entry.startingGold=g('startingGold');
+    if(personality.length) entry.personalityTraits=personality;
+    if(ideals.length)      entry.ideals=ideals;
+    if(bonds.length)       entry.bonds=bonds;
+    if(flaws.length)       entry.flaws=flaws;
+
 
   } else if (type === 'subclass') {
-    var name    = g('name');
-    var parent  = g('parentClass');
-    if (!name)   errors.push('Subclass name is required.');
-    if (!parent) errors.push('Parent class is required.');
-
-    var featRaw = g('features');
-    var features = featRaw ? featRaw.split('\n').filter(Boolean).map(function(line) {
-      var parts = line.split('|');
-      return { level: parseInt(parts[0])||3, name:(parts[1]||'').trim(), desc:(parts[2]||'').trim() };
+    var name   = g('name');
+    var parent = g('parentClass');
+    if(!name)   errors.push('Subclass name is required.');
+    if(!parent) errors.push('Parent class is required.');
+    var featRaw  = g('features');
+    var features = featRaw ? featRaw.split('\n').filter(Boolean).map(function(line){
+      var p=line.split('|');
+      var f={level:parseInt(p[0])||3,name:(p[1]||'').trim(),desc:(p[2]||'').trim()};
+      if((p[3]||'').trim().toUpperCase()==='ASI') f.isASI=true;
+      return f;
     }) : [];
-    if (!features.length) errors.push('At least one feature is required.');
+    if(!features.length) errors.push('At least one feature is required.');
+    if(errors.length){ errEl.innerHTML=errors.join('<br>'); errEl.style.display=''; return; }
 
-    if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
+    var expandedSpells = g('expandedSpells') ? g('expandedSpells').split('\n').filter(Boolean).map(function(line){
+      var p=line.split('|');
+      return {level:parseInt(p[0])||1,spells:(p[1]||'').split(',').map(function(v){return v.trim();}).filter(Boolean)};
+    }) : [];
+
+    var abilityUses = [];
+    var usesRaw = g('abilityUses');
+    if(usesRaw) usesRaw.split('\n').filter(Boolean).forEach(function(line){
+      var p=line.split('|'); if(!p[0].trim()) return;
+      var uses=p[1]?(isNaN(p[1].trim())?p[1].trim():parseInt(p[1].trim())):1;
+      var obj={name:p[0].trim(),uses:uses,recharge:(p[2]||'long_rest').trim(),desc:(p[3]||'').trim()};
+      if((p[4]||'').trim()==='pool') obj.isPool=true;
+      abilityUses.push(obj);
+    });
 
     entry = {
       id:          _hbeEditId || _homebrewEntityId('subclass', name),
       name:        name,
       parentClass: parent,
-      desc:        g('desc'),
+      desc:        g('desc')||'',
       features:    features,
     };
+    if(expandedSpells.length) entry.expandedSpells=expandedSpells;
+    if(abilityUses.length)    entry.abilityUses=abilityUses;
   }
 
   if (errEl) errEl.style.display = 'none';
@@ -6543,6 +6929,62 @@ function _hbSharingCheckboxHtml(isEdit, currentlyShared) {
 // ── Patch saveHBEntity to handle sharing ────────────────────
 // This function is called after the entity is assembled.
 // We attach an async follow-up to the original save.
+
+
+// Quick-fill ASI levels in the homebrew class level features textarea
+function hbcInsertExtraAttack(){
+  var ta = document.getElementById('hbe-levelFeatures');
+  if(!ta) return;
+  var lines = ta.value ? ta.value.split('\n') : [];
+  var has5 = lines.some(function(l){ return parseInt(l.split('|')[0])===5 && l.split('|')[1] && l.split('|')[1].indexOf('Extra Attack')!==-1; });
+  if(!has5){
+    lines.push('5|Extra Attack|You can attack twice instead of once when you take the Attack action on your turn.');
+    lines.sort(function(a,b){ return (parseInt(a.split('|')[0])||0)-(parseInt(b.split('|')[0])||0); });
+    ta.value = lines.filter(Boolean).join('\n');
+  }
+}
+
+function hbcSubclassTemplate(){
+  var ta = document.getElementById('hbe-features');
+  if(!ta) return;
+  var lines = ta.value ? ta.value.split('\n').filter(Boolean) : [];
+  var existing = {}; lines.forEach(function(l){var p=l.split('|');existing[parseInt(p[0])]=true;});
+  [3,6,10,14].forEach(function(lv){
+    if(!existing[lv]) lines.push(lv+'|Feature Name|Describe the feature this subclass grants at level '+lv+'.');
+  });
+  lines.sort(function(a,b){return (parseInt(a.split('|')[0])||0)-(parseInt(b.split('|')[0])||0);});
+  ta.value = lines.join('\n');
+}
+function hbcSubclassTemplateFull(){
+  var ta = document.getElementById('hbe-features');
+  if(!ta) return;
+  var lines = ta.value ? ta.value.split('\n').filter(Boolean) : [];
+  var existing = {}; lines.forEach(function(l){var p=l.split('|');existing[parseInt(p[0])]=true;});
+  // Domain pattern: expanded spells at 1-5 (handled in expandedSpells), plus features at 1,2,6,8,17
+  [1,2,6,8,17].forEach(function(lv){
+    if(!existing[lv]) lines.push(lv+'|Domain Feature|Describe the feature this domain grants at level '+lv+'.');
+  });
+  lines.sort(function(a,b){return (parseInt(a.split('|')[0])||0)-(parseInt(b.split('|')[0])||0);});
+  ta.value = lines.join('\n');
+}
+
+function hbcInsertASIs(){
+  var ta = document.getElementById('hbe-levelFeatures');
+  if(!ta) return;
+  var existing = ta.value;
+  var lines = existing ? existing.split('\n') : [];
+  var existingLevels = {};
+  lines.forEach(function(l){ var p=l.split('|'); if(p[0]) existingLevels[parseInt(p[0])]=true; });
+  [4,8,12,16,19].forEach(function(lv){
+    if(!existingLevels[lv]){
+      lines.push(lv+'|Ability Score Improvement|Increase one ability score by 2, or two scores by 1. Max 20.|ASI');
+    }
+  });
+  lines.sort(function(a,b){
+    return (parseInt(a.split('|')[0])||0) - (parseInt(b.split('|')[0])||0);
+  });
+  ta.value = lines.filter(Boolean).join('\n');
+}
 
 window.addEventListener('DOMContentLoaded',function(){ loadHomebrewItems(); loadHomebrewEntities(); init(); injectHomebrewBuilderButtons(); setTimeout(checkLoadCharacter,200); });
   
