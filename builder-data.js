@@ -29,7 +29,20 @@ races: {
   halfelf: { name:"Half-Elf", asi:{cha:2}, asiChoice:2, speed:30, size:"Medium", languages:["Common","Elvish","One of your choice"], traits:[{name:"Darkvision",desc:"60 ft. darkvision."},{name:"Fey Ancestry",desc:"Advantage on saving throws against being charmed."},{name:"Skill Versatility",desc:"You gain proficiency in two skills of your choice."},{name:"Ability Score Increase",desc:"+2 Charisma, +1 to two ability scores of your choice."}], subraces:[] },
   halforc: { name:"Half-Orc", asi:{str:2,con:1}, speed:30, size:"Medium", languages:["Common","Orc"], traits:[{name:"Darkvision",desc:"60 ft. darkvision."},{name:"Menacing",desc:"Proficiency in Intimidation."},{name:"Relentless Endurance",desc:"When reduced to 0 HP but not killed, drop to 1 HP instead. Once per long rest."},{name:"Savage Attacks",desc:"On a critical hit with a melee weapon, add one extra damage die."}], subraces:[] },
   tiefling: { name:"Tiefling", asi:{int:1,cha:2}, speed:30, size:"Medium", languages:["Common","Infernal"], traits:[{name:"Darkvision",desc:"60 ft. darkvision."},{name:"Hellish Resistance",desc:"Resistance to fire damage."},{name:"Infernal Legacy",desc:"You know Thaumaturgy. At 3rd level, Hellish Rebuke. At 5th level, Darkness."}], subraces:[] },
-  dragonborn: { name:"Dragonborn", asi:{str:2,cha:1}, speed:30, size:"Medium", languages:["Common","Draconic"], traits:[{name:"Draconic Ancestry",desc:"Choose a dragon type — determines your breath weapon damage type and resistance."},{name:"Breath Weapon",desc:"Action to exhale destructive energy. Con save DC = 8 + prof + Con mod. Once per short rest."},{name:"Damage Resistance",desc:"Resistance to the damage type associated with your ancestry."}], subraces:[] }
+  dragonborn: { name:"Dragonborn", asi:{str:2,cha:1}, speed:30, size:"Medium", languages:["Common","Draconic"], traits:[{name:"Breath Weapon",desc:"You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation. Each creature in the area must make a saving throw (DC = 8 + your Constitution modifier + your proficiency bonus). A creature takes 2d6 damage on a failed save, and half as much on a success. The damage increases to 3d6 at 6th level, 4d6 at 11th level, and 5d6 at 16th level. You can use this once per short or long rest."},{name:"Damage Resistance",desc:"You have resistance to the damage type associated with your draconic ancestry."}],
+    subraces:[
+      {id:"black",  name:"Black Dragonborn",  asi:{}, traits:[{name:"Draconic Ancestry: Black",desc:"Damage Type: Acid. Breath Weapon: 5 by 30 ft. line (Dex. save). You have resistance to acid damage."}]},
+      {id:"blue",   name:"Blue Dragonborn",   asi:{}, traits:[{name:"Draconic Ancestry: Blue",desc:"Damage Type: Lightning. Breath Weapon: 5 by 30 ft. line (Dex. save). You have resistance to lightning damage."}]},
+      {id:"brass",  name:"Brass Dragonborn",  asi:{}, traits:[{name:"Draconic Ancestry: Brass",desc:"Damage Type: Fire. Breath Weapon: 5 by 30 ft. line (Dex. save). You have resistance to fire damage."}]},
+      {id:"bronze", name:"Bronze Dragonborn", asi:{}, traits:[{name:"Draconic Ancestry: Bronze",desc:"Damage Type: Lightning. Breath Weapon: 5 by 30 ft. line (Dex. save). You have resistance to lightning damage."}]},
+      {id:"copper", name:"Copper Dragonborn", asi:{}, traits:[{name:"Draconic Ancestry: Copper",desc:"Damage Type: Acid. Breath Weapon: 5 by 30 ft. line (Dex. save). You have resistance to acid damage."}]},
+      {id:"gold",   name:"Gold Dragonborn",   asi:{}, traits:[{name:"Draconic Ancestry: Gold",desc:"Damage Type: Fire. Breath Weapon: 15 ft. cone (Dex. save). You have resistance to fire damage."}]},
+      {id:"green",  name:"Green Dragonborn",  asi:{}, traits:[{name:"Draconic Ancestry: Green",desc:"Damage Type: Poison. Breath Weapon: 15 ft. cone (Con. save). You have resistance to poison damage."}]},
+      {id:"red",    name:"Red Dragonborn",    asi:{}, traits:[{name:"Draconic Ancestry: Red",desc:"Damage Type: Fire. Breath Weapon: 15 ft. cone (Dex. save). You have resistance to fire damage."}]},
+      {id:"silver", name:"Silver Dragonborn", asi:{}, traits:[{name:"Draconic Ancestry: Silver",desc:"Damage Type: Cold. Breath Weapon: 15 ft. cone (Con. save). You have resistance to cold damage."}]},
+      {id:"white",  name:"White Dragonborn",  asi:{}, traits:[{name:"Draconic Ancestry: White",desc:"Damage Type: Cold. Breath Weapon: 15 ft. cone (Con. save). You have resistance to cold damage."}]}
+    ]
+  }
 },
 
 classes: {
@@ -1504,3 +1517,21 @@ DND_DATA.feats = [
     benefits: ["+1 STR or DEX", "Gain proficiency with 4 weapons of your choice"]
   }
 ];
+
+// ── MULTICLASS PREREQUISITES (SRD 5.1) ──
+// To multiclass INTO a class, you must meet these ability score minimums.
+// The "or" key means either the main ability OR the "or" ability meets the 13 threshold.
+DND_DATA.multiclassPrereqs = {
+  barbarian: { str:13 },
+  bard:      { cha:13 },
+  cleric:    { wis:13 },
+  druid:     { wis:13 },
+  fighter:   { str:13, or:'dex' },
+  monk:      { dex:13, wis:13 },
+  paladin:   { str:13, cha:13 },
+  ranger:    { dex:13, wis:13 },
+  rogue:     { dex:13 },
+  sorcerer:  { cha:13 },
+  warlock:   { cha:13 },
+  wizard:    { int:13 }
+};

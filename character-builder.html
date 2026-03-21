@@ -1414,7 +1414,8 @@ function renderRaceDetail(id){
     html+=`<div class="cb-subrace-section"><div class="cb-subrace-title" style="color:var(--crimson);font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin:20px 0 12px;">⚠ Choose Subrace (Required)</div><div class="cb-cards" style="margin-bottom:12px;">`;
     (race.subraces||[]).forEach(sr=>{
       const asi=Object.entries(sr.asi||{}).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
-      html+=`<div class="cb-card ${C.subrace===sr.id?'selected':''}" onclick="selectSubrace('${sr.id}')"><div class="cb-card-name">${sr.name}</div><div class="cb-card-detail">${asi}</div></div>`;
+      const detail=asi||(sr.traits&&sr.traits[0]?sr.traits[0].desc.split('.')[0]:'');
+      html+=`<div class="cb-card ${C.subrace===sr.id?'selected':''}" onclick="selectSubrace('${sr.id}')"><div class="cb-card-name">${sr.name}</div><div class="cb-card-detail">${detail}</div></div>`;
     });
     html+='</div>';
     if(C.subrace){ const sr=(race.subraces||[]).find(s=>s.id===C.subrace); if(sr) sr.traits.forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`); }
