@@ -10,56 +10,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="site.webmanifest" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
   <script src="builder-data.js"></script>
 </head>
-<body>
+<body data-nav-active="My Characters" data-footer-copy="Crafted with intention. Built for your table." data-breadcrumb="Home|index.html;My Characters">
+  <div id="ps-site-shell"></div>
 
-  <nav class="ps-nav">
-        <div class="ps-nav-links">
-      <a href="index.html">Home</a>
-      <a href="grimoire.html">Grimoire</a>
-      <a href="compendium.html">Compendium</a>
-      <a href="character-builder.html">Builder</a>
-      <a href="character-sheets.html">Sheets</a>
-      <a href="about.html">About</a>
-      <a href="my-characters.html" class="active">My Characters</a>
-    </div>
-    <div class="ps-nav-right">
-      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
-      <div class="nav-auth-wrap">
-        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
-        <div id="nav-user-dropdown"></div>
-      </div>
-      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
-
-  <div class="ps-mobile-menu" id="mobileMenu">
-    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
-    <a href="index.html">Home</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="grimoire.html">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="compendium.html">Compendium</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-builder.html">Builder</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html" class="active">My Characters</a>
-  
-    </div>
-
-  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
-    <a href="index.html">Home</a><span class="sep">◆</span>
-    <span class="current">My Characters</span>
-  </nav>
+<div id="ps-page-breadcrumb"></div>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">Your Roster</div>
@@ -75,13 +36,7 @@
 
   <div id="charsContainer" style="padding:0;min-height:200px;"></div>
 
-  <footer class="ps-footer">
-    <div class="ps-footer-logo">
-      <img src="logo.png" alt="Phmurt Studios" />
-      <span class="ps-footer-name">Phmurt Studios</span>
-    </div>
-    <div class="ps-footer-copy">Roll well. Play weird.</div>
-  </footer>
+  <div id="ps-site-footer"></div>
 
   <script>
   // Called by phmurt-auth.js when auth state changes
@@ -166,39 +121,10 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    // Mobile nav
-    var ham   = document.getElementById('hamburger');
-    var menu  = document.getElementById('mobileMenu');
-    var close = document.getElementById('mobileClose');
-    if (ham)   ham.addEventListener('click',  function() { ham.classList.toggle('open'); menu.classList.toggle('open'); });
-    if (close) close.addEventListener('click', function() { ham.classList.remove('open'); menu.classList.remove('open'); });
-
-    // Close dropdown on outside click
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.nav-auth-wrap')) {
-        var dd = document.getElementById('nav-user-dropdown');
-        if (dd) dd.classList.remove('open');
-      }
-    });
-
-    // Page transitions
-    document.querySelectorAll('a[href]').forEach(function(a) {
-      var href = a.getAttribute('href');
-      if (href && href.endsWith('.html') && !href.startsWith('http') && !href.startsWith('mailto')) {
-        a.addEventListener('click', function(e) {
-          e.preventDefault();
-          document.body.classList.add('page-out');
-          setTimeout(function() { window.location.href = href; }, 200);
-        });
-      }
-    });
-
-    // Scroll fade
-    
-
     // Load characters
     loadPage();
   });
   </script>
+  <script src="phmurt-shell.js"></script>
 </body>
 </html>

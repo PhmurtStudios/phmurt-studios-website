@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="site.webmanifest" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
@@ -167,48 +168,11 @@
     }
   </style>
 </head>
-<body>
-  <nav class="ps-nav">
-        <div class="ps-nav-links">
-      <a href="index.html">Home</a>
-      <a href="grimoire.html">Grimoire</a>
-      <a href="compendium.html">Compendium</a>
-      <a href="character-builder.html" class="active">Builder</a>
-      <a href="character-sheets.html">Sheets</a>
-      <a href="about.html">About</a>
-      <a href="my-characters.html">My Characters</a>
-    </div>
-    <div class="ps-nav-right">
-      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
-      <div class="nav-auth-wrap">
-        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
-        <div id="nav-user-dropdown"></div>
-      </div>
-      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
-  <div class="ps-mobile-menu" id="mobileMenu">
-    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
-    <a href="index.html">Home</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="grimoire.html">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="compendium.html">Compendium</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-builder.html" class="active">Builder</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html">My Characters</a>
-  
-    </div>
-  <nav class="ps-breadcrumb">
-    <a href="index.html">Home</a><span class="sep">◆</span>
-    <a href="character-sheets.html">Sheets</a><span class="sep">◆</span>
-    <span class="current">D&amp;D 3.5e Builder</span>
-  </nav>
+<body data-nav-active="Builder" data-footer-copy="Crafted with intention. Built for your table.">
+  <div id="ps-site-shell"></div>
+
+  <div id="ps-page-breadcrumb"></div>
+
   <div class="cb-progress"><div class="cb-progress-fill" id="progressBar" style="width:11%"></div></div>
   <div class="cb-wrap">
     <aside class="cb-sidebar" id="sidebar">
@@ -1593,18 +1557,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Method info default
   document.getElementById('methodInfo35').innerHTML = '<strong>Standard Array</strong> — Assign 15,14,13,12,10,8 to your six ability scores.';
   renderRaces35(); renderClasses35(); renderAbilGrid35(); renderPool35(); updateMini35();
-  // Mobile nav
-  var ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
-  if (ham) ham.addEventListener('click',function(){ham.classList.toggle('open');menu.classList.toggle('open');});
-  if (close) close.addEventListener('click',function(){ham.classList.remove('open');menu.classList.remove('open');});
-  document.addEventListener('click',function(e){if(!e.target.closest('.nav-auth-wrap')){var dd=document.getElementById('nav-user-dropdown');if(dd)dd.classList.remove('open');}});
-  document.querySelectorAll('a[href]').forEach(function(a){
-    var href=a.getAttribute('href');
-    if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){
-      a.addEventListener('click',function(e){e.preventDefault();document.body.classList.add('page-out');setTimeout(function(){window.location.href=href;},200);});
-    }
-  });
-  (function(){  })();
   // Load saved char
   var loadId = localStorage.getItem('cb35_load_char_id');
   if (loadId && typeof PhmurtDB!=='undefined') {
@@ -1632,5 +1584,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
   </script>
+  <div id="ps-site-footer"></div>
+  <script src="phmurt-shell.js"></script>
 </body>
 </html>

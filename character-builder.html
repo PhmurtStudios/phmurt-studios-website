@@ -14,6 +14,7 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="site.webmanifest" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
@@ -28,7 +29,7 @@
     .cb-step-item { display: flex; align-items: center; gap: 14px; padding: 12px 24px; cursor: pointer; transition: background 0.2s; position: relative; }
     .cb-step-item:hover { background: rgba(192,57,43,0.06); }
     .cb-step-item.active { background: rgba(192,57,43,0.1); }
-    .cb-step-item.active::left { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--crimson); }
+    .cb-step-item.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--crimson); }
     .cb-step-item.done .cb-step-num { background: var(--crimson); border-color: var(--crimson); color: white; }
     .cb-step-num { width: 28px; height: 28px; border: 1px solid rgba(192,57,43,0.3); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 10px; color: rgba(255,255,255,0.4); flex-shrink: 0; transition: all 0.2s; }
     .cb-step-item.active .cb-step-num { border-color: var(--crimson); color: var(--crimson); }
@@ -216,8 +217,6 @@
       .cb-form-grid { grid-template-columns: 1fr; }
     }
 
-
-
     /* ── DICE ROLL POPUP ── */
     #dice-popup {
       position: fixed; top: 50%; left: 50%;
@@ -351,7 +350,6 @@
     .cb-roll-all-btn:hover { background: var(--crimson-dim); }
     #rolledScores { display: flex; gap: 8px; flex-wrap: wrap; }
 
-
 /* ── SPELL DESCRIPTION POPUP ── */
     .spell-info-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:8000; display:flex; align-items:center; justify-content:center; animation:fadeIn .15s ease; }
     .spell-info-box { background:var(--bg-card); border:1px solid var(--crimson-border); padding:32px; max-width:420px; width:90%; position:relative; }
@@ -465,52 +463,11 @@
 
 </style>
 </head>
-<body>
+<body data-nav-active="Builder" data-footer-copy="Crafted with intention. Built for your table.">
+  <div id="ps-site-shell"></div>
 
-  <nav class="ps-nav">
-        <div class="ps-nav-links">
-      <a href="index.html">Home</a>
-      <a href="grimoire.html">Grimoire</a>
-      <a href="compendium.html">Compendium</a>
-      <a href="character-builder.html" class="active">Builder</a>
-      <a href="character-sheets.html">Sheets</a>
-      <a href="about.html">About</a>
-      <a href="my-characters.html">My Characters</a>
-    </div>
-    <div class="ps-nav-right">
-      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
-      <div class="nav-auth-wrap">
-        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
-        <div id="nav-user-dropdown"></div>
-      </div>
-      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
+  <div id="ps-page-breadcrumb"></div>
 
-  <div class="ps-mobile-menu" id="mobileMenu">
-    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
-    <a href="index.html">Home</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="grimoire.html">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="compendium.html">Compendium</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-builder.html" class="active">Builder</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html">My Characters</a>
-  
-    </div>
-
-
-
-  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
-    <a href="index.html">Home</a><span class="sep">◆</span>
-    <span class="current">Character Builder</span>
-  </nav>
 
   <div class="cb-progress"><div class="cb-progress-fill" id="progressBar" style="width:12%"></div></div>
 
@@ -1113,7 +1070,6 @@ function _luPrereqMissingStr(clsKey){
   return missing.join(', ');
 }
 
-
 function luChooseExistingClass(clsKey){
   var entry = C.classes.find(function(e){ return e.cls===clsKey; });
   if(!entry) return;
@@ -1238,9 +1194,6 @@ function confirmLevelUp(newLevel){
   showRestToast('Level ' + newTotal + '!', msg);
   scheduleSave();
 }
-
-
-
 
 // ══════════════════════════════════════════
 // STATE
@@ -1961,7 +1914,6 @@ function rollWeaponAttack(name, atkBonus, dmgBonus, damageDice){
   });
 }
 
-
 // ══════════════════════════════════════════
 // DICE POPUP
 // ══════════════════════════════════════════
@@ -2097,7 +2049,6 @@ function closeDicePopup(){
   setTimeout(()=>popup.classList.remove('exit'), 350);
 }
 
-
 function showSpellInfo(spellName, spellLevel){
   var d = DND_DATA.spellDescriptions && DND_DATA.spellDescriptions[spellName];
   var slotNames = ['Cantrip','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
@@ -2144,7 +2095,6 @@ function showSpellInfo(spellName, spellLevel){
 
   document.body.appendChild(overlay);
 }
-
 
 function renderRollLog(){
   const el=document.getElementById('rollTranscript');
@@ -2692,7 +2642,6 @@ function buildSpellsTab(){
   el.innerHTML=html;
 }
 
-
 function toggleSpellSlot(level,pipIdx,max){ scheduleSave();
   const cur=spellSlotUsed[level]||0;
   if(pipIdx<cur) spellSlotUsed[level]=pipIdx;
@@ -2740,7 +2689,6 @@ function makeInventoryEntry(nameOrId, qty){
   }
   return {id:null, name:nameOrId, category:'other', qty:qty, equipped:false, notes:'', custom:true};
 }
-
 
 function renderInventory(){
   const el=document.getElementById('cs-equipment-list');
@@ -2861,7 +2809,6 @@ function showItemInfo(itemId, itemName){
   if(db.desc) lines.push(db.desc);
   showDicePopup({label:db.name, lines:lines, autoDismiss:10000});
 }
-
 
 function addInventoryItem(){
   const name=document.getElementById('new-item-name')?.value.trim();
@@ -3143,11 +3090,9 @@ function updateXPDisplay(){
   }
 }
 
-
 // ══════════════════════════════════════════
 // LEVEL UP MODAL FUNCTIONS
 // ══════════════════════════════════════════
-
 
 // ══════════════════════════════════════════
 // LEVEL UP SPELL SELECTION HELPERS
@@ -3354,8 +3299,6 @@ function luToggleSpell(spellName, isCantrip) {
   luCheckConfirm();
 }
 
-
-
 // ══════════════════════════════════════════
 // ASI / FEAT TOGGLE AND FEAT PICKER
 // ══════════════════════════════════════════
@@ -3487,8 +3430,6 @@ function luSelectFeat(featName) {
   luCheckConfirm();
 }
 
-
-
 // ══════════════════════════════════════════
 // SUBCLASS SELECTION
 // ══════════════════════════════════════════
@@ -3592,8 +3533,6 @@ function luSelectSubclass(id) {
   luRenderSubclassPicker();
   luCheckConfirm();
 }
-
-
 
 // ══════════════════════════════════════════════════════════════
 // FEAT CHOICE UI AND APPLICATION
@@ -4173,8 +4112,6 @@ function luApplyFeatChoices(featName) {
   }
 }
 
-
-
 // ══════════════════════════════════════════════════════════════
 // MULTICLASS HELPERS
 // ══════════════════════════════════════════════════════════════
@@ -4260,9 +4197,6 @@ function isMulticlass(){
   ensureClassesArray();
   return C.classes.length > 1;
 }
-
-
-
 
 function renderLevelUpBody(newLevel){
   var cls = C.cls ? DND_DATA.classes[C.cls] : null;
@@ -4590,12 +4524,9 @@ function luAddXP(){
   if(amt > 0){ addXP(amt); inp.value = ''; }
 }
 
-
 function initLevelingMethod(){
   setLevelingMethod('milestone');
 }
-
-
 
 // ══════════════════════════════════════════════════════
 // ITEM CATALOG
@@ -4965,7 +4896,6 @@ function homebrewCount() {
   return Object.keys(DND_DATA.homebrewDB).length;
 }
 
-
 var _catalogFilter = '';
 var _catalogOpen   = false;
 
@@ -5003,13 +4933,11 @@ function buildCatalogFilters(){
   row.innerHTML = btns;
 }
 
-
 function setCatalogFilter(cat){
   _catalogFilter = cat;
   buildCatalogFilters();
   renderCatalog();
 }
-
 
 function renderHomebrewCatalog(el, items) {
   var rarityColor = {common:'var(--text-muted)',uncommon:'#2e8b57',rare:'#4169e1','very rare':'#8b008b',legendary:'#b8860b'};
@@ -5070,7 +4998,6 @@ function renderHomebrewCatalog(el, items) {
     });
   });
 }
-
 
 function renderCatalog(){
   var el = document.getElementById('catalog-results');
@@ -5167,7 +5094,6 @@ function renderCatalog(){
   });
 }
 
-
 // ── SAVE CHARACTER (auto-save, silent) ──
 let _saveTimer = null;
 
@@ -5253,18 +5179,6 @@ function init(){
   renderAbilityGrid(); renderArrayPool(); initDetails(); updateMiniSummary();
   document.getElementById('rollPanel').style.display='none';
   document.getElementById('arrayPool').style.display='flex';
-  const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
-  if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
-  if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
-  if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
-  document.querySelectorAll('a[href]').forEach(a=>{
-    const href=a.getAttribute('href');
-    if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){
-      a.addEventListener('click',e=>{e.preventDefault();window.location.href=href;});
-    }
-  });
-  const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
-  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 }
 
   // Check if returning from my-characters.html with a character to load
@@ -5298,12 +5212,10 @@ function init(){
     goToStep(9, true);
   }
 
-
     // Scroll fade effect
     (function(){
       
     })();
-    document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
   
 // ══════════════════════════════════════════════════════════════
 // HOMEBREW ENTITY SYSTEM
@@ -5697,7 +5609,6 @@ function renderHBEForm(type, existing) {
     html += F.note('One per line: Name|str:1,dex:1|TraitName:TraitDesc;Trait2:Desc2');
     html += F.tex('subraces','Subraces',subraceVal,'Protector|wis:1|Radiant Soul:You can manifest wings as an action gaining a fly speed equal to your walk speed for 1 minute (once per long rest).\nScourge|con:1|Radiant Consumption:As an action emit searing light in a 10 ft radius dealing 1d4 radiant damage to nearby creatures (once per long rest).',5);
 
-
   } else if (type === 'class') {
     var abilities     = ['str','dex','con','int','wis','cha'];
     var abilityOpts   = abilities.map(function(a){ return {v:a,l:DND_DATA.abilityNames[a]||a}; });
@@ -5846,7 +5757,6 @@ function renderHBEForm(type, existing) {
       html += F.inp('startingGold','Starting Gold',e.startingGold||'','e.g. 4d4 × 10 gp');
     }
 
-
   } else if (type === 'background') {
     var bgSkillVal = (e.skills||[]).join(', ');
     var bgToolVal  = (e.tools||[]).join(', ');
@@ -5878,7 +5788,6 @@ function renderHBEForm(type, existing) {
     html += F.tex('ideals','Ideals (d6)',bgIdealVal,'Freedom. Chains are meant to be broken, as are those who would forge them. (Chaotic)\nHonor. I do not steal from others in the trade. (Lawful)',3);
     html += F.tex('bonds','Bonds (d6)',bgBondVal,'I am trying to pay off an old debt I owe to a generous benefactor.\nMy ill-gotten gains go to support my family.',3);
     html += F.tex('flaws','Flaws (d6)',bgFlawVal,'When I see something valuable I cannot think of anything but how to steal it.\nI turn tail and run when things look bad.',3);
-
 
   } else if (type === 'subclass') {
     var parentOpts = Object.entries(DND_DATA.classes).map(function(kv){
@@ -6022,7 +5931,6 @@ function saveHBEntity() {
     if(armorProf.length)   entry.armorProf=armorProf;
     if(langNames.length)   entry.languageNames=langNames;
 
-
   } else if (type === 'class') {
     var name = g('name');
     if (!name) errors.push('Class name is required.');
@@ -6133,7 +6041,6 @@ function saveHBEntity() {
     if(spellList)    entry.spellList=spellList;
     if(slotArch)     entry.slotArchetype=slotArch;
 
-
   } else if (type === 'background') {
     var name     = g('name');
     var feat     = g('featureName');
@@ -6168,7 +6075,6 @@ function saveHBEntity() {
     if(ideals.length)      entry.ideals=ideals;
     if(bonds.length)       entry.bonds=bonds;
     if(flaws.length)       entry.flaws=flaws;
-
 
   } else if (type === 'subclass') {
     var name   = g('name');
@@ -6272,7 +6178,6 @@ function editHBEntity(type, id) {
 // ─────────────────────────────────────────────────────────────
 
 // showHomebrewManager replaced by compendium system
-
 
 // ══════════════════════════════════════════════════════════════
 // HOMEBREW COMPENDIUM — SHARING + COMMUNITY BROWSER
@@ -6930,7 +6835,6 @@ function _hbSharingCheckboxHtml(isEdit, currentlyShared) {
 // This function is called after the entity is assembled.
 // We attach an async follow-up to the original save.
 
-
 // Quick-fill ASI levels in the homebrew class level features textarea
 function hbcInsertExtraAttack(){
   var ta = document.getElementById('hbe-levelFeatures');
@@ -7042,8 +6946,7 @@ window.addEventListener('DOMContentLoaded',function(){ loadHomebrewItems(); load
       <button onclick="closeDicePopup()" style="margin-top:14px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:7px 18px;background:transparent;color:var(--text-muted);border:1px solid var(--border);cursor:pointer;width:100%;">Close</button>
     </div>
   </div>
-  <div class="ps-footer" style="margin-top:0;">
-    <div class="ps-footer-copy">Roll well. Play weird.</div>
-  </div>
+  <div id="ps-site-footer"></div>
+  <script src="phmurt-shell.js"></script>
 </body>
 </html>
