@@ -55,49 +55,6 @@ html{scroll-behavior:smooth;background:var(--bg);}
 body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',Georgia,serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 a{text-decoration:none;color:inherit;}
 
-
-
-/* ═══════════════════════════════
-   THEME TRANSITIONS
-   ═══════════════════════════════ */
-html.theme-ready,
-html.theme-ready body,
-html.theme-ready .ps-nav,
-html.theme-ready .ps-mobile-menu,
-html.theme-ready .ps-theme-toggle,
-html.theme-ready .ps-nav-action,
-html.theme-ready .ps-nav-links a,
-html.theme-ready .ps-mobile-menu a,
-html.theme-ready .ps-breadcrumb,
-html.theme-ready .ps-breadcrumb a,
-html.theme-ready .ps-breadcrumb .current,
-html.theme-ready .ps-card,
-html.theme-ready .ps-feature-card,
-html.theme-ready .ps-panel,
-html.theme-ready .ps-footer,
-html.theme-ready .ps-footer-logo,
-html.theme-ready .ps-castle-img,
-html.theme-ready .ps-logo-img,
-html.theme-ready .reveal,
-html.theme-ready button,
-html.theme-ready input,
-html.theme-ready select,
-html.theme-ready textarea,
-html.theme-ready .builder-shell,
-html.theme-ready .builder-panel,
-html.theme-ready .sheet-shell,
-html.theme-ready .sheet-panel,
-html.theme-ready [class*='card'],
-html.theme-ready [class*='panel']{
-  transition:
-    background-color 320ms ease,
-    color 320ms ease,
-    border-color 320ms ease,
-    box-shadow 320ms ease,
-    filter 320ms ease,
-    opacity 320ms ease;
-}
-
 /* ═══════════════════════════════
    THEME TOGGLE BUTTON
    ═══════════════════════════════ */

@@ -26,8 +26,5 @@
   // Re-sync button text once DOM is ready
   document.addEventListener('DOMContentLoaded',function(){
     applyTheme(localStorage.getItem('ps-theme')||'light');
-    window.requestAnimationFrame(function(){
-      document.documentElement.classList.add('theme-ready');
-    });
   });
 })();
