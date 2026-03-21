@@ -3,17 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0c0a0a" />
   <title>Compendium · Phmurt Studios</title>
-  <meta name="description" content="Create, share, and browse homebrew races, classes, backgrounds, subclasses, and items for D&D 5e." />
+  <meta name="description" content="Create, browse, and organize homebrew 5e content in the Phmurt Studios Compendium." />
   <meta property="og:title" content="Compendium · Phmurt Studios" />
-  <meta property="og:description" content="The Phmurt Studios homebrew compendium — create and share custom D&D 5e content." />
+  <meta property="og:description" content="Create, browse, and organize homebrew 5e classes, races, subclasses, backgrounds, and items." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://phmurtstudios.com/compendium.html" />
+  <meta property="og:url" content="https://phmurtstudios.github.io/phmurt-studios-website/compendium.html" />
+  <meta property="og:image" content="https://phmurtstudios.github.io/phmurt-studios-website/logo.png" />
+  <meta property="og:site_name" content="Phmurt Studios" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Compendium · Phmurt Studios" />
+  <meta name="twitter:description" content="Build and browse custom 5e content in the Phmurt Studios Compendium." />
+  <meta name="twitter:image" content="https://phmurtstudios.github.io/phmurt-studios-website/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="style.css" />
@@ -358,11 +366,51 @@
     #hb-modal-host, #hbe-modal-host { position: relative; z-index: 5000; }
   </style>
 </head>
-<body data-nav-active="Compendium" data-footer-copy="Crafted with intention. Built for your table.">
-  <div id="ps-site-shell"></div>
+<body>
 
-  <div id="ps-page-breadcrumb"></div>
+  <nav class="ps-nav">
+        <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html">Grimoire</a>
+      <a href="compendium.html" class="active">Compendium</a>
+      <a href="character-builder.html">Builder</a>
+      <a href="character-sheets.html">Sheets</a>
+      <a href="about.html">About</a>
+      <a href="my-characters.html">My Characters</a>
+    </div>
+    <div class="ps-nav-right">
+      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+      <div class="nav-auth-wrap">
+        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
+        <div id="nav-user-dropdown"></div>
+      </div>
+      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
 
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="compendium.html" class="active">Compendium</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-builder.html">Builder</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html">Sheets</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="my-characters.html">My Characters</a>
+  
+    </div>
+
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a>
+    <span class="sep">&#9670;</span>
+    <span class="current">Compendium</span>
+  </nav>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">The Workshop</div>
@@ -403,6 +451,16 @@
       <div id="cmp-mine-count" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);">
         Loading your collection&hellip;
       </div>
+
+      <hr class="cmp-sidebar-divider" />
+      <div class="cmp-sidebar-title" style="color:var(--text-muted);">Backups</div>
+      <button class="cmp-create-btn" onclick="cmpExportHomebrewBackup()">
+        <span class="cmp-btn-icon">&#8681;</span>Export Collection
+      </button>
+      <button class="cmp-create-btn" onclick="cmpOpenImportHomebrew()">
+        <span class="cmp-btn-icon">&#8679;</span>Import Collection
+      </button>
+      <input type="file" id="cmp-import-file" accept="application/json,.json" style="display:none;" />
 
       <hr class="cmp-sidebar-divider" />
       <div style="font-size:11px;color:var(--text-faint);line-height:1.6;">
@@ -458,7 +516,18 @@
 
   <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
 
-  <div id="ps-site-footer"></div>
+  <footer class="ps-footer">
+    <div class="ps-footer-logo">
+      <img src="logo.png" alt="Phmurt Studios" />
+      <span class="ps-footer-name">Phmurt Studios</span>
+    </div>
+    <div class="ps-footer-copy">Roll well. Play weird.</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-top:8px;text-align:center;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.5;">
+      Homebrew content is user-created and not affiliated with Wizards of the Coast.
+      Game mechanics based on the <em>Systems Reference Document 5.1</em> (SRD 5.1), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--text-faint);">CC BY 4.0</a>.
+      D&amp;D and related marks are trademarks of Wizards of the Coast LLC.
+    </div>
+  </footer>
 
   <script>
     // ── Stubs so homebrew JS works without full builder context ──────────────
@@ -1119,17 +1188,19 @@
         subclasses:       JSON.parse(JSON.stringify(C.subclasses||{})),
       };
     
-      const existingId = localStorage.getItem('phmurt_current_char_id')||undefined;
+      const existingId = localStorage.getItem('phmurt_edit_char_id')||undefined;
       const r = await PhmurtDB.saveCharacter(snapshot, existingId);
     
       if(r && r.success){
+        localStorage.setItem('phmurt_edit_char_id', r.id);
         localStorage.setItem('phmurt_current_char_id', r.id);
         if(status){
-          status.textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+          var baseLabel = r.pendingSync ? 'Saved locally · sync pending' : ((r.syncLabel && r.modeLabel) ? (r.syncLabel) : 'Saved');
+          status.textContent = baseLabel + ' · ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
           setTimeout(()=>{ if(status) status.textContent=''; }, 3000);
         }
       } else {
-        if(status) status.textContent = 'Save failed';
+        if(status) status.textContent = (r && r.error) ? r.error : 'Save failed';
         setTimeout(()=>{ if(status) status.textContent=''; }, 3000);
       }
     }
@@ -1155,6 +1226,18 @@
       renderAbilityGrid(); renderArrayPool(); initDetails(); updateMiniSummary();
       document.getElementById('rollPanel').style.display='none';
       document.getElementById('arrayPool').style.display='flex';
+      const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
+      if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
+      if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
+      if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
+      document.querySelectorAll('a[href]').forEach(a=>{
+        const href=a.getAttribute('href');
+        if(href&&href.endsWith('.html')&&!href.startsWith('http')&&!href.startsWith('mailto')){
+          a.addEventListener('click',e=>{e.preventDefault();window.location.href=href;});
+        }
+      });
+      const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+      document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
     }
     
       // Check if returning from my-characters.html with a character to load
@@ -1181,6 +1264,7 @@
         }
         C.weaponChoices = C.weaponChoices || {};
         C.rollLog = [];
+        localStorage.setItem('phmurt_edit_char_id', id);
         localStorage.setItem('phmurt_current_char_id', id);
         // Re-init scored method display
         renderAbilityGrid();
@@ -1193,6 +1277,7 @@
         (function(){
           
         })();
+        document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
       
     
 
@@ -2560,6 +2645,22 @@
         });
       });
 
+      // Mobile nav
+      var ham = document.getElementById('hamburger');
+      var menu = document.getElementById('mobileMenu');
+      var close = document.getElementById('mobileClose');
+      if (ham)   ham.addEventListener('click', function() { ham.classList.toggle('open'); menu.classList.toggle('open'); });
+      if (close) close.addEventListener('click', function() { ham.classList.remove('open'); menu.classList.remove('open'); });
+      if (menu)  menu.querySelectorAll('a').forEach(function(a) { a.addEventListener('click', function() { ham.classList.remove('open'); menu.classList.remove('open'); }); });
+
+      // Page link transitions
+      document.querySelectorAll('a[href]').forEach(function(a) {
+        var href = a.getAttribute('href');
+        if (href && href.endsWith('.html') && !href.startsWith('http') && !href.startsWith('mailto')) {
+          a.addEventListener('click', function(e) { e.preventDefault(); window.location.href = href; });
+        }
+      });
+
       // Auth UI
       if (typeof PhmurtDB !== 'undefined') {
         var session = PhmurtDB.getSession();
@@ -2922,12 +3023,133 @@
       return Promise.resolve();
     }
 
+
+function cmpCollectLocalHomebrew() {
+  return {
+    format: 'phmurt-homebrew-backup',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    site: 'Phmurt Studios',
+    entities: JSON.parse(JSON.stringify(_homebrewEntities || { races:{}, classes:{}, backgrounds:{}, subclasses:{} })),
+    items: JSON.parse(JSON.stringify(DND_DATA.homebrewDB || {}))
+  };
+}
+
+function cmpExportHomebrewBackup() {
+  try {
+    var payload = cmpCollectLocalHomebrew();
+    var stamp = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'phmurt-homebrew-backup-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    showRestToast('Backup exported', 'Your homebrew collection was downloaded as a JSON backup.');
+  } catch (err) {
+    console.error('cmpExportHomebrewBackup error:', err);
+    showRestToast('Export failed', 'Your collection could not be exported this time.');
+  }
+}
+
+function cmpOpenImportHomebrew() {
+  var input = document.getElementById('cmp-import-file');
+  if (!input) return;
+  input.value = '';
+  input.click();
+}
+
+function cmpChooseHomebrewEntry(imported, local) {
+  var importedMs = Date.parse(imported && imported.updated || imported && imported.created || 0) || 0;
+  var localMs = Date.parse(local && local.updated || local && local.created || 0) || 0;
+  return importedMs >= localMs ? imported : local;
+}
+
+function cmpNormalizeImportedEntity(type, entry) {
+  var copy = JSON.parse(JSON.stringify(entry || {}));
+  if (!copy || !copy.name) return null;
+  copy.id = copy.id || _homebrewEntityId(type, copy.name);
+  copy.source = 'homebrew';
+  copy.updated = copy.updated || new Date().toISOString();
+  return copy;
+}
+
+function cmpNormalizeImportedItem(entry) {
+  var copy = JSON.parse(JSON.stringify(entry || {}));
+  if (!copy || !copy.name) return null;
+  copy.id = copy.id || homebrewId(copy.name);
+  copy.source = 'homebrew';
+  copy.updated = copy.updated || new Date().toISOString();
+  return copy;
+}
+
+async function cmpImportHomebrewBackup(file) {
+  if (!file) return;
+  try {
+    var text = await file.text();
+    var payload = JSON.parse(text);
+    if (!payload || payload.format !== 'phmurt-homebrew-backup') {
+      showRestToast('Import failed', 'That file is not a Phmurt homebrew backup.');
+      return;
+    }
+
+    var importedEntities = payload.entities || {};
+    var importedItems = payload.items || {};
+    var added = 0;
+    var replaced = 0;
+
+    [['race', 'races'], ['class', 'classes'], ['background', 'backgrounds'], ['subclass', 'subclasses']].forEach(function(tuple) {
+      var type = tuple[0], key = tuple[1];
+      var bucket = importedEntities[key] || {};
+      Object.keys(bucket).forEach(function(id) {
+        var incoming = cmpNormalizeImportedEntity(type, bucket[id]);
+        if (!incoming) return;
+        var current = _homebrewEntities[key] && _homebrewEntities[key][incoming.id];
+        var chosen = current ? cmpChooseHomebrewEntry(incoming, current) : incoming;
+        if (!_homebrewEntities[key]) _homebrewEntities[key] = {};
+        _homebrewEntities[key][incoming.id] = chosen;
+        if (!current) added += 1;
+        else if (chosen === incoming) replaced += 1;
+      });
+    });
+
+    Object.keys(importedItems || {}).forEach(function(id) {
+      var incoming = cmpNormalizeImportedItem(importedItems[id]);
+      if (!incoming) return;
+      var current = DND_DATA.homebrewDB && DND_DATA.homebrewDB[incoming.id];
+      var chosen = current ? cmpChooseHomebrewEntry(incoming, current) : incoming;
+      if (!DND_DATA.homebrewDB) DND_DATA.homebrewDB = {};
+      DND_DATA.homebrewDB[incoming.id] = chosen;
+      if (!current) added += 1;
+      else if (chosen === incoming) replaced += 1;
+    });
+
+    saveHomebrewEntities();
+    saveHomebrewItems();
+    cmpRefreshMineCount();
+    cmpRenderContent();
+    showRestToast('Import complete', 'Added ' + added + ' and updated ' + replaced + ' homebrew entr' + ((added + replaced) === 1 ? 'y.' : 'ies.'));
+  } catch (err) {
+    console.error('cmpImportHomebrewBackup error:', err);
+    showRestToast('Import failed', 'That file could not be imported.');
+  }
+}
+
     // ── Boot ─────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
+      var input = document.getElementById('cmp-import-file');
+      if (input) {
+        input.addEventListener('change', function(e) {
+          var file = e.target.files && e.target.files[0];
+          cmpImportHomebrewBackup(file);
+        });
+      }
       cmpInit();
     });
   </script>
 
-  <script src="phmurt-shell.js"></script>
 </body>
 </html>

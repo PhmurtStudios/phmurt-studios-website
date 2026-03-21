@@ -10,17 +10,56 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="site.webmanifest" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
   <script src="builder-data.js"></script>
 </head>
-<body data-nav-active="My Characters" data-footer-copy="Crafted with intention. Built for your table." data-breadcrumb="Home|index.html;My Characters">
-  <div id="ps-site-shell"></div>
+<body>
 
-<div id="ps-page-breadcrumb"></div>
+  <nav class="ps-nav">
+        <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html">Grimoire</a>
+      <a href="compendium.html">Compendium</a>
+      <a href="character-builder.html">Builder</a>
+      <a href="character-sheets.html">Sheets</a>
+      <a href="about.html">About</a>
+      <a href="my-characters.html" class="active">My Characters</a>
+    </div>
+    <div class="ps-nav-right">
+      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+      <div class="nav-auth-wrap">
+        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
+        <div id="nav-user-dropdown"></div>
+      </div>
+      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="compendium.html">Compendium</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-builder.html">Builder</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html">Sheets</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="my-characters.html" class="active">My Characters</a>
+  
+    </div>
+
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a><span class="sep">◆</span>
+    <span class="current">My Characters</span>
+  </nav>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">Your Roster</div>
@@ -34,97 +73,450 @@
     <div class="ps-div-line r"></div>
   </div>
 
+  <div id="charsStatusBar" style="padding:0 24px 20px;display:none;"></div>
   <div id="charsContainer" style="padding:0;min-height:200px;"></div>
+  <input type="file" id="charsImportInput" accept="application/json,.json" style="display:none;" />
 
-  <div id="ps-site-footer"></div>
+  <footer class="ps-footer">
+    <div class="ps-footer-logo">
+      <img src="logo.png" alt="Phmurt Studios" />
+      <span class="ps-footer-name">Phmurt Studios</span>
+    </div>
+    <div class="ps-footer-copy">Roll well. Play weird.</div>
+  </footer>
 
   <script>
-  // Called by phmurt-auth.js when auth state changes
-  window.onAuthChange = function() { loadPage(); };
 
-  async function loadPage() {
-    var session   = PhmurtDB.getSession();
-    var container = document.getElementById('charsContainer');
-    var subtitle  = document.getElementById('pageSubtitle');
-    if (!container) return;
+// Called by phmurt-auth.js when auth state changes
+window.onAuthChange = function() { loadPage(); };
 
-    if (!session) {
-      if (subtitle) subtitle.textContent = 'Sign in to view your characters';
-      container.innerHTML =
-        '<div class="ps-logged-out-msg">' +
-          '<div style="font-size:48px;opacity:.2;margin-bottom:24px;">⚔</div>' +
-          '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;">No Account Found</div>' +
-          '<p style="font-size:16px;color:var(--text-dim);margin-bottom:28px;">Sign in or create a free account to save and load your characters.</p>' +
-          '<button class="ps-cta" onclick="PhmurtDB.openAuth()">Sign In / Create Account</button>' +
-        '</div>';
+var rosterState = {
+  characters: [],
+  authStatus: null,
+  search: '',
+  edition: 'all',
+  sort: 'updated-desc'
+};
+
+async function loadPage() {
+  var session = PhmurtDB.getSession();
+  var container = document.getElementById('charsContainer');
+  var subtitle = document.getElementById('pageSubtitle');
+  if (!container) return;
+
+  if (!session) {
+    rosterState.characters = [];
+    rosterState.authStatus = null;
+    var statusBar = document.getElementById('charsStatusBar');
+    if (statusBar) statusBar.style.display = 'none';
+    if (subtitle) subtitle.textContent = 'Sign in to view your characters';
+    container.innerHTML =
+      '<div class="ps-logged-out-msg">' +
+        '<div style="font-size:48px;opacity:.2;margin-bottom:24px;">⚔</div>' +
+        '<div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;">No Account Found</div>' +
+        '<p style="font-size:16px;color:var(--text-dim);margin-bottom:28px;">Sign in or create a free account to save and load your characters.</p>' +
+        '<button class="ps-cta" onclick="PhmurtDB.openAuth()">Sign In / Create Account</button>' +
+      '</div>';
+    return;
+  }
+
+  if (subtitle) subtitle.textContent = 'Welcome back, ' + session.name;
+  container.innerHTML = '<div style="padding:60px 56px;font-style:italic;color:var(--text-faint);text-align:center;">Loading your characters...</div>';
+
+  var authStatus = null;
+  try { authStatus = await PhmurtDB.getStatus(); } catch (err) { console.error('getStatus error:', err); }
+  rosterState.authStatus = authStatus;
+  renderStatusBar(authStatus);
+
+  var chars = [];
+  try {
+    var result = await PhmurtDB.loadCharacters();
+    if (Array.isArray(result)) chars = result;
+  } catch (err) {
+    console.error('loadCharacters error:', err);
+  }
+
+  rosterState.characters = chars;
+  renderRoster();
+}
+
+function renderStatusBar(status) {
+  var bar = document.getElementById('charsStatusBar');
+  if (!bar) return;
+  if (!status || !status.signedIn) {
+    bar.style.display = 'none';
+    return;
+  }
+  var action = '';
+  if (status.canSync) {
+    action = '<button class="ps-char-card-btn" style="white-space:nowrap;" onclick="syncNow()">' + (status.pendingSyncCount > 0 ? 'Sync Pending Changes' : 'Refresh Cloud Sync') + '</button>';
+  }
+  bar.style.display = 'block';
+  bar.innerHTML =
+    '<div style="background:var(--bg-card);border:1px solid var(--crimson-border);padding:18px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;">' +
+      '<div>' +
+        '<div style="font-family:&quot;Cinzel&quot;,serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">' + escHtml(status.modeLabel || 'Account') + '</div>' +
+        '<div style="font-size:15px;color:var(--text-dim);font-style:italic;">' + escHtml(status.syncLabel || '') + '</div>' +
+      '</div>' +
+      action +
+    '</div>';
+}
+
+async function syncNow() {
+  var bar = document.getElementById('charsStatusBar');
+  if (bar) {
+    var btn = bar.querySelector('button');
+    if (btn) btn.textContent = 'Syncing...';
+  }
+  try {
+    await PhmurtDB.syncPendingCharacters();
+  } catch (err) {
+    console.error('syncNow error:', err);
+  }
+  await loadPage();
+}
+
+function getCharacterEdition(char) {
+  if (char && char.data && char.data.edition) return String(char.data.edition);
+  return '5e';
+}
+
+function getCharacterLevel(char) {
+  if (char && char.data && typeof char.data.level === 'number') return char.data.level;
+  if (char && char.data && Array.isArray(char.data.classes) && char.data.classes.length) {
+    var total = char.data.classes.reduce(function(sum, entry) {
+      var lvl = parseInt(entry && entry.level, 10);
+      return sum + (isNaN(lvl) ? 0 : lvl);
+    }, 0);
+    if (total > 0) return total;
+  }
+  return 1;
+}
+
+function getBuilderHrefForCharacter(char) {
+  return getCharacterEdition(char) === '3.5' ? 'character-builder-35.html' : 'character-builder.html';
+}
+
+function clearBuilderState() {
+  ['phmurt_load_char_id','phmurt_current_char_id','phmurt_edit_char_id','cb35_load_char_id','phmurt_current_char35_id','phmurt_edit_char35_id'].forEach(function(key) {
+    localStorage.removeItem(key);
+  });
+}
+
+function createNewCharacter(edition) {
+  clearBuilderState();
+  window.location.href = edition === '3.5' ? 'character-builder-35.html' : 'character-builder.html';
+}
+
+function loadCharacter(id, href) {
+  clearBuilderState();
+  if (href === 'character-builder-35.html') {
+    localStorage.setItem('cb35_load_char_id', id);
+    localStorage.setItem('phmurt_edit_char35_id', id);
+    localStorage.setItem('phmurt_current_char35_id', id);
+    window.location.href = 'character-builder-35.html';
+    return;
+  }
+  localStorage.setItem('phmurt_load_char_id', id);
+  localStorage.setItem('phmurt_edit_char_id', id);
+  localStorage.setItem('phmurt_current_char_id', id);
+  window.location.href = 'character-builder.html';
+}
+
+function filterRoster(characters) {
+  var q = (rosterState.search || '').trim().toLowerCase();
+  var edition = rosterState.edition;
+  var filtered = (characters || []).filter(function(char) {
+    var charEdition = getCharacterEdition(char);
+    if (edition !== 'all' && charEdition !== edition) return false;
+    if (!q) return true;
+    var haystack = [
+      char.name || '',
+      char.race || '',
+      char.cls || '',
+      charEdition,
+      char.data && char.data.race || '',
+      char.data && char.data.cls || '',
+      char.data && char.data.details && char.data.details.name || ''
+    ].join(' ').toLowerCase();
+    return haystack.indexOf(q) !== -1;
+  });
+
+  filtered.sort(function(a, b) {
+    var mode = rosterState.sort || 'updated-desc';
+    if (mode === 'name-asc') return String(a.name || '').localeCompare(String(b.name || ''));
+    if (mode === 'name-desc') return String(b.name || '').localeCompare(String(a.name || ''));
+    if (mode === 'level-desc') return getCharacterLevel(b) - getCharacterLevel(a);
+    if (mode === 'level-asc') return getCharacterLevel(a) - getCharacterLevel(b);
+    if (mode === 'updated-asc') return new Date(a.updated || 0) - new Date(b.updated || 0);
+    return new Date(b.updated || 0) - new Date(a.updated || 0);
+  });
+
+  return filtered;
+}
+
+function renderRoster() {
+  var container = document.getElementById('charsContainer');
+  if (!container) return;
+  var chars = rosterState.characters || [];
+  var authStatus = rosterState.authStatus;
+  var DND = (typeof DND_DATA !== 'undefined') ? DND_DATA : null;
+  var filtered = filterRoster(chars);
+  var fiveeCount = chars.filter(function(char){ return getCharacterEdition(char) !== '3.5'; }).length;
+  var threeFiveCount = chars.filter(function(char){ return getCharacterEdition(char) === '3.5'; }).length;
+  var pendingCount = chars.filter(function(char){ return !!char._pendingSync; }).length;
+
+  var html = '<div class="ps-section-header"><div class="ps-section-title">Saved Characters</div></div>' +
+    '<div style="padding:0 24px 10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">' +
+      '<div style="background:var(--bg-card);border:1px solid var(--border);padding:16px 18px;"><div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Total Characters</div><div style="font-size:30px;color:var(--text);">' + chars.length + '</div></div>' +
+      '<div style="background:var(--bg-card);border:1px solid var(--border);padding:16px 18px;"><div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">D&amp;D 5e</div><div style="font-size:30px;color:var(--text);">' + fiveeCount + '</div></div>' +
+      '<div style="background:var(--bg-card);border:1px solid var(--border);padding:16px 18px;"><div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">D&amp;D 3.5e</div><div style="font-size:30px;color:var(--text);">' + threeFiveCount + '</div></div>' +
+      '<div style="background:var(--bg-card);border:1px solid var(--border);padding:16px 18px;"><div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Pending Sync</div><div style="font-size:30px;color:var(--text);">' + pendingCount + '</div></div>' +
+    '</div>' +
+    '<div style="padding:12px 24px 20px;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;align-items:flex-end;">' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;flex:1 1 520px;">' +
+        '<label style="display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1 1 240px;"><span style="font-family:Cinzel,serif;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);">Search</span><input id="charsSearch" type="text" value="' + escAttr(rosterState.search) + '" placeholder="Search by name, race, class…" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:Cormorant Garamond,serif;font-size:16px;" /></label>' +
+        '<label style="display:flex;flex-direction:column;gap:6px;min-width:150px;"><span style="font-family:Cinzel,serif;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);">Edition</span><select id="charsEditionFilter" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:Cinzel,serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;"><option value="all"' + (rosterState.edition==='all' ? ' selected' : '') + '>All</option><option value="5e"' + (rosterState.edition==='5e' ? ' selected' : '') + '>5e</option><option value="3.5"' + (rosterState.edition==='3.5' ? ' selected' : '') + '>3.5e</option></select></label>' +
+        '<label style="display:flex;flex-direction:column;gap:6px;min-width:170px;"><span style="font-family:Cinzel,serif;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);">Sort</span><select id="charsSort" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:Cinzel,serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;"><option value="updated-desc"' + (rosterState.sort==='updated-desc' ? ' selected' : '') + '>Newest first</option><option value="updated-asc"' + (rosterState.sort==='updated-asc' ? ' selected' : '') + '>Oldest first</option><option value="name-asc"' + (rosterState.sort==='name-asc' ? ' selected' : '') + '>Name A-Z</option><option value="name-desc"' + (rosterState.sort==='name-desc' ? ' selected' : '') + '>Name Z-A</option><option value="level-desc"' + (rosterState.sort==='level-desc' ? ' selected' : '') + '>Highest level</option><option value="level-asc"' + (rosterState.sort==='level-asc' ? ' selected' : '') + '>Lowest level</option></select></label>' +
+      '</div>' +
+      '<div style="display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;">' +
+        '<button class="ps-char-card-btn" onclick="exportCharactersBackup()">Export Backup</button>' +
+        '<button class="ps-char-card-btn" onclick="openImportCharacters()">Import Backup</button>' +
+      '</div>' +
+    '</div>' +
+    '<div style="padding:0 24px 8px;font-size:14px;color:var(--text-faint);font-style:italic;">Showing ' + filtered.length + ' of ' + chars.length + ' character' + (chars.length === 1 ? '' : 's') + '.</div>' +
+    '<div class="ps-chars-grid">';
+
+  html += '<div class="ps-new-char-card">' +
+            '<div class="ps-new-char-icon">+</div>' +
+            '<div class="ps-new-char-label">Create New Character</div>' +
+            '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;">' +
+              '<button class="ps-char-card-btn primary" onclick="createNewCharacter('5e')">New 5e</button>' +
+              '<button class="ps-char-card-btn" onclick="createNewCharacter('3.5')">New 3.5e</button>' +
+            '</div>' +
+          '</div>';
+
+  if (filtered.length === 0) {
+    html += '<div class="ps-char-card" style="min-height:160px;display:flex;align-items:center;justify-content:center;">' +
+              '<div style="font-size:13px;color:var(--text-faint);font-style:italic;text-align:center;">' + (chars.length ? 'No characters match your current search or filters.' : 'No characters yet.<br>Build your first one!') + '</div>' +
+            '</div>';
+  } else {
+    filtered.forEach(function(char) {
+      var raceKey = char.data && char.data.race ? char.data.race : null;
+      var clsKey = char.data && char.data.cls ? char.data.cls : null;
+      var raceName = raceKey && DND && DND.races && DND.races[raceKey] ? DND.races[raceKey].name : (raceKey || '—');
+      var clsName = clsKey && DND && DND.classes && DND.classes[clsKey] ? DND.classes[clsKey].name : (clsKey || '—');
+      var updated = char.updated ? new Date(char.updated).toLocaleString() : '—';
+      var edition = getCharacterEdition(char);
+      var level = getCharacterLevel(char);
+      var builderHref = getBuilderHrefForCharacter(char);
+      var safeName = (char.name || 'Unnamed').replace(/\/g,'\\').replace(/'/g,"\'");
+      var safeId = (char.id || '').replace(/'/g,"\'");
+
+      var syncNote = char._pendingSync
+        ? '<div class="ps-char-card-date" style="color:var(--crimson);">Sync pending</div>'
+        : '<div class="ps-char-card-date">' + (authStatus && authStatus.provider === 'local' ? 'Saved in this browser' : 'Saved and ready') + '</div>';
+
+      html += '<div class="ps-char-card">' +
+                '<div class="ps-char-card-name">' + escHtml(char.name || 'Unnamed Adventurer') + '</div>' +
+                '<div class="ps-char-card-sub">' + escHtml(raceName + ' ' + clsName + ' · Level ' + level + ' · ' + edition) + '</div>' +
+                '<div class="ps-char-card-date">Last saved ' + escHtml(updated) + '</div>' +
+                syncNote +
+                '<div class="ps-char-card-actions">' +
+                  '<button class="ps-char-card-btn primary" onclick="loadCharacter('' + safeId + '','' + builderHref + '')">Load ↗</button>' +
+                  '<button class="ps-char-card-btn" onclick="renameCharPrompt('' + safeId + '','' + safeName + '')">Rename</button>' +
+                  '<button class="ps-char-card-btn" onclick="duplicateCharPrompt('' + safeId + '','' + safeName + '')">Duplicate</button>' +
+                  '<button class="ps-char-card-btn" onclick="exportSingleCharacter('' + safeId + '')">Export</button>' +
+                  '<button class="ps-char-card-btn danger" onclick="deleteChar('' + safeId + '','' + safeName + '')">Delete</button>' +
+                '</div>' +
+              '</div>';
+    });
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+
+  var searchInput = document.getElementById('charsSearch');
+  var editionInput = document.getElementById('charsEditionFilter');
+  var sortInput = document.getElementById('charsSort');
+  if (searchInput) searchInput.addEventListener('input', function(){ rosterState.search = this.value || ''; renderRoster(); });
+  if (editionInput) editionInput.addEventListener('change', function(){ rosterState.edition = this.value || 'all'; renderRoster(); });
+  if (sortInput) sortInput.addEventListener('change', function(){ rosterState.sort = this.value || 'updated-desc'; renderRoster(); });
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function escAttr(str) {
+  return escHtml(str).replace(/"/g, '&quot;');
+}
+
+async function renameCharPrompt(id, currentName) {
+  var nextName = prompt('Rename this character:', currentName || 'Unnamed Adventurer');
+  if (nextName === null) return;
+  nextName = String(nextName || '').trim();
+  if (!nextName) {
+    alert('Please enter a character name.');
+    return;
+  }
+  try {
+    var result = await PhmurtDB.renameCharacter(id, nextName);
+    if (result && result.error) {
+      alert(result.error);
       return;
     }
+    await loadPage();
+  } catch (err) {
+    console.error('renameCharPrompt error:', err);
+    alert('That character could not be renamed.');
+  }
+}
 
-    if (subtitle) subtitle.textContent = 'Welcome back, ' + session.name;
-    container.innerHTML = '<div style="padding:60px 56px;font-style:italic;color:var(--text-faint);text-align:center;">Loading your characters...</div>';
-
-    var chars = [];
-    try {
-      var result = await PhmurtDB.loadCharacters();
-      if (Array.isArray(result)) chars = result;
-    } catch (err) {
-      console.error('loadCharacters error:', err);
+async function duplicateCharPrompt(id, currentName) {
+  var nextName = prompt('Name the duplicate:', (currentName || 'Unnamed Adventurer') + ' Copy');
+  if (nextName === null) return;
+  nextName = String(nextName || '').trim();
+  if (!nextName) {
+    alert('Please enter a name for the duplicate.');
+    return;
+  }
+  try {
+    var result = await PhmurtDB.duplicateCharacter(id, { name: nextName });
+    if (result && result.error) {
+      alert(result.error);
+      return;
     }
+    await loadPage();
+  } catch (err) {
+    console.error('duplicateCharPrompt error:', err);
+    alert('That character could not be duplicated.');
+  }
+}
 
-    var DND = (typeof DND_DATA !== 'undefined') ? DND_DATA : null;
-    var html = '<div class="ps-section-header"><div class="ps-section-title">Saved Characters</div></div><div class="ps-chars-grid">';
+async function deleteChar(id, name) {
+  if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
+  try { await PhmurtDB.deleteCharacter(id); } catch(e) { console.error(e); }
+  ['phmurt_load_char_id','phmurt_current_char_id','phmurt_edit_char_id','cb35_load_char_id','phmurt_current_char35_id','phmurt_edit_char35_id'].forEach(function(key) {
+    if (localStorage.getItem(key) === id) localStorage.removeItem(key);
+  });
+  loadPage();
+}
 
-    html += '<div class="ps-new-char-card" onclick="window.location.href=\'character-builder.html\'">' +
-              '<div class="ps-new-char-icon">+</div>' +
-              '<div class="ps-new-char-label">Create New Character</div>' +
-            '</div>';
+async function exportCharactersBackup() {
+  try {
+    var result = await PhmurtDB.exportCharacters({ download: true });
+    if (result && result.error) {
+      alert(result.error);
+      return;
+    }
+  } catch (err) {
+    console.error('exportCharactersBackup error:', err);
+    alert('Could not export your character backup.');
+  }
+}
 
-    if (chars.length === 0) {
-      html += '<div class="ps-char-card" style="min-height:160px;display:flex;align-items:center;justify-content:center;">' +
-                '<div style="font-size:13px;color:var(--text-faint);font-style:italic;text-align:center;">No characters yet.<br>Build your first one!</div>' +
-              '</div>';
-    } else {
-      chars.forEach(function(char) {
-        var raceKey  = char.data && char.data.race ? char.data.race : null;
-        var clsKey   = char.data && char.data.cls  ? char.data.cls  : null;
-        var raceName = raceKey && DND && DND.races  && DND.races[raceKey]   ? DND.races[raceKey].name   : (raceKey  || '—');
-        var clsName  = clsKey  && DND && DND.classes && DND.classes[clsKey] ? DND.classes[clsKey].name  : (clsKey   || '—');
-        var updated  = char.updated ? new Date(char.updated).toLocaleDateString() : '—';
-        var safeName = (char.name || 'Unnamed').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-        var safeId   = (char.id   || '').replace(/'/g,"\\'");
+async function exportSingleCharacter(id) {
+  try {
+    var payload = await PhmurtDB.exportCharacters();
+    if (!payload || payload.error) {
+      alert(payload && payload.error ? payload.error : 'Could not export that character.');
+      return;
+    }
+    var picked = (payload.characters || []).find(function(char) { return char.id === id; });
+    if (!picked) {
+      alert('That character could not be found for export.');
+      return;
+    }
+    var stamp = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
+    var safeName = String(picked.name || 'character').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'character';
+    var blob = new Blob([JSON.stringify({
+      format: 'phmurt-character-backup',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      site: 'Phmurt Studios',
+      count: 1,
+      characters: [picked]
+    }, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = safeName + '-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+  } catch (err) {
+    console.error('exportSingleCharacter error:', err);
+    alert('Could not export that character.');
+  }
+}
 
-        html += '<div class="ps-char-card">' +
-                  '<div class="ps-char-card-name">'  + (char.name || 'Unnamed Adventurer') + '</div>' +
-                  '<div class="ps-char-card-sub">'   + raceName + ' ' + clsName + ' · Level 1</div>' +
-                  '<div class="ps-char-card-date">Last saved ' + updated + '</div>' +
-                  '<div class="ps-char-card-actions">' +
-                    '<button class="ps-char-card-btn primary" onclick="loadCharacter(\'' + safeId + '\')">Load ↗</button>' +
-                    '<button class="ps-char-card-btn danger"  onclick="deleteChar(\'' + safeId + '\',\'' + safeName + '\')">Delete</button>' +
-                  '</div>' +
-                '</div>';
+function openImportCharacters() {
+  var input = document.getElementById('charsImportInput');
+  if (!input) return;
+  input.value = '';
+  input.click();
+}
+
+async function importCharactersFromFile(file) {
+  if (!file) return;
+  try {
+    var text = await file.text();
+    var payload = JSON.parse(text);
+    var result = await PhmurtDB.importCharacters(payload, { mode: 'merge', sync: true });
+    if (result && result.error) {
+      alert(result.error);
+      return;
+    }
+    var message = 'Imported ' + result.importedCount + ' character' + (result.importedCount === 1 ? '' : 's') + '.';
+    if (result.replacedCount > 0) message += ' Replaced ' + result.replacedCount + ' older version' + (result.replacedCount === 1 ? '' : 's') + '.';
+    if (result.skippedCount > 0) message += ' Kept ' + result.skippedCount + ' newer local version' + (result.skippedCount === 1 ? '' : 's') + '.';
+    if (result.syncedCount > 0) message += ' Synced ' + result.syncedCount + ' to cloud.';
+    alert(message);
+    await loadPage();
+  } catch (err) {
+    console.error('importCharactersFromFile error:', err);
+    alert('That file could not be imported. Please use a Phmurt character backup JSON file.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var ham = document.getElementById('hamburger');
+  var menu = document.getElementById('mobileMenu');
+  var close = document.getElementById('mobileClose');
+  if (ham) ham.addEventListener('click', function() { ham.classList.toggle('open'); menu.classList.toggle('open'); });
+  if (close) close.addEventListener('click', function() { ham.classList.remove('open'); menu.classList.remove('open'); });
+  if (menu) menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ ham.classList.remove('open'); menu.classList.remove('open'); }); });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-auth-wrap')) {
+      var dd = document.getElementById('nav-user-dropdown');
+      if (dd) dd.classList.remove('open');
+    }
+  });
+
+  document.querySelectorAll('a[href]').forEach(function(a) {
+    var href = a.getAttribute('href');
+    if (href && href.endsWith('.html') && !href.startsWith('http') && !href.startsWith('mailto')) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.body.classList.add('page-out');
+        setTimeout(function() { window.location.href = href; }, 200);
       });
     }
-
-    html += '</div>';
-    container.innerHTML = html;
-  }
-
-  function loadCharacter(id) {
-    localStorage.setItem('phmurt_load_char_id', id);
-    window.location.href = 'character-builder.html';
-  }
-
-  async function deleteChar(id, name) {
-    if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
-    try { await PhmurtDB.deleteCharacter(id); } catch(e) { console.error(e); }
-    loadPage();
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    // Load characters
-    loadPage();
   });
+
+  var importInput = document.getElementById('charsImportInput');
+  if (importInput) {
+    importInput.addEventListener('change', function(e) {
+      var file = e.target.files && e.target.files[0];
+      importCharactersFromFile(file);
+    });
+  }
+
+  loadPage();
+});
   </script>
-  <script src="phmurt-shell.js"></script>
 </body>
 </html>

@@ -3,32 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0c0a0a" />
   <title>Character Sheets · Phmurt Studios</title>
-  <meta name="description" content="Free fillable character sheets for D&D 5e, Pathfinder, and more — from Phmurt Studios." />
+  <meta name="description" content="Free fillable character sheets for D&D 5e and more, ready to use in your browser." />
   <meta property="og:title" content="Character Sheets · Phmurt Studios" />
-  <meta property="og:description" content="Free fillable character sheets for popular TTRPGs. Fill in your browser, print, and play." />
+  <meta property="og:description" content="Free fillable character sheets for popular tabletop RPGs. Fill in your browser, print, and play." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://phmurtstudios.com/character-sheets.html" />
-  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
+  <meta property="og:url" content="https://phmurtstudios.github.io/phmurt-studios-website/character-sheets.html" />
+  <meta property="og:image" content="https://phmurtstudios.github.io/phmurt-studios-website/logo.png" />
+  <meta property="og:site_name" content="Phmurt Studios" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Character Sheets · Phmurt Studios" />
+  <meta name="twitter:description" content="Free fillable character sheets for popular tabletop RPGs." />
+  <meta name="twitter:image" content="https://phmurtstudios.github.io/phmurt-studios-website/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
 </head>
-<body data-nav-active="Sheets" data-footer-copy="Crafted with intention. Built for your table." data-breadcrumb="Home|index.html;Character Sheets">
-  <div id="ps-site-shell"></div>
+<body>
 
-<div id="ps-page-breadcrumb"></div>
+  <nav class="ps-nav">
+        <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html">Grimoire</a>
+      <a href="compendium.html">Compendium</a>
+      <a href="character-builder.html">Builder</a>
+      <a href="character-sheets.html" class="active">Sheets</a>
+      <a href="about.html">About</a>
+      <a href="my-characters.html">My Characters</a>
+    </div>
+    <div class="ps-nav-right">
+      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+      <div class="nav-auth-wrap">
+        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
+        <div id="nav-user-dropdown"></div>
+      </div>
+      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="compendium.html">Compendium</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-builder.html">Builder</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html" class="active">Sheets</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="my-characters.html">My Characters</a>
+  
+    </div>
+
+
+
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a>
+    <span class="sep">◆</span>
+    <span class="current">Character Sheets</span>
+  </nav>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">Free Resources</div>
@@ -45,12 +93,21 @@
 
   <div class="ps-sheets-grid reveal">
 
+
     <a href="character-builder.html" class="ps-sheet-card" style="border: 2px solid rgba(192,57,43,0.4); background: rgba(192,57,43,0.06);">
       <div class="ps-sheet-system" style="color:var(--crimson);">Interactive Builder</div>
       <div class="ps-sheet-title">D&D 5e Character Builder</div>
       <div class="ps-sheet-desc">Step-by-step character creation. Choose race, class, background, roll stats, pick spells, and generate a printable sheet. All in one place.</div>
       <span class="ps-sheet-badge available" style="background:var(--crimson);">Launch Builder ↗</span>
     </a>
+
+<a href="character-builder-35.html" class="ps-sheet-card" style="border: 2px solid rgba(107,78,168,0.35); background: rgba(107,78,168,0.06);">
+  <div class="ps-sheet-system" style="color:#6b4ea8;">Interactive Builder</div>
+  <div class="ps-sheet-title">D&amp;D 3.5e Character Builder</div>
+  <div class="ps-sheet-desc">Build a 3.5e character with classes, feats, spells, gear, saved drafts, and roster support. A faster way to get a printable character to the table.</div>
+  <span class="ps-sheet-badge available" style="background:#6b4ea8;">Launch Builder ↗</span>
+</a>
+
     <a href="sheet-dnd5e.html" class="ps-sheet-card">
       <div class="ps-sheet-system">D&amp;D 5th Edition</div>
       <div class="ps-sheet-title">Dungeons &amp; Dragons 5e</div>
@@ -108,10 +165,28 @@
     </div>
   </section>
 
-  <div id="ps-site-footer"></div>
+  <footer class="ps-footer">
+    <div class="ps-footer-logo"><img src="logo.png" alt="Phmurt Studios" /><span class="ps-footer-name">Phmurt Studios</span></div>
+    <div class="ps-footer-copy">Roll well. Play weird.</div>
+  </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Mobile nav
+    const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
+    if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
+    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
+    if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
+    // Back to top});
+    // Page transitions
+    document.querySelectorAll('a[href]').forEach(a=>{
+      const href=a.getAttribute('href');
+      if(href&&!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){
+        a.addEventListener('click',e=>{e.preventDefault();window.location.href=href;});
+      }
+    });
+        const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  </script>
 
-  <script src="phmurt-shell.js"></script>
 </body>
 </html>
