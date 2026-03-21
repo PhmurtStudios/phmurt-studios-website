@@ -9,111 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="site.webmanifest" />
+  <link rel="stylesheet" href="builder-foundation.css" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
+  <script src="builder-common.js"></script>
   <script src="builder-data-35.js"></script>
   <style>
-    .cb-wrap { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 60px); }
-    .cb-sidebar { background:#0a0809; border-right:1px solid rgba(192,57,43,0.2); padding:32px 0; position:sticky; top:60px; height:calc(100vh - 60px); overflow-y:auto; }
-    .cb-main { padding:48px 56px; }
-    .cb-step-item { display:flex; align-items:center; gap:14px; padding:12px 24px; cursor:pointer; transition:background 0.2s; }
-    .cb-step-item:hover { background:rgba(192,57,43,0.06); }
-    .cb-step-item.active { background:rgba(192,57,43,0.1); }
-    .cb-step-item.done .cb-step-num { background:var(--crimson); border-color:var(--crimson); color:white; }
-    .cb-step-num { width:28px; height:28px; border:1px solid rgba(192,57,43,0.3); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:10px; color:rgba(255,255,255,0.4); flex-shrink:0; transition:all 0.2s; }
-    .cb-step-item.active .cb-step-num { border-color:var(--crimson); color:var(--crimson); }
-    .cb-step-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
-    .cb-step-item.active .cb-step-label { color:rgba(255,255,255,0.8); }
-    .cb-step-item.done .cb-step-label { color:rgba(255,255,255,0.5); }
-    .cb-step-sublabel { font-size:11px; font-style:italic; color:rgba(192,57,43,0.7); margin-top:2px; font-family:'Cormorant Garamond',serif; }
-    .cb-summary-mini { padding:24px; border-top:1px solid rgba(192,57,43,0.15); margin-top:20px; }
-    .cb-summary-mini-title { font-family:'Cinzel',serif; font-size:8px; letter-spacing:3px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:12px; }
-    .cb-mini-stat { display:flex; justify-content:space-between; margin-bottom:6px; }
-    .cb-mini-stat-label { font-size:11px; color:rgba(255,255,255,0.3); font-style:italic; }
-    .cb-mini-stat-val { font-family:'Cinzel',serif; font-size:10px; color:rgba(255,255,255,0.6); }
-    .cb-panel { display:none; animation:fadeUp 0.3s ease both; }
-    .cb-panel.active { display:block; }
-    .cb-panel-title { font-size:40px; font-weight:300; color:var(--white); margin-bottom:6px; }
-    .cb-panel-sub { font-size:22px; font-style:italic; color:rgba(255,255,255,0.35); margin-bottom:32px; }
-    .cb-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1px; background:rgba(192,57,43,0.12); border:1px solid rgba(192,57,43,0.18); margin-bottom:32px; }
-    .cb-card { background:var(--black-card); padding:20px 18px; cursor:pointer; transition:background 0.2s; border:2px solid transparent; position:relative; }
-    .cb-card:hover { background:#1a1212; }
-    .cb-card.selected { background:rgba(192,57,43,0.1); border-color:var(--crimson); }
-    .cb-card-name { font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; color:var(--white); text-transform:uppercase; margin-bottom:6px; }
-    .cb-card-detail { font-size:13px; color:rgba(255,255,255,0.45); font-style:italic; line-height:1.5; }
-    .cb-card-badge { position:absolute; top:12px; right:12px; font-family:'Cinzel',serif; font-size:8px; letter-spacing:1px; color:var(--crimson); text-transform:uppercase; }
-    .cb-detail { background:var(--black-mid); border:1px solid rgba(192,57,43,0.22); padding:28px; margin-bottom:28px; position:relative; }
-    .cb-detail::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--crimson),transparent); }
-    .cb-detail-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--white); margin-bottom:4px; }
-    .cb-detail-sub { font-size:15px; font-style:italic; color:var(--crimson); margin-bottom:16px; }
-    .cb-detail-body { font-size:15px; color:rgba(255,255,255,0.6); line-height:1.8; }
-    .cb-trait { padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
-    .cb-trait:last-child { border-bottom:none; }
-    .cb-trait-name { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; color:var(--crimson); text-transform:uppercase; margin-bottom:4px; }
-    .cb-trait-desc { font-size:13px; color:rgba(255,255,255,0.55); line-height:1.6; font-style:italic; }
-    .cb-asi-badges { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
-    .cb-asi-badge { font-family:'Cinzel',serif; font-size:9px; letter-spacing:1px; padding:4px 10px; background:rgba(192,57,43,0.15); border:1px solid rgba(192,57,43,0.3); color:var(--crimson); text-transform:uppercase; }
-    .cb-ability-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:24px; }
-    .cb-ability-box { background:var(--black-card); border:1px solid rgba(192,57,43,0.22); padding:16px 8px; text-align:center; position:relative; cursor:pointer; }
-    .cb-ability-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
-    .cb-ability-name { font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px; color:rgba(255,255,255,0.4); text-transform:uppercase; margin-bottom:8px; }
-    .cb-ability-score { font-size:32px; font-weight:300; color:var(--white); line-height:1; margin-bottom:4px; }
-    .cb-ability-mod { font-size:13px; color:var(--crimson); font-family:'Cinzel',serif; }
-    .cb-ability-asi { font-size:11px; color:rgba(192,57,43,0.6); margin-top:2px; }
-    .cb-ability-input { width:100%; background:transparent; border:none; border-bottom:1px solid rgba(192,57,43,0.3); color:var(--white); font-size:24px; text-align:center; padding:4px 0; }
-    .cb-ability-input:focus { outline:none; border-color:var(--crimson); }
-    .cb-array-pool { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
-    .cb-array-val { font-family:'Cinzel',serif; font-size:14px; padding:8px 14px; border:1px solid rgba(192,57,43,0.3); color:rgba(255,255,255,0.6); cursor:pointer; transition:all 0.2s; user-select:none; }
-    .cb-array-val:hover { border-color:var(--crimson); color:var(--white); }
-    .cb-array-val.used { opacity:0.25; cursor:not-allowed; text-decoration:line-through; }
-    .cb-array-val.selected { background:var(--crimson); border-color:var(--crimson); color:white; }
+    /* Shared builder shell and foundational UI now live in builder-foundation.css */
+    .cb-ability-box { cursor:pointer; }
     .cb-ability-box.selecting { border-color:rgba(255,200,50,0.5); }
     .cb-ability-box.selecting::before { background:rgba(255,200,50,0.5); }
-    .cb-pb-display { font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.5); margin-bottom:16px; }
-    .cb-pb-display span { color:var(--crimson); font-size:14px; }
-    .cb-score-btns { display:flex; align-items:center; gap:8px; justify-content:center; margin-top:6px; }
-    .cb-score-btn { width:22px; height:22px; background:rgba(192,57,43,0.2); border:1px solid rgba(192,57,43,0.3); color:var(--white); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
-    .cb-score-btn:hover { background:var(--crimson); }
-    .cb-equip-choice { background:var(--black-card); border:1px solid rgba(192,57,43,0.18); padding:20px; margin-bottom:16px; }
-    .cb-equip-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:12px; }
-    .cb-equip-options { display:flex; gap:8px; flex-wrap:wrap; }
-    .cb-equip-option { padding:8px 16px; border:1px solid rgba(192,57,43,0.25); font-size:13px; color:rgba(255,255,255,0.55); cursor:pointer; transition:all 0.2s; }
-    .cb-equip-option:hover { border-color:var(--crimson); color:var(--white); }
-    .cb-equip-option.selected { background:rgba(192,57,43,0.1); border-color:var(--crimson); color:var(--white); }
-    .cb-spell-section { margin-bottom:24px; }
-    .cb-spell-header { font-family:'Cinzel',serif; font-size:9px; letter-spacing:4px; color:var(--crimson); text-transform:uppercase; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(192,57,43,0.2); }
-    .cb-spell-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }
-    .cb-spell-item { background:var(--black-card); border:1px solid rgba(255,255,255,0.06); padding:8px 12px; cursor:pointer; font-size:13px; color:rgba(255,255,255,0.55); transition:all 0.2s; display:flex; align-items:center; gap:8px; }
-    .cb-spell-item:hover { border-color:rgba(192,57,43,0.3); color:rgba(255,255,255,0.8); }
-    .cb-spell-item.selected { background:rgba(192,57,43,0.1); border-color:var(--crimson); color:var(--white); }
-    .cb-spell-dot { width:6px; height:6px; border:1px solid rgba(192,57,43,0.4); flex-shrink:0; }
-    .cb-spell-item.selected .cb-spell-dot { background:var(--crimson); border-color:var(--crimson); }
-    .cb-spell-count { font-family:'Cinzel',serif; font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:8px; }
-    .cb-spell-count span { color:var(--crimson); }
-    .cb-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
-    .cb-form-field { display:flex; flex-direction:column; gap:6px; }
-    .cb-form-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
-    .cb-form-input { background:rgba(255,255,255,0.04); border:1px solid rgba(192,57,43,0.2); color:var(--white); font-family:'Cormorant Garamond',serif; font-size:15px; padding:8px 12px; transition:border-color 0.2s; }
-    .cb-form-input:focus { outline:none; border-color:var(--crimson); }
-    select.cb-form-input option { background:#130f0f; color:var(--white); }
-    .cb-form-textarea { resize:vertical; min-height:90px; }
-    .cb-nav-btns { display:flex; gap:12px; margin-top:36px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06); }
-    .cb-btn { font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; padding:12px 28px; cursor:pointer; border:none; transition:all 0.2s; }
-    .cb-btn-primary { background:var(--crimson); color:white; }
-    .cb-btn-primary:hover { background:var(--crimson-dim); }
-    .cb-btn-secondary { background:transparent; color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.15); }
-    .cb-btn-secondary:hover { border-color:rgba(255,255,255,0.35); color:var(--white); }
-    .cb-alert { background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.25); padding:12px 16px; margin-bottom:20px; font-size:13px; color:rgba(255,255,255,0.6); font-style:italic; }
-    .cb-alert strong { color:var(--crimson); font-style:normal; font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px; }
-    .cb-method-tabs { display:flex; gap:2px; margin-bottom:28px; border:1px solid rgba(192,57,43,0.2); }
-    .cb-method-tab { flex:1; font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; padding:10px; cursor:pointer; background:transparent; border:none; color:rgba(255,255,255,0.4); transition:all 0.2s; text-align:center; }
-    .cb-method-tab.active { background:rgba(192,57,43,0.15); color:var(--white); border-bottom:2px solid var(--crimson); }
-    .cb-progress { height:3px; background:rgba(255,255,255,0.06); }
-    .cb-progress-fill { height:100%; background:var(--crimson); transition:width 0.4s ease; }
-    .cb-roll-all-btn { font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; padding:10px 24px; background:var(--crimson); border:none; color:white; cursor:pointer; margin-bottom:14px; }
+
     /* 3.5e skill table */
     .t35-skills { width:100%; border-collapse:collapse; margin-bottom:28px; }
     .t35-skills th { font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px; text-transform:uppercase; color:rgba(192,57,43,0.7); padding:8px 10px; border-bottom:1px solid rgba(192,57,43,0.2); text-align:left; }
@@ -125,6 +33,7 @@
     .t35-sp-bar { display:flex; justify-content:space-between; align-items:center; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); padding:10px 16px; margin-bottom:16px; }
     .t35-sp-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.4); }
     .t35-sp-val { font-family:'Cinzel',serif; font-size:22px; color:var(--crimson); }
+
     /* 3.5e feat list */
     .t35-feats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:28px; }
     .t35-feat { background:var(--black-card); border:1px solid rgba(192,57,43,0.18); padding:14px; cursor:pointer; transition:all 0.2s; }
@@ -133,6 +42,7 @@
     .t35-feat-name { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--white); margin-bottom:3px; }
     .t35-feat-prereq { font-size:10px; color:rgba(255,255,255,0.3); margin-bottom:4px; }
     .t35-feat-desc { font-size:12px; color:rgba(255,255,255,0.45); line-height:1.5; font-style:italic; }
+
     /* Dice popup */
     #dice-popup35 { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.6); background:var(--bg-card); border:1px solid var(--crimson-border); padding:36px 44px; z-index:9999; text-align:center; min-width:260px; pointer-events:none; opacity:0; transition:opacity 0.15s,transform 0.15s; box-shadow:0 0 60px rgba(0,0,0,0.6); }
     #dice-popup35::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--crimson),transparent); }
@@ -141,38 +51,55 @@
     .dp-overlay { position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,0.45); opacity:0; transition:opacity 0.15s; pointer-events:none; }
     .dp-overlay.show { opacity:1; pointer-events:all; }
     #dice-popup35 .dp-close { position:absolute; top:10px; right:14px; font-size:16px; color:var(--text-faint); cursor:pointer; background:none; border:none; pointer-events:all; }
-    .spell-info-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:8000; display:flex; align-items:center; justify-content:center; }
-    .spell-info-box { background:var(--bg-card); border:1px solid var(--crimson-border); padding:32px; max-width:420px; width:90%; position:relative; }
-    .spell-info-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--crimson),transparent); }
-    .spell-info-close { position:absolute; top:10px; right:14px; background:none; border:none; color:var(--text-faint); font-size:18px; cursor:pointer; }
-    .cb-weapon-card { background:var(--bg-card); border:1px solid var(--crimson-border); padding:12px 14px; cursor:pointer; transition:all 0.2s; min-width:150px; position:relative; flex-shrink:0; }
-    .cb-weapon-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--crimson); }
-    .cb-weapon-card:hover { background:var(--bg-hover); border-color:var(--crimson); transform:translateY(-2px); }
-    .cb-weapon-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
-    .cb-weapon-name { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; color:var(--text); text-transform:uppercase; }
-    .cb-weapon-hint { font-size:10px; color:var(--crimson); opacity:0.6; }
-    .cb-weapon-card:hover .cb-weapon-hint { opacity:1; }
-    .cb-weapon-atk { font-family:'Cinzel',serif; font-size:11px; color:var(--crimson); }
-    .cb-weapon-dmg { font-size:12px; color:var(--text-dim); font-style:italic; }
-    .cb-roll-btn { font-family:'Cinzel',serif; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; padding:7px 12px; background:var(--crimson-soft); border:1px solid var(--crimson-border); color:var(--text-dim); cursor:pointer; transition:all 0.15s; text-align:left; display:flex; justify-content:space-between; align-items:center; }
-    .cb-roll-btn:hover { background:var(--crimson); color:#f5f0e8; }
+
     @media (max-width:860px) {
-      .cb-wrap { grid-template-columns:1fr; }
-      .cb-sidebar { position:static; height:auto; display:flex; overflow-x:auto; padding:12px 0; border-right:none; border-bottom:1px solid rgba(192,57,43,0.2); }
-      .cb-step-item { min-width:80px; flex-direction:column; gap:4px; padding:8px 12px; }
-      .cb-step-sublabel { display:none; }
-      .cb-summary-mini { display:none; }
-      .cb-main { padding:24px; }
-      .cb-ability-grid { grid-template-columns:repeat(3,1fr); }
       .t35-feats { grid-template-columns:1fr; }
     }
+  
   </style>
 </head>
-<body data-nav-active="Builder" data-footer-copy="Crafted with intention. Built for your table.">
-  <div id="ps-site-shell"></div>
-
-  <div id="ps-page-breadcrumb"></div>
-
+<body>
+  <nav class="ps-nav">
+        <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html">Grimoire</a>
+      <a href="compendium.html">Compendium</a>
+      <a href="character-builder.html" class="active">Builder</a>
+      <a href="character-sheets.html">Sheets</a>
+      <a href="about.html">About</a>
+      <a href="my-characters.html">My Characters</a>
+    </div>
+    <div class="ps-nav-right">
+      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+      <div class="nav-auth-wrap">
+        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
+        <div id="nav-user-dropdown"></div>
+      </div>
+      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="compendium.html">Compendium</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-builder.html" class="active">Builder</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html">Sheets</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="my-characters.html">My Characters</a>
+  
+    </div>
+  <nav class="ps-breadcrumb">
+    <a href="index.html">Home</a><span class="sep">◆</span>
+    <a href="character-sheets.html">Sheets</a><span class="sep">◆</span>
+    <span class="current">D&amp;D 3.5e Builder</span>
+  </nav>
   <div class="cb-progress"><div class="cb-progress-fill" id="progressBar" style="width:11%"></div></div>
   <div class="cb-wrap">
     <aside class="cb-sidebar" id="sidebar">
@@ -1510,6 +1437,46 @@ function showToast35(title,msg) {
   setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(function(){t.remove();},400);},2500);
 }
 
+
+const BUILDER_35_STATE_FIELDS = ['race','cls','alignment','abilities','scoreMethod','arrayAssigned','skillRanks','selectedFeats',
+  'equipChoices','weaponChoices','selectedCantrips','selectedSpells','details','level'];
+
+function getBuilderSnapshot35(){
+  var common = window.PhmurtBuilderCommon;
+  return {
+    edition:'3.5', race:C35.race, cls:C35.cls, alignment:C35.alignment,
+    abilities:{...C35.abilities}, scoreMethod:C35.scoreMethod, arrayAssigned:{...C35.arrayAssigned},
+    skillRanks:{...C35.skillRanks}, selectedFeats:[...C35.selectedFeats],
+    equipChoices:{...C35.equipChoices}, weaponChoices:{...(C35.weaponChoices||{})},
+    selectedCantrips:[...C35.selectedCantrips], selectedSpells:[...C35.selectedSpells],
+    details:{...C35.details}, level:1, savedAt:Date.now(), inventoryItems: common ? common.clone(inv35Items||[]) : JSON.parse(JSON.stringify(inv35Items||[])),
+    currentStep: currentStep35 || 1
+  };
+}
+
+function restoreBuilderSnapshot35(snapshot){
+  if (!snapshot) return;
+  if (window.PhmurtBuilderCommon) {
+    PhmurtBuilderCommon.applyStateFields(C35, snapshot, BUILDER_35_STATE_FIELDS);
+  } else {
+    BUILDER_35_STATE_FIELDS.forEach(function(k){ if (snapshot[k] !== undefined) C35[k] = snapshot[k]; });
+  }
+  inv35Items = window.PhmurtBuilderCommon ? PhmurtBuilderCommon.clone(snapshot.inventoryItems || []) : (snapshot.inventoryItems || []);
+  C35.weaponChoices = C35.weaponChoices || {};
+  renderRaces35(); renderClasses35(); renderAbilGrid35(); renderPool35(); updateMini35(); renderInv35();
+  if (C35.race) renderRaceDetail35(C35.race);
+  if (C35.cls) renderClassDetail35(C35.cls);
+  var nf = document.getElementById('charName35'); if (nf) nf.value = (C35.details && C35.details.name) || '';
+  var af = document.getElementById('charAlignment35'); if (af) af.value = C35.alignment || '';
+  goToStep35(Math.max(1, Math.min(9, snapshot.currentStep || 1)), true);
+}
+
+const scheduleDraftSave35 = window.PhmurtBuilderCommon
+  ? PhmurtBuilderCommon.createDebounced(function(){
+      PhmurtBuilderCommon.saveDraft('35e', getBuilderSnapshot35());
+    }, 1200)
+  : function(){};
+
 // ── SAVE ──
 async function saveChar35() {
   var btn = document.getElementById('cs35-save-btn');
@@ -1518,20 +1485,16 @@ async function saveChar35() {
   var session = PhmurtDB.getSession();
   if (!session) { PhmurtDB.openAuth(); if(status) status.textContent='Sign in to save.'; return; }
   if (btn) { btn.textContent='Saving...'; btn.disabled=true; }
-  var snapshot = {
-    edition:'3.5', race:C35.race, cls:C35.cls, alignment:C35.alignment,
-    abilities:{...C35.abilities}, scoreMethod:C35.scoreMethod, arrayAssigned:{...C35.arrayAssigned},
-    skillRanks:{...C35.skillRanks}, selectedFeats:[...C35.selectedFeats],
-    equipChoices:{...C35.equipChoices}, weaponChoices:{...(C35.weaponChoices||{})},
-    selectedCantrips:[...C35.selectedCantrips], selectedSpells:[...C35.selectedSpells],
-    details:{...C35.details}, level:1, savedAt:Date.now()
-  };
-  var existingId = localStorage.getItem('phmurt_current_char35_id')||undefined;
-  var r = await PhmurtDB.saveCharacter(snapshot, existingId);
+  var r = window.PhmurtBuilderCommon
+    ? await PhmurtBuilderCommon.saveCharacterSnapshot({ edition:'35e', getSnapshot:getBuilderSnapshot35 })
+    : await PhmurtDB.saveCharacter(getBuilderSnapshot35(), localStorage.getItem('phmurt_edit_char35_id')||undefined);
   if (r&&r.success) {
-    localStorage.setItem('phmurt_current_char35_id',r.id);
     if (btn) { btn.textContent='Saved ✓'; btn.disabled=false; }
-    if (status) status.textContent='Saved '+(new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    if (window.PhmurtBuilderCommon) {
+      PhmurtBuilderCommon.setTransientStatus(status,'Saved '+(new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})),3000);
+    } else if (status) {
+      status.textContent='Saved '+(new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    }
     setTimeout(function(){if(btn)btn.textContent='Save Character ↑';},2000);
   } else {
     if (btn) { btn.textContent='Save Character ↑'; btn.disabled=false; }
@@ -1541,6 +1504,7 @@ async function saveChar35() {
 
 // ── MINI SUMMARY ──
 function updateMini35() {
+  scheduleDraftSave35();
   var el = document.getElementById('miniSummary35'); if (!el) return;
   var lines = [];
   if (C35.details&&C35.details.name) lines.push({l:'Name',v:C35.details.name});
@@ -1554,37 +1518,48 @@ function updateMini35() {
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', function() {
-  // Method info default
   document.getElementById('methodInfo35').innerHTML = '<strong>Standard Array</strong> — Assign 15,14,13,12,10,8 to your six ability scores.';
   renderRaces35(); renderClasses35(); renderAbilGrid35(); renderPool35(); updateMini35();
-  // Load saved char
-  var loadId = localStorage.getItem('cb35_load_char_id');
-  if (loadId && typeof PhmurtDB!=='undefined') {
-    localStorage.removeItem('cb35_load_char_id');
-    PhmurtDB.loadCharacter(loadId).then(function(data) {
-      if (!data||data.edition!=='3.5') return;
-      ['race','cls','alignment','abilities','scoreMethod','arrayAssigned','skillRanks','selectedFeats',
-       'equipChoices','weaponChoices','selectedCantrips','selectedSpells','details','level'].forEach(function(k){
-        if (data[k]!==undefined) C35[k]=data[k];
-      });
-      C35.weaponChoices = C35.weaponChoices||{};
-      localStorage.setItem('phmurt_current_char35_id',loadId);
-      renderAbilGrid35(); renderPool35();
-      if (C35.details&&C35.details.name) {
-        var nf=document.getElementById('charName35'); if(nf) nf.value=C35.details.name||'';
+  if (window.PhmurtBuilderCommon) {
+    PhmurtBuilderCommon.initAppShell();
+    PhmurtBuilderCommon.maybeOfferDraftRestore({
+      key: '35e',
+      shouldOffer: function(){
+        return !localStorage.getItem('cb35_load_char_id') && !localStorage.getItem('phmurt_edit_char35_id');
+      },
+      message: 'A local D&D 3.5e builder draft was found from ',
+      onRestore: function(snapshot){ restoreBuilderSnapshot35(snapshot); },
+      insertAfter: '.ps-breadcrumb'
+    });
+  }
+  window.addEventListener('beforeunload', function(){
+    if (window.PhmurtBuilderCommon) PhmurtBuilderCommon.saveDraft('35e', getBuilderSnapshot35());
+  });
+  document.addEventListener('input', scheduleDraftSave35, true);
+  document.addEventListener('change', scheduleDraftSave35, true);
+  if (window.PhmurtBuilderCommon) {
+    PhmurtBuilderCommon.loadCharacterForEdit({
+      edition: '35e',
+      expectedEdition: '3.5',
+      onData: function(data) {
+        PhmurtBuilderCommon.applyStateFields(C35, data, BUILDER_35_STATE_FIELDS);
+        C35.weaponChoices = C35.weaponChoices||{};
+        inv35Items = PhmurtBuilderCommon.clone(data.inventoryItems || []);
+        renderRaces35(); renderClasses35(); renderAbilGrid35(); renderPool35(); updateMini35(); renderInv35();
+        if (C35.race) renderRaceDetail35(C35.race);
+        if (C35.cls) renderClassDetail35(C35.cls);
+        var nf=document.getElementById('charName35'); if(nf) nf.value=(C35.details&&C35.details.name)||'';
         var af=document.getElementById('charAlignment35'); if(af) af.value=C35.alignment||'';
+        goToStep35(9,true);
+        setTimeout(function(){
+          document.getElementById('detailsForm35').style.display='none';
+          document.getElementById('finalSheet35').style.display='block';
+          buildFinalSheet35();
+        },100);
       }
-      goToStep35(9,true);
-      setTimeout(function(){
-        document.getElementById('detailsForm35').style.display='none';
-        document.getElementById('finalSheet35').style.display='block';
-        buildFinalSheet35();
-      },100);
     });
   }
 });
   </script>
-  <div id="ps-site-footer"></div>
-  <script src="phmurt-shell.js"></script>
 </body>
 </html>
