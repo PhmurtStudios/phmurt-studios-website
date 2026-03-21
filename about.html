@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About · Phmurt Studios</title>
-  <meta name="description" content="Learn more about Phmurt Studios, its design philosophy, and the tabletop tools, classes, and homebrew content being forged for players and Dungeon Masters." />
+  <meta name="description" content="Phmurt Studios — an independent game design studio building original D&D classes, homebrew systems, and tabletop RPG content." />
   <meta property="og:title" content="About · Phmurt Studios" />
-  <meta property="og:description" content="Learn more about Phmurt Studios, its design philosophy, and the tabletop tools, classes, and homebrew content being forged for players and Dungeon Masters." />
+  <meta property="og:description" content="Phmurt Studios — an independent game design studio building original D&D classes, homebrew systems, and tabletop RPG content." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://phmurtstudios.github.io/phmurt-studios-website/about.html" />
-  <meta property="og:image" content="https://phmurtstudios.github.io/phmurt-studios-website/logo.png" />
+  <meta property="og:url" content="https://phmurtstudios.com/about.html" />
+  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="About · Phmurt Studios" />
-  <meta name="twitter:description" content="Homebrew classes, printable tools, character builders, and TTRPG resources from Phmurt Studios." />
+  <meta name="twitter:description" content="Phmurt Studios — an independent game design studio building original D&D classes, homebrew systems, and tabletop RPG content." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
@@ -20,7 +20,6 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-  <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -28,66 +27,95 @@
   <script src="phmurt-auth.js"></script>
 </head>
 <body>
-  <div id="ps-site-shell"></div>
-  <main>
-    <div class="ps-page-hero">
-      <div class="ps-page-eyebrow">The Studio</div>
-      <div class="ps-page-title">About Phmurt Studios</div>
-      <div class="ps-page-subtitle">Original tabletop design, strange ideas, and player-first tools</div>
-      <p class="ps-page-intro">Phmurt Studios is a fantasy-forward design space focused on original D&amp;D classes, homebrew systems, interactive character tools, and resources that help tables play faster, stranger, and with more personality.</p>
+  <nav class="ps-nav">
+        <div class="ps-nav-links">
+      <a href="index.html">Home</a>
+      <a href="grimoire.html">Grimoire</a>
+      <a href="compendium.html">Compendium</a>
+      <a href="character-builder.html">Builder</a>
+      <a href="character-sheets.html">Sheets</a>
+      <a href="about.html" class="active">About</a>
+      <a href="my-characters.html">My Characters</a>
+    </div>
+    <div class="ps-nav-right">
+      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+      <div class="nav-auth-wrap">
+        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
+        <div id="nav-user-dropdown"></div>
+      </div>
+      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="ps-mobile-menu" id="mobileMenu">
+    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
+    <a href="index.html">Home</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="compendium.html">Compendium</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-builder.html">Builder</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html">Sheets</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="about.html" class="active">About</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="my-characters.html">My Characters</a>
+  
     </div>
 
-    <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
 
-    <section style="max-width:1180px;margin:0 auto;padding:0 24px 34px;">
-      <div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:28px;align-items:stretch;">
-        <div style="background:var(--bg-card);border:1px solid var(--border);padding:30px 28px;">
-          <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--crimson);margin-bottom:14px;">What this studio is building</div>
-          <div style="font-family:'Cinzel',serif;font-size:22px;letter-spacing:1px;color:var(--text);margin-bottom:14px;">Tools that help a table get to the fun faster</div>
-          <p style="font-size:17px;line-height:1.8;color:var(--text-dim);margin:0 0 14px;">The goal of the site is simple: make it easier to discover weird classes, create memorable characters, manage homebrew, and actually use that content at the table.</p>
-          <p style="font-size:17px;line-height:1.8;color:var(--text-dim);margin:0;">That means blending public-facing content like the Grimoire with more practical systems like the Character Builder, printable sheets, saved character storage, and a Compendium that can grow into a real workshop for custom content.</p>
-        </div>
 
-        <div style="background:linear-gradient(180deg, rgba(192,57,43,.09), rgba(107,78,168,.08));border:1px solid var(--crimson-border);padding:30px 28px;display:flex;flex-direction:column;justify-content:center;text-align:center;">
-          <img src="logo.png" alt="Phmurt Studios logo" style="width:min(220px,100%);margin:0 auto 18px;display:block;" />
-          <div style="font-family:'Cinzel',serif;font-size:18px;letter-spacing:2px;color:var(--text);margin-bottom:10px;">Roll well. Play weird.</div>
-          <div style="font-size:16px;line-height:1.8;color:var(--text-dim);font-style:italic;">A studio identity built around fantasy atmosphere, handcrafted homebrew, and tools that feel like part of the world instead of separate from it.</div>
-        </div>
+  <nav class="ps-breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="sep">◆</span><span class="current">About</span></nav>
+
+  <div style="min-height:60vh;display:flex;align-items:center;justify-content:center;padding:60px 24px;text-align:center;">
+    <div style="max-width:480px;">
+
+      <div style="font-size:56px;opacity:0.15;margin-bottom:28px;">&#9888;</div>
+
+      <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:var(--crimson);margin-bottom:16px;">Under Construction</div>
+
+      <div style="font-family:'Cinzel',serif;font-size:22px;letter-spacing:2px;color:var(--text);margin-bottom:20px;">Something Is Being Forged</div>
+
+      <p style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--text-dim);line-height:1.8;font-style:italic;margin-bottom:36px;">
+        This page is still being crafted. Check back soon &mdash; the smiths are at work.
+      </p>
+
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="index.html" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:11px 24px;background:var(--crimson);color:#f5f0e8;border:none;cursor:pointer;text-decoration:none;">Return Home</a>
+        <a href="grimoire.html" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:11px 24px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;text-decoration:none;">Browse Grimoire</a>
       </div>
-    </section>
 
-    <section style="max-width:1180px;margin:0 auto;padding:0 24px 18px;">
-      <div class="ps-section-header"><div class="ps-section-title">Core Pillars</div></div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;">
-        <div style="background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;"><div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:10px;">Homebrew With Identity</div><div style="font-size:16px;line-height:1.7;color:var(--text-dim);">Classes, subclasses, races, backgrounds, items, and original systems should feel authored, flavorful, and playable — not just mechanically complete.</div></div>
-        <div style="background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;"><div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:10px;">Practical Table Tools</div><div style="font-size:16px;line-height:1.7;color:var(--text-dim);">Builders, saved characters, printable sheets, and compendium workflows should be genuinely useful during prep and at the table — not just nice to look at.</div></div>
-        <div style="background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;"><div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:10px;">Atmosphere Matters</div><div style="font-size:16px;line-height:1.7;color:var(--text-dim);">The site should feel like a world, not a spreadsheet. Typography, iconography, color, and language all support that fantasy-studio identity.</div></div>
-      </div>
-    </section>
+    </div>
+  </div>
 
-    <section style="max-width:1180px;margin:0 auto;padding:10px 24px 18px;">
-      <div class="ps-section-header"><div class="ps-section-title">What You Can Use Right Now</div></div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
-        <a href="grimoire.html" style="text-decoration:none;background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;color:inherit;"><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;">Grimoire</div><div style="font-family:'Cinzel',serif;font-size:16px;color:var(--text);margin-bottom:8px;">Published classes and features</div><div style="font-size:15px;line-height:1.7;color:var(--text-dim);">Browse featured classes like Soup Savant and explore the content side of the studio.</div></a>
-        <a href="character-builder.html" style="text-decoration:none;background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;color:inherit;"><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;">Builder</div><div style="font-family:'Cinzel',serif;font-size:16px;color:var(--text);margin-bottom:8px;">Interactive 5e and 3.5e builders</div><div style="font-size:15px;line-height:1.7;color:var(--text-dim);">Create characters, recover drafts, save them to your roster, and continue editing later.</div></a>
-        <a href="compendium.html" style="text-decoration:none;background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;color:inherit;"><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;">Compendium</div><div style="font-family:'Cinzel',serif;font-size:16px;color:var(--text);margin-bottom:8px;">Create and collect homebrew</div><div style="font-size:15px;line-height:1.7;color:var(--text-dim);">Forge races, classes, backgrounds, subclasses, and items — then bring them into the builder.</div></a>
-        <a href="character-sheets.html" style="text-decoration:none;background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;color:inherit;"><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;">Sheets</div><div style="font-family:'Cinzel',serif;font-size:16px;color:var(--text);margin-bottom:8px;">Fillable and printable resources</div><div style="font-size:15px;line-height:1.7;color:var(--text-dim);">Open sheets in the browser, print them, or use the builder as your primary workflow.</div></a>
-      </div>
-    </section>
+<footer class="ps-footer">
+    <div class="ps-footer-logo">
+      <img src="logo.png" alt="Phmurt Studios" />
+      <span class="ps-footer-name">Phmurt Studios</span>
+    </div>
+    <div class="ps-footer-copy">Roll well. Play weird.</div>
+  </footer>
 
-    <section style="max-width:1180px;margin:0 auto;padding:10px 24px 44px;">
-      <div style="background:var(--bg-card);border:1px solid var(--border);padding:28px 26px;">
-        <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--crimson);margin-bottom:14px;">Road Ahead</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;">
-          <div><div style="font-family:'Cinzel',serif;font-size:14px;color:var(--text);margin-bottom:6px;">More polished builders</div><div style="font-size:15px;line-height:1.7;color:var(--text-dim);">Stronger workflows, cleaner saved-character management, and deeper integration between builders and the roster.</div></div>
-          <div><div style="font-family:'Cinzel',serif;font-size:14px;color:var(--text);margin-bottom:6px;">Growing compendium support</div><div style="font-size:15px;line-height:1.7;color:var(--text-dim);">Better community sharing, safer import/export, and more complete support for custom content creation.</div></div>
-          <div><div style="font-family:'Cinzel',serif;font-size:14px;color:var(--text);margin-bottom:6px;">More content and worldbuilding</div><div style="font-size:15px;line-height:1.7;color:var(--text-dim);">Additional classes, systems, resources, and public-facing studio material to deepen the identity of the project.</div></div>
-        </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;"><a href="grimoire.html" class="ps-cta" style="text-decoration:none;">Browse the Grimoire</a><a href="my-characters.html" class="ps-link-btn" style="text-decoration:none;">Open My Characters</a></div>
-      </div>
-    </section>
-  </main>
-  <div id="ps-site-footer"></div>
-  <script src="phmurt-shell.js"></script>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Mobile nav
+    const ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');
+    if(ham){ham.addEventListener('click',()=>{ham.classList.toggle('open');menu.classList.toggle('open');});}
+    if(close){close.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');});}
+    if(menu){menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');menu.classList.remove('open');}));}
+    // Back to top});
+    // Page transitions
+    document.querySelectorAll('a[href]').forEach(a=>{
+      const href=a.getAttribute('href');
+      if(href&&!href.startsWith('#')&&!href.startsWith('http')&&!href.startsWith('mailto')&&href.endsWith('.html')){
+        a.addEventListener('click',e=>{e.preventDefault();window.location.href=href;});
+      }
+    });
+        const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  </script>
+
 </body>
 </html>
