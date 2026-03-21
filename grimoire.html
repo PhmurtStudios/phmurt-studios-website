@@ -15,7 +15,7 @@
   <meta name="twitter:description" content="Browse all published D&D classes, supplements, and original RPG systems from Phmurt Studios." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
@@ -27,7 +27,7 @@
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
 </head>
-<body data-nav-active="Grimoire" data-footer-copy="Crafted with intention. Built for your table." data-breadcrumb="Home|index.html;Grimoire">
+<body data-nav-active="Grimoire" data-footer-copy="Roll Well. Play Weird." data-breadcrumb="Home|index.html;Grimoire">
 
   <div id="ps-site-shell"></div>
 
@@ -120,7 +120,7 @@
   <div class="ps-section-header">
     <div class="ps-section-title">Community Homebrew</div>
   </div>
-  <p style="text-align:center;max-width:600px;margin:0 auto 32px;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--text-dim);font-style:italic;line-height:1.7;">
+  <p style="text-align:center;max-width:600px;margin:0 auto 32px;font-family:'Spectral',serif;font-size:16px;color:var(--text-dim);font-style:italic;line-height:1.7;">
     Player-created races, classes, backgrounds, subclasses, and items. Browse or share your own from the <a href="compendium.html" style="color:var(--crimson);">Compendium</a>.
   </p>
 
@@ -128,7 +128,7 @@
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <input id="hbc-grimoire-search" type="text" placeholder="Search name, type, author, tags&#8230;"
         oninput="grimHbRender()"
-        style="flex:1;min-width:200px;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:15px;padding:10px 14px;" />
+        style="flex:1;min-width:200px;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Spectral',serif;font-size:15px;padding:10px 14px;" />
       <select id="hbc-grimoire-sort" onchange="grimHbRender()"
         style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:10px 14px;cursor:pointer;">
         <option value="popular">Most Liked</option>
@@ -147,7 +147,7 @@
   </div>
 
   <div id="hbc-grimoire-results" class="ps-grimoire-grid reveal" style="max-width:900px;margin:0 auto;">
-    <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-faint);font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;">
+    <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-faint);font-family:'Spectral',serif;font-size:15px;font-style:italic;">
       Loading community homebrew&#8230;
     </div>
   </div>
@@ -181,7 +181,7 @@
       var el = document.getElementById('hbc-grimoire-results');
       var sb = _grimSb();
       if (!sb) {
-        if (el) el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-faint);font-family:Cormorant Garamond,serif;font-size:15px;font-style:italic;">Share homebrew from the <a href="compendium.html" style="color:var(--crimson);">Compendium</a> to see it here.</div>';
+        if (el) el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-faint);font-family:Spectral,Georgia,serif;font-size:15px;font-style:italic;">Share homebrew from the <a href="compendium.html" style="color:var(--crimson);">Compendium</a> to see it here.</div>';
         return;
       }
       try {
@@ -224,7 +224,7 @@
       });
 
       if (!filtered.length) {
-        el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-faint);font-family:Cormorant Garamond,serif;font-size:15px;font-style:italic;">'
+        el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-faint);font-family:Spectral,Georgia,serif;font-size:15px;font-style:italic;">'
           + (_grimHbFilter !== 'all' || q ? 'No results found.' : 'No community homebrew yet. Share from the Compendium!')
           + '</div>';
         return;

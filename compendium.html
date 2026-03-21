@@ -11,7 +11,7 @@
   <meta property="og:url" content="https://phmurtstudios.com/compendium.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
@@ -140,7 +140,7 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       color: var(--text);
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Spectral', serif;
       font-size: 15px;
       padding: 9px 14px;
     }
@@ -225,7 +225,7 @@
       margin-bottom: 8px;
     }
     .cmp-card-desc {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Spectral', serif;
       font-size: 13px;
       color: var(--text-dim);
       line-height: 1.6;
@@ -355,6 +355,235 @@
 
     /* In-page modals ───────────────────────────────────────────── */
     #hb-modal-host, #hbe-modal-host { position: relative; z-index: 5000; }
+
+    /* ── Class Table Preview ──────────────────────────────────── */
+    .hbc-class-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Spectral', serif;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .hbc-class-table th {
+      font-family: 'Cinzel', serif;
+      font-size: 7px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--crimson);
+      background: var(--bg-card);
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 2px solid var(--crimson-border);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .hbc-class-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      vertical-align: top;
+    }
+    .hbc-class-table tr:hover td { background: var(--bg-hover); }
+    .hbc-class-table .hbc-ct-level {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      color: var(--text);
+      font-weight: 500;
+      text-align: center;
+      width: 40px;
+    }
+    .hbc-class-table .hbc-ct-prof {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      width: 50px;
+    }
+    .hbc-class-table .hbc-ct-features {
+      color: var(--text);
+      font-size: 13px;
+    }
+    .hbc-class-table .hbc-ct-asi { color: var(--crimson); font-style: italic; }
+    .hbc-class-table .hbc-ct-sub { color: #6b4ea8; }
+    .hbc-class-table .hbc-ct-empty { color: var(--text-faint); font-style: italic; }
+
+    /* ── Structured Feature Editor ────────────────────────────── */
+    .hbc-feat-list {
+      max-height: 520px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-bottom: 12px;
+    }
+    .hbc-feat-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 8px;
+      align-items: start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .hbc-feat-row:last-child { border-bottom: none; }
+    .hbc-feat-level {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--crimson);
+      text-align: center;
+      padding-top: 6px;
+      font-weight: 500;
+    }
+    .hbc-feat-body { min-width: 0; }
+    .hbc-feat-name-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+    .hbc-feat-name-input {
+      flex: 1;
+      min-width: 120px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 5px 8px;
+    }
+    .hbc-feat-name-input:focus { outline: none; border-color: var(--crimson-border); }
+    .hbc-feat-type-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 6px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border: 1px solid;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .hbc-feat-type-badge[data-ftype="action"] { color: #c0392b; border-color: #c0392b; }
+    .hbc-feat-type-badge[data-ftype="bonus"] { color: #e67e22; border-color: #e67e22; }
+    .hbc-feat-type-badge[data-ftype="reaction"] { color: #2980b9; border-color: #2980b9; }
+    .hbc-feat-type-badge[data-ftype="passive"] { color: #27ae60; border-color: #27ae60; }
+    .hbc-feat-type-badge[data-ftype="asi"] { color: #8b6914; border-color: #8b6914; }
+    .hbc-feat-type-badge[data-ftype="resource"] { color: #6b4ea8; border-color: #6b4ea8; }
+    .hbc-feat-type-badge.active {
+      color: #f5f0e8 !important;
+    }
+    .hbc-feat-type-badge[data-ftype="action"].active { background: #c0392b; }
+    .hbc-feat-type-badge[data-ftype="bonus"].active { background: #e67e22; }
+    .hbc-feat-type-badge[data-ftype="reaction"].active { background: #2980b9; }
+    .hbc-feat-type-badge[data-ftype="passive"].active { background: #27ae60; }
+    .hbc-feat-type-badge[data-ftype="asi"].active { background: #8b6914; }
+    .hbc-feat-type-badge[data-ftype="resource"].active { background: #6b4ea8; }
+    .hbc-feat-desc-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Spectral', serif;
+      font-size: 13px;
+      padding: 5px 8px;
+      resize: vertical;
+      min-height: 32px;
+    }
+    .hbc-feat-desc-input:focus { outline: none; border-color: var(--crimson-border); }
+    .hbc-feat-uses-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .hbc-feat-uses-input {
+      width: 60px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 11px;
+      padding: 3px 6px;
+      text-align: center;
+    }
+    .hbc-feat-uses-label {
+      font-family: 'Cinzel', serif;
+      font-size: 7px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .hbc-feat-del {
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 6px;
+      line-height: 1;
+      opacity: 0.5;
+      transition: opacity 0.15s, color 0.15s;
+    }
+    .hbc-feat-del:hover { opacity: 1; color: var(--crimson); }
+
+    /* ── Add feature bar ──────────────────────────────────────── */
+    .hbc-add-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+    }
+    .hbc-add-bar select, .hbc-add-bar input {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Cinzel', serif;
+      font-size: 8px;
+      letter-spacing: 1px;
+      padding: 6px 10px;
+    }
+    .hbc-add-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      background: var(--crimson);
+      border: none;
+      color: #f5f0e8;
+      cursor: pointer;
+    }
+    .hbc-add-btn:hover { opacity: 0.88; }
+
+    /* ── Template buttons ─────────────────────────────────────── */
+    .hbc-templates {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .hbc-tpl-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 7px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .hbc-tpl-btn:hover { border-color: var(--crimson-border); color: var(--text); }
+
+    /* ── Class table wrapper for scrolling ─────────────────────── */
+    .hbc-table-wrap {
+      max-height: 480px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body>
@@ -502,7 +731,7 @@
       <img src="logo.png" alt="Phmurt Studios" />
       <span class="ps-footer-name">Phmurt Studios</span>
     </div>
-    <div class="ps-footer-copy">Roll well. Play weird.</div>
+    <div class="ps-footer-copy">Roll Well. Play Weird.</div>
     <div style="font-size:10px;color:var(--text-faint);margin-top:8px;text-align:center;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.5;">
       Homebrew content is user-created and not affiliated with Wizards of the Coast.
       Game mechanics based on the <em>Systems Reference Document 5.1</em> (SRD 5.1), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--text-faint);">CC BY 4.0</a>.
@@ -542,7 +771,7 @@
     function showRestToast(title,msg){
       const toast=document.createElement('div');
       toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--crimson-border);padding:14px 24px;font-family:"Cinzel",serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);z-index:9000;text-align:center;';
-      toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${title}</div><div style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${msg}</div>`;
+      toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${title}</div><div style="font-family:'Spectral',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${msg}</div>`;
       document.body.appendChild(toast);
       setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); },2500);
     }
@@ -635,21 +864,21 @@
         type = type || 'text';
         return '<div style="margin-bottom:12px;">'
           + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-          + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
+          + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
           + '</div>';
       };
     
       var sel = function(id, label, opts) {
         return '<div style="margin-bottom:12px;">'
           + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-          + '<select id="hb-' + id + '" onchange="hbUpdateConditionalFields()" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
+          + '<select id="hb-' + id + '" onchange="hbUpdateConditionalFields()" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
           + '</div>';
       };
     
       var tex = function(id, label, val, ph) {
         return '<div style="margin-bottom:12px;">'
           + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-          + '<textarea id="hb-' + id + '" rows="3" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
+          + '<textarea id="hb-' + id + '" rows="3" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
           + '</div>';
       };
     
@@ -677,7 +906,7 @@
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">'
         + '<div>'
         + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">Value</label>'
-        + '<input id="hb-value" type="text" value="' + (existing ? existing.value : '') + '" placeholder="e.g. 500 gp" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
+        + '<input id="hb-value" type="text" value="' + (existing ? existing.value : '') + '" placeholder="e.g. 500 gp" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
         + '</div>'
         + '<div>'
         + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">Weight (lb)</label>'
@@ -742,7 +971,7 @@
         type = type || 'text';
         return '<div>'
           + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-          + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
+          + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
           + '</div>';
       };
     
@@ -1516,33 +1745,202 @@
       window._hbcInnerTab = 'basics';
     }
 
-    // ── Helper buttons for Level Features textarea ──
-    function _hbcInsertASIs(){
+    // ── Structured Feature Editor ──────────────────────────────
+    // The structured editor works with a JS array (_hbcFeats) and syncs
+    // back to the hidden textarea for save compatibility.
+
+    var _hbcFeats = []; // [{level, name, desc, type, isASI, uses, recharge}]
+
+    function _hbcParseFeatsFromTextarea(){
+      var ta = document.getElementById('hbe-levelFeatures');
+      _hbcFeats = [];
+      if(!ta || !ta.value.trim()) return;
+      ta.value.split('\n').filter(Boolean).forEach(function(line){
+        var p = line.split('|');
+        var lv = parseInt(p[0]); if(!lv||lv<2||lv>20) return;
+        var feat = { level:lv, name:(p[1]||'').trim(), desc:(p[2]||'').trim(), type:'passive' };
+        if((p[3]||'').trim().toUpperCase()==='ASI') { feat.isASI=true; feat.type='asi'; }
+        _hbcFeats.push(feat);
+      });
+    }
+
+    function _hbcSyncFeatsToTextarea(){
       var ta = document.getElementById('hbe-levelFeatures');
       if(!ta) return;
-      var existing = ta.value;
-      var lines = existing ? existing.split('\n') : [];
-      var existingLevels = {};
-      lines.forEach(function(l){ var p=l.split('|'); if(p[0]) existingLevels[parseInt(p[0])]=true; });
+      _hbcFeats.sort(function(a,b){ return a.level-b.level; });
+      ta.value = _hbcFeats.map(function(f){
+        return f.level+'|'+f.name+'|'+f.desc+(f.isASI?'|ASI':'');
+      }).join('\n');
+    }
+
+    function _hbcRenderFeatList(){
+      var list = document.getElementById('hbc-feat-list');
+      if(!list) return;
+      _hbcParseFeatsFromTextarea();
+      if(!_hbcFeats.length){
+        list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-style:italic;">No features added yet. Use the templates above or add features below.</div>';
+        return;
+      }
+      var html = '';
+      _hbcFeats.forEach(function(f, idx){
+        var types = ['action','bonus','reaction','passive','asi','resource'];
+        var typeLabels = {action:'Action',bonus:'Bonus',reaction:'Reaction',passive:'Passive',asi:'ASI',resource:'Resource'};
+        var typeBadges = types.map(function(t){
+          return '<span class="hbc-feat-type-badge'+(f.type===t?' active':'')+'" data-ftype="'+t+'" onclick="_hbcSetFeatType('+idx+',\''+t+'\')">'
+            +typeLabels[t]+'</span>';
+        }).join('');
+
+        html += '<div class="hbc-feat-row">'
+          +'<div class="hbc-feat-level">'+f.level+'</div>'
+          +'<div class="hbc-feat-body">'
+          +'<div class="hbc-feat-name-row">'
+          +'<input class="hbc-feat-name-input" value="'+f.name.replace(/"/g,'&quot;')+'" onchange="_hbcUpdateFeat('+idx+',\'name\',this.value)" placeholder="Feature name"/>'
+          +typeBadges
+          +'</div>'
+          +'<textarea class="hbc-feat-desc-input" rows="2" onchange="_hbcUpdateFeat('+idx+',\'desc\',this.value)" placeholder="Describe what this feature does...">'+(f.desc||'')+'</textarea>'
+          +'</div>'
+          +'<button class="hbc-feat-del" onclick="_hbcRemoveFeat('+idx+')" title="Remove feature">×</button>'
+          +'</div>';
+      });
+      list.innerHTML = html;
+    }
+
+    function _hbcAddFeature(){
+      var lvEl = document.getElementById('hbc-add-level');
+      var nameEl = document.getElementById('hbc-add-name');
+      if(!lvEl||!nameEl) return;
+      var lv = parseInt(lvEl.value)||2;
+      var name = nameEl.value.trim()||'New Feature';
+      _hbcParseFeatsFromTextarea();
+      _hbcFeats.push({level:lv, name:name, desc:'', type:'passive'});
+      _hbcSyncFeatsToTextarea();
+      _hbcRenderFeatList();
+      nameEl.value = '';
+    }
+
+    function _hbcRemoveFeat(idx){
+      _hbcParseFeatsFromTextarea();
+      _hbcFeats.splice(idx, 1);
+      _hbcSyncFeatsToTextarea();
+      _hbcRenderFeatList();
+    }
+
+    function _hbcUpdateFeat(idx, field, value){
+      _hbcParseFeatsFromTextarea();
+      if(_hbcFeats[idx]) _hbcFeats[idx][field] = value;
+      _hbcSyncFeatsToTextarea();
+    }
+
+    function _hbcSetFeatType(idx, type){
+      _hbcParseFeatsFromTextarea();
+      if(_hbcFeats[idx]){
+        _hbcFeats[idx].type = type;
+        _hbcFeats[idx].isASI = (type==='asi');
+      }
+      _hbcSyncFeatsToTextarea();
+      _hbcRenderFeatList();
+    }
+
+    // Template functions — populate the feature list with common patterns
+    function _hbcTplASIs(){
+      _hbcParseFeatsFromTextarea();
       [4,8,12,16,19].forEach(function(lv){
-        if(!existingLevels[lv]){
-          lines.push(lv+'|Ability Score Improvement|Increase one ability score by 2, or two scores by 1. Max 20.|ASI');
+        if(!_hbcFeats.some(function(f){return f.level===lv && f.isASI;})){
+          _hbcFeats.push({level:lv,name:'Ability Score Improvement',desc:'Increase one ability score by 2, or two scores by 1. No score may exceed 20.',type:'asi',isASI:true});
         }
       });
-      lines.sort(function(a,b){ return (parseInt(a.split('|')[0])||0)-(parseInt(b.split('|')[0])||0); });
-      ta.value = lines.filter(Boolean).join('\n');
+      _hbcSyncFeatsToTextarea();
+      _hbcRenderFeatList();
     }
-    function _hbcInsertExtraAttack(){
-      var ta = document.getElementById('hbe-levelFeatures');
-      if(!ta) return;
-      var lines = ta.value ? ta.value.split('\n') : [];
-      var has5 = lines.some(function(l){ return parseInt(l.split('|')[0])===5 && l.split('|')[1] && l.split('|')[1].indexOf('Extra Attack')!==-1; });
-      if(!has5){
-        lines.push('5|Extra Attack|You can attack twice instead of once when you take the Attack action on your turn.');
-        lines.sort(function(a,b){ return (parseInt(a.split('|')[0])||0)-(parseInt(b.split('|')[0])||0); });
-        ta.value = lines.filter(Boolean).join('\n');
+
+    function _hbcTplExtraAttack(){
+      _hbcParseFeatsFromTextarea();
+      if(!_hbcFeats.some(function(f){return f.level===5 && f.name==='Extra Attack';})){
+        _hbcFeats.push({level:5,name:'Extra Attack',desc:'You can attack twice instead of once when you take the Attack action on your turn.',type:'passive'});
       }
+      _hbcSyncFeatsToTextarea();
+      _hbcRenderFeatList();
     }
+
+    function _hbcTplMartial(){
+      _hbcParseFeatsFromTextarea();
+      var tpl = [
+        {level:2,name:'Fighting Style',desc:'Choose a fighting style: Archery (+2 ranged attack rolls), Defense (+1 AC in armor), Dueling (+2 damage one-handed), Great Weapon Fighting (reroll 1s and 2s on damage), Protection (impose disadvantage on attacks vs allies), or Two-Weapon Fighting (add ability mod to off-hand damage).',type:'passive'},
+        {level:3,name:'Subclass Feature',desc:'Choose your subclass archetype.',type:'passive'},
+        {level:5,name:'Extra Attack',desc:'You can attack twice instead of once when you take the Attack action.',type:'passive'},
+        {level:7,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:9,name:'Indomitable',desc:'You can reroll a saving throw that you fail. You must use the new roll. Once per long rest.',type:'reaction'},
+        {level:10,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:11,name:'Improved Feature',desc:'An existing class feature improves at this level.',type:'passive'},
+        {level:13,name:'Indomitable (2 uses)',desc:'You can use Indomitable twice between long rests.',type:'reaction'},
+        {level:15,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:17,name:'Indomitable (3 uses)',desc:'You can use Indomitable three times between long rests.',type:'reaction'},
+        {level:18,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:20,name:'Capstone',desc:'Your most powerful class feature, achieved at 20th level.',type:'passive'}
+      ];
+      tpl.forEach(function(f){
+        if(!_hbcFeats.some(function(e){return e.level===f.level && e.name===f.name;})){
+          _hbcFeats.push(f);
+        }
+      });
+      // Also add ASIs
+      _hbcTplASIs();
+    }
+
+    function _hbcTplCaster(){
+      _hbcParseFeatsFromTextarea();
+      var tpl = [
+        {level:2,name:'Subclass Feature',desc:'Choose your arcane tradition / domain / circle.',type:'passive'},
+        {level:3,name:'2nd-Level Spells',desc:'You gain access to 2nd-level spell slots.',type:'passive'},
+        {level:5,name:'3rd-Level Spells',desc:'You gain access to 3rd-level spell slots.',type:'passive'},
+        {level:6,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:7,name:'4th-Level Spells',desc:'You gain access to 4th-level spell slots.',type:'passive'},
+        {level:9,name:'5th-Level Spells',desc:'You gain access to 5th-level spell slots.',type:'passive'},
+        {level:10,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:11,name:'6th-Level Spells',desc:'You gain access to 6th-level spell slots.',type:'passive'},
+        {level:13,name:'7th-Level Spells',desc:'You gain access to 7th-level spell slots.',type:'passive'},
+        {level:14,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:15,name:'8th-Level Spells',desc:'You gain access to 8th-level spell slots.',type:'passive'},
+        {level:17,name:'9th-Level Spells',desc:'You gain access to 9th-level spell slots.',type:'passive'},
+        {level:18,name:'Spell Mastery',desc:'Choose a 1st-level and a 2nd-level spell. You can cast them at their lowest level without expending a spell slot.',type:'passive'},
+        {level:20,name:'Signature Spells',desc:'Choose two 3rd-level spells. You can cast each once without expending a spell slot. Regain uses after a short or long rest.',type:'resource'}
+      ];
+      tpl.forEach(function(f){
+        if(!_hbcFeats.some(function(e){return e.level===f.level && e.name===f.name;})){
+          _hbcFeats.push(f);
+        }
+      });
+      _hbcTplASIs();
+    }
+
+    function _hbcTplHalfCaster(){
+      _hbcParseFeatsFromTextarea();
+      var tpl = [
+        {level:2,name:'Spellcasting',desc:'You gain the ability to cast spells. See the Spellcasting tab for details.',type:'passive'},
+        {level:2,name:'Fighting Style',desc:'Choose a fighting style that complements your combat approach.',type:'passive'},
+        {level:3,name:'Subclass Feature',desc:'Choose your sacred oath / ranger archetype.',type:'passive'},
+        {level:5,name:'Extra Attack',desc:'You can attack twice instead of once when you take the Attack action.',type:'passive'},
+        {level:5,name:'2nd-Level Spells',desc:'You gain access to 2nd-level spell slots.',type:'passive'},
+        {level:7,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:9,name:'3rd-Level Spells',desc:'You gain access to 3rd-level spell slots.',type:'passive'},
+        {level:11,name:'Improved Feature',desc:'A core class feature improves at this level.',type:'passive'},
+        {level:13,name:'4th-Level Spells',desc:'You gain access to 4th-level spell slots.',type:'passive'},
+        {level:15,name:'Subclass Feature',desc:'Additional subclass feature.',type:'passive'},
+        {level:17,name:'5th-Level Spells',desc:'You gain access to 5th-level spell slots.',type:'passive'},
+        {level:18,name:'Improved Feature',desc:'Another core feature improvement.',type:'passive'},
+        {level:20,name:'Capstone',desc:'Your most powerful class feature.',type:'passive'}
+      ];
+      tpl.forEach(function(f){
+        if(!_hbcFeats.some(function(e){return e.level===f.level && e.name===f.name;})){
+          _hbcFeats.push(f);
+        }
+      });
+      _hbcTplASIs();
+    }
+
+    // Legacy compatibility: old insert functions still work
+    function _hbcInsertASIs(){ _hbcTplASIs(); }
+    function _hbcInsertExtraAttack(){ _hbcTplExtraAttack(); }
     
     // ─────────────────────────────────────────────────────────────
     // FORM RENDERING  — one function per entity type
@@ -1562,7 +1960,7 @@
           return '<div style="margin-bottom:12px;">'
             + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
             + '<input id="hbe-' + id + '" type="' + type_ + '" value="' + (val||'').toString().replace(/"/g,'&quot;') + '" placeholder="' + (ph||'') + '"'
-            + ' style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
+            + ' style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
             + '</div>';
         },
         // textarea
@@ -1571,7 +1969,7 @@
           return '<div style="margin-bottom:12px;">'
             + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
             + '<textarea id="hbe-' + id + '" rows="' + rows + '" placeholder="' + (ph||'') + '"'
-            + ' style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
+            + ' style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
             + '</div>';
         },
         // select
@@ -1583,7 +1981,7 @@
           }).join('');
           return '<div style="margin-bottom:12px;">'
             + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-            + '<select id="hbe-' + id + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
+            + '<select id="hbe-' + id + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
             + '</div>';
         },
         // 2-col grid
@@ -1671,9 +2069,9 @@
 
         // Inner tab state
         var innerTab = window._hbcInnerTab || 'basics';
-        var tabLabel = {basics:'Basics',features:'Level Features',spellcasting:'Spellcasting',abilities:'Abilities',equipment:'Equipment'};
+        var tabLabel = {basics:'Basics',features:'Level Features',classtable:'Class Table',spellcasting:'Spellcasting',abilities:'Abilities',equipment:'Equipment'};
         var tabBar = '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;">';
-        ['basics','features','spellcasting','abilities','equipment'].forEach(function(t){
+        ['basics','features','classtable','spellcasting','abilities','equipment'].forEach(function(t){
           var active = innerTab===t;
           tabBar += '<button onclick="window._hbcInnerTab=\''+t+'\';renderHBEForm(\'class\',_hbeEditId?(_homebrewEntities.classes[_hbeEditId]||null):null)" '
             +'style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;cursor:pointer;border:none;'
@@ -1718,20 +2116,92 @@
           html += F.tex('features', 'Features', featVal, 'Crimson Rite|Imbue a weapon with dark energy as a bonus action.\nHunter\'s Bane|Advantage on Survival checks to track Undead, Fey, and Fiends.', 5);
         }
 
-        // ── LEVEL FEATURES ──────────────────────────────────────────
+        // ── LEVEL FEATURES (structured editor) ──────────────────────
         else if(innerTab==='features'){
           html += F.head('Level Features (Levels 2–20)');
-          html += F.note('One per line: Level|Name|Description — append |ASI for Ability Score Improvement levels.');
-          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">'
-            +'<button onclick="_hbcInsertASIs()" style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;'
-            +'padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">'
-            +'✦ Insert Standard ASI Levels (4,8,12,16,19)</button>'
-            +'<button onclick="_hbcInsertExtraAttack()" style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;'
-            +'padding:6px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">'
-            +'✦ Insert Extra Attack (Lv 5)</button>'
+          html += F.note('Add features at each level. ASI levels (4, 8, 12, 16, 19) are auto-included. Use the type badges to categorize features.');
+
+          // Template quick-add buttons
+          html += '<div class="hbc-templates">'
+            +'<button class="hbc-tpl-btn" onclick="_hbcTplASIs()">✦ Standard ASIs</button>'
+            +'<button class="hbc-tpl-btn" onclick="_hbcTplExtraAttack()">✦ Extra Attack (Lv 5)</button>'
+            +'<button class="hbc-tpl-btn" onclick="_hbcTplMartial()">✦ Martial Template</button>'
+            +'<button class="hbc-tpl-btn" onclick="_hbcTplCaster()">✦ Full Caster Template</button>'
+            +'<button class="hbc-tpl-btn" onclick="_hbcTplHalfCaster()">✦ Half-Caster Template</button>'
             +'</div>';
-          html += F.tex('levelFeatures', 'Level Features', lvFeatVal,
-            '2|Fighting Style|Choose a fighting style: Archery, Defense, Dueling, or Great Weapon Fighting.\n3|Crimson Rite (Tier 2)|Your Crimson Rite damage increases to 2d6.\n4|Ability Score Improvement||ASI\n5|Extra Attack|You can attack twice when you take the Attack action.\n8|Ability Score Improvement||ASI\n12|Ability Score Improvement||ASI\n16|Ability Score Improvement||ASI\n19|Ability Score Improvement||ASI\n20|Capstone Feature|Your most powerful class ability.', 24);
+
+          // Hidden textarea still holds the data for save compatibility
+          html += '<textarea id="hbe-levelFeatures" style="display:none;">'+lvFeatVal+'</textarea>';
+
+          // Structured feature list
+          html += '<div class="hbc-feat-list" id="hbc-feat-list"></div>';
+
+          // Add feature bar
+          html += '<div class="hbc-add-bar">'
+            +'<select id="hbc-add-level">';
+          for(var lv=2;lv<=20;lv++) html += '<option value="'+lv+'">Lv '+lv+'</option>';
+          html += '</select>'
+            +'<input id="hbc-add-name" type="text" placeholder="Feature name" style="flex:1;min-width:120px;"/>'
+            +'<button class="hbc-add-btn" onclick="_hbcAddFeature()">+ Add Feature</button>'
+            +'</div>';
+        }
+
+        // ── CLASS TABLE PREVIEW ─────────────────────────────────────
+        else if(innerTab==='classtable'){
+          html += F.head('Class Table Preview');
+          html += F.note('This shows how your class features map across all 20 levels, including proficiency bonus. Edit features in the Level Features tab.');
+
+          var scLevel = parseInt(e.subclassLevel)||3;
+          var scTitle = e.subclassTitle||'Subclass';
+
+          // Gather all features by level
+          var allFeats = {};
+          // Lv 1 features
+          (e.features||[]).forEach(function(f){ if(!allFeats[1]) allFeats[1]=[]; allFeats[1].push(f.name); });
+          // Lv 2-20 features
+          if(e.levelFeatures){
+            Object.keys(e.levelFeatures).forEach(function(lv){
+              if(!allFeats[lv]) allFeats[lv]=[];
+              (e.levelFeatures[lv]||[]).forEach(function(f){
+                allFeats[lv].push(f.name);
+              });
+            });
+          }
+          // Auto ASIs
+          [4,8,12,16,19].forEach(function(lv){
+            if(!allFeats[lv]) allFeats[lv]=[];
+            if(!allFeats[lv].some(function(n){return n.indexOf('Ability Score')!==-1;})){
+              allFeats[lv].push('Ability Score Improvement');
+            }
+          });
+
+          var profBonus = {1:'+2',2:'+2',3:'+2',4:'+2',5:'+3',6:'+3',7:'+3',8:'+3',9:'+4',10:'+4',11:'+4',12:'+4',13:'+5',14:'+5',15:'+5',16:'+5',17:'+6',18:'+6',19:'+6',20:'+6'};
+
+          html += '<div class="hbc-table-wrap"><table class="hbc-class-table">';
+          html += '<thead><tr><th>Level</th><th>Prof.</th><th>Features</th></tr></thead><tbody>';
+          for(var lv=1;lv<=20;lv++){
+            var feats = allFeats[lv]||[];
+            // Mark subclass level
+            if(lv===scLevel && !feats.some(function(n){return n===scTitle||n.indexOf('Subclass')!==-1;})){
+              feats = [scTitle+' Feature'].concat(feats);
+            }
+            var featHtml = feats.length ? feats.map(function(n){
+              if(n.indexOf('Ability Score')!==-1) return '<span class="hbc-ct-asi">'+n+'</span>';
+              if(n.indexOf(scTitle)!==-1||n.indexOf('Subclass')!==-1) return '<span class="hbc-ct-sub">'+n+'</span>';
+              return n;
+            }).join(', ') : '<span class="hbc-ct-empty">—</span>';
+
+            html += '<tr><td class="hbc-ct-level">'+lv+'</td><td class="hbc-ct-prof">'+profBonus[lv]+'</td><td class="hbc-ct-features">'+featHtml+'</td></tr>';
+          }
+          html += '</tbody></table></div>';
+
+          // HP progression note
+          var hd = e.hitDie||8;
+          html += '<div style="font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.6;">'
+            +'<strong style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Hit Points</strong><br>'
+            +'1st Level: '+hd+' + CON modifier<br>'
+            +'Higher Levels: 1d'+hd+' (or '+(hd/2+1)+') + CON modifier per level'
+            +'</div>';
         }
 
         // ── SPELLCASTING ────────────────────────────────────────────
@@ -1834,6 +2304,11 @@
       html += '</div>';
     
       body.innerHTML = html;
+
+      // Initialize structured feature editor if on features tab
+      if(type === 'class' && (window._hbcInnerTab || 'basics') === 'features'){
+        _hbcRenderFeatList();
+      }
     }
     
     // ─────────────────────────────────────────────────────────────
@@ -2395,7 +2870,7 @@
         + '<div style="padding:16px 24px 12px;border-bottom:1px solid var(--bg-card);">'
         + '<input id="hbc-search" type="text" value="'+S.search+'" placeholder="Search by name, type, tags…" '
         + 'oninput="_compendiumState.search=this.value;hbcRenderContent()" '
-        + 'style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 12px;box-sizing:border-box;margin-bottom:10px;"/>'
+        + 'style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 12px;box-sizing:border-box;margin-bottom:10px;"/>'
         + filterBar
         + (S.tab === 'community' ? sortBar : '')
         + '</div>'

@@ -10,7 +10,7 @@
       ['my-characters.html', 'My Characters']
     ],
     footerName: 'Phmurt Studios',
-    footerCopy: 'Roll well. Play weird.'
+    footerCopy: 'Roll Well. Play Weird.'
   };
 
   const BREADCRUMBS = {

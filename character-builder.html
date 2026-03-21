@@ -10,7 +10,7 @@
   <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="stylesheet" href="style.css" />
@@ -35,7 +35,7 @@
     .cb-step-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
     .cb-step-item.active .cb-step-label { color: rgba(255,255,255,0.8); }
     .cb-step-item.done .cb-step-label { color: rgba(255,255,255,0.5); }
-    .cb-step-sublabel { font-size: 11px; font-style: italic; color: rgba(192,57,43,0.7); margin-top: 2px; font-family: 'Cormorant Garamond', serif; }
+    .cb-step-sublabel { font-size: 11px; font-style: italic; color: rgba(192,57,43,0.7); margin-top: 2px; font-family: 'Spectral', serif; }
 
     /* ── CHARACTER SUMMARY SIDEBAR ── */
     .cb-summary-mini { padding: 24px; border-top: 1px solid rgba(192,57,43,0.15); margin-top: 20px; }
@@ -132,7 +132,7 @@
     .cb-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .cb-form-field { display: flex; flex-direction: column; gap: 6px; }
     .cb-form-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
-    .cb-form-input { background: rgba(255,255,255,0.04); border: 1px solid rgba(192,57,43,0.2); color: var(--white); font-family: 'Cormorant Garamond', serif; font-size: 15px; padding: 8px 12px; transition: border-color 0.2s; }
+    .cb-form-input { background: rgba(255,255,255,0.04); border: 1px solid rgba(192,57,43,0.2); color: var(--white); font-family: 'Spectral', serif; font-size: 15px; padding: 8px 12px; transition: border-color 0.2s; }
     .cb-form-input:focus { outline: none; border-color: var(--crimson); background: rgba(192,57,43,0.04); }
     select.cb-form-input option { background: #130f0f; color: var(--white); }
     .cb-form-textarea { resize: vertical; min-height: 90px; }
@@ -903,7 +903,7 @@
           <div style="margin-top:24px;padding:14px;background:var(--bg);border:1px solid var(--border);">
             <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Quick Add</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-              <input id="new-item-name" placeholder="Item name" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:14px;padding:7px 10px;flex:1;min-width:140px;" />
+              <input id="new-item-name" placeholder="Item name" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Spectral',serif;font-size:14px;padding:7px 10px;flex:1;min-width:140px;" />
               <input id="new-item-qty" type="number" value="1" min="1" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:14px;padding:7px 8px;width:60px;text-align:center;" />
               <button onclick="addInventoryItem()" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;background:var(--crimson);border:none;color:#f5f0e8;cursor:pointer;">Add</button>
             </div>
@@ -917,7 +917,7 @@
               <!-- Search and filter -->
               <div style="padding:14px;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;">
                 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-                  <input id="catalog-search" type="text" placeholder="Search items…" oninput="renderCatalog()" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:14px;padding:7px 10px;flex:1;min-width:140px;" />
+                  <input id="catalog-search" type="text" placeholder="Search items…" oninput="renderCatalog()" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:'Spectral',serif;font-size:14px;padding:7px 10px;flex:1;min-width:140px;" />
                 </div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;" id="catalog-filter-row">
                   <button onclick="setCatalogFilter('')" id="cat-filter-all" style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;background:var(--crimson);border:1px solid var(--crimson);color:#f5f0e8;cursor:pointer;">All</button>
@@ -1762,7 +1762,7 @@ function renderEquipment(){
           const curW=C.weaponChoices[wKey]||'';
           weapDrop=`<div style="margin-top:12px;">
             <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;">Choose Specific Weapon</div>
-            <select style="background:var(--bg-card);border:1px solid var(--crimson-border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:14px;padding:7px 10px;width:100%;" onchange="C.weaponChoices['${wKey}']=this.value;renderEquipment();">
+            <select style="background:var(--bg-card);border:1px solid var(--crimson-border);color:var(--text);font-family:'Spectral',serif;font-size:14px;padding:7px 10px;width:100%;" onchange="C.weaponChoices['${wKey}']=this.value;renderEquipment();">
               <option value="">Select a weapon...</option>
               ${wpns.map(w=>{const n=typeof w==='object'?w.name:w;const d=typeof w==='object'?` — ${w.damage} ${w.type}${w.props&&w.props!=='—'?' ('+w.props+')':''}`:'';
 return `<option value="${n}" ${curW===n?'selected':''}>${n}${d}</option>`;}).join('')}
@@ -2802,7 +2802,7 @@ function renderInventory(){
         if(props.length) html += '<div style="font-size:11px;color:var(--text-faint);margin-top:4px;">' + props.join(' · ') + '</div>';
       }
 
-            html += '<input type="text" data-inv="'+i+'" placeholder="Notes\u2026" oninput="inventoryItems[+this.dataset.inv].notes=this.value;scheduleSave();" style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text-dim);font-size:12px;padding:3px 0;margin-top:6px;outline:none;box-sizing:border-box;font-family:Cormorant Garamond,serif;"/>';
+            html += '<input type="text" data-inv="'+i+'" placeholder="Notes\u2026" oninput="inventoryItems[+this.dataset.inv].notes=this.value;scheduleSave();" style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text-dim);font-size:12px;padding:3px 0;margin-top:6px;outline:none;box-sizing:border-box;font-family:Spectral,Georgia,serif;"/>';
       html += '</div>';
     });
     html += '</div>';
@@ -3047,7 +3047,7 @@ function doLongRest(){
 function showRestToast(title,msg){
   const toast=document.createElement('div');
   toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--crimson-border);padding:14px 24px;font-family:"Cinzel",serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);z-index:9000;text-align:center;';
-  toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${title}</div><div style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${msg}</div>`;
+  toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${title}</div><div style="font-family:'Spectral',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${msg}</div>`;
   document.body.appendChild(toast);
   setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); },2500);
 }
@@ -4405,7 +4405,7 @@ function renderLevelUpBody(newLevel){
     html += '<div style="margin-top:16px;padding:14px 18px;background:var(--bg);border:1px solid var(--border);">';
     html += '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;">Add XP Gained This Session</div>';
     html += '<div style="display:flex;gap:8px;align-items:center;">';
-    html += '<input id="lu-xp-input" type="number" min="0" placeholder="e.g. 1000" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:\'Cormorant Garamond\',serif;font-size:15px;padding:7px 10px;flex:1;" />';
+    html += '<input id="lu-xp-input" type="number" min="0" placeholder="e.g. 1000" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:\'Spectral\',serif;font-size:15px;padding:7px 10px;flex:1;" />';
     html += '<button onclick="luAddXP()" style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;white-space:nowrap;">Add XP</button>';
     html += '</div></div>';
   }
@@ -4684,21 +4684,21 @@ function openHomebrewModal(editId) {
     type = type || 'text';
     return '<div style="margin-bottom:12px;">'
       + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-      + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
+      + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
       + '</div>';
   };
 
   var sel = function(id, label, opts) {
     return '<div style="margin-bottom:12px;">'
       + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-      + '<select id="hb-' + id + '" onchange="hbUpdateConditionalFields()" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
+      + '<select id="hb-' + id + '" onchange="hbUpdateConditionalFields()" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
       + '</div>';
   };
 
   var tex = function(id, label, val, ph) {
     return '<div style="margin-bottom:12px;">'
       + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-      + '<textarea id="hb-' + id + '" rows="3" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
+      + '<textarea id="hb-' + id + '" rows="3" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
       + '</div>';
   };
 
@@ -4726,7 +4726,7 @@ function openHomebrewModal(editId) {
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">'
     + '<div>'
     + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">Value</label>'
-    + '<input id="hb-value" type="text" value="' + (existing ? existing.value : '') + '" placeholder="e.g. 500 gp" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
+    + '<input id="hb-value" type="text" value="' + (existing ? existing.value : '') + '" placeholder="e.g. 500 gp" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
     + '</div>'
     + '<div>'
     + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">Weight (lb)</label>'
@@ -4791,7 +4791,7 @@ function hbUpdateConditionalFields(prefill) {
     type = type || 'text';
     return '<div>'
       + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-      + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
+      + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
       + '</div>';
   };
 
@@ -5621,7 +5621,7 @@ function renderHBEForm(type, existing) {
       return '<div style="margin-bottom:12px;">'
         + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
         + '<input id="hbe-' + id + '" type="' + type_ + '" value="' + (val||'').toString().replace(/"/g,'&quot;') + '" placeholder="' + (ph||'') + '"'
-        + ' style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
+        + ' style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
         + '</div>';
     },
     // textarea
@@ -5630,7 +5630,7 @@ function renderHBEForm(type, existing) {
       return '<div style="margin-bottom:12px;">'
         + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
         + '<textarea id="hbe-' + id + '" rows="' + rows + '" placeholder="' + (ph||'') + '"'
-        + ' style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
+        + ' style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
         + '</div>';
     },
     // select
@@ -5642,7 +5642,7 @@ function renderHBEForm(type, existing) {
       }).join('');
       return '<div style="margin-bottom:12px;">'
         + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
-        + '<select id="hbe-' + id + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
+        + '<select id="hbe-' + id + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
         + '</div>';
     },
     // 2-col grid
@@ -6534,7 +6534,7 @@ function showHomebrewManager() {
     + '<div style="padding:16px 24px 12px;border-bottom:1px solid var(--bg-card);">'
     + '<input id="hbc-search" type="text" value="'+S.search+'" placeholder="Search by name, type, tags…" '
     + 'oninput="_compendiumState.search=this.value;hbcRenderContent()" '
-    + 'style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Cormorant Garamond,serif;font-size:14px;padding:8px 12px;box-sizing:border-box;margin-bottom:10px;"/>'
+    + 'style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 12px;box-sizing:border-box;margin-bottom:10px;"/>'
     + filterBar
     + (S.tab === 'community' ? sortBar : '')
     + '</div>'
@@ -6994,7 +6994,7 @@ window.addEventListener('DOMContentLoaded',function(){ loadHomebrewItems(); load
   <!-- LEVEL UP MODAL -->
   
   <!-- SRD LEGAL NOTICE -->
-  <div style="text-align:center;padding:20px;font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--text-faint);line-height:1.6;border-top:1px solid var(--border);margin-top:20px;">
+  <div style="text-align:center;padding:20px;font-family:'Spectral',serif;font-size:11px;color:var(--text-faint);line-height:1.6;border-top:1px solid var(--border);margin-top:20px;">
     <strong style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;">Legal Notice</strong><br>
     This character builder uses game mechanics based on the <em>Systems Reference Document 5.1</em> (SRD 5.1) 
     by Wizards of the Coast LLC, licensed under the 
@@ -7044,7 +7044,7 @@ window.addEventListener('DOMContentLoaded',function(){ loadHomebrewItems(); load
     </div>
   </div>
   <div class="ps-footer" style="margin-top:0;">
-    <div class="ps-footer-copy">Roll well. Play weird.</div>
+    <div class="ps-footer-copy">Roll Well. Play Weird.</div>
   </div>
 </body>
 </html>
