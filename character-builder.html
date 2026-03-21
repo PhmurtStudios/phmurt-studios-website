@@ -1333,7 +1333,7 @@ function renderRaces(){
     const hbBadge=race.source==='homebrew'?'<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:#8b6914;margin-left:6px;">✶ HB</span>':'';
     const editBtn=race.source==='homebrew'?'<button data-hbe-edit-type="race" data-hbe-edit-id="'+id+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
     d.style.position='relative';
-    d.innerHTML=`<div class="cb-card-name">\${race.name}\${hbBadge}</div><div class="cb-card-detail">\${asi} · \${race.size} · \${race.speed}ft</div>\${editBtn}`;
+    d.innerHTML=`<div class="cb-card-name">${race.name}${hbBadge}</div><div class="cb-card-detail">${asi} · ${race.size} · ${race.speed}ft</div>${editBtn}`;
     c.appendChild(d);
   });
   // Wire edit buttons for homebrew entities
@@ -1387,7 +1387,7 @@ function renderClasses(){
     const editBtn=cls.source==='homebrew'?'<button data-hbe-edit-type="class" data-hbe-edit-id="'+id+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
     d.style.position='relative';
     const sp=cls.spellcastingAbility?` · ${DND_DATA.abilityShort[cls.spellcastingAbility]} Spells`:'';
-    d.innerHTML=`<div class="cb-card-name">\${cls.name}\${hbBadge}</div><div class="cb-card-detail">d\${cls.hitDie} Hit Die\${sp}</div><div class="cb-card-badge">\${cls.primaryAbility.toUpperCase()}</div>\${editBtn}`;
+    d.innerHTML=`<div class="cb-card-name">${cls.name}${hbBadge}</div><div class="cb-card-detail">d${cls.hitDie} Hit Die${sp}</div><div class="cb-card-badge">${cls.primaryAbility.toUpperCase()}</div>${editBtn}`;
     c.appendChild(d);
   });
   // Wire edit buttons for homebrew entities
@@ -1435,7 +1435,7 @@ function renderBackgrounds(){
     const hbBadge=bg.source==='homebrew'?'<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:#8b6914;margin-left:6px;">✶ HB</span>':'';
     const editBtn=bg.source==='homebrew'?'<button data-hbe-edit-type="background" data-hbe-edit-id="'+id+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
     d.style.position='relative';
-    d.innerHTML=`<div class="cb-card-name">\${bg.name}\${hbBadge}</div><div class="cb-card-detail">\${bg.skills.join(', ')}</div>\${editBtn}`;
+    d.innerHTML=`<div class="cb-card-name">${bg.name}${hbBadge}</div><div class="cb-card-detail">${bg.skills.join(', ')}</div>${editBtn}`;
     c.appendChild(d);
   });
   // Wire edit buttons for homebrew entities
