@@ -27,7 +27,7 @@
 <body>
 
   <nav class="ps-nav">
-    <div class="ps-nav-links">
+        <div class="ps-nav-links">
       <a href="index.html">Home</a>
       <a href="grimoire.html">Grimoire</a>
       <a href="compendium.html">Compendium</a>
@@ -50,6 +50,19 @@
     <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
     <a href="index.html">Home</a>
     <div class="ps-mobile-divider"></div>
+    <a href="grimoire.html">Grimoire</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="compendium.html">Compendium</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-builder.html">Builder</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="character-sheets.html" class="active">Sheets</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="about.html">About</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="my-characters.html">My Characters</a>
+  
+  </div></div>
     <a href="grimoire.html">Grimoire</a>
     <div class="ps-mobile-divider"></div>
     <a href="character-sheets.html" class="active">Sheets</a>
@@ -165,6 +178,9 @@
         a.addEventListener('click',e=>{e.preventDefault();window.location.href=href;});
       }
     });
-    // Scroll reveal
-    const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
-    document.querySelectorAll('.reveal').forEach(el=>obs.observe(e
+        const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  </script>
+
+</body>
+</html>
