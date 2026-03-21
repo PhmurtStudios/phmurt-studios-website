@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Character Builder — Phmurt Studios</title>
+  <title>Character Builder · Phmurt Studios</title>
   <meta name="description" content="Build your D&D 5e character step by step with the Phmurt Studios character builder." />
-  <meta property="og:title" content="Character Builder — Phmurt Studios" />
+  <meta property="og:title" content="Character Builder · Phmurt Studios" />
   <meta property="og:description" content="Step-by-step D&D 5e character creation with auto-calculations." />
   <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -609,7 +609,7 @@
           <button class="cb-method-tab" onclick="setScoreMethod('roll')">Roll 4d6</button>
           <button class="cb-method-tab" onclick="setScoreMethod('manual')">Manual Entry</button>
         </div>
-        <div id="scoreMethodInfo" class="cb-alert"><strong>Standard Array</strong> — Assign the values 15, 14, 13, 12, 10, 8 to your six ability scores. Click a score to assign, then click an ability box to place it.</div>
+        <div id="scoreMethodInfo" class="cb-alert"><strong>Standard Array</strong>: Assign the values 15, 14, 13, 12, 10, 8 to your six ability scores. Click a score to assign, then click an ability box to place it.</div>
         <div id="arrayPool" class="cb-array-pool" style="display:flex;"></div>
         <div id="rollPanel">
           <button class="cb-roll-all-btn" onclick="rollAllStats()">Roll All Stats (4d6 drop lowest)</button>
@@ -731,7 +731,7 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
             <div class="cb-card" id="lm-milestone" onclick="setLevelingMethod('milestone')" style="padding:16px;cursor:pointer;">
               <div class="cb-card-name">Milestone</div>
-              <div class="cb-card-detail">Level up when your DM decides — no XP tracking needed.</div>
+              <div class="cb-card-detail">Level up when your DM decides. No XP tracking needed.</div>
             </div>
             <div class="cb-card" id="lm-xp" onclick="setLevelingMethod('xp')" style="padding:16px;cursor:pointer;">
               <div class="cb-card-name">Experience Points</div>
@@ -1475,7 +1475,7 @@ function setScoreMethod(m){
   C.scoreMethod=m;
   document.querySelectorAll('.cb-method-tab').forEach((t,i)=>t.classList.toggle('active',['standard','pointbuy','roll','manual'][i]===m));
   const info=document.getElementById('scoreMethodInfo');
-  if(m==='standard') info.innerHTML='<strong>Standard Array</strong> — Click a value, then click an ability box to assign it.';
+  if(m==='standard') info.innerHTML='<strong>Standard Array</strong>: Click a value, then click an ability box to assign it.';
   else if(m==='pointbuy') info.innerHTML='<strong>Point Buy</strong> — 27 points. Scores start at 8. Higher scores cost more.';
   else if(m==='roll') info.innerHTML='<strong>Roll 4d6 Drop Lowest</strong> — Click "Roll All Stats", then assign each result to an ability.';
   else info.innerHTML='<strong>Manual Entry</strong> — Type scores (1–20) directly into each box.';
@@ -6599,6 +6599,9 @@ window.addEventListener('DOMContentLoaded',function(){ loadHomebrewItems(); load
       <div class="dp-crit-label" id="dp-dmg-crit"></div>
       <button onclick="closeDicePopup()" style="margin-top:14px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:7px 18px;background:transparent;color:var(--text-muted);border:1px solid var(--border);cursor:pointer;width:100%;">Close</button>
     </div>
+  </div>
+  <div class="ps-footer" style="margin-top:0;">
+    <div class="ps-footer-copy">Roll well. Play weird.</div>
   </div>
 </body>
 </html>
