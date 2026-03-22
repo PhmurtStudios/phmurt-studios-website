@@ -44,10 +44,11 @@ DND35_DATA.races = {
     traits:[
       {name:'Darkvision',desc:'Dwarves can see in the dark up to 60 feet.'},
       {name:'Stonecunning',desc:'+2 racial bonus on Search checks for unusual stonework. Automatic check if within 10 feet.'},
+      {name:'Weapon Familiarity',desc:'Dwarves may treat dwarven waraxes and dwarven urgroshes as martial weapons rather than exotic weapons.'},
+      {name:'Racial Combat Bonus',desc:'+1 racial bonus on attack rolls against orcs and goblinoids. +4 dodge bonus to AC against giants.'},
       {name:'Stability',desc:'+4 bonus vs. bull rush or trip attacks when standing on the ground.'},
       {name:'Poison Resistance',desc:'+2 racial bonus on saving throws against poison.'},
-      {name:'Spell Resistance',desc:'+2 racial bonus on saving throws against spells and spell-like effects.'},
-      {name:'Darkvision 60 ft',desc:'Can see perfectly in darkness up to 60 feet.'}
+      {name:'Spell Resistance',desc:'+2 racial bonus on saving throws against spells and spell-like effects.'}
     ],
     skillBonuses:{appraise:2,craft:2},
     subraces:[]
@@ -57,7 +58,9 @@ DND35_DATA.races = {
     asi:{con:2,str:-2},
     traits:[
       {name:'Low-Light Vision',desc:'Gnomes can see twice as far as a human in dim light.'},
-      {name:'Gnome Magic',desc:'+1 DC for all illusion spells. Can cast speak with animals (burrowing mammals) 1/day.'},
+      {name:'Gnome Magic',desc:'+1 DC for all illusion spells. Can cast dancing lights, ghost sound, prestidigitation 1/day each. Can cast speak with animals (burrowing mammals) 1/day.'},
+      {name:'Weapon Familiarity',desc:'Gnomes may treat gnome hooked hammers as martial weapons rather than exotic weapons.'},
+      {name:'Racial Combat Bonus',desc:'+1 racial bonus on attack rolls against kobolds and goblinoids. +4 dodge bonus to AC against giants.'},
       {name:'Spell Resistance',desc:'+2 racial bonus on saving throws vs. illusions.'},
       {name:'Keen Ears',desc:'+2 racial bonus on Listen checks.'},
       {name:'Small Size',desc:'+1 bonus to Armor Class and attack rolls. +4 bonus on Hide checks. -4 penalty on grapple checks.'}
@@ -226,7 +229,7 @@ DND35_DATA.classes = {
     name:'Ranger', hitDie:8, skillPoints:6, babProg:'good',
     goodSaves:['fort','ref'], poorSaves:['will'],
     primaryAbility:'dex',
-    armorProf:['Light armor'],
+    armorProf:['Light armor','Shields (not tower)'],
     weaponProf:['Simple weapons','Martial weapons'],
     classSkills:['Climb','Concentration','Craft','Handle Animal','Heal','Hide','Jump','Knowledge (dungeoneering)','Knowledge (geography)','Knowledge (nature)','Listen','Move Silently','Profession','Ride','Search','Spot','Survival','Swim','Use Rope'],
     spellcastingAbility:'wis',
@@ -304,7 +307,7 @@ DND35_DATA.skills = {
   balance:         {name:'Balance',           ability:'dex', trained:false},
   bluff:           {name:'Bluff',             ability:'cha', trained:false},
   climb:           {name:'Climb',             ability:'str', trained:false},
-  concentration:   {name:'Concentration',     ability:'con', trained:true},
+  concentration:   {name:'Concentration',     ability:'con', trained:false},
   craft:           {name:'Craft',             ability:'int', trained:false},
   decipherScript:  {name:'Decipher Script',   ability:'int', trained:true},
   diplomacy:       {name:'Diplomacy',         ability:'cha', trained:false},
@@ -507,7 +510,6 @@ DND35_DATA.weapons = {
     {name:'Handaxe',     damage:'1d6', type:'S',  crit:'×3',  range:'—'},
     {name:'Light Hammer',damage:'1d4', type:'B',  crit:'×2',  range:'20 ft'},
     {name:'Morningstar', damage:'1d8', type:'B/P',crit:'×2',  range:'—'},
-    {name:'Shortspear',  damage:'1d6', type:'P',  crit:'×2',  range:'20 ft'},
   ],
   simple_ranged:[
     {name:'Heavy Crossbow',damage:'1d10',type:'P',crit:'19-20/×2',range:'120 ft'},
@@ -529,9 +531,8 @@ DND35_DATA.weapons = {
     {name:'Scimitar',    damage:'1d6',  type:'S',   crit:'18-20/×2',range:'—'},
     {name:'Warhammer',   damage:'1d8',  type:'B',   crit:'×3',      range:'—'},
     {name:'Falchion',    damage:'2d4',  type:'S',   crit:'18-20/×2',range:'—'},
-    {name:'Morningstar', damage:'1d8',  type:'B/P', crit:'×2',      range:'—'},
     {name:'Short Sword', damage:'1d6',  type:'P',   crit:'19-20/×2',range:'—'},
-    {name:'Bastard Sword',damage:'1d10',type:'S',   crit:'19-20/×2',range:'—'},
+    {name:'Trident',     damage:'1d8',  type:'P',   crit:'×2',      range:'10 ft'},
   ],
   martial_ranged:[
     {name:'Longbow',     damage:'1d8',  type:'P', crit:'×3',       range:'100 ft'},
