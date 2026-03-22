@@ -6,6 +6,7 @@ const PRECACHE_URLS = [
   'phmurt-shell.js',
   'builder-data.js',
   'builder-data-35.js',
+  'monster-data.js',
   'logo.png'
 ];
 

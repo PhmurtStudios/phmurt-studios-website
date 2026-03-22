@@ -725,22 +725,7 @@ body.page-out{opacity:0;transform:translateY(-8px);transition:opacity 0.18s, tra
 #ps-toast.visible{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* ═══════════════════════════════
-   KEYBOARD SHORTCUTS OVERLAY
-   ═══════════════════════════════ */
-#ps-shortcuts-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);opacity:0;pointer-events:none;transition:opacity 0.3s ease;z-index:10000;display:flex;align-items:center;justify-content:center;}
-#ps-shortcuts-overlay.visible{opacity:1;pointer-events:auto;}
-.ps-shortcuts-card{background:var(--bg-card);border:1px solid var(--crimson-border);border-radius:4px;padding:40px;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.5);}
-.ps-shortcuts-title{font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:24px;letter-spacing:1px;text-transform:uppercase;}
-.ps-shortcuts-section{margin-bottom:28px;}
-.ps-shortcuts-section:last-child{margin-bottom:0;}
-.ps-shortcuts-section-title{font-family:'Cinzel',serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--crimson);margin-bottom:12px;}
-.ps-shortcuts-list{display:flex;flex-direction:column;gap:8px;}
-.ps-shortcut-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
-.ps-shortcut-item:last-child{border-bottom:none;}
-.ps-shortcut-keys{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;background:var(--bg-hover);color:var(--crimson);padding:4px 8px;border-radius:2px;min-width:60px;text-align:center;text-transform:uppercase;}
-.ps-shortcut-desc{font-family:'Spectral',serif;font-size:13px;color:var(--text-dim);flex:1;padding-right:16px;}
-.ps-shortcuts-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--text-muted);font-size:24px;cursor:pointer;padding:4px;line-height:1;}
-.ps-shortcuts-close:hover{color:var(--text);}
+   (Keyboard shortcuts removed)
 
 /* ═══════════════════════════════
    PARALLAX EFFECT
