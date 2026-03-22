@@ -613,3 +613,51 @@ a{text-decoration:none;color:inherit;}
   .cs-header{padding:24px;grid-template-columns:1fr;}
   .ps-chars-grid{grid-template-columns:1fr;margin:0 24px 40px;}
 }
+
+/* ── Fantasy Decorative Elements ──────────────────────────── */
+.fantasy-divider{
+  display:flex;align-items:center;gap:16px;margin:32px auto;max-width:900px;padding:0 24px;
+  color:var(--text-faint);font-size:12px;letter-spacing:4px;
+}
+.fantasy-divider::before,.fantasy-divider::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,var(--crimson-border),transparent);
+}
+.fantasy-heading::before{
+  content:'\2694\FE0F ';color:var(--crimson);font-size:0.7em;opacity:0.5;margin-right:2px;
+}
+.fantasy-section-end{
+  text-align:center;color:var(--text-faint);font-size:10px;letter-spacing:8px;margin:40px 0 20px;opacity:0.35;
+}
+.fantasy-flourish{
+  text-align:center;font-size:11px;letter-spacing:12px;color:var(--crimson);opacity:0.3;margin:12px 0;
+}
+.ps-page-eyebrow::before{
+  content:'✦ ';opacity:0.5;
+}
+.ps-page-eyebrow::after{
+  content:' ✦';opacity:0.5;
+}
+.ps-section-title::before{
+  content:'◆ ';font-size:0.6em;color:var(--crimson);opacity:0.45;vertical-align:middle;
+}
+.ps-section-title::after{
+  content:' ◆';font-size:0.6em;color:var(--crimson);opacity:0.45;vertical-align:middle;
+}
+.ps-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--crimson-border),transparent);
+  opacity:0;transition:opacity 0.3s;
+}
+.ps-card{position:relative;}
+.ps-card:hover::before{opacity:1;}
+.ps-connect-card::after{
+  content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:1px;
+  background:var(--crimson);transition:width 0.3s;
+}
+.ps-connect-card{position:relative;}
+.ps-connect-card:hover::after{width:80%;}
+.ps-about-block::before{
+  content:'⬥';position:absolute;top:14px;right:16px;color:var(--crimson);opacity:0.15;font-size:14px;
+}
+.ps-about-block{position:relative;}

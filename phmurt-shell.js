@@ -123,7 +123,7 @@
     ).join('');
 
     const mobileLinks = SHELL.nav.map(([href, label], index) =>
-      `${index ? '<div class="ps-mobile-divider"></div>' : ''}<a href="${href}"${label === activeLabel ? ' class="active"' : ''}>${label}</a>`
+      `${index ? '<div class="ps-mobile-divider"></div>' : ''}<a href="${href}"${label === activeLabel ? ' class="active"' : ''}><span style="color:var(--crimson);opacity:0.4;font-size:9px;margin-right:8px;">✦</span>${label}</a>`
     ).join('');
 
     return `
@@ -166,9 +166,11 @@
       <footer class="ps-footer">
         <div class="ps-footer-logo">
           <img src="logo.png" alt="Phmurt Studios" />
+          <span style="color:var(--crimson);opacity:0.4;font-size:8px;margin:0 6px;">◆</span>
           <span class="ps-footer-name">${SHELL.footerName}</span>
         </div>
         <div class="ps-footer-copy">${getFooterCopy()}</div>
+        <div style="text-align:center;color:var(--crimson);opacity:0.2;font-size:9px;letter-spacing:10px;margin-top:12px;">✦ ◆ ✦</div>
       </footer>
     `;
   }
