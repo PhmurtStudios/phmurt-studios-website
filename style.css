@@ -25,6 +25,8 @@
   --white:      #f5ede0;
   --black-card: #111010;
   --black-mid:  #181212;
+  --bg-input:   rgba(255,255,255,0.04);
+  --border-subtle: rgba(255,255,255,0.06);
 }
 
 /* ═══════════════════════════════
@@ -52,6 +54,8 @@ html.light-mode{
   --white:      #140902;
   --black-card: #e9dfc9;
   --black-mid:  #d4c8ac;
+  --bg-input:   rgba(20,9,2,0.06);
+  --border-subtle: rgba(20,9,2,0.10);
 }
 
 /* ═══════════════════════════════

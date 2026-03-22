@@ -296,7 +296,6 @@ DND_DATA.standardActions = [
 
 // ── SPELL SLOT TABLES ──
 
-
 // ── SPELL DESCRIPTIONS ──
 DND_DATA.spellDescriptions = {
   // Cantrips
@@ -424,7 +423,6 @@ if(DND_DATA.weaponCategories){
     DND_DATA.itemCategories[k] = DND_DATA.weaponCategories[k];
   });
 }
-
 
 // ── LEVEL UP DATA ──
 // ══════════════════════════════════════════════════════
@@ -1242,7 +1240,6 @@ DND_DATA.cantripsKnownTable = {
 
   data.spellLevel = levelMap;
 })();
-
 
 // ══════════════════════════════════════════════════════════════
 // FEATS — D&D 5e PHB + Common Sourcebooks

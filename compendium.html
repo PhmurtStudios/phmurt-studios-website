@@ -694,7 +694,7 @@
     <a href="about.html">About</a>
     <div class="ps-mobile-divider"></div>
     <a href="my-characters.html">My Characters</a>
-  
+
     </div>
 
   <nav class="ps-breadcrumb" aria-label="Breadcrumb">
@@ -846,11 +846,10 @@
       document.body.appendChild(toast);
       setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); },2500);
     }
-    
+
     // ══════════════════════════════════════════
     // LEVELING HELPERS
     // ══════════════════════════════════════════
-    
 
     // ── Item homebrew system ─────────────────────────────────────
     // ══════════════════════════════════════════════════════════════
@@ -860,15 +859,15 @@
     // registerHomebrewItem() merges into itemDB so the catalog
     // and inventory code need zero changes.
     // ══════════════════════════════════════════════════════════════
-    
+
     // ── Storage keys ─────────────────────────────────────────────
     var HOMEBREW_KEY = 'phmurt_homebrew_items';
-    
+
     // ── Runtime state ─────────────────────────────────────────────
     DND_DATA.homebrewDB = {};          // id -> item, homebrew only
     var _homebrewModalMode = 'create'; // 'create' | 'edit'
     var _homebrewEditId    = null;
-    
+
     // ── Bootstrap: load from localStorage on page ready ──────────
     function loadHomebrewItems() {
       try {
@@ -883,7 +882,7 @@
         console.warn('Homebrew load error:', e);
       }
     }
-    
+
     // ── Persist homebrewDB to localStorage ───────────────────────
     function saveHomebrewItems() {
       try {
@@ -892,14 +891,14 @@
         console.warn('Homebrew save error:', e);
       }
     }
-    
+
     // ── Internal: register one item into both DBs ────────────────
     function _registerHomebrewItem(item) {
       item.source = 'homebrew';
       DND_DATA.homebrewDB[item.id] = item;
       DND_DATA.itemDB[item.id]     = item;
     }
-    
+
     // ── Generate a stable unique id from a name ───────────────────
     function homebrewId(name) {
       var base = 'hb-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -908,29 +907,29 @@
       while (DND_DATA.itemDB[base + '-' + i]) i++;
       return base + '-' + i;
     }
-    
+
     // ══════════════════════════════════════════════════════════════
     // HOMEBREW MODAL
     // ══════════════════════════════════════════════════════════════
-    
+
     function openHomebrewModal(editId) {
       _homebrewModalMode = editId ? 'edit' : 'create';
       _homebrewEditId    = editId || null;
-    
+
       var existing = editId ? DND_DATA.homebrewDB[editId] : null;
-    
+
       // Build modal HTML
       var cats = DND_DATA.itemCategories2 || {};
       var catOptions = Object.keys(cats).map(function(k) {
         var sel = existing && existing.category === k ? ' selected' : '';
         return '<option value="' + k + '"' + sel + '>' + cats[k] + '</option>';
       }).join('');
-    
+
       var rarOpts = ['common','uncommon','rare','very rare','legendary'].map(function(r) {
         var sel = existing && existing.rarity === r ? ' selected' : ((!existing && r === 'uncommon') ? ' selected' : '');
         return '<option value="' + r + '"' + sel + '>' + r.charAt(0).toUpperCase() + r.slice(1) + '</option>';
       }).join('');
-    
+
       var inp = function(id, label, val, ph, type) {
         type = type || 'text';
         return '<div style="margin-bottom:12px;">'
@@ -938,42 +937,42 @@
           + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
           + '</div>';
       };
-    
+
       var sel = function(id, label, opts) {
         return '<div style="margin-bottom:12px;">'
           + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
           + '<select id="hb-' + id + '" onchange="hbUpdateConditionalFields()" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;">' + opts + '</select>'
           + '</div>';
       };
-    
+
       var tex = function(id, label, val, ph) {
         return '<div style="margin-bottom:12px;">'
           + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">' + label + '</label>'
           + '<textarea id="hb-' + id + '" rows="3" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;resize:vertical;">' + (val||'') + '</textarea>'
           + '</div>';
       };
-    
+
       var titleText = editId ? 'Edit Homebrew Item' : 'Create Homebrew Item';
-    
+
       var html = '<div id="hb-overlay" onclick="if(event.target===this)closeHomebrewModal()" '
         + 'style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">'
         + '<div style="background:var(--bg);border:1px solid var(--border);width:100%;max-width:540px;max-height:90vh;overflow-y:auto;padding:28px;">'
-    
+
         // Header
         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">'
         + '<div style="font-family:Cinzel,serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--crimson);">' + titleText + '</div>'
         + '<button onclick="closeHomebrewModal()" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:22px;line-height:1;padding:0 4px;">×</button>'
         + '</div>'
-    
+
         // Form
         + inp('name', 'Item Name *', existing ? existing.name : '', 'e.g. Blade of Forgotten Kings')
         + sel('category', 'Category *', catOptions)
         + inp('subcategory', 'Subcategory', existing ? existing.subcategory : '', 'e.g. Named Weapons, Misc')
         + sel('rarity', 'Rarity', rarOpts)
-    
+
         // Conditional fields container
         + '<div id="hb-conditional-fields"></div>'
-    
+
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">'
         + '<div>'
         + '<label style="display:block;font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">Value</label>'
@@ -984,21 +983,21 @@
         + '<input id="hb-weight" type="number" step="0.1" min="0" value="' + (existing ? existing.weight : '0') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
         + '</div>'
         + '</div>'
-    
+
         + tex('desc', 'Description *', existing ? existing.desc : '', 'What does this item look like and do?')
-    
+
         // Attunement checkbox
         + '<div style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">'
         + '<input id="hb-attunement" type="checkbox"' + (existing && existing.attunement ? ' checked' : '') + ' style="width:16px;height:16px;cursor:pointer;accent-color:var(--crimson);"/>'
         + '<label for="hb-attunement" style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);cursor:pointer;">Requires Attunement</label>'
         + '</div>'
-    
+
         // Error message
         + '<div id="hb-error" style="display:none;font-size:12px;color:var(--crimson);margin-bottom:12px;padding:8px;border:1px solid var(--crimson-border);"></div>'
-    
+
         // Sharing checkbox
         + _hbSharingCheckboxHtml(!!editId, !!(existing && existing.shared))
-    
+
         // Buttons
         + '<div style="display:flex;gap:10px;justify-content:flex-end;">'
         + '<button onclick="closeHomebrewModal()" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Cancel</button>'
@@ -1007,9 +1006,9 @@
         + (editId ? 'Save Changes' : 'Create Item')
         + '</button>'
         + '</div>'
-    
+
         + '</div></div>';
-    
+
       // Inject into DOM
       var host = document.getElementById('hb-modal-host');
       if (!host) {
@@ -1018,16 +1017,16 @@
         document.body.appendChild(host);
       }
       host.innerHTML = html;
-    
+
       // Fill conditional fields based on current category
       hbUpdateConditionalFields(existing);
     }
-    
+
     function closeHomebrewModal() {
       var host = document.getElementById('hb-modal-host');
       if (host) host.innerHTML = '';
     }
-    
+
     // ── Render category-specific fields ──────────────────────────
     function hbUpdateConditionalFields(prefill) {
       var catEl = document.getElementById('hb-category');
@@ -1035,7 +1034,7 @@
       var cat = catEl.value;
       var container = document.getElementById('hb-conditional-fields');
       if (!container) return;
-    
+
       var p = prefill || {};
       var html = '';
       var inp = function(id, label, val, ph, type) {
@@ -1045,21 +1044,21 @@
           + '<input id="hb-' + id + '" type="' + type + '" value="' + (val||'') + '" placeholder="' + (ph||'') + '" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);font-family:Spectral,Georgia,serif;font-size:14px;padding:8px 10px;box-sizing:border-box;"/>'
           + '</div>';
       };
-    
+
       if (cat === 'weapon' || cat === 'magic-weapon') {
         html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">'
           + inp('damage',     'Damage Dice',    p.damage,     'e.g. 2d6 slashing')
           + inp('properties', 'Properties',     p.properties, 'e.g. Finesse, Light')
           + '</div>';
       }
-    
+
       if (cat === 'armor' || cat === 'magic-armor') {
         html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">'
           + inp('ac-formula', 'AC Formula',     p.properties, 'e.g. AC 15 + DEX (max 2)')
           + inp('str-req',    'STR Requirement',p['str-req'],  'e.g. STR 15')
           + '</div>';
       }
-    
+
       if (cat === 'magic-weapon' || cat === 'magic-armor' || cat === 'ring' ||
           cat === 'rod' || cat === 'staff' || cat === 'wand' || cat === 'wondrous') {
         html += '<div style="margin-bottom:12px;">'
@@ -1072,16 +1071,16 @@
             + '</div>';
         }
       }
-    
+
       if (cat === 'potion' || cat === 'scroll') {
         html += '<div style="margin-bottom:12px;">'
           + inp('effect', 'Effect / Spell', p.effect, 'e.g. Heals 2d4+2 HP, or Fireball (DC 15)')
           + '</div>';
       }
-    
+
       container.innerHTML = html;
     }
-    
+
     // ── Collect form values and build item object ─────────────────
     function _collectHomebrewForm() {
       var g = function(id) {
@@ -1096,18 +1095,18 @@
         var el = document.getElementById('hb-' + id);
         return el ? (parseFloat(el.value) || 0) : 0;
       };
-    
+
       var name = g('name');
       var cat  = g('category');
       var desc = g('desc');
       var errors = [];
-    
+
       if (!name) errors.push('Item name is required.');
       if (!cat)  errors.push('Category is required.');
       if (!desc) errors.push('Description is required.');
-    
+
       if (errors.length) return { errors: errors };
-    
+
       var item = {
         id:          _homebrewEditId || homebrewId(name),
         name:        name,
@@ -1120,7 +1119,7 @@
         desc:        desc,
         attunement:  gc('attunement'),
       };
-    
+
       // Conditional fields
       if (cat === 'weapon' || cat === 'magic-weapon') {
         var dmg  = g('damage');
@@ -1142,14 +1141,14 @@
       if (recharge) item.recharge = recharge;
       var effect = g('effect');
       if (effect) item.effect = effect;
-    
+
       return { item: item };
     }
-    
+
     // ── Save button handler ───────────────────────────────────────
     function saveHomebrewItem() {
       var result = _collectHomebrewForm();
-    
+
       var errEl = document.getElementById('hb-error');
       if (result.errors) {
         errEl.innerHTML = result.errors.join('<br>');
@@ -1157,24 +1156,24 @@
         return;
       }
       if (errEl) errEl.style.display = 'none';
-    
+
       var item = result.item;
       _registerHomebrewItem(item);
       saveHomebrewItems();
       closeHomebrewModal();
-    
+
       // If catalog is open, re-render it
       if (_catalogOpen) {
         buildCatalogFilters();
         renderCatalog();
       }
-    
+
       // Toast
       showRestToast(
         _homebrewModalMode === 'edit' ? 'Item Updated' : 'Item Created',
         '"' + item.name + '" ' + (_homebrewModalMode === 'edit' ? 'has been updated.' : 'added to your homebrew collection.')
       );
-    
+
       // Handle sharing checkbox
       var shareEl = document.getElementById('hbe-share-community');
       if (shareEl && shareEl.checked) {
@@ -1186,41 +1185,40 @@
         hbUnshareEntry('item', item.id);
       }
     }
-    
+
     // ── Delete a homebrew item ────────────────────────────────────
     function deleteHomebrewItem(id) {
       if (!DND_DATA.homebrewDB[id]) return;
       var name = DND_DATA.homebrewDB[id].name;
-    
+
       // Remove from both DBs
       delete DND_DATA.homebrewDB[id];
       delete DND_DATA.itemDB[id];
       saveHomebrewItems();
       closeHomebrewModal();
-    
+
       // Remove from any character's inventory
       inventoryItems = inventoryItems.filter(function(it) { return it.id !== id; });
       renderInventory();
       scheduleSave();
-    
+
       if (_catalogOpen) { buildCatalogFilters(); renderCatalog(); }
       showRestToast('Item Deleted', '"' + name + '" has been removed.');
     }
-    
+
     // ── Edit a homebrew item ──────────────────────────────────────
     function editHomebrewItem(id) {
       openHomebrewModal(id);
     }
-    
+
     // ── Homebrew count badge ──────────────────────────────────────
     function homebrewCount() {
       return Object.keys(DND_DATA.homebrewDB).length;
     }
-    
-    
+
     var _catalogFilter = '';
     var _catalogOpen   = false;
-    
+
     function toggleItemCatalog(){
       _catalogOpen = !_catalogOpen;
       var el  = document.getElementById('item-catalog');
@@ -1232,7 +1230,7 @@
         renderCatalog();
       }
     }
-    
+
     function buildCatalogFilters(){
       var row = document.getElementById('catalog-filter-row');
       if(!row) return;
@@ -1254,24 +1252,22 @@
       btns += '<button onclick="openHomebrewModal()" style="'+aStyle+'background:transparent;border:1px solid var(--border);color:var(--text-muted);">+ Create Item</button>';
       row.innerHTML = btns;
     }
-    
-    
+
     function setCatalogFilter(cat){
       _catalogFilter = cat;
       buildCatalogFilters();
       renderCatalog();
     }
-    
-    
+
     function renderHomebrewCatalog(el, items) {
       var rarityColor = {common:'var(--text-muted)',uncommon:'#2e8b57',rare:'#4169e1','very rare':'#8b008b',legendary:'#b8860b'};
       var cats = DND_DATA.itemCategories2 || {};
-    
+
       var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
         + '<div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);">Your Homebrew Items</div>'
         + '<button onclick="openHomebrewModal()" style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;background:var(--crimson);border:none;color:#f5f0e8;cursor:pointer;">+ New Item</button>'
         + '</div>';
-    
+
       items.forEach(function(item) {
         var rc = rarityColor[item.rarity] || 'var(--text-muted)';
         var catLabel = cats[item.category] || item.category;
@@ -1282,7 +1278,7 @@
         if(item.bonus)      props.push(item.bonus);
         if(item.charges)    props.push(item.charges + ' charges');
         if(item.properties && item.properties !== '—') props.push(item.properties);
-    
+
         html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bg-card);">';
         html += '<div style="flex:1;min-width:0;">';
         html += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
@@ -1300,9 +1296,9 @@
         html += '</div>';
         html += '</div>';
       });
-    
+
       el.innerHTML = html;
-    
+
       // Wire Add buttons
       el.querySelectorAll('.catalog-add-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -1314,7 +1310,7 @@
           setTimeout(function() { self.textContent = 'Add'; self.style.background = 'var(--crimson)'; }, 1200);
         });
       });
-    
+
       // Wire Edit buttons
       el.querySelectorAll('[data-hb-edit]').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -1322,8 +1318,7 @@
         });
       });
     }
-    
-    
+
     function renderCatalog(){
       var el = document.getElementById('catalog-results');
       if(!el) return;
@@ -1331,7 +1326,7 @@
       var db      = DND_DATA.itemDB || {};
       var cats    = DND_DATA.itemCategories2 || {};
       var rarityColor = {common:'var(--text-muted)',uncommon:'#2e8b57',rare:'#4169e1','very rare':'#8b008b',legendary:'#b8860b'};
-    
+
       // Handle homebrew-only filter
       if(_catalogFilter === 'homebrew-only'){
         var hbItems = Object.values(DND_DATA.homebrewDB || {});
@@ -1346,32 +1341,32 @@
         renderHomebrewCatalog(el, hbItems);
         return;
       }
-    
+
       var items = Object.values(db).filter(function(item){
         if(item.source === 'homebrew') return false; // homebrew shown in own tab
         if(_catalogFilter && item.category !== _catalogFilter) return false;
         if(search && item.name.toLowerCase().indexOf(search) === -1 && (!item.desc || item.desc.toLowerCase().indexOf(search) === -1)) return false;
         return true;
       });
-    
+
       if(!items.length){
         el.innerHTML = '<div style="font-size:13px;color:var(--text-faint);font-style:italic;">No items found.</div>';
         return;
       }
-    
+
       var groups = {};
       items.forEach(function(item){
         var key = item.category + '|||' + (item.subcategory || '');
         if(!groups[key]) groups[key] = {cat:item.category, sub:item.subcategory||'', items:[]};
         groups[key].items.push(item);
       });
-    
+
       var sortedKeys = Object.keys(groups).sort(function(a,b){
         var ga=groups[a], gb=groups[b];
         if(ga.cat !== gb.cat) return ga.cat.localeCompare(gb.cat);
         return ga.sub.localeCompare(gb.sub);
       });
-    
+
       var html = '';
       sortedKeys.forEach(function(key){
         var g = groups[key];
@@ -1379,7 +1374,7 @@
         var subLabel = g.sub ? ' — ' + g.sub : '';
         html += '<div style="margin-bottom:16px;">';
         html += '<div style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:3px;">' + catLabel + subLabel + '</div>';
-    
+
         g.items.forEach(function(item){
           var rc  = rarityColor[item.rarity] || 'var(--text-muted)';
           var props = [];
@@ -1387,7 +1382,7 @@
           if(item.weight) props.push(item.weight + ' lb');
           if(item.damage) props.push(item.damage);
           if(item.properties && item.properties !== '—') props.push(item.properties);
-    
+
           html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--bg-card);">';
           html += '<div style="flex:1;min-width:0;">';
           html += '<div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">' + item.name;
@@ -1403,9 +1398,9 @@
         });
         html += '</div>';
       });
-    
+
       el.innerHTML = html;
-    
+
       // Attach click handlers after render (avoids all inline quote issues)
       el.querySelectorAll('.catalog-add-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
@@ -1418,23 +1413,22 @@
         });
       });
     }
-    
-    
+
     // ── SAVE CHARACTER (auto-save, silent) ──
     let _saveTimer = null;
-    
+
     function scheduleSave(){
       // Debounce — save 1.5s after last change
       if(_saveTimer) clearTimeout(_saveTimer);
       _saveTimer = setTimeout(()=>{ saveCharacterToDB(); }, 1500);
     }
-    
+
     async function saveCharacterToDB(){
       const status = document.getElementById('cs-save-status');
       if(typeof PhmurtDB==='undefined') return;
       const session = PhmurtDB.getSession();
       if(!session) return; // not signed in — silent skip
-    
+
       const snapshot = {
         race:             C.race,
         subrace:          C.subrace,
@@ -1468,10 +1462,10 @@
         },
         subclasses:       JSON.parse(JSON.stringify(C.subclasses||{})),
       };
-    
+
       const existingId = localStorage.getItem('phmurt_current_char_id')||undefined;
       const r = await PhmurtDB.saveCharacter(snapshot, existingId);
-    
+
       if(r && r.success){
         localStorage.setItem('phmurt_current_char_id', r.id);
         if(status){
@@ -1483,7 +1477,7 @@
         setTimeout(()=>{ if(status) status.textContent=''; }, 3000);
       }
     }
-    
+
     // ══════════════════════════════════════════
     // MINI SUMMARY
     // ══════════════════════════════════════════
@@ -1496,7 +1490,7 @@
       if(C.background) lines.push({l:'Background',v:DND_DATA.backgrounds[C.background].name});
       el.innerHTML=lines.map(l=>`<div class="cb-mini-stat"><span class="cb-mini-stat-label">${l.l}</span><span class="cb-mini-stat-val">${l.v}</span></div>`).join('');
     }
-    
+
     // ══════════════════════════════════════════
     // INIT
     // ══════════════════════════════════════════
@@ -1518,7 +1512,7 @@
       const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
       document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
     }
-    
+
       // Check if returning from my-characters.html with a character to load
       async function checkLoadCharacter(){
         const id=localStorage.getItem('phmurt_load_char_id');
@@ -1549,15 +1543,12 @@
         renderArrayPool();
         goToStep(9, true);
       }
-    
-    
+
         // Scroll fade effect
         (function(){
-          
+
         })();
         document.addEventListener('click',e=>{if(!e.target.closest('.nav-auth-wrap'))document.getElementById('nav-user-dropdown')?.classList.remove('open');});
-      
-    
 
     // ── Entity homebrew system ───────────────────────────────────
     // ══════════════════════════════════════════════════════════════
@@ -1570,22 +1561,22 @@
     // homebrew entities flow through the entire pipeline — steps,
     // detail panels, spell selection, level-up — with no extra code.
     // ══════════════════════════════════════════════════════════════
-    
+
     var HOMEBREW_ENTITIES_KEY = 'phmurt_homebrew_entities';
-    
+
     // Runtime store (injected into DND_DATA on load)
     // Structure: { races:{}, classes:{}, backgrounds:{}, subclasses:{} }
     var _homebrewEntities = { races:{}, classes:{}, backgrounds:{}, subclasses:{} };
-    
+
     // ── Modal state ───────────────────────────────────────────────
     var _hbeMode    = 'create'; // 'create' | 'edit'
     var _hbeType    = 'race';   // 'race' | 'class' | 'background' | 'subclass'
     var _hbeEditId  = null;
-    
+
     // ─────────────────────────────────────────────────────────────
     // PERSISTENCE
     // ─────────────────────────────────────────────────────────────
-    
+
     function loadHomebrewEntities() {
       try {
         var raw = localStorage.getItem(HOMEBREW_ENTITIES_KEY);
@@ -1601,18 +1592,18 @@
         });
       } catch(e) { console.warn('Homebrew entity load error:', e); }
     }
-    
+
     function saveHomebrewEntities() {
       try {
         localStorage.setItem(HOMEBREW_ENTITIES_KEY, JSON.stringify(_homebrewEntities));
       } catch(e) { console.warn('Homebrew entity save error:', e); }
     }
-    
+
     // ── Inject one entity into DND_DATA and runtime store ─────────
     function _injectHomebrewEntity(type, entry) {
       entry.source = 'homebrew';
       _homebrewEntities[type][entry.id] = entry;
-    
+
       if (type === 'race') {
         DND_DATA.races[entry.id] = entry;
       } else if (type === 'class') {
@@ -1659,12 +1650,12 @@
         }
       }
     }
-    
+
     function _removeHomebrewEntity(type, id) {
       var entry = _homebrewEntities[type] && _homebrewEntities[type][id];
       if (!entry) return;
       delete _homebrewEntities[type][id];
-    
+
       if (type === 'race')       { delete DND_DATA.races[id]; }
       else if (type === 'class') {
         delete DND_DATA.classes[id];
@@ -1691,7 +1682,7 @@
       }
       saveHomebrewEntities();
     }
-    
+
     function _homebrewEntityId(type, name) {
       var base = 'hb-' + type.slice(0,3) + '-' + name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
       var map = type === 'race' ? DND_DATA.races : type === 'class' ? DND_DATA.classes :
@@ -1700,11 +1691,11 @@
       var i = 2; while (map[base+'-'+i]) i++;
       return base + '-' + i;
     }
-    
+
     // ─────────────────────────────────────────────────────────────
     // BUILDER INTEGRATION  — patch render functions after load
     // ─────────────────────────────────────────────────────────────
-    
+
     // Call after loadHomebrewEntities() + init() to add ✦ Create buttons
     function injectHomebrewBuilderButtons() {
       var panels = [
@@ -1728,59 +1719,59 @@
         if (navBtns) panel.insertBefore(btn, navBtns);
         else panel.appendChild(btn);
       });
-    
+
       // Subclass button in level-up — added dynamically, handled in openHBEntityModal
     }
-    
+
     // ─────────────────────────────────────────────────────────────
     // MODAL
     // ─────────────────────────────────────────────────────────────
-    
+
     function openHBEntityModal(type, editId) {
       _hbeMode   = editId ? 'edit' : 'create';
       _hbeType   = type;
       _hbeEditId = editId || null;
-    
+
       var host = document.getElementById('hbe-modal-host');
       if (!host) {
         host = document.createElement('div');
         host.id = 'hbe-modal-host';
         document.body.appendChild(host);
       }
-    
+
       var existing = editId ? (_homebrewEntities[type] && _homebrewEntities[type][editId]) : null;
       var typeLabels = { race:'Race', class:'Class', background:'Background', subclass:'Subclass' };
       var titleText  = (editId ? 'Edit Homebrew ' : 'Create Homebrew ') + (typeLabels[type] || type);
-    
+
       // Tab bar
       var tabs = ['race','class','background','subclass'];
       var tabBar = tabs.map(function(t) {
         var active = t === type;
         return '<button onclick="switchHBETab(\''+t+'\')" style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;background:'+(active?'var(--crimson)':'transparent')+';border:1px solid '+(active?'var(--crimson)':'var(--border)')+';color:'+(active?'#f5f0e8':'var(--text-muted)')+';cursor:pointer;">'+typeLabels[t]+'</button>';
       }).join('');
-    
+
       var html = '<div id="hbe-overlay" onclick="if(event.target===this)closeHBEntityModal()" '
         + 'style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:4000;display:flex;align-items:flex-start;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto;">'
         + '<div style="background:var(--bg);border:1px solid var(--border);width:100%;max-width:600px;padding:28px;margin:auto;">'
-    
+
         // Header
         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">'
         + '<div style="font-family:Cinzel,serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--crimson);">' + titleText + '</div>'
         + '<button onclick="closeHBEntityModal()" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:22px;line-height:1;">×</button>'
         + '</div>'
-    
+
         // Tabs
         + '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;">' + tabBar + '</div>'
-    
+
         // Form body (filled by renderHBEForm)
         + '<div id="hbe-form-body"></div>'
-    
+
         + '</div></div>';
-    
+
       host.innerHTML = html;
       renderHBEForm(type, existing);
     }
-    
+
     function switchHBETab(type) {
       _hbeType   = type;
       _hbeEditId = null;
@@ -1809,7 +1800,7 @@
       });
       renderHBEForm(type, null);
     }
-    
+
     function closeHBEntityModal() {
       var host = document.getElementById('hbe-modal-host');
       if (host) host.innerHTML = '';
@@ -2098,18 +2089,18 @@
         return lv+'|Subclass Feature|Your subclass grants a feature at this level.';
       }).join('\n');
     }
-    
+
     // ─────────────────────────────────────────────────────────────
     // FORM RENDERING  — one function per entity type
     // ─────────────────────────────────────────────────────────────
-    
+
     function renderHBEForm(type, existing) {
       var body = document.getElementById('hbe-form-body');
       if (!body) return;
-    
+
       var e = existing || {};
       var isEdit = !!existing;
-    
+
       var F = {
         // text input row
         inp: function(id, label, val, ph, type_) {
@@ -2154,16 +2145,16 @@
           return '<div style="font-size:11px;color:var(--text-faint);margin-bottom:12px;">' + text + '</div>';
         }
       };
-    
+
       var html = '';
-    
+
       if (type === 'race') {
         var asiVal = e.asi ? Object.entries(e.asi).map(function(kv) { return kv[0]+':'+kv[1]; }).join(', ') : '';
         var traitVal = (e.traits||[]).map(function(t) { return t.name + '|' + t.desc; }).join('\n');
         var subraceVal = (e.subraces||[]).map(function(sr) {
           return sr.name + '|' + Object.entries(sr.asi||{}).map(function(kv){ return kv[0]+':'+kv[1]; }).join(',') + '|' + (sr.traits||[]).map(function(t){ return t.name+':'+t.desc; }).join(';');
         }).join('\n');
-    
+
         html += F.head('Identity');
         html += F.grid([
           F.inp('name', 'Race Name *', e.name, 'e.g. Aasimar'),
@@ -2212,7 +2203,7 @@
         html += F.head('Subraces (Optional)');
         html += F.note('One per line: Name|str:1,dex:1|TraitName:TraitDesc;TraitName2:Desc2');
         html += F.tex('subraces', 'Subraces', subraceVal, 'High Elf|int:1|Elf Weapon Training:Proficiency with longsword\nWood Elf|wis:1|Fleet of Foot:Speed increases to 35 ft.', 4);
-    
+
       } else if (type === 'class') {
         var abilities = ['str','dex','con','int','wis','cha'];
         var abilityOpts = abilities.map(function(a) { return {v:a, l:DND_DATA.abilityNames[a]||a}; });
@@ -2472,7 +2463,7 @@
 
         html += F.head('Specialty (Optional)');
         html += F.inp('specialty', 'Specialty / Variant Name', e.specialty||'', 'e.g. Criminal Contact, Guild Merchant');
-    
+
       } else if (type === 'subclass') {
         var parentOpts = Object.entries(DND_DATA.classes).map(function(kv) {
           return {v:kv[0], l:kv[1].name};
@@ -2499,21 +2490,21 @@
 
         html += F.tex('features', 'Features', scFeatVal, '3|Pyromantic Spark|When you cast a fire spell...\n7|Ignis Embodiment|You gain resistance to fire damage...', 7);
       }
-    
+
       // Error area
       html += '<div id="hbe-error" style="display:none;font-size:12px;color:var(--crimson);margin-bottom:12px;padding:8px;border:1px solid var(--crimson-border);"></div>';
-    
+
       // Sharing checkbox
       var currentlyShared = isEdit ? !!(existing && existing.shared) : false;
       html += _hbSharingCheckboxHtml(isEdit, currentlyShared);
-    
+
       // Buttons
       html += '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px;">';
       html += '<button onclick="closeHBEntityModal()" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Cancel</button>';
       if (isEdit) html += '<button onclick="deleteHBEntity(\''+type+'\',\''+_hbeEditId+'\')" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;background:transparent;border:1px solid var(--crimson-border);color:var(--crimson);cursor:pointer;">Delete</button>';
       html += '<button onclick="saveHBEntity()" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;background:var(--crimson);border:none;color:#f5f0e8;cursor:pointer;">' + (isEdit ? 'Save Changes' : 'Create') + '</button>';
       html += '</div>';
-    
+
       body.innerHTML = html;
 
       // Initialize structured feature editor if on features tab
@@ -2521,41 +2512,41 @@
         _hbcRenderFeatList();
       }
     }
-    
+
     // ─────────────────────────────────────────────────────────────
     // SAVE  — collect form, validate, inject, persist
     // ─────────────────────────────────────────────────────────────
-    
+
     function saveHBEntity() {
       var type = _hbeType;
       var g    = function(id) { var el = document.getElementById('hbe-'+id); return el ? el.value.trim() : ''; };
       var gn   = function(id) { var el = document.getElementById('hbe-'+id); return el ? (parseFloat(el.value)||0) : 0; };
       var errEl = document.getElementById('hbe-error');
-    
+
       var errors = [];
       var entry = {};
-    
+
       if (type === 'race') {
         var name = g('name');
         if (!name) errors.push('Race name is required.');
         var asiRaw = g('asi');
         if (!asiRaw) errors.push('ASI is required.');
         if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
-    
+
         // Parse ASI
         var asi = {};
         asiRaw.split(',').forEach(function(part) {
           var kv = part.trim().split(':');
           if (kv.length === 2) asi[kv[0].trim()] = parseInt(kv[1].trim()) || 0;
         });
-    
+
         // Parse traits
         var traitsRaw = g('traits');
         var traits = traitsRaw ? traitsRaw.split('\n').filter(Boolean).map(function(line) {
           var parts = line.split('|');
           return { name: (parts[0]||'').trim(), desc: (parts[1]||'').trim() };
         }) : [];
-    
+
         // Parse subraces
         var subracesRaw = g('subraces');
         var subraces = subracesRaw ? subracesRaw.split('\n').filter(Boolean).map(function(line) {
@@ -2573,9 +2564,9 @@
           });
           return { id: srName.toLowerCase().replace(/\s+/g,'-'), name: srName, asi: srAsi, traits: srTraits };
         }) : [];
-    
+
         var langs = g('languages').split(',').map(function(l){ return l.trim(); }).filter(Boolean);
-    
+
         // Collect resistance checkboxes
         var resistances = [];
         document.querySelectorAll('.hbe-resist-cb').forEach(function(cb){
@@ -2599,7 +2590,7 @@
           traits:     traits,
           subraces:   subraces,
         };
-    
+
       } else if (type === 'class') {
         var name = g('name');
         if (!name) errors.push('Class name is required.');
@@ -2726,14 +2717,14 @@
         if (!name)     errors.push('Background name is required.');
         if (!feat)     errors.push('Feature name is required.');
         if (!featDesc) errors.push('Feature description is required.');
-    
+
         var skills = g('skills').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
         if (skills.length < 1) errors.push('At least one skill is required.');
-    
+
         if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
-    
+
         var tools = g('tools') ? g('tools').split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
-    
+
         entry = {
           id:          _hbeEditId || _homebrewEntityId('background', name),
           name:        name,
@@ -2749,22 +2740,22 @@
           flaws:       g('flaws') ? g('flaws').split('\n').filter(Boolean) : undefined,
           specialty:   g('specialty') || undefined,
         };
-    
+
       } else if (type === 'subclass') {
         var name    = g('name');
         var parent  = g('parentClass');
         if (!name)   errors.push('Subclass name is required.');
         if (!parent) errors.push('Parent class is required.');
-    
+
         var featRaw = g('features');
         var features = featRaw ? featRaw.split('\n').filter(Boolean).map(function(line) {
           var parts = line.split('|');
           return { level: parseInt(parts[0])||3, name:(parts[1]||'').trim(), desc:(parts[2]||'').trim() };
         }) : [];
         if (!features.length) errors.push('At least one feature is required.');
-    
+
         if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
-    
+
         // Parse expanded spells
         var expandedSpells = [];
         var expRaw = g('expandedSpells');
@@ -2787,31 +2778,31 @@
           expandedSpells: expandedSpells.length ? expandedSpells : undefined,
         };
       }
-    
+
       if (errEl) errEl.style.display = 'none';
-    
+
       // If editing, remove old entry first
       if (_hbeEditId && _hbeEditId !== entry.id) {
         _removeHomebrewEntity(type, _hbeEditId);
       } else if (_hbeEditId) {
         _removeHomebrewEntity(type, _hbeEditId);
       }
-    
+
       _injectHomebrewEntity(type, entry);
       saveHomebrewEntities();
       closeHBEntityModal();
-    
+
       // Re-render the builder step if visible
       if (type === 'race')       renderRaces();
       if (type === 'class')      renderClasses();
       if (type === 'background') renderBackgrounds();
-    
+
       var typeLabels = { race:'Race', class:'Class', background:'Background', subclass:'Subclass' };
       showRestToast(
         _hbeMode === 'edit' ? typeLabels[type]+' Updated' : 'Homebrew '+typeLabels[type]+' Created',
         '"' + entry.name + '" is now available in the character builder.'
       );
-    
+
       // Handle sharing checkbox
       var shareEl = document.getElementById('hbe-share-community');
       if (shareEl && shareEl.checked) {
@@ -2827,7 +2818,7 @@
         hbUnshareEntry(type, entry.id);
       }
     }
-    
+
     function deleteHBEntity(type, id) {
       var entry = _homebrewEntities[type] && _homebrewEntities[type][id];
       var name = entry ? entry.name : id;
@@ -2838,20 +2829,17 @@
       if (type === 'background') renderBackgrounds();
       showRestToast('Deleted', '"' + name + '" has been removed.');
     }
-    
+
     function editHBEntity(type, id) {
       _hbeEditId = id;
       openHBEntityModal(type, id);
     }
-    
+
     // ─────────────────────────────────────────────────────────────
     // MANAGE PAGE  — list all homebrew entities in one view
     // ─────────────────────────────────────────────────────────────
-    
+
     // showHomebrewManager replaced by compendium system
-    
-    
-    
 
     // ── Compendium sharing system ────────────────────────────────
     // ══════════════════════════════════════════════════════════════
@@ -2878,7 +2866,7 @@
     //   CREATE POLICY "anon insert"  ON homebrew_compendium FOR INSERT WITH CHECK (true);
     //   CREATE POLICY "like update"  ON homebrew_compendium FOR UPDATE USING (true);
     // ══════════════════════════════════════════════════════════════
-    
+
     var _compendiumState = {
       tab:           'mine',      // 'mine' | 'community'
       search:        '',
@@ -2889,7 +2877,7 @@
       error:         null,
       likedIds:      null,        // set of ids liked this session
     };
-    
+
     function _hbSb() {
       if (typeof PHMURT_CONFIG === 'undefined' || !PHMURT_CONFIG.cloudEnabled) return null;
       if (typeof window.supabase === 'undefined') return null;
@@ -2897,7 +2885,7 @@
         return window.supabase.createClient(PHMURT_CONFIG.supabaseUrl, PHMURT_CONFIG.supabaseAnonKey);
       } catch(e) { return null; }
     }
-    
+
     // ── Share one entity to the compendium ───────────────────────
     async function hbShareEntry(type, id) {
       var entityMap = { race: _homebrewEntities.races, class: _homebrewEntities.classes,
@@ -2905,11 +2893,11 @@
       var itemMap   = DND_DATA.homebrewDB || {};
       var entry = type === 'item' ? itemMap[id] : (entityMap[type] && entityMap[type][id]);
       if (!entry) return { error: 'Entry not found.' };
-    
+
       var session = (typeof PhmurtDB !== 'undefined') ? PhmurtDB.getSession() : null;
       var authorName = session ? session.name : 'Anonymous';
       var userId     = session ? session.userId : 'anon';
-    
+
       var row = {
         id:          'hbc-' + id,
         user_id:     userId,
@@ -2920,10 +2908,10 @@
         data:        entry,
         updated_at:  new Date().toISOString(),
       };
-    
+
       var sb = _hbSb();
       if (!sb) return { error: 'Cloud sync not available.' };
-    
+
       try {
         var { error } = await sb.from('homebrew_compendium').upsert(row, { onConflict: 'id' });
         if (error) throw error;
@@ -2941,16 +2929,16 @@
         return { error: e.message || 'Upload failed.' };
       }
     }
-    
+
     // ── Remove an entry from the compendium ──────────────────────
     async function hbUnshareEntry(type, id) {
       var sb = _hbSb();
       if (!sb) return { error: 'Cloud sync not available.' };
-    
+
       try {
         var { error } = await sb.from('homebrew_compendium').delete().eq('id', 'hbc-' + id);
         if (error) throw error;
-    
+
         // Unmark locally
         var entityMap = { race: _homebrewEntities.races, class: _homebrewEntities.classes,
                           background: _homebrewEntities.backgrounds, subclass: _homebrewEntities.subclasses };
@@ -2966,12 +2954,12 @@
         return { error: e.message || 'Failed to remove from compendium.' };
       }
     }
-    
+
     // ── Fetch community entries ───────────────────────────────────
     async function hbFetchCompendium() {
       var sb = _hbSb();
       if (!sb) return { data: [], error: 'Cloud sync not available.' };
-    
+
       try {
         var { data, error } = await sb
           .from('homebrew_compendium')
@@ -2985,7 +2973,7 @@
         return { data: [], error: e.message || 'Failed to load compendium.' };
       }
     }
-    
+
     // ── Like an entry ─────────────────────────────────────────────
     async function hbLikeEntry(compendiumId) {
       if (!_compendiumState.likedIds) {
@@ -2993,10 +2981,10 @@
         catch(e) { _compendiumState.likedIds = new Set(); }
       }
       if (_compendiumState.likedIds.has(compendiumId)) return { alreadyLiked: true };
-    
+
       var sb = _hbSb();
       if (!sb) return { error: 'Not available.' };
-    
+
       try {
         var { error } = await sb.rpc('increment_homebrew_likes', { row_id: compendiumId });
         // Fallback: direct update if RPC not set up
@@ -3008,7 +2996,7 @@
             .update({ likes: currentLikes + 1 }).eq('id', compendiumId);
           if (updErr) throw updErr;
         }
-    
+
         _compendiumState.likedIds.add(compendiumId);
         localStorage.setItem('phmurt_liked_hb', JSON.stringify([..._compendiumState.likedIds]));
         // Update local cache
@@ -3021,13 +3009,13 @@
         return { error: e.message };
       }
     }
-    
+
     // ── Import a community entry to local collection ──────────────
     async function hbImportEntry(compendiumEntry) {
       var type  = compendiumEntry.type;
       var entry = compendiumEntry.data;
       if (!entry || !type) return;
-    
+
       if (type === 'item') {
         _registerHomebrewItem(entry);
         saveHomebrewItems();
@@ -3038,12 +3026,12 @@
         if (type === 'class')      renderClasses();
         if (type === 'background') renderBackgrounds();
       }
-    
+
       showRestToast('Imported', '"' + entry.name + '" added to your collection.');
       // Re-render the manager
       showHomebrewManager();
     }
-    
+
     // ── Generate searchable tags ──────────────────────────────────
     function _hbTags(type, entry) {
       var tags = [type];
@@ -3054,11 +3042,11 @@
       if (type === 'item')       { tags.push(entry.category||''); tags.push(entry.rarity||'common'); }
       return tags.filter(Boolean);
     }
-    
+
     // ═════════════════════════════════════════════════════════════
     // COMPENDIUM BROWSER UI
     // ═════════════════════════════════════════════════════════════
-    
+
     function showHomebrewManager() {
       var host = document.getElementById('hbe-modal-host');
       if (!host) {
@@ -3066,14 +3054,14 @@
         host.id = 'hbe-modal-host';
         document.body.appendChild(host);
       }
-    
+
       // Reset liked IDs from localStorage
       try { _compendiumState.likedIds = new Set(JSON.parse(localStorage.getItem('phmurt_liked_hb')||'[]')); }
       catch(e) { _compendiumState.likedIds = new Set(); }
-    
+
       var S = _compendiumState;
       var typeLabels = { all:'All', race:'Races', class:'Classes', background:'Backgrounds', subclass:'Subclasses', item:'Items' };
-    
+
       // Build filter bar
       var filterBar = '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;">';
       ['all','race','class','background','subclass','item'].forEach(function(t) {
@@ -3081,7 +3069,7 @@
         filterBar += '<button data-hbf="'+t+'" class="hbc-type-filter" style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:5px 11px;background:'+(active?'var(--crimson)':'transparent')+';border:1px solid '+(active?'var(--crimson)':'var(--border)')+';color:'+(active?'#f5f0e8':'var(--text-muted)')+';cursor:pointer;">'+typeLabels[t]+'</button>';
       });
       filterBar += '</div>';
-    
+
       // Sort bar (community only)
       var sortBar = '<div style="display:flex;gap:4px;margin-bottom:14px;">';
       [['newest','Newest'],['popular','Most Liked'],['name','A–Z']].forEach(function(pair) {
@@ -3089,26 +3077,26 @@
         sortBar += '<button data-hbs="'+pair[0]+'" class="hbc-sort-btn" style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;background:'+(active?'var(--bg-card)':'transparent')+';border:1px solid '+(active?'var(--border)':'var(--border)')+';color:'+(active?'var(--text)':'var(--text-muted)')+';cursor:pointer;">'+pair[1]+'</button>';
       });
       sortBar += '</div>';
-    
+
       var tabActive   = 'font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;background:var(--crimson);color:#f5f0e8;border:none;cursor:pointer;flex:1;';
       var tabInactive = 'font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;background:var(--bg-card);color:var(--text-muted);border:none;cursor:pointer;flex:1;';
-    
+
       var html = '<div id="hbe-overlay" onclick="if(event.target===this)closeHBEntityModal()" '
         + 'style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:4000;display:flex;align-items:flex-start;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto;">'
         + '<div style="background:var(--bg);border:1px solid var(--border);width:100%;max-width:680px;padding:0;margin:auto;overflow:hidden;">'
-    
+
         // Title bar
         + '<div style="padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;">'
         + '<div style="font-family:Cinzel,serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--crimson);">Homebrew Compendium</div>'
         + '<button onclick="closeHBEntityModal()" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:22px;line-height:1;">×</button>'
         + '</div>'
-    
+
         // Tab bar
         + '<div style="display:flex;margin:16px 0 0;border-bottom:1px solid var(--border);">'
         + '<button id="hbc-tab-mine" onclick="hbcSwitchTab(\'mine\')" style="'+(S.tab==='mine'?tabActive:tabInactive)+'border-bottom:none;">My Homebrew</button>'
         + '<button id="hbc-tab-community" onclick="hbcSwitchTab(\'community\')" style="'+(S.tab==='community'?tabActive:tabInactive)+'border-bottom:none;">Community ✦</button>'
         + '</div>'
-    
+
         // Search + filters
         + '<div style="padding:16px 24px 12px;border-bottom:1px solid var(--bg-card);">'
         + '<input id="hbc-search" type="text" value="'+S.search+'" placeholder="Search by name, type, tags…" '
@@ -3117,12 +3105,12 @@
         + filterBar
         + (S.tab === 'community' ? sortBar : '')
         + '</div>'
-    
+
         // Content area
         + '<div id="hbc-content" style="padding:16px 24px 24px;max-height:55vh;overflow-y:auto;">'
         + '<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:13px;">Loading…</div>'
         + '</div>'
-    
+
         // Footer: create buttons
         + '<div style="padding:12px 24px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;background:var(--bg);">'
         + '<span style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);align-self:center;margin-right:4px;">Create:</span>'
@@ -3132,11 +3120,11 @@
               + 'style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:5px 11px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">+ '+label+'</button>';
           }).join('')
         + '</div>'
-    
+
         + '</div></div>';
-    
+
       host.innerHTML = html;
-    
+
       // Wire type filter buttons
       host.querySelectorAll('.hbc-type-filter').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -3145,7 +3133,7 @@
           showHomebrewManager();
         });
       });
-    
+
       // Wire sort buttons
       host.querySelectorAll('.hbc-sort-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -3153,21 +3141,21 @@
           hbcRenderContent();
         });
       });
-    
+
       // Load content
       hbcRenderContent();
     }
-    
+
     function hbcSwitchTab(tab) {
       _compendiumState.tab = tab;
       _compendiumState.communityData = null;
       showHomebrewManager();
     }
-    
+
     function hbcRenderContent() {
       var container = document.getElementById('hbc-content');
       if (!container) return;
-    
+
       var S = _compendiumState;
       if (S.tab === 'mine') {
         container.innerHTML = _hbcRenderMine();
@@ -3177,13 +3165,13 @@
         _hbcLoadCommunity(container);
       }
     }
-    
+
     // ── MY HOMEBREW TAB ──────────────────────────────────────────
-    
+
     function _hbcRenderMine() {
       var S = _compendiumState;
       var q = S.search.toLowerCase();
-    
+
       // Gather all local homebrew
       var all = [];
       var typeOrder = ['race','class','background','subclass','item'];
@@ -3196,14 +3184,14 @@
         }
         entries.forEach(function(e) { all.push({ type:type, entry:e }); });
       });
-    
+
       // Filter
       var filtered = all.filter(function(row) {
         if (S.typeFilter !== 'all' && row.type !== S.typeFilter) return false;
         if (q && row.entry.name.toLowerCase().indexOf(q) === -1) return false;
         return true;
       });
-    
+
       if (!filtered.length) {
         var emptyMsg = all.length === 0
           ? '<div style="text-align:center;padding:32px 0;">'
@@ -3214,10 +3202,10 @@
           : '<div style="text-align:center;padding:20px;font-size:13px;color:var(--text-faint);">No results for "'+S.search+'"</div>';
         return emptyMsg;
       }
-    
+
       var typeColors = { race:'#4169e1', class:'var(--crimson)', background:'#2e8b57', subclass:'#8b6914', item:'#6b4ea8' };
       var typeLabels = { race:'Race', class:'Class', background:'Background', subclass:'Subclass', item:'Item' };
-    
+
       var html = '';
       filtered.forEach(function(row) {
         var e    = row.entry;
@@ -3226,7 +3214,7 @@
         var lbl  = typeLabels[type] || type;
         var id   = e.id;
         var isShared = !!e.shared;
-    
+
         // Subtitle line
         var sub = '';
         if (type === 'race')       sub = (e.size||'Medium') + ' · ' + e.speed + ' ft';
@@ -3237,13 +3225,13 @@
           sub = parentCls ? parentCls.name : e.parentClass;
         }
         if (type === 'item')       sub = (e.category||'')+' · '+(e.rarity||'common');
-    
+
         html += '<div class="hbc-mine-card" data-type="'+type+'" data-id="'+id+'" '
           + 'style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg-card);">';
-    
+
         // Type badge
         html += '<div style="flex-shrink:0;width:6px;height:40px;background:'+col+';border-radius:2px;"></div>';
-    
+
         // Info
         html += '<div style="flex:1;min-width:0;">';
         html += '<div style="display:flex;align-items:center;gap:8px;">';
@@ -3253,7 +3241,7 @@
         html += '</div>';
         if (sub) html += '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">'+sub+'</div>';
         html += '</div>';
-    
+
         // Actions
         html += '<div style="display:flex;gap:5px;flex-shrink:0;">';
         // Share / Unshare toggle
@@ -3270,10 +3258,10 @@
         html += '</div>';
         html += '</div>';
       });
-    
+
       return html;
     }
-    
+
     function _hbcWireMineButtons(container) {
       // Edit buttons
       container.querySelectorAll('.hbc-edit-btn').forEach(function(btn) {
@@ -3288,7 +3276,7 @@
           }
         });
       });
-    
+
       // Share/unshare buttons
       container.querySelectorAll('.hbc-share-btn').forEach(function(btn) {
         btn.addEventListener('click', async function() {
@@ -3296,14 +3284,14 @@
           var type   = this.getAttribute('data-share-type');
           var id     = this.getAttribute('data-share-id');
           var self   = this;
-    
+
           self.textContent = action === 'share' ? '↑ Uploading…' : '⏳';
           self.disabled = true;
-    
+
           var result = action === 'share'
             ? await hbShareEntry(type, id)
             : await hbUnshareEntry(type, id);
-    
+
           if (result.error) {
             showRestToast('Error', result.error);
             self.textContent = action === 'share' ? '↑ Share' : '✓ Shared';
@@ -3318,12 +3306,12 @@
         });
       });
     }
-    
+
     // ── COMMUNITY TAB ────────────────────────────────────────────
-    
+
     async function _hbcLoadCommunity(container) {
       var S = _compendiumState;
-    
+
       if (!S.communityData) {
         var result = await hbFetchCompendium();
         if (result.error && result.data.length === 0) {
@@ -3332,23 +3320,23 @@
         }
         S.communityData = result.data;
       }
-    
+
       container.innerHTML = _hbcRenderCommunity();
       _hbcWireCommunityButtons(container);
     }
-    
+
     function _hbcRenderCommunity() {
       var S = _compendiumState;
       var data = S.communityData || [];
       var q = S.search.toLowerCase();
-    
+
       // Get local ids to show "Imported" badge
       var localIds = new Set();
       ['race','class','background','subclass'].forEach(function(type) {
         Object.keys(_homebrewEntities[type]||{}).forEach(function(id){ localIds.add(id); });
       });
       Object.keys(DND_DATA.homebrewDB||{}).forEach(function(id){ localIds.add(id); });
-    
+
       // Filter
       var filtered = data.filter(function(row) {
         if (S.typeFilter !== 'all' && row.type !== S.typeFilter) return false;
@@ -3358,7 +3346,7 @@
         }
         return true;
       });
-    
+
       // Sort
       filtered = filtered.slice().sort(function(a, b) {
         if (S.sortBy === 'popular') return (b.likes||0) - (a.likes||0);
@@ -3366,7 +3354,7 @@
         // newest: sort by created_at descending
         return new Date(b.created_at||0) - new Date(a.created_at||0);
       });
-    
+
       if (!filtered.length) {
         return '<div style="text-align:center;padding:32px 0;">'
           + '<div style="font-size:32px;opacity:.2;margin-bottom:12px;">📜</div>'
@@ -3374,10 +3362,10 @@
           + '<div style="font-size:13px;color:var(--text-faint);">Be the first to share your homebrew creations!</div>'
           + '</div>';
       }
-    
+
       var typeColors = { race:'#4169e1', class:'var(--crimson)', background:'#2e8b57', subclass:'#8b6914', item:'#6b4ea8' };
       var typeLabels = { race:'Race', class:'Class', background:'Background', subclass:'Subclass', item:'Item' };
-    
+
       var html = '';
       filtered.forEach(function(row) {
         var col      = typeColors[row.type] || 'var(--text-muted)';
@@ -3385,7 +3373,7 @@
         var isLiked  = _compendiumState.likedIds && _compendiumState.likedIds.has(row.id);
         var isLocal  = localIds.has(row.data && row.data.id);
         var likes    = row.likes || 0;
-    
+
         // Description snippet from entry data
         var desc = '';
         if (row.data) {
@@ -3395,7 +3383,7 @@
           else if (row.data.featureDesc) desc = row.data.featureDesc;
         }
         if (desc && desc.length > 120) desc = desc.slice(0, 117) + '…';
-    
+
         // Tags
         var tagHtml = '';
         if (row.tags && row.tags.length) {
@@ -3405,9 +3393,9 @@
               }).join('')
             + '</div>';
         }
-    
+
         html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid '+col+';padding:14px 16px;margin-bottom:10px;">';
-    
+
         // Header row
         html += '<div style="display:flex;align-items:flex-start;gap:10px;">';
         html += '<div style="flex:1;min-width:0;">';
@@ -3420,7 +3408,7 @@
         if (desc) html += '<div style="font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.6;">'+_esc(desc)+'</div>';
         html += tagHtml;
         html += '</div>';
-    
+
         // Action column
         html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">';
         // Like button
@@ -3438,14 +3426,14 @@
             + 'background:var(--crimson);border:none;color:#f5f0e8;cursor:pointer;">↓ Import</button>';
         }
         html += '</div>'; // action column
-    
+
         html += '</div>'; // header row
         html += '</div>'; // card
       });
-    
+
       return html;
     }
-    
+
     function _hbcWireCommunityButtons(container) {
       // Like buttons
       container.querySelectorAll('.hbc-like-btn').forEach(function(btn) {
@@ -3462,7 +3450,7 @@
           }
         });
       });
-    
+
       // Import buttons
       container.querySelectorAll('.hbc-import-btn').forEach(function(btn) {
         btn.addEventListener('click', async function() {
@@ -3476,15 +3464,15 @@
         });
       });
     }
-    
+
     function _esc(str) {
       return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
-    
+
     // ═════════════════════════════════════════════════════════════
     // SHARING CHECKBOX — injected into form buttons section
     // ═════════════════════════════════════════════════════════════
-    
+
     // Returns HTML for the sharing checkbox row
     function _hbSharingCheckboxHtml(isEdit, currentlyShared) {
       var session = (typeof PhmurtDB !== 'undefined') ? PhmurtDB.getSession() : null;
@@ -3495,7 +3483,7 @@
           + '<span style="margin-top:4px;display:block;">Sign in to share your homebrew with other players.</span>'
           + '</div>';
       }
-    
+
       var checked = currentlyShared ? ' checked' : '';
       return '<div style="margin-bottom:16px;padding:12px 14px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;">'
         + '<input id="hbe-share-community" type="checkbox"' + checked + ' style="width:16px;height:16px;margin-top:2px;cursor:pointer;accent-color:var(--crimson);flex-shrink:0;"/>'
@@ -3505,12 +3493,10 @@
         + '</div>'
         + '</div>';
     }
-    
+
     // ── Patch saveHBEntity to handle sharing ────────────────────
     // This function is called after the entity is assembled.
     // We attach an async follow-up to the original save.
-    
-    
 
     // ═══════════════════════════════════════════════════════════════
     // COMPENDIUM PAGE CONTROLLER
