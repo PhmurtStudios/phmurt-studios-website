@@ -582,3 +582,320 @@ DND35_DATA.abilityUses = {
   sorcerer:[],
   wizard:[]
 };
+
+// ── XP TABLE (3.5e Standard) ──
+DND35_DATA.xpTable = {
+  2:1000, 3:3000, 4:6000, 5:10000, 6:15000, 7:21000, 8:28000, 9:36000, 10:45000,
+  11:55000, 12:66000, 13:78000, 14:91000, 15:105000, 16:120000, 17:136000,
+  18:153000, 19:171000, 20:190000
+};
+
+// ── FEAT LEVELS ──
+DND35_DATA.featLevels = [1, 3, 6, 9, 12, 15, 18];
+DND35_DATA.fighterBonusFeatLevels = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
+
+// ── MONK UNARMED DAMAGE PROGRESSION ──
+DND35_DATA.monkUnarmedDamage = {
+  1:'1d6', 4:'1d8', 8:'1d10', 12:'2d6', 16:'2d8', 20:'2d10'
+};
+
+// ── MONK SPEED BONUS PROGRESSION ──
+DND35_DATA.monkSpeed = {
+  1:0, 3:10, 6:20, 9:30, 12:40, 15:50, 18:60
+};
+
+// ── SPELLS PER DAY TABLES ──
+DND35_DATA.spellsPerDay = {
+  wizard: {
+    0: [3,4,4,4,5,5,5,5,5,6,6,6,6,6,6,6,7,7,7,8],
+    1: [1,2,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6],
+    2: [null,null,1,2,3,3,3,4,4,4,4,5,5,5,5,5,6,6,6,6],
+    3: [null,null,null,1,2,3,3,3,4,4,4,4,5,5,5,5,5,6,6,6],
+    4: [null,null,null,null,1,2,3,3,3,4,4,4,4,5,5,5,5,5,6,6],
+    5: [null,null,null,null,null,1,2,3,3,3,4,4,4,4,5,5,5,5,5,6],
+    6: [null,null,null,null,null,null,1,2,3,3,3,4,4,4,4,5,5,5,5,5],
+    7: [null,null,null,null,null,null,null,1,2,3,3,3,4,4,4,4,5,5,5,5],
+    8: [null,null,null,null,null,null,null,null,1,2,3,3,3,4,4,4,4,5,5,5],
+    9: [null,null,null,null,null,null,null,null,null,1,2,3,3,3,4,4,4,4,5,5]
+  },
+  cleric: {
+    0: [3,4,4,4,5,5,5,5,5,6,6,6,6,6,6,6,7,7,7,8],
+    1: [1,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8,8],
+    2: [null,null,1,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8],
+    3: [null,null,null,1,2,2,3,4,4,4,5,5,5,6,6,6,7,7,7,8],
+    4: [null,null,null,null,1,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7],
+    5: [null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5,5,6,6,6],
+    6: [null,null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5,5,6,6],
+    7: [null,null,null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5,5,6],
+    8: [null,null,null,null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5,5],
+    9: [null,null,null,null,null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5]
+  },
+  druid: {
+    0: [3,4,4,4,5,5,5,5,5,6,6,6,6,6,6,6,7,7,7,8],
+    1: [1,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8,8],
+    2: [null,null,1,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8],
+    3: [null,null,null,1,2,2,3,4,4,4,5,5,5,6,6,6,7,7,7,8],
+    4: [null,null,null,null,1,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7],
+    5: [null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5,5,6,6,6],
+    6: [null,null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5,5,6,6],
+    7: [null,null,null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5,5,6],
+    8: [null,null,null,null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5,5],
+    9: [null,null,null,null,null,null,null,null,null,1,2,2,3,3,3,4,4,4,5,5]
+  },
+  bard: {
+    0: [2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
+    1: [1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3],
+    2: [null,null,null,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3],
+    3: [null,null,null,null,null,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3],
+    4: [null,null,null,null,null,null,null,1,1,1,1,1,1,2,2,2,2,2,2,3],
+    5: [null,null,null,null,null,null,null,null,null,1,1,1,1,1,1,1,2,2,2,2],
+    6: [null,null,null,null,null,null,null,null,null,null,null,1,1,1,1,1,1,2,2,2]
+  },
+  sorcerer: {
+    0: [5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,8,9],
+    1: [3,4,4,5,5,5,5,6,6,6,6,6,6,7,7,7,7,8,8,8],
+    2: [null,null,2,3,3,4,4,4,5,5,5,5,6,6,6,6,7,7,7,8],
+    3: [null,null,null,null,1,2,2,3,3,4,4,4,4,5,5,5,6,6,6,7],
+    4: [null,null,null,null,null,null,1,2,2,2,3,3,4,4,4,5,5,5,6,6],
+    5: [null,null,null,null,null,null,null,null,1,1,2,2,2,3,3,4,4,4,5,5],
+    6: [null,null,null,null,null,null,null,null,null,null,null,1,1,2,2,2,3,3,4,4]
+  },
+  paladin: {
+    1: [null,null,null,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3],
+    2: [null,null,null,null,null,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3],
+    3: [null,null,null,null,null,null,null,1,1,1,1,1,1,2,2,2,2,2,2,3],
+    4: [null,null,null,null,null,null,null,null,null,1,1,1,1,1,1,2,2,2,2,3]
+  },
+  ranger: {
+    1: [null,null,null,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,3,3],
+    2: [null,null,null,null,null,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3],
+    3: [null,null,null,null,null,null,null,null,1,1,1,1,1,1,2,2,2,2,2,3]
+  }
+};
+
+// ── CLASS FEATURES BY LEVEL ──
+DND35_DATA.classFeaturesByLevel = {
+  barbarian: {
+    1: ['Fast Movement +10 ft', 'Rage 1/day', 'Illiteracy'],
+    2: ['Uncanny Dodge'],
+    3: ['Trap Sense +1', 'Rage 2/day'],
+    5: ['Improved Uncanny Dodge'],
+    6: ['Trap Sense +2', 'Rage 3/day'],
+    7: ['Damage Reduction 1/-'],
+    9: ['Trap Sense +3', 'Rage 4/day'],
+    11: ['Damage Reduction 2/-'],
+    12: ['Trap Sense +4', 'Rage 5/day'],
+    13: ['Greater Rage', 'Damage Reduction 3/-'],
+    14: ['Trap Sense +5'],
+    15: ['Rage 6/day'],
+    17: ['Damage Reduction 4/-'],
+    18: ['Trap Sense +6'],
+    19: ['Mighty Rage', 'Rage 7/day'],
+    20: ['Damage Reduction 5/-']
+  },
+  bard: {
+    1: ['Bardic Music', 'Bardic Knowledge', 'Countersong', 'Fascinate', 'Inspire Courage +1'],
+    2: ['Evasion'],
+    4: ['Inspire Courage +2'],
+    6: ['Suggestion'],
+    8: ['Inspire Courage +3'],
+    10: ['Jack of All Trades'],
+    12: ['Inspire Courage +4'],
+    14: ['Inspire Greatness'],
+    16: ['Inspire Courage +5'],
+    18: ['Mass Suggestion'],
+    20: ['Inspire Courage +6']
+  },
+  cleric: {
+    1: ['Aura', 'Spontaneous Casting', 'Turn/Rebuke Undead', 'Domain Spells'],
+    5: ['Bonus Feat'],
+    6: ['Improved Turn/Rebuke Undead'],
+    9: ['Bonus Feat'],
+    12: ['Improved Turn/Rebuke Undead'],
+    15: ['Bonus Feat'],
+    18: ['Improved Turn/Rebuke Undead'],
+    20: ['Improved Turn/Rebuke Undead']
+  },
+  druid: {
+    1: ['Aura', 'Nature Sense', 'Wild Empathy', 'Woodland Stride'],
+    2: ['Wild Shape 1/day (Small/Medium animals)'],
+    3: ['Trackless Step'],
+    4: ['Wild Shape 2/day'],
+    5: ['Improved Wild Shape (Small/Medium only)'],
+    6: ['Wild Shape 3/day'],
+    8: ['Wild Shape 4/day (can use Large forms)'],
+    9: ['Venom Immunity'],
+    10: ['Wild Shape 5/day'],
+    12: ['Wild Shape 6/day (can use Plant forms)'],
+    15: ['Timeless Body', 'Wild Shape 7/day (can use Huge forms)'],
+    16: ['Wild Shape 8/day (can use Elemental forms)'],
+    18: ['Wild Shape 9/day', 'Thousand Faces'],
+    20: ['Wild Shape 10/day']
+  },
+  fighter: {
+    1: ['Bonus Feat'],
+    2: ['Bonus Feat'],
+    4: ['Bonus Feat'],
+    6: ['Bonus Feat'],
+    8: ['Bonus Feat'],
+    10: ['Bonus Feat'],
+    12: ['Bonus Feat'],
+    14: ['Bonus Feat'],
+    16: ['Bonus Feat'],
+    18: ['Bonus Feat'],
+    20: ['Bonus Feat']
+  },
+  monk: {
+    1: ['Bonus Feat', 'Flurry of Blows', 'Unarmed Strike 1d6', 'Unarmored AC Bonus +0'],
+    2: ['Bonus Feat'],
+    3: ['Still Mind', 'Unarmored AC Bonus +1', 'Speed +10 ft'],
+    4: ['Ki Strike (magic)', 'Slow Fall 20 ft', 'Unarmed Strike 1d8'],
+    5: ['Purity of Body'],
+    6: ['Bonus Feat', 'Speed +20 ft'],
+    7: ['Wholeness of Body'],
+    8: ['Unarmored AC Bonus +2', 'Unarmed Strike 1d10'],
+    9: ['Improved Evasion', 'Speed +30 ft'],
+    10: ['Ki Strike (lawful)'],
+    11: ['Diamond Body'],
+    12: ['Unarmored AC Bonus +3', 'Speed +40 ft', 'Unarmed Strike 2d6'],
+    13: ['Diamond Soul'],
+    14: ['Bonus Feat'],
+    15: ['Quivering Palm', 'Speed +50 ft'],
+    16: ['Unarmored AC Bonus +4', 'Ki Strike (adamantine)', 'Unarmed Strike 2d8'],
+    17: ['Timeless Body'],
+    18: ['Unarmored AC Bonus +5', 'Speed +60 ft'],
+    19: ['Empty Body'],
+    20: ['Perfect Self', 'Unarmed Strike 2d10']
+  },
+  paladin: {
+    1: ['Aura of Good', 'Detect Evil', 'Smite Evil 1/day'],
+    2: ['Divine Grace'],
+    3: ['Aura of Courage', 'Smite Evil 2/day'],
+    4: ['Turn Undead'],
+    5: ['Special Mount', 'Smite Evil 3/day'],
+    6: ['Remove Disease 1/week'],
+    7: ['Smite Evil 4/day'],
+    9: ['Remove Disease 2/week', 'Smite Evil 5/day'],
+    11: ['Smite Evil 6/day'],
+    12: ['Remove Disease 3/week'],
+    13: ['Smite Evil 7/day'],
+    15: ['Remove Disease 4/week'],
+    17: ['Smite Evil 8/day'],
+    18: ['Remove Disease 5/week'],
+    19: ['Smite Evil 9/day'],
+    20: ['Holy Champion']
+  },
+  ranger: {
+    1: ['Favored Enemy', 'Track', 'Wild Empathy', 'Combat Style'],
+    2: ['Bonus Feat'],
+    3: ['Endurance'],
+    4: ['Animal Companion', 'Spells'],
+    5: ['Improved Combat Style'],
+    6: ['Bonus Feat'],
+    8: ['Combat Style Mastery'],
+    10: ['Evasion', 'Bonus Feat'],
+    12: ['Camouflage'],
+    14: ['Bonus Feat'],
+    15: ['Improved Evasion'],
+    16: ['Camouflage (Hide in Plain Sight)'],
+    18: ['Bonus Feat'],
+    20: ['Bonus Feat']
+  },
+  rogue: {
+    1: ['Sneak Attack +1d6', 'Trapfinding'],
+    2: ['Evasion'],
+    3: ['Sneak Attack +2d6'],
+    4: ['Uncanny Dodge (lose DEX bonus)'],
+    5: ['Sneak Attack +3d6'],
+    6: ['Improved Uncanny Dodge'],
+    7: ['Sneak Attack +4d6'],
+    8: ['Improved Evasion'],
+    9: ['Sneak Attack +5d6', 'Debilitating Strike'],
+    10: ['Sneak Attack +6d6', 'Exploit Weakness'],
+    11: ['Sneak Attack +7d6'],
+    12: ['Improved Evasion (better)'],
+    13: ['Sneak Attack +8d6', 'Master Striker'],
+    14: ['Slippery Mind'],
+    15: ['Sneak Attack +9d6'],
+    16: ['Sneak Attack +10d6', 'Improved Invisibility'],
+    17: ['Sneak Attack +11d6'],
+    18: ['Improved Evasion (perfect)'],
+    19: ['Sneak Attack +12d6', 'Death Attack'],
+    20: ['Sneak Attack +13d6']
+  },
+  sorcerer: {
+    1: ['Spellcasting', 'Summon Familiar'],
+    3: ['Bonus Feat'],
+    5: ['Bonus Feat'],
+    7: ['Bonus Metamagic Feat'],
+    9: ['Bonus Feat'],
+    11: ['Bonus Metamagic Feat'],
+    13: ['Bonus Feat'],
+    15: ['Bonus Metamagic Feat'],
+    17: ['Bonus Feat'],
+    19: ['Bonus Metamagic Feat'],
+    20: ['Bonus Feat']
+  },
+  wizard: {
+    1: ['Spellcasting', 'Scribe Scroll', 'Summon Familiar', 'Bonus Feat'],
+    5: ['Bonus Feat'],
+    10: ['Bonus Feat'],
+    15: ['Bonus Feat'],
+    20: ['Bonus Feat']
+  }
+};
+
+// ── BASE ATTACK BONUS PROGRESSION ──
+DND35_DATA.babProgression = {
+  1: {good:[1], medium:[0], poor:[0]},
+  2: {good:[2], medium:[1], poor:[1]},
+  3: {good:[3], medium:[2], poor:[1]},
+  4: {good:[4], medium:[3], poor:[2]},
+  5: {good:[5,0], medium:[3,0], poor:[2,0]},
+  6: {good:[6,1], medium:[4,1], poor:[3]},
+  7: {good:[7,2], medium:[5,0], poor:[3,0]},
+  8: {good:[8,3], medium:[6,1], poor:[4,1]},
+  9: {good:[9,4], medium:[6,1], poor:[4,1]},
+  10: {good:[10,5], medium:[7,2], poor:[5]},
+  11: {good:[11,6,1], medium:[8,3], poor:[5,0]},
+  12: {good:[12,7,2], medium:[9,4], poor:[6,1]},
+  13: {good:[13,8,3], medium:[9,4], poor:[6,1]},
+  14: {good:[14,9,4], medium:[10,5], poor:[7,2]},
+  15: {good:[15,10,5], medium:[11,6,1], poor:[7,2]},
+  16: {good:[16,11,6,1], medium:[12,7,2], poor:[8,3]},
+  17: {good:[17,12,7,2], medium:[12,7,2], poor:[8,3]},
+  18: {good:[18,13,8,3], medium:[13,8,3], poor:[9,4]},
+  19: {good:[19,14,9,4], medium:[14,9,4], poor:[9,4]},
+  20: {good:[20,15,10,5], medium:[15,10,5], poor:[10,5]}
+};
+
+// ── SAVE BONUS PROGRESSION ──
+DND35_DATA.saveProgression = {
+  good: [2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6],
+  poor: [0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4]
+};
+
+// ── TURNING UNDEAD (Cleric/Paladin) ──
+DND35_DATA.turnUndead = {
+  cleric: {
+    usesPerDay: [3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7]
+  },
+  paladin: {
+    usesPerDay: [0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4]
+  }
+};
+
+// ── RAGE USES BY LEVEL ──
+DND35_DATA.rageUses = [1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10];
+
+// ── WILD SHAPE USES BY LEVEL ──
+DND35_DATA.wildShapeUses = [0,0,0,1,2,3,3,4,4,5,5,6,6,6,7,8,8,9,9,10];
+
+// ── SMITE EVIL USES BY LEVEL ──
+DND35_DATA.smiteEvilUses = [0,1,1,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10];
+
+// ── SNEAK ATTACK PROGRESSION (Rogue) ──
+DND35_DATA.sneakAttack = {
+  dice: [1,1,2,2,3,3,4,4,5,6,7,7,8,8,9,10,11,11,12,13]
+};
+

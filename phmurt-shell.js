@@ -6,6 +6,7 @@
       ['compendium.html', 'Compendium'],
       ['character-builder.html', 'Builder'],
       ['character-sheets.html', 'Sheets'],
+      ['campaigns.html', 'Campaigns'],
       ['about.html', 'About'],
       ['my-characters.html', 'My Characters']
     ],
@@ -57,6 +58,10 @@
       { href: 'grimoire.html', label: 'Grimoire' },
       { label: 'Legendary Soups', current: true }
     ],
+    'campaigns.html': [
+      { href: 'index.html', label: 'Home' },
+      { label: 'Campaigns', current: true }
+    ],
     'my-characters.html': [
       { href: 'index.html', label: 'Home' },
       { label: 'My Characters', current: true }
@@ -86,6 +91,7 @@
       'character-builder-35.html': 'Builder',
       'character-sheets.html': 'Sheets',
       'sheet-dnd5e.html': 'Sheets',
+      'campaigns.html': 'Campaigns',
       'about.html': 'About',
       'my-characters.html': 'My Characters',
       'reset-password.html': null,
@@ -327,6 +333,172 @@
     });
   }
 
+  window.psToast = function(message, duration) {
+    duration = duration || 3000;
+    const existing = document.getElementById('ps-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'ps-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function() { toast.classList.add('visible'); });
+    setTimeout(function() {
+      toast.classList.remove('visible');
+      setTimeout(function() { toast.remove(); }, 300);
+    }, duration);
+  };
+
+  function setupKeyboardShortcuts() {
+    let lastKeyTime = 0;
+    let keySequence = '';
+    const keyTimeout = 1000;
+
+    const shortcutsData = [
+      { section: 'Navigation', items: [
+        { keys: 'g h', desc: 'Go to Home', link: 'index.html' },
+        { keys: 'g g', desc: 'Go to Grimoire', link: 'grimoire.html' },
+        { keys: 'g c', desc: 'Go to Compendium', link: 'compendium.html' },
+        { keys: 'g b', desc: 'Go to Builder', link: 'character-builder.html' },
+        { keys: 'g s', desc: 'Go to Sheets', link: 'character-sheets.html' },
+        { keys: 'g a', desc: 'Go to About', link: 'about.html' },
+        { keys: 'g m', desc: 'Go to Campaigns', link: 'campaigns.html' }
+      ]},
+      { section: 'Theme', items: [
+        { keys: 't', desc: 'Toggle theme', action: 'theme' }
+      ]},
+      { section: 'Help', items: [
+        { keys: '?', desc: 'Show this help', action: 'help' },
+        { keys: 'Escape', desc: 'Close overlay', action: 'close' }
+      ]}
+    ];
+
+    function createOverlay() {
+      if (document.getElementById('ps-shortcuts-overlay')) return;
+      const overlay = document.createElement('div');
+      overlay.id = 'ps-shortcuts-overlay';
+
+      const card = document.createElement('div');
+      card.className = 'ps-shortcuts-card';
+
+      const title = document.createElement('div');
+      title.className = 'ps-shortcuts-title';
+      title.textContent = 'Keyboard Shortcuts';
+      card.appendChild(title);
+
+      shortcutsData.forEach(section => {
+        const sectionDiv = document.createElement('div');
+        sectionDiv.className = 'ps-shortcuts-section';
+
+        const sectionTitle = document.createElement('div');
+        sectionTitle.className = 'ps-shortcuts-section-title';
+        sectionTitle.textContent = section.section;
+        sectionDiv.appendChild(sectionTitle);
+
+        const list = document.createElement('div');
+        list.className = 'ps-shortcuts-list';
+
+        section.items.forEach(item => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'ps-shortcut-item';
+
+          const desc = document.createElement('div');
+          desc.className = 'ps-shortcut-desc';
+          desc.textContent = item.desc;
+
+          const keys = document.createElement('div');
+          keys.className = 'ps-shortcut-keys';
+          keys.textContent = item.keys;
+
+          itemDiv.appendChild(desc);
+          itemDiv.appendChild(keys);
+          list.appendChild(itemDiv);
+        });
+
+        sectionDiv.appendChild(list);
+        card.appendChild(sectionDiv);
+      });
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'ps-shortcuts-close';
+      closeBtn.setAttribute('aria-label', 'Close shortcuts');
+      closeBtn.textContent = '✕';
+      closeBtn.addEventListener('click', () => overlay.classList.remove('visible'));
+      card.appendChild(closeBtn);
+
+      overlay.appendChild(card);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('visible');
+      });
+      document.body.appendChild(overlay);
+    }
+
+    function toggleOverlay() {
+      createOverlay();
+      const overlay = document.getElementById('ps-shortcuts-overlay');
+      overlay.classList.toggle('visible');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const now = Date.now();
+      if (now - lastKeyTime > keyTimeout) {
+        keySequence = '';
+      }
+      lastKeyTime = now;
+
+      if (e.key === '?') {
+        e.preventDefault();
+        toggleOverlay();
+        return;
+      }
+
+      if (e.shiftKey && e.key === '?') {
+        e.preventDefault();
+        toggleOverlay();
+        return;
+      }
+
+      if (e.key === 't' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        if (typeof window.toggleTheme === 'function') {
+          window.toggleTheme();
+        }
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        const overlay = document.getElementById('ps-shortcuts-overlay');
+        if (overlay && overlay.classList.contains('visible')) {
+          overlay.classList.remove('visible');
+        }
+        keySequence = '';
+        return;
+      }
+
+      if (e.key === 'g' && !e.ctrlKey && !e.metaKey) {
+        keySequence = 'g';
+        e.preventDefault();
+        return;
+      }
+
+      if (keySequence === 'g' && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
+        e.preventDefault();
+        const navMap = {
+          'h': 'index.html',
+          'g': 'grimoire.html',
+          'c': 'compendium.html',
+          'b': 'character-builder.html',
+          's': 'character-sheets.html',
+          'a': 'about.html',
+          'm': 'campaigns.html'
+        };
+        if (navMap[e.key]) {
+          window.location.href = navMap[e.key];
+        }
+        keySequence = '';
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     ensureShell();
     wireAuthButton();
@@ -334,5 +506,10 @@
     setupPageTransitions();
     setupReveal();
     setupAuthDropdownClose();
+    setupKeyboardShortcuts();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(function() {});
+    }
   });
 })();
