@@ -659,7 +659,8 @@
 </head>
 <body>
 
-  <nav class="ps-nav">
+  <a href="#main-content" class="ps-skip-nav">Skip to content</a>
+  <nav class="ps-nav" role="navigation" aria-label="Main navigation">
         <div class="ps-nav-links">
       <a href="index.html">Home</a>
       <a href="grimoire.html">Grimoire</a>
@@ -753,7 +754,7 @@
     </aside>
 
     <!-- MAIN: Browse -->
-    <main class="cmp-main">
+    <main class="cmp-main" id="main-content">
       <!-- Tab bar -->
       <div class="cmp-tabs">
         <button class="cmp-tab active" id="tab-mine"      onclick="cmpSwitchTab('mine')">My Homebrew</button>
@@ -797,17 +798,17 @@
 
   <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
 
+  <div style="font-size:10px;color:var(--text-faint);text-align:center;max-width:600px;margin:0 auto;padding:16px 24px 0;line-height:1.5;">
+    Homebrew content is user-created and not affiliated with Wizards of the Coast.
+    Game mechanics based on the <em>Systems Reference Document 5.1</em> (SRD 5.1), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--text-faint);">CC BY 4.0</a>.
+    D&amp;D and related marks are trademarks of Wizards of the Coast LLC.
+  </div>
   <footer class="ps-footer">
     <div class="ps-footer-logo">
       <img src="logo.png" alt="Phmurt Studios" />
       <span class="ps-footer-name">Phmurt Studios</span>
     </div>
     <div class="ps-footer-copy">Roll Well. Play Weird.</div>
-    <div style="font-size:10px;color:var(--text-faint);margin-top:8px;text-align:center;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.5;">
-      Homebrew content is user-created and not affiliated with Wizards of the Coast.
-      Game mechanics based on the <em>Systems Reference Document 5.1</em> (SRD 5.1), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--text-faint);">CC BY 4.0</a>.
-      D&amp;D and related marks are trademarks of Wizards of the Coast LLC.
-    </div>
   </footer>
 
   <script>
@@ -3689,6 +3690,7 @@
           + 'title="' + (isShared ? 'Remove from community' : 'Share with community') + '">'
           + (isShared ? '&#10003; Shared' : '&#8593; Share') + '</button>'
           + '<button class="cmp-btn" data-edit-type="' + type + '" data-edit-id="' + id + '">Edit</button>'
+          + '<button class="ps-fav-btn" data-fav-id="cmp-' + type + '-' + id + '" onclick="toggleFavorite(this)" title="Bookmark">&#9734;</button>'
           + '</div>'
           + '</div>'
           + '</div>';
@@ -3902,9 +3904,45 @@
       return Promise.resolve();
     }
 
+    // ── Favorites ──────────────────────────────────────────────────────────
+    function getFavorites() {
+      try { return JSON.parse(localStorage.getItem('phmurt_favorites') || '[]'); } catch(e) { return []; }
+    }
+    function saveFavorites(arr) {
+      try { localStorage.setItem('phmurt_favorites', JSON.stringify(arr)); } catch(e) {}
+    }
+    function toggleFavorite(btn) {
+      var id = btn.getAttribute('data-fav-id');
+      var favs = getFavorites();
+      var idx = favs.indexOf(id);
+      if (idx === -1) { favs.push(id); } else { favs.splice(idx, 1); }
+      saveFavorites(favs);
+      refreshFavButtons();
+    }
+    function refreshFavButtons() {
+      var favs = getFavorites();
+      document.querySelectorAll('.ps-fav-btn').forEach(function(btn) {
+        var id = btn.getAttribute('data-fav-id');
+        var isFav = favs.indexOf(id) !== -1;
+        btn.classList.toggle('favorited', isFav);
+        btn.innerHTML = isFav ? '&#9733; Saved' : '&#9734; Save';
+      });
+    }
+
+    // Re-render fav state after compendium renders cards
+    var _origRenderRaces = typeof renderRaces === 'function' ? renderRaces : null;
+    var _origRenderClasses = typeof renderClasses === 'function' ? renderClasses : null;
+    var _origRenderBgs = typeof renderBackgrounds === 'function' ? renderBackgrounds : null;
+
+    function hookFavRefresh(fn) {
+      if (!fn) return fn;
+      return function() { fn.apply(this, arguments); setTimeout(refreshFavButtons, 50); };
+    }
+
     // ── Boot ─────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
       cmpInit();
+      setTimeout(refreshFavButtons, 200);
     });
   </script>
 

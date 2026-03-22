@@ -127,7 +127,7 @@
     ).join('');
 
     return `
-      <nav class="ps-nav">
+      <nav class="ps-nav" role="navigation" aria-label="Main navigation">
         <div class="ps-nav-links">${links}</div>
         <div class="ps-nav-right">
           <button class="ps-theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" onclick="toggleTheme()">☽</button>
@@ -163,7 +163,7 @@
 
   function footerMarkup() {
     return `
-      <footer class="ps-footer">
+      <footer class="ps-footer" role="contentinfo">
         <div class="ps-footer-logo">
           <img src="logo.png" alt="Phmurt Studios" />
           <span class="ps-footer-name">${SHELL.footerName}</span>
@@ -175,18 +175,46 @@
 
   function syncThemeButton() {
     const saved = localStorage.getItem('ps-theme') || 'light';
-    if (typeof window.toggleTheme === 'function') {
-      const btn = document.getElementById('themeToggle');
-      if (btn) btn.textContent = (saved === 'light' ? '☀' : '☽');
-    }
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = (saved === 'light' ? '☀' : '☽');
   }
+
+  // Wrap toggleTheme to add smooth transition class
+  (function enhanceThemeToggle() {
+    const origCheck = setInterval(() => {
+      if (typeof window.toggleTheme !== 'function') return;
+      clearInterval(origCheck);
+      const origToggle = window.toggleTheme;
+      window.toggleTheme = function() {
+        document.documentElement.classList.add('theme-transition');
+        origToggle.apply(this, arguments);
+        syncThemeButton();
+        setTimeout(() => document.documentElement.classList.remove('theme-transition'), 500);
+      };
+    }, 50);
+    // Safety: stop checking after 5s
+    setTimeout(() => clearInterval(origCheck), 5000);
+  })();
 
   function ensureShell() {
     const pageName = getPageName();
     const activeLabel = activeNavFor(pageName, document.body?.dataset.navActive || null);
 
+    // Skip-nav link (accessibility)
+    if (!document.querySelector('.ps-skip-nav')) {
+      const skip = document.createElement('a');
+      skip.href = '#main-content';
+      skip.className = 'ps-skip-nav';
+      skip.textContent = 'Skip to content';
+      document.body.insertBefore(skip, document.body.firstChild);
+    }
+
     const navMount = document.getElementById('ps-site-shell');
     if (navMount) navMount.innerHTML = navMarkup(activeLabel);
+
+    // Add main-content id to first content area
+    const mainTarget = document.querySelector('.ps-page-hero, .ps-hero, .cb-wrap, .cs-wrap, .ps-content, main');
+    if (mainTarget && !mainTarget.id) mainTarget.id = 'main-content';
 
     const breadcrumbMount = document.getElementById('ps-page-breadcrumb');
     if (breadcrumbMount) {
@@ -198,6 +226,28 @@
     if (footerMount) footerMount.innerHTML = footerMarkup();
 
     syncThemeButton();
+    setupBackToTop();
+  }
+
+  function setupBackToTop() {
+    if (document.querySelector('.ps-top-btn')) return;
+    const btn = document.createElement('button');
+    btn.className = 'ps-top-btn';
+    btn.setAttribute('aria-label', 'Back to top');
+    btn.innerHTML = '&#8593;';
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    document.body.appendChild(btn);
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          btn.classList.toggle('visible', window.scrollY > 400);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
   }
 
   function wireAuthButton() {

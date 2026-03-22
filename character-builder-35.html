@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D&D 3.5e Character Builder — Phmurt Studios</title>
+  <meta name="description" content="Build a D&D 3.5 Edition character step by step. Choose race, class, abilities, skills, feats, and equipment." />
+  <meta property="og:title" content="D&D 3.5e Character Builder · Phmurt Studios" />
+  <meta property="og:description" content="Build a D&D 3.5 Edition character step by step with the Phmurt Studios builder." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://phmurtstudios.com/character-builder-35.html" />
+  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
+  <meta name="twitter:card" content="summary" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
@@ -168,7 +175,8 @@
   </style>
 </head>
 <body>
-  <nav class="ps-nav">
+  <a href="#main-content" class="ps-skip-nav">Skip to content</a>
+  <nav class="ps-nav" role="navigation" aria-label="Main navigation">
         <div class="ps-nav-links">
       <a href="index.html">Home</a>
       <a href="grimoire.html">Grimoire</a>
@@ -223,7 +231,7 @@
       <div class="cb-step-item" data-step="9" onclick="goToStep35(9)"><div class="cb-step-num">9</div><div><div class="cb-step-label">Details &amp; Sheet</div><div class="cb-step-sublabel">Ready to play</div></div></div>
       <div class="cb-summary-mini"><div class="cb-summary-mini-title">Character (3.5e)</div><div id="miniSummary35"></div></div>
     </aside>
-    <main class="cb-main">
+    <main class="cb-main" id="main-content">
 
       <!-- STEP 1: RACE -->
       <div class="cb-panel active" id="panel35-1">
@@ -1632,5 +1640,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
   </script>
+  <footer class="ps-footer" style="margin-top:0;">
+    <div class="ps-footer-logo">
+      <img src="logo.png" alt="Phmurt Studios" />
+      <span class="ps-footer-name">Phmurt Studios</span>
+    </div>
+    <div class="ps-footer-copy">Roll Well. Play Weird.</div>
+  </footer>
 </body>
 </html>

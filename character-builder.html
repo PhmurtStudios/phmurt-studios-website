@@ -202,18 +202,29 @@
     }
     @media (max-width: 860px) {
       .cb-wrap { grid-template-columns: 1fr; }
-      .cb-sidebar { position: static; height: auto; display: flex; overflow-x: auto; padding: 12px 0; border-right: none; border-bottom: 1px solid rgba(192,57,43,0.2); }
+      .cb-sidebar { position: static; height: auto; display: flex; overflow-x: auto; padding: 12px 0; border-right: none; border-bottom: 1px solid rgba(192,57,43,0.2); -webkit-overflow-scrolling: touch; }
       .cb-step-item { min-width: 80px; flex-direction: column; gap: 4px; padding: 8px 12px; }
       .cb-step-sublabel { display: none; }
       .cb-step-label { font-size: 7px; text-align: center; }
       .cb-summary-mini { display: none; }
       .cb-main { padding: 24px; }
+      .cb-panel-title { font-size: 28px; }
+      .cb-panel-sub { font-size: 16px; margin-bottom: 20px; }
       .cb-ability-grid { grid-template-columns: repeat(3,1fr); }
       .cb-scores-row { grid-template-columns: repeat(3,1fr); }
       .cb-stats-row { grid-template-columns: repeat(2,1fr); }
       .cb-sheet-cols { grid-template-columns: 1fr; }
       .cb-skills-grid { grid-template-columns: 1fr; }
       .cb-form-grid { grid-template-columns: 1fr; }
+      .cb-skill-check { width: 20px; height: 20px; }
+      .cb-nav-btns button { padding: 10px 18px; font-size: 10px; min-height: 44px; }
+    }
+    @media (max-width: 480px) {
+      .cb-main { padding: 16px; }
+      .cb-panel-title { font-size: 22px; }
+      .cb-ability-grid { grid-template-columns: repeat(2,1fr); }
+      .cb-scores-row { grid-template-columns: repeat(2,1fr); }
+      .cb-stats-row { grid-template-columns: 1fr; }
     }
 
     /* ── DICE ROLL POPUP ── */
@@ -498,7 +509,8 @@
 </head>
 <body>
 
-  <nav class="ps-nav">
+  <a href="#main-content" class="ps-skip-nav">Skip to content</a>
+  <nav class="ps-nav" role="navigation" aria-label="Main navigation">
         <div class="ps-nav-links">
       <a href="index.html">Home</a>
       <a href="grimoire.html">Grimoire</a>
@@ -598,7 +610,7 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="cb-main">
+    <main class="cb-main" id="main-content">
 
       <!-- STEP 1: RACE -->
       <div class="cb-panel active" id="panel1">
@@ -9082,8 +9094,108 @@ function init35() {
       <button onclick="closeDicePopup()" style="margin-top:14px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:7px 18px;background:transparent;color:var(--text-muted);border:1px solid var(--border);cursor:pointer;width:100%;">Close</button>
     </div>
   </div>
-  <div class="ps-footer" style="margin-top:0;">
+  <!-- ── AUTO-SAVE SYSTEM ── -->
+  <script>
+  (function(){
+    var SAVE_KEY_5E = 'phmurt_builder_5e';
+    var SAVE_KEY_35 = 'phmurt_builder_35e';
+    var _saveTimer = null;
+
+    function autoSave5e() {
+      try {
+        var data = JSON.stringify({
+          step: C.step, race: C.race, subrace: C.subrace, cls: C.cls,
+          background: C.background, abilities: C.abilities, scoreMethod: C.scoreMethod,
+          selectedSkills: C.selectedSkills, equipChoices: C.equipChoices,
+          weaponChoices: C.weaponChoices, selectedCantrips: C.selectedCantrips,
+          selectedSpells: C.selectedSpells, details: C.details, level: C.level,
+          classes: C.classes, ts: Date.now()
+        });
+        localStorage.setItem(SAVE_KEY_5E, data);
+      } catch(e) {}
+    }
+
+    function autoSave35() {
+      try {
+        var data = JSON.stringify({
+          step: C35.step, race: C35.race, cls: C35.cls, alignment: C35.alignment,
+          abilities: C35.abilities, scoreMethod: C35.scoreMethod,
+          skillRanks: C35.skillRanks, selectedFeats: C35.selectedFeats,
+          equipChoices: C35.equipChoices, weaponChoices: C35.weaponChoices,
+          selectedCantrips: C35.selectedCantrips, selectedSpells: C35.selectedSpells,
+          details: C35.details, level: C35.level, ts: Date.now()
+        });
+        localStorage.setItem(SAVE_KEY_35, data);
+      } catch(e) {}
+    }
+
+    function scheduleAutoSave() {
+      clearTimeout(_saveTimer);
+      _saveTimer = setTimeout(function() {
+        var is35 = document.getElementById('builder-35e') &&
+                   document.getElementById('builder-35e').style.display !== 'none';
+        if (is35) autoSave35(); else autoSave5e();
+        showSaveIndicator();
+      }, 2000);
+    }
+
+    function showSaveIndicator() {
+      var el = document.getElementById('autosave-indicator');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'autosave-indicator';
+        el.style.cssText = 'position:fixed;bottom:76px;right:28px;font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);opacity:0;transition:opacity .3s;z-index:301;pointer-events:none;';
+        document.body.appendChild(el);
+      }
+      el.textContent = 'Progress saved';
+      el.style.opacity = '1';
+      setTimeout(function() { el.style.opacity = '0'; }, 2000);
+    }
+
+    function tryRestore5e() {
+      try {
+        var raw = localStorage.getItem(SAVE_KEY_5E);
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (!d.race && !d.cls) return;
+        if (Date.now() - d.ts > 86400000 * 7) return; // expire after 7 days
+        Object.keys(d).forEach(function(k) { if (k !== 'ts' && C.hasOwnProperty(k)) C[k] = d[k]; });
+      } catch(e) {}
+    }
+
+    function tryRestore35() {
+      try {
+        var raw = localStorage.getItem(SAVE_KEY_35);
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (!d.race && !d.cls) return;
+        if (Date.now() - d.ts > 86400000 * 7) return;
+        Object.keys(d).forEach(function(k) { if (k !== 'ts' && C35.hasOwnProperty(k)) C35[k] = d[k]; });
+      } catch(e) {}
+    }
+
+    // Clear save when starting fresh
+    window.clearBuilderSave = function(edition) {
+      if (edition === '35e') localStorage.removeItem(SAVE_KEY_35);
+      else localStorage.removeItem(SAVE_KEY_5E);
+    };
+
+    // Restore on load
+    tryRestore5e();
+    tryRestore35();
+
+    // Listen for clicks and inputs to trigger auto-save
+    document.addEventListener('click', scheduleAutoSave);
+    document.addEventListener('input', scheduleAutoSave);
+  })();
+  </script>
+
+  <footer class="ps-footer" style="margin-top:0;">
+    <div class="ps-footer-logo">
+      <img src="logo.png" alt="Phmurt Studios" />
+      <span class="ps-footer-name">Phmurt Studios</span>
+    </div>
     <div class="ps-footer-copy">Roll Well. Play Weird.</div>
-  </div>
+  </footer>
 </body>
 </html>
