@@ -584,6 +584,77 @@
       border: 1px solid var(--border);
       margin-bottom: 12px;
     }
+
+    /* ── Feature Choices UI ──────────────────────────────────────── */
+    .hbc-choices-wrap {
+      margin-top: 8px;
+      padding-left: 16px;
+      border-left: 2px solid var(--crimson-border);
+    }
+    .hbc-choice-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .hbc-choice-row input {
+      flex: 0 0 140px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Spectral', serif;
+      font-size: 13px;
+      padding: 5px 8px;
+    }
+    .hbc-choice-row input:focus {
+      outline: none;
+      border-color: var(--crimson-border);
+    }
+    .hbc-choice-row textarea {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Spectral', serif;
+      font-size: 13px;
+      padding: 5px 8px;
+      min-height: 36px;
+      resize: vertical;
+    }
+    .hbc-choice-row textarea:focus {
+      outline: none;
+      border-color: var(--crimson-border);
+    }
+    .hbc-choice-del {
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .hbc-choice-del:hover {
+      color: var(--crimson);
+    }
+    .hbc-choice-add {
+      font-family: 'Cinzel', serif;
+      font-size: 7px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      background: transparent;
+      border: 1px dashed var(--border);
+      color: var(--text-faint);
+      cursor: pointer;
+      margin-top: 4px;
+      transition: all 0.15s;
+    }
+    .hbc-choice-add:hover {
+      border-color: var(--crimson-border);
+      color: var(--crimson);
+    }
   </style>
 </head>
 <body>
@@ -1749,17 +1820,26 @@
     // The structured editor works with a JS array (_hbcFeats) and syncs
     // back to the hidden textarea for save compatibility.
 
-    var _hbcFeats = []; // [{level, name, desc, type, isASI, uses, recharge}]
+    var _hbcFeats = []; // [{level, name, desc, type, isASI, uses, recharge, choices:[{name, desc}]}]
 
     function _hbcParseFeatsFromTextarea(){
       var ta = document.getElementById('hbe-levelFeatures');
       _hbcFeats = [];
       if(!ta || !ta.value.trim()) return;
       ta.value.split('\n').filter(Boolean).forEach(function(line){
-        var p = line.split('|');
-        var lv = parseInt(p[0]); if(!lv||lv<2||lv>20) return;
-        var feat = { level:lv, name:(p[1]||'').trim(), desc:(p[2]||'').trim(), type:'passive' };
-        if((p[3]||'').trim().toUpperCase()==='ASI') { feat.isASI=true; feat.type='asi'; }
+        var p = line.split('||');
+        var mainPart = p[0].split('|');
+        var lv = parseInt(mainPart[0]); if(!lv||lv<2||lv>20) return;
+        var feat = { level:lv, name:(mainPart[1]||'').trim(), desc:(mainPart[2]||'').trim(), type:'passive', choices:[] };
+        if((mainPart[3]||'').trim().toUpperCase()==='ASI') { feat.isASI=true; feat.type='asi'; }
+        // Parse choices from JSON if present (after || separator)
+        if(p[1]) {
+          try {
+            feat.choices = JSON.parse(p[1]) || [];
+          } catch(e) {
+            feat.choices = [];
+          }
+        }
         _hbcFeats.push(feat);
       });
     }
@@ -1769,7 +1849,11 @@
       if(!ta) return;
       _hbcFeats.sort(function(a,b){ return a.level-b.level; });
       ta.value = _hbcFeats.map(function(f){
-        return f.level+'|'+f.name+'|'+f.desc+(f.isASI?'|ASI':'');
+        var line = f.level+'|'+f.name+'|'+f.desc+(f.isASI?'|ASI':'');
+        if(f.choices && f.choices.length > 0) {
+          line += '||' + JSON.stringify(f.choices);
+        }
+        return line;
       }).join('\n');
     }
 
@@ -1797,8 +1881,25 @@
           +'<input class="hbc-feat-name-input" value="'+f.name.replace(/"/g,'&quot;')+'" onchange="_hbcUpdateFeat('+idx+',\'name\',this.value)" placeholder="Feature name"/>'
           +typeBadges
           +'</div>'
-          +'<textarea class="hbc-feat-desc-input" rows="2" onchange="_hbcUpdateFeat('+idx+',\'desc\',this.value)" placeholder="Describe what this feature does...">'+(f.desc||'')+'</textarea>'
-          +'</div>'
+          +'<textarea class="hbc-feat-desc-input" rows="2" onchange="_hbcUpdateFeat('+idx+',\'desc\',this.value)" placeholder="Describe what this feature does...">'+(f.desc||'')+'</textarea>';
+
+        // Render choices section if feature has choices
+        if(f.choices && f.choices.length > 0) {
+          html += '<div class="hbc-choices-wrap">';
+          f.choices.forEach(function(c, cidx) {
+            html += '<div class="hbc-choice-row">'
+              +'<input type="text" value="'+(c.name||'').replace(/"/g,'&quot;')+'" onchange="_hbcUpdateChoice('+idx+','+cidx+',\'name\',this.value)" placeholder="Choice name"/>'
+              +'<textarea rows="1" onchange="_hbcUpdateChoice('+idx+','+cidx+',\'desc\',this.value)" placeholder="Choice description...">'+(c.desc||'')+'</textarea>'
+              +'<button class="hbc-choice-del" onclick="_hbcRemoveChoice('+idx+','+cidx+')" title="Remove choice">×</button>'
+              +'</div>';
+          });
+          html += '<button class="hbc-choice-add" onclick="_hbcAddChoice('+idx+')">+ Add Choice</button>';
+          html += '</div>';
+        } else {
+          html += '<button class="hbc-choice-add" onclick="_hbcAddChoice('+idx+')" style="margin-top:6px;">+ Add Choice Option</button>';
+        }
+
+        html += '</div>'
           +'<button class="hbc-feat-del" onclick="_hbcRemoveFeat('+idx+')" title="Remove feature">×</button>'
           +'</div>';
       });
@@ -1839,6 +1940,33 @@
       }
       _hbcSyncFeatsToTextarea();
       _hbcRenderFeatList();
+    }
+
+    function _hbcAddChoice(idx){
+      _hbcParseFeatsFromTextarea();
+      if(_hbcFeats[idx]){
+        if(!_hbcFeats[idx].choices) _hbcFeats[idx].choices = [];
+        _hbcFeats[idx].choices.push({name:'', desc:''});
+        _hbcSyncFeatsToTextarea();
+        _hbcRenderFeatList();
+      }
+    }
+
+    function _hbcRemoveChoice(idx, cidx){
+      _hbcParseFeatsFromTextarea();
+      if(_hbcFeats[idx] && _hbcFeats[idx].choices){
+        _hbcFeats[idx].choices.splice(cidx, 1);
+        _hbcSyncFeatsToTextarea();
+        _hbcRenderFeatList();
+      }
+    }
+
+    function _hbcUpdateChoice(idx, cidx, field, value){
+      _hbcParseFeatsFromTextarea();
+      if(_hbcFeats[idx] && _hbcFeats[idx].choices && _hbcFeats[idx].choices[cidx]){
+        _hbcFeats[idx].choices[cidx][field] = value;
+        _hbcSyncFeatsToTextarea();
+      }
     }
 
     // Template functions — populate the feature list with common patterns
@@ -1941,6 +2069,35 @@
     // Legacy compatibility: old insert functions still work
     function _hbcInsertASIs(){ _hbcTplASIs(); }
     function _hbcInsertExtraAttack(){ _hbcTplExtraAttack(); }
+
+    // Subclass template — auto-fill feature levels based on parent class
+    function _hbcSubclassTemplate(){
+      var parentEl = document.getElementById('hbe-parentClass');
+      var featEl   = document.getElementById('hbe-features');
+      if(!parentEl || !featEl) return;
+      var parentId = parentEl.value;
+      // Known subclass feature schedules by class
+      var schedules = {
+        barbarian:  [3, 6, 10, 14],
+        bard:       [3, 6, 14],
+        cleric:     [1, 2, 6, 8, 17],
+        druid:      [2, 6, 10, 14],
+        fighter:    [3, 7, 10, 15, 18],
+        monk:       [3, 6, 11, 17],
+        paladin:    [3, 7, 15, 20],
+        ranger:     [3, 7, 11, 15],
+        rogue:      [3, 9, 13, 17],
+        sorcerer:   [1, 6, 14, 18],
+        warlock:    [1, 6, 10, 14],
+        wizard:     [2, 6, 10, 14]
+      };
+      var levels = schedules[parentId] || [3, 7, 10, 15, 18];
+      var existing = featEl.value.trim();
+      if(existing && !confirm('This will replace existing features. Continue?')) return;
+      featEl.value = levels.map(function(lv){
+        return lv+'|Subclass Feature|Your subclass grants a feature at this level.';
+      }).join('\n');
+    }
     
     // ─────────────────────────────────────────────────────────────
     // FORM RENDERING  — one function per entity type
@@ -2012,17 +2169,46 @@
           F.inp('name', 'Race Name *', e.name, 'e.g. Aasimar'),
           F.sel('size', 'Size', ['Small','Medium','Large'], e.size||'Medium'),
         ]);
-        html += F.inp('speed', 'Walk Speed (ft)', e.speed||30, '30', 'number');
+
+        html += F.head('Movement & Senses');
+        html += F.grid([
+          F.inp('speed', 'Walk Speed (ft)', e.speed||30, '30', 'number'),
+          F.sel('darkvision', 'Darkvision', [{v:0,l:'None'},{v:30,l:'30 ft.'},{v:60,l:'60 ft.'},{v:120,l:'120 ft.'}], e.darkvision||0),
+        ]);
+        html += F.grid([
+          F.inp('flySpeed', 'Fly Speed (ft, 0 = none)', e.flySpeed||0, '0', 'number'),
+          F.inp('swimSpeed', 'Swim Speed (ft, 0 = none)', e.swimSpeed||0, '0', 'number'),
+        ]);
         html += F.inp('languages', 'Languages (comma-separated)', (e.languages||[]).join(', '), 'Common, Elvish');
-    
+
         html += F.head('Ability Score Increases');
         html += F.note('Format: str:2, dex:1 (use ability abbreviations: str dex con int wis cha)');
         html += F.inp('asi', 'ASI *', asiVal, 'str:2, cha:1');
-    
+
+        html += F.head('Damage Resistances');
+        html += F.note('Check any damage types this race has resistance to.');
+        var dmgTypes = ['Fire','Cold','Lightning','Poison','Necrotic','Radiant','Thunder','Acid'];
+        var existingRes = e.resistances||[];
+        html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">';
+        dmgTypes.forEach(function(dt){
+          var checked = existingRes.indexOf(dt.toLowerCase())!==-1;
+          html += '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-family:Cinzel,serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);">'
+            +'<input type="checkbox" class="hbe-resist-cb" value="'+dt.toLowerCase()+'"'+(checked?' checked':'')+' style="width:13px;height:13px;accent-color:var(--crimson);"/>'+dt+'</label>';
+        });
+        html += '</div>';
+
+        html += F.head('Proficiencies');
+        html += F.inp('weaponProf', 'Weapon Proficiencies (comma-separated)', (e.weaponProf||[]).join(', '), 'Longsword, Shortbow');
+        html += F.inp('toolProf', 'Tool Proficiencies (comma-separated)', (e.toolProf||[]).join(', '), "Smith's tools");
+
+        html += F.head('Innate Spellcasting (Optional)');
+        html += F.inp('cantrip', 'Cantrip Name', e.cantrip||'', 'e.g. Light, Thaumaturgy');
+        html += F.note('If set, this race knows the named cantrip. The spellcasting ability is assumed from ASI.');
+
         html += F.head('Racial Traits');
         html += F.note('One trait per line: TraitName|Description');
-        html += F.tex('traits', 'Traits', traitVal, 'Darkvision|You can see in darkness up to 60 ft.\nCelestial Resistance|You have resistance to necrotic and radiant damage.', 5);
-    
+        html += F.tex('traits', 'Traits', traitVal, 'Celestial Resistance|You have resistance to necrotic and radiant damage.\nHealing Hands|As an action, touch a creature to restore HP equal to your level.', 5);
+
         html += F.head('Subraces (Optional)');
         html += F.note('One per line: Name|str:1,dex:1|TraitName:TraitDesc;TraitName2:Desc2');
         html += F.tex('subraces', 'Subraces', subraceVal, 'High Elf|int:1|Elf Weapon Training:Proficiency with longsword\nWood Elf|wis:1|Fleet of Foot:Speed increases to 35 ft.', 4);
@@ -2255,37 +2441,62 @@
       } else if (type === 'background') {
         var bgSkillVal = (e.skills||[]).join(', ');
         var bgToolVal  = (e.tools||[]).join(', ');
-    
+
         html += F.head('Identity');
         html += F.inp('name', 'Background Name *', e.name, 'e.g. Bounty Hunter');
-    
+
         html += F.head('Proficiencies');
         html += F.inp('skills', 'Skills (2, comma-separated) *', bgSkillVal, 'Deception, Intimidation');
         html += F.grid([
           F.inp('tools', 'Tool Proficiencies (optional)', bgToolVal, "Thieves' tools"),
           F.inp('languages', 'Extra Languages', e.languages||0, '0', 'number'),
         ]);
-    
+
         html += F.head('Feature');
         html += F.inp('featureName', 'Feature Name *', e.feature, 'e.g. Underworld Contacts');
         html += F.tex('featureDesc', 'Feature Description *', e.featureDesc, 'Your criminal contacts allow you to...', 3);
-    
+
         html += F.head('Equipment');
         html += F.inp('equipment', 'Equipment (comma-separated)', e.equipment||'', 'Common clothes, belt pouch, 10 gp');
+
+        html += F.head('Personality (Optional)');
+        html += F.note('Suggested options for character personality. One per line. Players pick or roll when creating a character.');
+        html += F.tex('personalityTraits', 'Personality Traits', (e.personalityTraits||[]).join('\n'),
+          'I judge people by their actions, not their words.\nI am incredibly slow to trust.', 3);
+        html += F.tex('ideals', 'Ideals', (e.ideals||[]).join('\n'),
+          'Honor. I never steal from those who cannot afford to lose.\nFreedom. Chains are meant to be broken.', 3);
+        html += F.tex('bonds', 'Bonds', (e.bonds||[]).join('\n'),
+          'I owe a debt I can never repay to the person who took pity on me.\nSomeone I love was taken from me.', 3);
+        html += F.tex('flaws', 'Flaws', (e.flaws||[]).join('\n'),
+          'I have a weakness for the vices of the city.\nWhen I see something valuable, I can\'t think of anything but how to steal it.', 3);
+
+        html += F.head('Specialty (Optional)');
+        html += F.inp('specialty', 'Specialty / Variant Name', e.specialty||'', 'e.g. Criminal Contact, Guild Merchant');
     
       } else if (type === 'subclass') {
         var parentOpts = Object.entries(DND_DATA.classes).map(function(kv) {
           return {v:kv[0], l:kv[1].name};
         });
         var scFeatVal = (e.features||[]).map(function(f) { return f.level + '|' + f.name + '|' + f.desc; }).join('\n');
-    
+        var expandedSpellVal = (e.expandedSpells||[]).map(function(sp) { return sp.level + '|' + sp.spells.join(', '); }).join('\n');
+
         html += F.head('Identity');
         html += F.sel('parentClass', 'Parent Class *', parentOpts, e.parentClass||Object.keys(DND_DATA.classes)[0]);
         html += F.inp('name', 'Subclass Name *', e.name, 'e.g. School of Pyromancy');
         html += F.tex('desc', 'Subclass Description', e.desc||'', 'A brief flavour text...', 2);
-    
+
+        html += F.head('Expanded Spell List (Optional)');
+        html += F.note('One per line: SpellLevel|Spell1, Spell2 — these spells are added to the parent class spell list for this subclass.');
+        html += F.tex('expandedSpells', 'Expanded Spells', expandedSpellVal, '1|Burning Hands, Hellish Rebuke\n2|Scorching Ray, Flaming Sphere\n3|Fireball, Stinking Cloud', 4);
+
         html += F.head('Subclass Features');
-        html += F.note('One per line: Level|FeatureName|Description (typical levels: 3, 7, 10, 14, 18)');
+        html += F.note('One per line: Level|FeatureName|Description');
+
+        // Template button
+        html += '<div style="margin-bottom:10px;">'
+          +'<button onclick="_hbcSubclassTemplate()" class="hbc-tpl-btn" style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">✦ Load Feature Levels from Parent Class</button>'
+          +'</div>';
+
         html += F.tex('features', 'Features', scFeatVal, '3|Pyromantic Spark|When you cast a fire spell...\n7|Ignis Embodiment|You gain resistance to fire damage...', 7);
       }
     
@@ -2365,12 +2576,25 @@
     
         var langs = g('languages').split(',').map(function(l){ return l.trim(); }).filter(Boolean);
     
+        // Collect resistance checkboxes
+        var resistances = [];
+        document.querySelectorAll('.hbe-resist-cb').forEach(function(cb){
+          if(cb.checked) resistances.push(cb.value);
+        });
+
         entry = {
           id:         _hbeEditId || _homebrewEntityId('race', name),
           name:       name,
           asi:        asi,
           speed:      gn('speed') || 30,
           size:       g('size') || 'Medium',
+          darkvision: gn('darkvision') || 0,
+          flySpeed:   gn('flySpeed') || 0,
+          swimSpeed:  gn('swimSpeed') || 0,
+          resistances: resistances.length ? resistances : undefined,
+          weaponProf: g('weaponProf') ? g('weaponProf').split(',').map(function(s){return s.trim();}).filter(Boolean) : undefined,
+          toolProf:   g('toolProf') ? g('toolProf').split(',').map(function(s){return s.trim();}).filter(Boolean) : undefined,
+          cantrip:    g('cantrip') || undefined,
           languages:  langs.length ? langs : ['Common'],
           traits:     traits,
           subraces:   subraces,
@@ -2519,6 +2743,11 @@
           feature:     feat,
           featureDesc: featDesc,
           equipment:   g('equipment') || '',
+          personalityTraits: g('personalityTraits') ? g('personalityTraits').split('\n').filter(Boolean) : undefined,
+          ideals:      g('ideals') ? g('ideals').split('\n').filter(Boolean) : undefined,
+          bonds:       g('bonds') ? g('bonds').split('\n').filter(Boolean) : undefined,
+          flaws:       g('flaws') ? g('flaws').split('\n').filter(Boolean) : undefined,
+          specialty:   g('specialty') || undefined,
         };
     
       } else if (type === 'subclass') {
@@ -2536,12 +2765,26 @@
     
         if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
     
+        // Parse expanded spells
+        var expandedSpells = [];
+        var expRaw = g('expandedSpells');
+        if(expRaw){
+          expRaw.split('\n').filter(Boolean).forEach(function(line){
+            var p = line.split('|');
+            var lv = parseInt(p[0]);
+            if(!lv || lv<1 || lv>9) return;
+            var spells = (p[1]||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+            if(spells.length) expandedSpells.push({level:lv, spells:spells});
+          });
+        }
+
         entry = {
-          id:          _hbeEditId || _homebrewEntityId('subclass', name),
-          name:        name,
-          parentClass: parent,
-          desc:        g('desc'),
-          features:    features,
+          id:            _hbeEditId || _homebrewEntityId('subclass', name),
+          name:          name,
+          parentClass:   parent,
+          desc:          g('desc'),
+          features:      features,
+          expandedSpells: expandedSpells.length ? expandedSpells : undefined,
         };
       }
     
