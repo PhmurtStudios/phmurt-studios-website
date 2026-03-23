@@ -251,44 +251,50 @@
     .empty-state-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
 
     /* ═══════════ Battlemap ═══════════ */
-    .battlemap-wrap { display: flex; gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); min-height: 620px; }
+    .battlemap-wrap { display: flex; gap: 0; background: var(--bg); border: 1px solid var(--crimson-border); min-height: 640px; border-radius: 2px; overflow: hidden; }
     .battlemap-main { flex: 1; display: flex; flex-direction: column; background: var(--bg-card); }
     .battlemap-toolbar {
-      display: flex; flex-wrap: wrap; gap: 2px; padding: 8px 12px; background: var(--bg);
+      display: flex; flex-wrap: wrap; gap: 3px; padding: 6px 10px; background: var(--bg);
       border-bottom: 1px solid var(--crimson-border); align-items: center;
     }
+    .bm-toolbar-group { display: inline-flex; align-items: center; gap: 2px; padding: 2px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 3px; }
     .bm-tool {
-      padding: 7px 14px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);
-      font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase;
-      cursor: pointer; border-radius: 2px; transition: all 0.2s; white-space: nowrap;
+      padding: 5px 9px; background: transparent; border: 1px solid transparent; color: var(--text-muted);
+      font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; border-radius: 2px; transition: all 0.15s; white-space: nowrap;
     }
-    .bm-tool:hover { border-color: var(--crimson); color: var(--crimson); }
-    .bm-tool.active { background: var(--crimson); border-color: var(--crimson); color: #f5f0e8; }
-    .bm-sep { width: 1px; height: 24px; background: var(--crimson-border); margin: 0 6px; }
-    .bm-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin: 0 4px; }
-    .bm-color-pick { width: 28px; height: 28px; border: 1px solid var(--border); background: none; padding: 0; cursor: pointer; border-radius: 2px; }
-    .battlemap-canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #1a1a2e; min-height: 500px; }
+    .bm-tool:hover { background: var(--bg-hover); color: var(--text); }
+    .bm-tool.active { background: var(--crimson); color: #f5f0e8; }
+    .bm-sep { width: 1px; height: 22px; background: var(--border); margin: 0 3px; }
+    .bm-label { font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin: 0 3px; }
+    .bm-color-pick { width: 24px; height: 24px; border: 1px solid var(--border); background: none; padding: 0; cursor: pointer; border-radius: 2px; }
+    .battlemap-canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #1a1a2e; min-height: 520px; }
     #battlemapCanvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
     .battlemap-sidebar {
-      width: 240px; background: var(--bg-card); overflow-y: auto; padding: 16px;
-      display: flex; flex-direction: column; gap: 12px;
+      width: 250px; background: var(--bg-card); overflow-y: auto; padding: 14px;
+      display: flex; flex-direction: column; gap: 14px; border-left: 1px solid var(--crimson-border);
     }
-    .bm-sidebar-title { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--crimson); text-transform: uppercase; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--crimson-border); }
+    .bm-sidebar-title { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--crimson); text-transform: uppercase; margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px solid var(--crimson-border); }
     .bm-token-btn {
-      display: flex; justify-content: space-between; align-items: center; padding: 8px 10px;
+      display: flex; justify-content: space-between; align-items: center; padding: 7px 10px;
       background: var(--bg); border: 1px solid var(--border); border-radius: 2px; cursor: pointer;
-      transition: border-color 0.2s; margin-bottom: 4px;
+      transition: all 0.15s; margin-bottom: 3px;
     }
-    .bm-token-btn:hover { border-color: var(--crimson); }
+    .bm-token-btn:hover { border-color: var(--crimson); background: var(--bg-hover); }
     .bm-token-btn-name { font-size: 12px; color: var(--text); }
     .bm-token-btn-meta { font-size: 10px; color: var(--text-muted); }
     .bm-token-btn-add { background: none; border: none; color: var(--crimson); font-size: 16px; cursor: pointer; padding: 0 4px; }
-    .bm-zoom-display { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; margin: 0 4px; min-width: 40px; text-align: center; }
-    .bm-info { font-size: 11px; color: var(--text-muted); padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; line-height: 1.5; }
-    .bm-placed-tokens { margin-top: 8px; }
-    .bm-placed-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; margin-bottom: 3px; font-size: 11px; color: var(--text); }
+    .bm-zoom-display { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; margin: 0 3px; min-width: 36px; text-align: center; }
+    .bm-info { font-size: 11px; color: var(--text-muted); padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; line-height: 1.5; }
+    .bm-placed-tokens { margin-top: 6px; }
+    .bm-placed-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; margin-bottom: 2px; font-size: 11px; color: var(--text); transition: background 0.15s; }
+    .bm-placed-row:hover { background: var(--bg-hover); }
     .bm-placed-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; padding: 0; }
     .bm-placed-remove:hover { color: var(--crimson); }
+    .bm-upload-area { width: 100%; padding: 10px; background: var(--bg); border: 1px dashed var(--border); border-radius: 2px; cursor: pointer; font-size: 11px; color: var(--text-muted); transition: all 0.15s; font-family: 'Spectral', serif; text-align: center; }
+    .bm-upload-area:hover { border-color: var(--crimson); color: var(--crimson); }
+    .bm-upload-area.has-image { border-style: solid; border-color: var(--crimson-border); color: var(--text); }
+    .bm-map-preview { width: 100%; height: 48px; object-fit: cover; border-radius: 2px; margin-top: 4px; border: 1px solid var(--border); }
 
     /* Campaign List / Detail Toggle */
     .campaign-list-view { display: none; }
@@ -473,45 +479,82 @@
 
       <!-- Battlemap Tab -->
       <div id="battlemapTab" class="tab-content">
+        <input type="file" id="bmMapUpload" accept="image/*" style="display:none" onchange="handleMapUpload(this)">
         <div class="battlemap-wrap">
           <div class="battlemap-main">
             <div class="battlemap-toolbar" id="bmToolbar">
-              <button class="bm-tool active" data-bm-tool="select" onclick="setBmTool('select')" title="Select & Move tokens">Select</button>
-              <button class="bm-tool" data-bm-tool="draw" onclick="setBmTool('draw')" title="Freehand draw">Draw</button>
-              <button class="bm-tool" data-bm-tool="line" onclick="setBmTool('line')" title="Draw straight line">Line</button>
-              <button class="bm-tool" data-bm-tool="rect" onclick="setBmTool('rect')" title="Draw rectangle">Rect</button>
-              <button class="bm-tool" data-bm-tool="circle" onclick="setBmTool('circle')" title="Draw circle/ellipse">Circle</button>
-              <button class="bm-tool" data-bm-tool="cone" onclick="setBmTool('cone')" title="Spell cone template">Cone</button>
-              <button class="bm-tool" data-bm-tool="ruler" onclick="setBmTool('ruler')" title="Measure distance">Ruler</button>
-              <button class="bm-tool" data-bm-tool="fog" onclick="setBmTool('fog')" title="Paint fog of war">Fog</button>
-              <button class="bm-tool" data-bm-tool="eraser" onclick="setBmTool('eraser')" title="Erase drawings">Eraser</button>
+              <div class="bm-toolbar-group">
+                <button class="bm-tool active" data-bm-tool="select" onclick="setBmTool('select')" title="Select & Move tokens">Select</button>
+                <button class="bm-tool" data-bm-tool="draw" onclick="setBmTool('draw')" title="Freehand draw">Draw</button>
+                <button class="bm-tool" data-bm-tool="line" onclick="setBmTool('line')" title="Straight line">Line</button>
+                <button class="bm-tool" data-bm-tool="rect" onclick="setBmTool('rect')" title="Rectangle">Rect</button>
+                <button class="bm-tool" data-bm-tool="circle" onclick="setBmTool('circle')" title="Circle/ellipse">Circle</button>
+                <button class="bm-tool" data-bm-tool="cone" onclick="setBmTool('cone')" title="Spell cone">Cone</button>
+              </div>
+              <div class="bm-toolbar-group">
+                <button class="bm-tool" data-bm-tool="ruler" onclick="setBmTool('ruler')" title="Measure distance">Ruler</button>
+                <button class="bm-tool" data-bm-tool="fog" onclick="setBmTool('fog')" title="Paint fog of war">Fog</button>
+                <button class="bm-tool" data-bm-tool="eraser" onclick="setBmTool('eraser')" title="Erase">Eraser</button>
+              </div>
               <div class="bm-sep"></div>
-              <label class="bm-label">Color</label>
               <input type="color" class="bm-color-pick" id="bmDrawColor" value="#dc143c" onchange="bm.drawColor=this.value" title="Drawing color">
-              <label class="bm-label">Width</label>
-              <select class="form-select" id="bmLineWidth" onchange="bm.drawWidth=parseInt(this.value)" style="width:60px;padding:4px 6px;font-size:11px;">
+              <select class="form-select" id="bmLineWidth" onchange="bm.drawWidth=parseInt(this.value)" style="width:56px;padding:3px 4px;font-size:10px;">
                 <option value="2">Thin</option>
                 <option value="3" selected>Med</option>
                 <option value="6">Thick</option>
                 <option value="10">Bold</option>
               </select>
               <div class="bm-sep"></div>
-              <button class="bm-tool" id="bmGridBtn" onclick="toggleBmGrid()" title="Toggle grid">Grid</button>
-              <button class="bm-tool" onclick="bmZoom(0.25)" title="Zoom in">+</button>
-              <span class="bm-zoom-display" id="bmZoomDisplay">100%</span>
-              <button class="bm-tool" onclick="bmZoom(-0.25)" title="Zoom out">−</button>
-              <button class="bm-tool" onclick="resetBmView()" title="Reset view">Reset</button>
+              <div class="bm-toolbar-group">
+                <button class="bm-tool" id="bmGridBtn" onclick="toggleBmGrid()" title="Toggle grid">Grid</button>
+                <button class="bm-tool" onclick="bmZoom(0.25)" title="Zoom in">+</button>
+                <span class="bm-zoom-display" id="bmZoomDisplay">100%</span>
+                <button class="bm-tool" onclick="bmZoom(-0.25)" title="Zoom out">−</button>
+                <button class="bm-tool" onclick="resetBmView()" title="Reset view">Reset</button>
+              </div>
               <div class="bm-sep"></div>
-              <button class="bm-tool" onclick="revealAllFog()" title="Remove all fog">Reveal</button>
-              <button class="bm-tool" onclick="hideAllFog()" title="Cover entire map">Fog All</button>
-              <button class="bm-tool" onclick="undoBm()" title="Undo last drawing">Undo</button>
-              <button class="bm-tool" onclick="clearBattlemap()" title="Clear everything">Clear</button>
+              <div class="bm-toolbar-group">
+                <button class="bm-tool" onclick="undoBm()" title="Undo">Undo</button>
+                <button class="bm-tool" onclick="revealAllFog()" title="Remove all fog">Reveal</button>
+                <button class="bm-tool" onclick="hideAllFog()" title="Fog entire map">Fog All</button>
+                <button class="bm-tool" onclick="clearBattlemap()" title="Clear everything">Clear</button>
+              </div>
             </div>
             <div class="battlemap-canvas-wrap" id="bmCanvasWrap">
               <canvas id="battlemapCanvas"></canvas>
             </div>
           </div>
           <div class="battlemap-sidebar" id="bmSidebar">
+            <div>
+              <div class="bm-sidebar-title">Map Background</div>
+              <div class="bm-upload-area" id="bmUploadArea" onclick="document.getElementById('bmMapUpload').click()">
+                <span id="bmUploadLabel">Click to upload a map image</span>
+              </div>
+              <div id="bmMapPreviewWrap" style="display:none;">
+                <img id="bmMapPreview" class="bm-map-preview" alt="Map preview">
+                <button class="bm-tool" onclick="removeMapImage()" style="margin-top:4px;width:100%;text-align:center;">Remove Image</button>
+              </div>
+              <div style="display:flex;gap:4px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+                <input type="color" class="bm-color-pick" id="bmBgColor" value="#1a1a2e" onchange="bm.bgColor=this.value" title="Background color">
+                <button class="bm-tool" onclick="setBmBgPreset('#1a1a2e')" style="padding:3px 7px;">Dark</button>
+                <button class="bm-tool" onclick="setBmBgPreset('#2d4a2d')" style="padding:3px 7px;">Forest</button>
+                <button class="bm-tool" onclick="setBmBgPreset('#3a3020')" style="padding:3px 7px;">Cave</button>
+                <button class="bm-tool" onclick="setBmBgPreset('#1a3a4a')" style="padding:3px 7px;">Water</button>
+                <button class="bm-tool" onclick="setBmBgPreset('#5a4a3a')" style="padding:3px 7px;">Sand</button>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+                <label class="bm-label" style="margin:0;">Grid Size</label>
+                <select class="form-select" id="bmGridSizeSelect" onchange="setBmGridSize(parseInt(this.value))" style="width:72px;padding:3px 4px;font-size:10px;">
+                  <option value="20">Tiny</option>
+                  <option value="30">Small</option>
+                  <option value="40" selected>Medium</option>
+                  <option value="50">Large</option>
+                  <option value="60">XL</option>
+                </select>
+                <label class="bm-label" style="margin:0;">Opacity</label>
+                <input type="range" id="bmGridOpacity" min="0" max="100" value="30" oninput="bm.gridOpacity=this.value/100" style="width:60px;" title="Grid line opacity">
+              </div>
+            </div>
             <div>
               <div class="bm-sidebar-title">Add Tokens</div>
               <div id="bmTokenPanel"></div>
@@ -523,34 +566,12 @@
             <div class="bm-info" id="bmRulerInfo" style="display:none;">
               <strong>Ruler:</strong> <span id="bmRulerText">0 ft</span>
             </div>
-            <div>
-              <div class="bm-sidebar-title">Map Settings</div>
-              <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                <label class="bm-label" style="margin:0;">Grid</label>
-                <select class="form-select" id="bmGridSizeSelect" onchange="setBmGridSize(parseInt(this.value))" style="width:80px;padding:4px 6px;font-size:11px;">
-                  <option value="30">Small</option>
-                  <option value="40" selected>Medium</option>
-                  <option value="50">Large</option>
-                  <option value="60">XL</option>
-                </select>
-              </div>
-              <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                <label class="bm-label" style="margin:0;">BG</label>
-                <input type="color" class="bm-color-pick" id="bmBgColor" value="#1a1a2e" onchange="bm.bgColor=this.value" title="Background color">
-                <button class="bm-tool" onclick="setBmBgPreset('#1a1a2e')" style="padding:4px 8px;">Dark</button>
-                <button class="bm-tool" onclick="setBmBgPreset('#2d4a2d')" style="padding:4px 8px;">Forest</button>
-                <button class="bm-tool" onclick="setBmBgPreset('#3a3020')" style="padding:4px 8px;">Cave</button>
-                <button class="bm-tool" onclick="setBmBgPreset('#1a3a4a')" style="padding:4px 8px;">Water</button>
-              </div>
-            </div>
             <div class="bm-info">
               <strong>Controls</strong><br>
               Scroll = zoom &nbsp;|&nbsp; Shift+drag = pan<br>
               Click token = select &nbsp;|&nbsp; Drag = move<br>
-              Right-click token = remove<br>
-              Double-click token = view stat block<br>
-              Fog: click to place, Alt+click to clear<br>
-              Each grid square = 5 ft
+              Dbl-click = stat block &nbsp;|&nbsp; Right-click = remove<br>
+              Fog: paint, Alt+click = clear &nbsp;|&nbsp; 1 square = 5 ft
             </div>
           </div>
         </div>
@@ -620,13 +641,19 @@
         <!-- Monster Search & Filter -->
         <div class="monster-search-bar">
           <input type="text" class="form-input" id="monsterSearchInput" placeholder="Search monsters by name..." oninput="filterMonsters()">
+          <select class="form-select" id="monsterTypeFilter" onchange="filterMonsters()">
+            <option value="">All Types</option>
+          </select>
           <select class="form-select" id="monsterCRFilter" onchange="filterMonsters()">
             <option value="">All CRs</option>
-            <option value="0-0.5">CR 0 – 1/2</option>
-            <option value="1-4">CR 1 – 4</option>
-            <option value="5-10">CR 5 – 10</option>
+            <option value="0-0">CR 0</option>
+            <option value="0.125-0.25">CR 1/8 – 1/4</option>
+            <option value="0.5-0.5">CR 1/2</option>
+            <option value="1-2">CR 1 – 2</option>
+            <option value="3-5">CR 3 – 5</option>
+            <option value="6-10">CR 6 – 10</option>
             <option value="11-16">CR 11 – 16</option>
-            <option value="17-30">CR 17 – 30</option>
+            <option value="17-30">CR 17+</option>
           </select>
           <select class="form-select" id="monsterSizeFilter" onchange="filterMonsters()">
             <option value="">All Sizes</option>
@@ -638,9 +665,11 @@
             <option value="Gargantuan">Gargantuan</option>
           </select>
         </div>
-        <div class="monster-filter-tags" id="monsterTypeTags"></div>
-        <div class="monster-results-count" id="monsterResultsCount"></div>
+        <div class="monster-results-count" id="monsterResultsCount" style="margin: 8px 0;"></div>
         <div id="monsterList" class="monster-grid"></div>
+        <div id="monsterLoadMore" style="text-align:center;padding:12px;display:none;">
+          <button class="form-button secondary" onclick="loadMoreMonsters()">Load More Monsters</button>
+        </div>
 
         <div class="encounter-subsection-title">Encounter Name</div>
         <input type="text" class="form-input" id="encounterName" placeholder="Enter encounter name" style="margin-bottom: 16px;">
@@ -1186,29 +1215,25 @@
     // ═══════════════════════════════
     // MONSTER SEARCH & FILTER
     // ═══════════════════════════════
+    var monsterPageSize = 30;
+    var monsterDisplayCount = 30;
+    var lastFilteredMonsters = [];
+
     function buildTypeFilterTags() {
       var types = [];
       (window.SRD_MONSTERS || []).forEach(function(m) {
         if (types.indexOf(m.type) === -1) types.push(m.type);
       });
       types.sort();
-      var container = document.getElementById('monsterTypeTags');
-      if (!container) return;
-      container.innerHTML = types.map(function(t) {
-        return '<button class="filter-tag" onclick="toggleTypeFilter(\'' + t + '\', this)">' + t + '</button>';
-      }).join('');
-    }
-
-    function toggleTypeFilter(type, btn) {
-      var idx = activeTypeFilters.indexOf(type);
-      if (idx >= 0) {
-        activeTypeFilters.splice(idx, 1);
-        btn.classList.remove('active');
-      } else {
-        activeTypeFilters.push(type);
-        btn.classList.add('active');
-      }
-      filterMonsters();
+      // Populate the type dropdown
+      var select = document.getElementById('monsterTypeFilter');
+      if (!select) return;
+      select.innerHTML = '<option value="">All Types (' + (window.SRD_MONSTERS || []).length + ')</option>';
+      types.forEach(function(t) {
+        var count = (window.SRD_MONSTERS || []).filter(function(m) { return m.type === t; }).length;
+        var label = t.charAt(0).toUpperCase() + t.slice(1);
+        select.innerHTML += '<option value="' + t + '">' + label + ' (' + count + ')</option>';
+      });
     }
 
     function getFilteredMonsters() {
@@ -1217,11 +1242,12 @@
       search = search.toLowerCase().trim();
       var crRange = (document.getElementById('monsterCRFilter') || {}).value || '';
       var sizeFilter = (document.getElementById('monsterSizeFilter') || {}).value || '';
+      var typeFilter = (document.getElementById('monsterTypeFilter') || {}).value || '';
 
-      return monsters.filter(function(m) {
+      var filtered = monsters.filter(function(m) {
         if (search && m.name.toLowerCase().indexOf(search) === -1) return false;
         if (sizeFilter && m.size !== sizeFilter) return false;
-        if (activeTypeFilters.length > 0 && activeTypeFilters.indexOf(m.type) === -1) return false;
+        if (typeFilter && m.type !== typeFilter) return false;
         if (crRange) {
           var parts = crRange.split('-');
           var lo = parseFloat(parts[0]), hi = parseFloat(parts[1]);
@@ -1229,29 +1255,51 @@
         }
         return true;
       });
+      // Sort: by CR ascending, then by name
+      filtered.sort(function(a, b) {
+        if (a.crNum !== b.crNum) return a.crNum - b.crNum;
+        return a.name.localeCompare(b.name);
+      });
+      return filtered;
     }
 
     function filterMonsters() {
-      var filtered = getFilteredMonsters();
+      lastFilteredMonsters = getFilteredMonsters();
+      monsterDisplayCount = monsterPageSize;
       var countEl = document.getElementById('monsterResultsCount');
-      if (countEl) countEl.textContent = filtered.length + ' monsters found';
-      renderMonsterList(filtered);
+      if (countEl) countEl.textContent = lastFilteredMonsters.length + ' monsters found';
+      renderMonsterList(lastFilteredMonsters);
+    }
+
+    function loadMoreMonsters() {
+      monsterDisplayCount += monsterPageSize;
+      renderMonsterList(lastFilteredMonsters);
     }
 
     function renderMonsterList(monsters) {
-      if (!monsters) monsters = getFilteredMonsters();
+      if (!monsters) monsters = lastFilteredMonsters;
       var container = document.getElementById('monsterList');
+      var loadMoreBtn = document.getElementById('monsterLoadMore');
       if (!container) return;
-      container.innerHTML = monsters.map(function(m, idx) {
+      var shown = monsters.slice(0, monsterDisplayCount);
+      container.innerHTML = shown.map(function(m) {
         var origIdx = (window.SRD_MONSTERS || []).indexOf(m);
+        var typeLabel = m.type.charAt(0).toUpperCase() + m.type.slice(1);
         return '<div class="monster-card">' +
           '<div class="monster-info"><div class="monster-name">' + m.name + '</div>' +
-          '<div class="monster-stats">CR ' + m.cr + ' · ' + m.size + ' ' + m.type + ' · AC ' + m.ac + ' · ' + m.hp + ' HP</div></div>' +
+          '<div class="monster-stats">CR ' + m.cr + ' · ' + m.size + ' ' + typeLabel + (m.subtype ? ' (' + m.subtype + ')' : '') + ' · AC ' + m.ac + ' · ' + m.hp + ' HP</div></div>' +
           '<div class="monster-card-btns">' +
-          '<button type="button" class="monster-view-btn" onclick="showStatBlock(' + origIdx + ')" title="View Stat Block">📋</button>' +
+          '<button type="button" class="monster-view-btn" onclick="showStatBlock(' + origIdx + ')" title="View Stat Block">&#128203;</button>' +
           '<button type="button" class="monster-add-btn" onclick="addMonsterToEncounter(' + origIdx + ')" title="Add to Encounter">+</button>' +
           '</div></div>';
       }).join('');
+      // Show/hide Load More
+      if (loadMoreBtn) {
+        loadMoreBtn.style.display = monsters.length > monsterDisplayCount ? 'block' : 'none';
+        if (monsters.length > monsterDisplayCount) {
+          loadMoreBtn.querySelector('button').textContent = 'Load More (' + (monsters.length - monsterDisplayCount) + ' remaining)';
+        }
+      }
     }
 
     // ═══════════════════════════════
@@ -1981,9 +2029,47 @@
       rulerStart: null, rulerEnd: null,
       shapeStart: null, shapeEnd: null,
       fogPaint: true,
-      showGrid: true, bgColor: '#1a1a2e',
+      showGrid: true, gridOpacity: 0.3, bgColor: '#1a1a2e',
+      bgImage: null, bgImageData: null,
       animId: null, mouseDown: false, lastDblClick: 0
     };
+
+    // Map image upload
+    function handleMapUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      var file = input.files[0];
+      if (file.size > 10 * 1024 * 1024) { if (window.psToast) psToast('Image too large (max 10MB)'); return; }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          bm.bgImage = img;
+          bm.bgImageData = e.target.result;
+          // Show preview
+          var preview = document.getElementById('bmMapPreview');
+          var previewWrap = document.getElementById('bmMapPreviewWrap');
+          var uploadArea = document.getElementById('bmUploadArea');
+          if (preview) { preview.src = e.target.result; }
+          if (previewWrap) previewWrap.style.display = 'block';
+          if (uploadArea) { uploadArea.classList.add('has-image'); document.getElementById('bmUploadLabel').textContent = file.name; }
+          saveBattlemapState();
+          if (window.psToast) psToast('Map image loaded');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeMapImage() {
+      bm.bgImage = null;
+      bm.bgImageData = null;
+      var preview = document.getElementById('bmMapPreviewWrap');
+      var uploadArea = document.getElementById('bmUploadArea');
+      if (preview) preview.style.display = 'none';
+      if (uploadArea) { uploadArea.classList.remove('has-image'); document.getElementById('bmUploadLabel').textContent = 'Click to upload a map image'; }
+      document.getElementById('bmMapUpload').value = '';
+      saveBattlemapState();
+    }
 
     function initBattlemap() {
       if (!bm.canvas) {
@@ -2029,10 +2115,21 @@
       c.fillStyle = bm.bgColor;
       c.fillRect(0, 0, w, h);
 
+      // Background image
+      if (bm.bgImage) {
+        c.save();
+        c.globalAlpha = 1;
+        var iw = bm.bgImage.width * bm.zoom;
+        var ih = bm.bgImage.height * bm.zoom;
+        c.drawImage(bm.bgImage, ox, oy, iw, ih);
+        c.restore();
+      }
+
       // Grid
       if (bm.showGrid) {
-        c.strokeStyle = 'rgba(255,255,255,0.08)';
-        c.lineWidth = 1;
+        var opacity = bm.gridOpacity || 0.3;
+        c.strokeStyle = 'rgba(255,255,255,' + (opacity * 0.4) + ')';
+        c.lineWidth = 0.5;
         var startCol = Math.floor(-ox / gs), startRow = Math.floor(-oy / gs);
         var endCol = startCol + Math.ceil(w / gs) + 1;
         var endRow = startRow + Math.ceil(h / gs) + 1;
@@ -2046,9 +2143,9 @@
           c.moveTo(0, y); c.lineTo(w, y);
         }
         c.stroke();
-        // Axis highlight every 5 cells
-        c.strokeStyle = 'rgba(255,255,255,0.04)';
-        c.lineWidth = 2;
+        // Major gridlines every 5 cells
+        c.strokeStyle = 'rgba(255,255,255,' + (opacity * 0.2) + ')';
+        c.lineWidth = 1.5;
         c.beginPath();
         for (var col = startCol; col <= endCol; col++) {
           if (col % 5 === 0) { var x = Math.round(col * gs + ox) + 0.5; c.moveTo(x, 0); c.lineTo(x, h); }
@@ -2091,46 +2188,74 @@
         var sz = t.size * gs;
         var cx = tx + sz / 2, cy = ty + sz / 2;
         var rad = sz / 2 - 3 * bm.zoom;
-        if (rad < 2) rad = 2;
+        if (rad < 4) rad = 4;
 
-        // Shadow
-        c.fillStyle = 'rgba(0,0,0,0.3)';
-        c.beginPath(); c.arc(cx + 2, cy + 2, rad, 0, Math.PI * 2); c.fill();
+        // Drop shadow
+        c.save();
+        c.shadowColor = 'rgba(0,0,0,0.4)';
+        c.shadowBlur = 6 * bm.zoom;
+        c.shadowOffsetX = 2 * bm.zoom;
+        c.shadowOffsetY = 2 * bm.zoom;
 
-        // Token fill
-        c.fillStyle = t.color + '44';
+        // Token fill with gradient
+        var grad = c.createRadialGradient(cx - rad * 0.3, cy - rad * 0.3, rad * 0.1, cx, cy, rad);
+        grad.addColorStop(0, t.color + 'bb');
+        grad.addColorStop(1, t.color + '66');
+        c.fillStyle = grad;
         c.beginPath(); c.arc(cx, cy, rad, 0, Math.PI * 2); c.fill();
+        c.restore();
 
         // Token border
         c.strokeStyle = t.color;
-        c.lineWidth = (idx === bm.selectedTokenIdx ? 3.5 : 2) * bm.zoom;
+        c.lineWidth = (idx === bm.selectedTokenIdx ? 3 : 1.5) * bm.zoom;
         c.beginPath(); c.arc(cx, cy, rad, 0, Math.PI * 2); c.stroke();
+
+        // Inner highlight
+        c.strokeStyle = 'rgba(255,255,255,0.15)';
+        c.lineWidth = 1;
+        c.beginPath(); c.arc(cx, cy, rad - 2 * bm.zoom, 0, Math.PI * 2); c.stroke();
 
         // Selection ring
         if (idx === bm.selectedTokenIdx) {
-          c.strokeStyle = '#ffffff';
-          c.lineWidth = 1.5;
-          c.setLineDash([4, 3]);
+          c.strokeStyle = '#ffd700';
+          c.lineWidth = 2;
+          c.setLineDash([5, 3]);
           c.beginPath(); c.arc(cx, cy, rad + 4 * bm.zoom, 0, Math.PI * 2); c.stroke();
           c.setLineDash([]);
         }
 
         // Letter
-        c.fillStyle = '#f5f0e8';
-        c.font = 'bold ' + Math.max(8, Math.round(14 * bm.zoom * t.size)) + 'px Cinzel, serif';
+        c.fillStyle = '#ffffff';
+        c.font = 'bold ' + Math.max(9, Math.round(14 * bm.zoom * t.size)) + 'px Cinzel, serif';
         c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.shadowColor = 'rgba(0,0,0,0.6)'; c.shadowBlur = 3;
         c.fillText(t.label, cx, cy);
+        c.shadowColor = 'transparent'; c.shadowBlur = 0;
 
         // Name label
-        if (bm.zoom >= 0.5) {
-          c.fillStyle = 'rgba(0,0,0,0.6)';
-          var nameW = c.measureText(t.name).width + 8;
-          var nameY = ty + sz + 4 * bm.zoom;
-          c.fillRect(cx - nameW / 2, nameY, nameW, 14 * bm.zoom);
+        if (bm.zoom >= 0.4) {
+          var nameFont = Math.max(8, Math.round(10 * bm.zoom));
+          c.font = nameFont + 'px Spectral, serif';
+          var nameW = c.measureText(t.name).width + 10;
+          var nameH = nameFont + 6;
+          var nameY = ty + sz + 3 * bm.zoom;
+          // Rounded label background
+          c.fillStyle = 'rgba(0,0,0,0.7)';
+          c.beginPath();
+          var nr = 3;
+          c.moveTo(cx - nameW / 2 + nr, nameY);
+          c.lineTo(cx + nameW / 2 - nr, nameY);
+          c.quadraticCurveTo(cx + nameW / 2, nameY, cx + nameW / 2, nameY + nr);
+          c.lineTo(cx + nameW / 2, nameY + nameH - nr);
+          c.quadraticCurveTo(cx + nameW / 2, nameY + nameH, cx + nameW / 2 - nr, nameY + nameH);
+          c.lineTo(cx - nameW / 2 + nr, nameY + nameH);
+          c.quadraticCurveTo(cx - nameW / 2, nameY + nameH, cx - nameW / 2, nameY + nameH - nr);
+          c.lineTo(cx - nameW / 2, nameY + nr);
+          c.quadraticCurveTo(cx - nameW / 2, nameY, cx - nameW / 2 + nr, nameY);
+          c.fill();
           c.fillStyle = '#f5f0e8';
-          c.font = Math.max(7, Math.round(10 * bm.zoom)) + 'px Spectral, serif';
           c.textAlign = 'center'; c.textBaseline = 'top';
-          c.fillText(t.name, cx, nameY + 1);
+          c.fillText(t.name, cx, nameY + 3);
         }
       });
 
@@ -2601,7 +2726,8 @@
       if (!campaign) return;
       campaign.battlemap = {
         tokens: bm.tokens, drawings: bm.drawings, shapes: bm.shapes,
-        fog: bm.fog, gridSize: bm.gridSize, bgColor: bm.bgColor
+        fog: bm.fog, gridSize: bm.gridSize, bgColor: bm.bgColor,
+        bgImageData: bm.bgImageData || null
       };
       saveCampaigns();
     }
@@ -2610,13 +2736,33 @@
       var campaign = getCampaign(currentCampaignId);
       if (!campaign || !campaign.battlemap) {
         bm.tokens = []; bm.drawings = []; bm.shapes = []; bm.fog = {}; bm.undoStack = [];
+        bm.bgImage = null; bm.bgImageData = null;
         return;
       }
       var d = campaign.battlemap;
       bm.tokens = d.tokens || []; bm.drawings = d.drawings || []; bm.shapes = d.shapes || [];
       bm.fog = d.fog || {}; bm.undoStack = [];
-      if (d.gridSize) bm.gridSize = d.gridSize;
+      if (d.gridSize) { bm.gridSize = d.gridSize; var gsel = document.getElementById('bmGridSizeSelect'); if (gsel) gsel.value = d.gridSize; }
       if (d.bgColor) { bm.bgColor = d.bgColor; var bgEl = document.getElementById('bmBgColor'); if (bgEl) bgEl.value = d.bgColor; }
+      // Load background image
+      if (d.bgImageData) {
+        bm.bgImageData = d.bgImageData;
+        var img = new Image();
+        img.onload = function() {
+          bm.bgImage = img;
+          var preview = document.getElementById('bmMapPreview');
+          var previewWrap = document.getElementById('bmMapPreviewWrap');
+          var uploadArea = document.getElementById('bmUploadArea');
+          if (preview) preview.src = d.bgImageData;
+          if (previewWrap) previewWrap.style.display = 'block';
+          if (uploadArea) { uploadArea.classList.add('has-image'); document.getElementById('bmUploadLabel').textContent = 'Custom map loaded'; }
+        };
+        img.src = d.bgImageData;
+      } else {
+        bm.bgImage = null; bm.bgImageData = null;
+        var previewWrap = document.getElementById('bmMapPreviewWrap');
+        if (previewWrap) previewWrap.style.display = 'none';
+      }
     }
 
     window.addEventListener('resize', function() { if (bm.canvas) resizeBmCanvas(); });
