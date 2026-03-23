@@ -36,7 +36,6 @@
       <a href="compendium.html">Compendium</a>
       <a href="character-builder.html">Builder</a>
       <a href="character-sheets.html">Sheets</a>
-      <a href="campaigns.html">Campaigns</a>
       <a href="about.html">About</a>
       <a href="my-characters.html">My Characters</a>
     </div>
@@ -61,8 +60,6 @@
     <a href="character-builder.html">Builder</a>
     <div class="ps-mobile-divider"></div>
     <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="campaigns.html">Campaigns</a>
     <div class="ps-mobile-divider"></div>
     <a href="about.html">About</a>
     <div class="ps-mobile-divider"></div>
@@ -194,11 +191,6 @@
     // Scroll reveal
     const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
     document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-    // Parallax
-    window.addEventListener('scroll', function() {
-      var castle = document.querySelector('.ps-castle-wrap');
-      if (castle) castle.style.transform = 'translateY(' + (window.scrollY * 0.25) + 'px)';
-    }, { passive: true });
     </script>
 
 </body>

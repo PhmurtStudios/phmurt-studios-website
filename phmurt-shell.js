@@ -6,7 +6,6 @@
       ['compendium.html', 'Compendium'],
       ['character-builder.html', 'Builder'],
       ['character-sheets.html', 'Sheets'],
-      ['campaigns.html', 'Campaigns'],
       ['about.html', 'About'],
       ['my-characters.html', 'My Characters']
     ],
@@ -58,10 +57,6 @@
       { href: 'grimoire.html', label: 'Grimoire' },
       { label: 'Legendary Soups', current: true }
     ],
-    'campaigns.html': [
-      { href: 'index.html', label: 'Home' },
-      { label: 'Campaigns', current: true }
-    ],
     'my-characters.html': [
       { href: 'index.html', label: 'Home' },
       { label: 'My Characters', current: true }
@@ -91,7 +86,6 @@
       'character-builder-35.html': 'Builder',
       'character-sheets.html': 'Sheets',
       'sheet-dnd5e.html': 'Sheets',
-      'campaigns.html': 'Campaigns',
       'about.html': 'About',
       'my-characters.html': 'My Characters',
       'reset-password.html': null,
@@ -333,21 +327,6 @@
     });
   }
 
-  window.psToast = function(message, duration) {
-    duration = duration || 3000;
-    const existing = document.getElementById('ps-toast');
-    if (existing) existing.remove();
-    const toast = document.createElement('div');
-    toast.id = 'ps-toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    requestAnimationFrame(function() { toast.classList.add('visible'); });
-    setTimeout(function() {
-      toast.classList.remove('visible');
-      setTimeout(function() { toast.remove(); }, 300);
-    }, duration);
-  };
-
   document.addEventListener('DOMContentLoaded', function () {
     ensureShell();
     wireAuthButton();
@@ -355,9 +334,5 @@
     setupPageTransitions();
     setupReveal();
     setupAuthDropdownClose();
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(function() {});
-    }
   });
 })();
