@@ -30,7 +30,7 @@
 }
 
 /* ═══════════════════════════════
-   LIGHT MODE — html.light-mode
+   LIGHT MODE (html.light-mode)
    ═══════════════════════════════ */
 html.light-mode{
   --bg:        #f0e7d4;
@@ -74,7 +74,10 @@ html.theme-transition *::after {
    ═══════════════════════════════ */
 html{scroll-behavior:smooth;background:var(--bg);}
 body{background:var(--bg);color:var(--text);font-family:'Spectral',Georgia,serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+body.menu-open{overflow:hidden;}
 a{text-decoration:none;color:inherit;}
+::selection{background:var(--crimson);color:#f5f0e8;}
+:focus-visible{outline:2px solid var(--crimson);outline-offset:2px;}
 
 /* ═══════════════════════════════
    THEME TOGGLE BUTTON
@@ -723,9 +726,6 @@ body.page-out{opacity:0;transform:translateY(-8px);transition:opacity 0.18s, tra
    ═══════════════════════════════ */
 #ps-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg-card);border:1px solid var(--crimson-border);color:var(--text);font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;z-index:9999;opacity:0;transition:opacity .3s, transform .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.3);}
 #ps-toast.visible{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* ═══════════════════════════════
-   (Keyboard shortcuts removed)
 
 /* ═══════════════════════════════
    PARALLAX EFFECT

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>D&D 3.5e Character Builder — Phmurt Studios</title>
+  <title>D&D 3.5e Character Builder · Phmurt Studios</title>
   <meta name="description" content="Build a D&D 3.5 Edition character step by step. Choose race, class, abilities, skills, feats, and equipment." />
   <meta property="og:title" content="D&D 3.5e Character Builder · Phmurt Studios" />
   <meta property="og:description" content="Build a D&D 3.5 Edition character step by step with the Phmurt Studios builder." />
@@ -260,7 +260,7 @@
       <!-- STEP 3: ALIGNMENT -->
       <div class="cb-panel" id="panel35-3">
         <div class="cb-panel-title">Choose Your Alignment</div>
-        <div class="cb-panel-sub">Your moral and ethical compass — some classes restrict your options</div>
+        <div class="cb-panel-sub">Your moral and ethical compass. Some classes restrict your options</div>
         <div id="alignRestriction35" class="cb-alert" style="display:none;"></div>
         <div class="cb-cards" id="alignCards35"></div>
         <div class="cb-nav-btns">
@@ -297,7 +297,7 @@
       <!-- STEP 5: SKILLS -->
       <div class="cb-panel" id="panel35-5">
         <div class="cb-panel-title">Skill Ranks</div>
-        <div class="cb-panel-sub">3.5e uses a rank system — class skills cost 1 point, cross-class cost 2 points per rank</div>
+        <div class="cb-panel-sub">3.5e uses a rank system. Class skills cost 1 point, cross-class cost 2 points per rank</div>
         <div class="t35-sp-bar">
           <span class="t35-sp-label">Points Remaining</span>
           <span class="t35-sp-val" id="sp35Remaining">0</span>
@@ -317,7 +317,7 @@
       <!-- STEP 6: FEATS -->
       <div class="cb-panel" id="panel35-6">
         <div class="cb-panel-title">Choose Feats</div>
-        <div class="cb-panel-sub">1st-level feats — Humans and Fighters get bonus feats</div>
+        <div class="cb-panel-sub">1st-level feats. Humans and Fighters get bonus feats</div>
         <div id="featInfo35" class="cb-alert"></div>
         <div class="t35-feats" id="featList35"></div>
         <div class="cb-nav-btns">
@@ -512,11 +512,11 @@ function validate35(step) {
   if (step===3 && !C35.alignment) return 'Please choose an alignment.';
   if (step===4 && C35.scoreMethod==='standard') {
     var n = Object.keys(C35.arrayAssigned).length;
-    if (n < 6) return 'Assign all 6 ability scores — '+(6-n)+' remaining.';
+    if (n < 6) return 'Assign all 6 ability scores. '+(6-n)+' remaining.';
   }
   if (step===4 && C35.scoreMethod==='roll') {
     var n2 = Object.keys(C35.rolledAssigned||{}).length;
-    if (n2 < 6) return 'Assign all 6 rolled scores — '+(6-n2)+' remaining.';
+    if (n2 < 6) return 'Assign all 6 rolled scores. '+(6-n2)+' remaining.';
   }
   if (step===5 && spSpent35() > spTotal35()) return 'You have spent too many skill points.';
   if (step===6 && C35.selectedFeats.length < featCount35()) return 'Choose '+(featCount35()-C35.selectedFeats.length)+' more feat(s).';
@@ -686,10 +686,10 @@ function setMethod35(m) {
     t.classList.toggle('active', ['standard','pointbuy','roll','manual'][i]===m);
   });
   var info = document.getElementById('methodInfo35');
-  if (m==='standard') info.innerHTML = '<strong>Standard Array</strong> — Assign 15,14,13,12,10,8 to your six abilities.';
-  else if (m==='pointbuy') info.innerHTML = '<strong>Point Buy</strong> — 28 points (3.5e standard). Scores start at 8.';
-  else if (m==='roll') info.innerHTML = '<strong>Roll 4d6 Drop Lowest</strong> — Roll, then assign each result.';
-  else info.innerHTML = '<strong>Manual Entry</strong> — Type scores directly.';
+  if (m==='standard') info.innerHTML = '<strong>Standard Array</strong>. Assign 15,14,13,12,10,8 to your six abilities.';
+  else if (m==='pointbuy') info.innerHTML = '<strong>Point Buy</strong>. 28 points (3.5e standard). Scores start at 8.';
+  else if (m==='roll') info.innerHTML = '<strong>Roll 4d6 Drop Lowest</strong>. Roll, then assign each result.';
+  else info.innerHTML = '<strong>Manual Entry</strong>. Type scores directly.';
   C35.arrayAssigned = {}; C35.selectedArrayVal = null;
   C35.rolledScores = []; C35.rolledAssigned = {}; C35.selectedRolled = null;
   Object.keys(C35.abilities).forEach(function(a) { C35.abilities[a] = 8; });
@@ -849,7 +849,7 @@ function setRank35(id, val) {
 function renderFeats35() {
   var count = featCount35();
   document.getElementById('featInfo35').innerHTML =
-    '<strong>Choose '+count+' feat'+(count>1?'s':'')+'</strong> — '+C35.selectedFeats.length+'/'+count+' selected.'+
+    '<strong>Choose '+count+' feat'+(count>1?'s':'')+'</strong>. '+C35.selectedFeats.length+'/'+count+' selected.'+
     (C35.race==='human'?' Includes Human bonus feat.':'')+
     (C35.cls==='fighter'?' Includes Fighter bonus combat feat.':'');
   var list = document.getElementById('featList35'); list.innerHTML = '';
@@ -904,7 +904,7 @@ function renderEquipment35() {
         }
       }
       d2.innerHTML = '<div class="cb-equip-label" style="'+(req?'color:var(--crimson);':'')+'">'+
-        (req?'⚠ ':'')+'Choice '+(idx+1)+' — Pick One'+(req?' (Required)':'')+'</div>'+
+        (req?'⚠ ':'')+'Choice '+(idx+1)+'. Pick One'+(req?' (Required)':'')+'</div>'+
         '<div class="cb-equip-options">'+choice.map(function(opt,j){
           return '<div class="cb-equip-option'+(C35.equipChoices[idx]===j?' selected':'')+'" onclick="C35.equipChoices['+idx+']='+j+';C35.weaponChoices={};renderEquipment35();">'+(C35.equipChoices[idx]===j?'✓ ':'')+opt+'</div>';
         }).join('')+'</div>'+weapDrop;
@@ -925,7 +925,7 @@ function renderSpells35() {
     if (title) title.textContent = 'No Spellcasting';
     if (sub) sub.textContent = 'This class does not use spells at 1st level';
     if (nextBtn) nextBtn.textContent = 'Skip → Continue to Details';
-    cont.innerHTML = '<div class="cb-detail" style="text-align:center;padding:56px 32px;"><div style="font-size:56px;margin-bottom:20px;opacity:.2;">⚔</div><div class="cb-detail-title">'+(cls?cls.name:'This class')+' — No Spellcasting</div><div class="cb-detail-sub" style="margin-top:10px;">Click continue to move on.</div></div>';
+    cont.innerHTML = '<div class="cb-detail" style="text-align:center;padding:56px 32px;"><div style="font-size:56px;margin-bottom:20px;opacity:.2;">⚔</div><div class="cb-detail-title">'+(cls?cls.name:'This class')+'. No Spellcasting</div><div class="cb-detail-sub" style="margin-top:10px;">Click continue to move on.</div></div>';
     return;
   }
   if (title) title.textContent = 'Spells';
@@ -943,7 +943,7 @@ function renderSpells35() {
   var html = '<div class="cb-detail" style="margin-bottom:24px;"><div class="cb-detail-title">'+cls.name+' Spellcasting (3.5e)</div><div class="cb-detail-sub">'+DND35_DATA.abilityShort[cls.spellcastingAbility]+'-based · Save DC '+dc+' · Caster Level 1</div></div>';
   if (spList.cantrips&&spList.cantrips.length&&cantripCount>0) {
     var ch = C35.selectedCantrips.length;
-    html += '<div class="cb-spell-section"><div class="cb-spell-header">Cantrips / Orisons — Choose '+cantripCount+'</div><div class="cb-spell-count"><span style="color:'+(ch>=cantripCount?'#5a9a5a':'var(--crimson)')+'">'+ch+'/'+cantripCount+'</span> selected</div><div class="cb-spell-grid">'+
+    html += '<div class="cb-spell-section"><div class="cb-spell-header">Cantrips / Orisons. Choose '+cantripCount+'</div><div class="cb-spell-count"><span style="color:'+(ch>=cantripCount?'#5a9a5a':'var(--crimson)')+'">'+ch+'/'+cantripCount+'</span> selected</div><div class="cb-spell-grid">'+
       spList.cantrips.map(function(sp) {
         return '<div class="cb-spell-item'+(C35.selectedCantrips.includes(sp)?' selected':'')+'">'+
           '<div class="cb-spell-dot" onclick="toggleSpell35(\''+sp.replace(/'/g,"\\'")+'\',\'c\','+cantripCount+')" style="cursor:pointer;"></div>'+
@@ -954,7 +954,7 @@ function renderSpells35() {
   }
   if (spList.level1&&spList.level1.length&&spellCount>0) {
     var ch2 = C35.selectedSpells.length;
-    html += '<div class="cb-spell-section"><div class="cb-spell-header">1st-Level Spells — Choose '+spellCount+'</div><div class="cb-spell-count"><span style="color:'+(ch2>=spellCount?'#5a9a5a':'var(--crimson)')+'">'+ch2+'/'+spellCount+'</span> selected</div><div class="cb-spell-grid">'+
+    html += '<div class="cb-spell-section"><div class="cb-spell-header">1st-Level Spells. Choose '+spellCount+'</div><div class="cb-spell-count"><span style="color:'+(ch2>=spellCount?'#5a9a5a':'var(--crimson)')+'">'+ch2+'/'+spellCount+'</span> selected</div><div class="cb-spell-grid">'+
       spList.level1.map(function(sp) {
         return '<div class="cb-spell-item'+(C35.selectedSpells.includes(sp)?' selected':'')+'">'+
           '<div class="cb-spell-dot" onclick="toggleSpell35(\''+sp.replace(/'/g,"\\'")+'\',\'s\','+spellCount+')" style="cursor:pointer;"></div>'+
@@ -964,7 +964,7 @@ function renderSpells35() {
       }).join('')+'</div></div>';
   }
   if (C35.cls==='cleric'||C35.cls==='druid') {
-    html += '<div class="cb-alert"><strong>Prepared Caster</strong> — You prepare '+Math.max(1,sm+1)+' 1st-level spells per day from the full '+cls.name+' list.</div>';
+    html += '<div class="cb-alert"><strong>Prepared Caster</strong>. You prepare '+Math.max(1,sm+1)+' 1st-level spells per day from the full '+cls.name+' list.</div>';
   }
   cont.innerHTML = html;
 }
@@ -1234,7 +1234,7 @@ function buildMainTab35(maxHP,ac,babVal,dexMod,strMod) {
   var html = '<div class="cs-main-grid">'+
     '<div>'+
       '<div class="cs-box" style="padding:14px;"><div class="cs-box-title">Ability Scores</div><div class="cs-ability-grid">'+abilHTML+'</div></div>'+
-      '<div class="cs-box" style="padding:14px;"><div class="cs-box-title">Saving Throws — Click to Roll</div>'+savesHTML+'</div>'+
+      '<div class="cs-box" style="padding:14px;"><div class="cs-box-title">Saving Throws. Click to Roll</div>'+savesHTML+'</div>'+
       trackersHTML+
     '</div>'+
     '<div>'+
@@ -1278,7 +1278,7 @@ function buildMainTab35(maxHP,ac,babVal,dexMod,strMod) {
       '</div>'+
     '</div>'+
     '<div>'+
-      '<div class="cs-box" style="padding:14px;"><div class="cs-box-title">Key Skills — Click to Roll</div>'+buildKeySkills35()+'</div>'+
+      '<div class="cs-box" style="padding:14px;"><div class="cs-box-title">Key Skills. Click to Roll</div>'+buildKeySkills35()+'</div>'+
     '</div>'+
   '</div>';
   document.getElementById('tab35-main').innerHTML = html;
@@ -1326,7 +1326,7 @@ function buildCombatTab35() {
   var defaults={fighter:[{name:'Longsword',damage:'1d8',type:'S',crit:'19-20/×2',range:'—'}],barbarian:[{name:'Greataxe',damage:'1d12',type:'S',crit:'×3',range:'—'}],monk:[{name:'Unarmed Strike',damage:'1d6',type:'B',crit:'×2',range:'—'}],rogue:[{name:'Short Sword',damage:'1d6',type:'P',crit:'19-20/×2',range:'—'}]};
   if(defaults[C35.cls])defaults[C35.cls].forEach(function(w){if(!weapons.find(function(x){return x.name===w.name;}))weapons.push(w);});
 
-  var html = '<div class="cs-action-section"><div class="cs-action-title">Weapon Attacks — Click to Roll</div>';
+  var html = '<div class="cs-action-section"><div class="cs-action-title">Weapon Attacks. Click to Roll</div>';
   if (weapons.length) {
     html += weapons.map(function(w){
       var isRanged=w.range&&w.range!=='—'&&parseInt(w.range)>5;
@@ -1375,7 +1375,7 @@ function buildCombatTab35() {
 
 function buildSkillsTab35() {
   var cls = C35.cls?DND35_DATA.classes[C35.cls]:null;
-  var html = '<div class="cs-action-title" style="margin-bottom:12px;">All Skills — Click to Roll</div>'+
+  var html = '<div class="cs-action-title" style="margin-bottom:12px;">All Skills. Click to Roll</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">';
   Object.entries(DND35_DATA.skills).forEach(function(kv){
     var id=kv[0]; var skill=kv[1];
@@ -1399,7 +1399,7 @@ function buildSpellsTab35() {
   var cls = sheet35State.cls;
   var el = document.getElementById('tab35-spells');
   if (!cls.spellcastingAbility) {
-    el.innerHTML = '<div class="cs-no-spell"><div style="font-size:48px;opacity:.15;margin-bottom:16px;">⚔</div><div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:4px;color:var(--text-muted);text-transform:uppercase;">'+cls.name+' — No Spellcasting</div></div>';
+    el.innerHTML = '<div class="cs-no-spell"><div style="font-size:48px;opacity:.15;margin-bottom:16px;">⚔</div><div style="font-family:\'Cinzel\',serif;font-size:10px;letter-spacing:4px;color:var(--text-muted);text-transform:uppercase;">'+cls.name+'. No Spellcasting</div></div>';
     return;
   }
   var sm = mod35(ts35(cls.spellcastingAbility));
@@ -1435,7 +1435,7 @@ function buildSpellsTab35() {
     }).join('')||'<div style="font-size:13px;color:var(--text-faint);font-style:italic;">No spells selected.</div>';
   }
   if (C35.cls==='cleric'||C35.cls==='druid') {
-    html += '<div class="cb-alert" style="margin-top:16px;"><strong>Prepared Caster</strong> — '+cls.name+'s prepare '+(Math.max(1,sm+1))+' 1st-level spells per day from the full class list.</div>';
+    html += '<div class="cb-alert" style="margin-top:16px;"><strong>Prepared Caster</strong>. '+cls.name+'s prepare '+(Math.max(1,sm+1))+' 1st-level spells per day from the full class list.</div>';
   }
   el.innerHTML = html;
 }
@@ -1602,7 +1602,7 @@ function updateMini35() {
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', function() {
   // Method info default
-  document.getElementById('methodInfo35').innerHTML = '<strong>Standard Array</strong> — Assign 15,14,13,12,10,8 to your six ability scores.';
+  document.getElementById('methodInfo35').innerHTML = '<strong>Standard Array</strong>. Assign 15,14,13,12,10,8 to your six ability scores.';
   renderRaces35(); renderClasses35(); renderAbilGrid35(); renderPool35(); updateMini35();
   // Mobile nav
   var ham=document.getElementById('hamburger'),menu=document.getElementById('mobileMenu'),close=document.getElementById('mobileClose');

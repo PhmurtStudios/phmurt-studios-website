@@ -6,7 +6,7 @@
   <title>Compendium · Phmurt Studios</title>
   <meta name="description" content="Create, share, and browse homebrew races, classes, backgrounds, subclasses, and items for D&D 5e." />
   <meta property="og:title" content="Compendium · Phmurt Studios" />
-  <meta property="og:description" content="The Phmurt Studios homebrew compendium — create and share custom D&D 5e content." />
+  <meta property="og:description" content="The Phmurt Studios homebrew compendium where you can create and share custom D&D 5e content." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://phmurtstudios.com/compendium.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1421,7 +1421,7 @@
       sortedKeys.forEach(function(key){
         var g = groups[key];
         var catLabel = cats[g.cat] || g.cat;
-        var subLabel = g.sub ? ' — ' + g.sub : '';
+        var subLabel = g.sub ? ' · ' + g.sub : '';
         html += '<div style="margin-bottom:16px;">';
         html += '<div style="font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--crimson);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:3px;">' + catLabel + subLabel + '</div>';
 
@@ -3135,7 +3135,7 @@
 
       // Sort bar (community only)
       var sortBar = '<div style="display:flex;gap:4px;margin-bottom:14px;">';
-      [['newest','Newest'],['popular','Most Liked'],['name','A–Z']].forEach(function(pair) {
+      [['newest','Newest'],['popular','Most Liked'],['name','A to Z']].forEach(function(pair) {
         var active = S.sortBy === pair[0];
         sortBar += '<button data-hbs="'+pair[0]+'" class="hbc-sort-btn" style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;background:'+(active?'var(--bg-card)':'transparent')+';border:1px solid '+(active?'var(--border)':'var(--border)')+';color:'+(active?'var(--text)':'var(--text-muted)')+';cursor:pointer;">'+pair[1]+'</button>';
       });

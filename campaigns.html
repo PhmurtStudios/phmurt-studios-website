@@ -655,12 +655,12 @@
           <select class="form-select" id="monsterCRFilter" onchange="filterMonsters()">
             <option value="">All CRs</option>
             <option value="0-0">CR 0</option>
-            <option value="0.125-0.25">CR 1/8 – 1/4</option>
+            <option value="0.125-0.25">CR 1/8 to 1/4</option>
             <option value="0.5-0.5">CR 1/2</option>
-            <option value="1-2">CR 1 – 2</option>
-            <option value="3-5">CR 3 – 5</option>
-            <option value="6-10">CR 6 – 10</option>
-            <option value="11-16">CR 11 – 16</option>
+            <option value="1-2">CR 1 to 2</option>
+            <option value="3-5">CR 3 to 5</option>
+            <option value="6-10">CR 6 to 10</option>
+            <option value="11-16">CR 11 to 16</option>
             <option value="17-30">CR 17+</option>
           </select>
           <select class="form-select" id="monsterSizeFilter" onchange="filterMonsters()">
@@ -840,7 +840,7 @@
     function requireAuth() {
       var user = getAuthUser();
       if (user) return user;
-      // Not signed in — open auth modal (same pattern as character-builder.html)
+      // Not signed in: open auth modal (same pattern as character-builder.html)
       if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.openAuth === 'function') {
         PhmurtDB.openAuth();
       } else {
@@ -906,12 +906,12 @@
     }
 
     // ═══════════════════════════════
-    // STORAGE — shared campaign registry
+    // STORAGE: shared campaign registry
     // ═══════════════════════════════
     // Campaigns are stored in a shared registry (phmurt_campaign_registry) keyed by campaign ID.
     // Each user also has a list of campaign IDs they belong to (phmurt_my_campaign_ids).
     // This way, when user B joins via invite code, they can find and access the campaign
-    // that user A created — as long as they share the same browser/device.
+    // that user A created as long as they share the same browser/device.
     // When PhmurtDB backend support is available, this will sync via the server.
 
     function loadAllCampaignsFromRegistry() {
