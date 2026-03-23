@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
   <title>Compendium · Phmurt Studios</title>
   <meta name="description" content="Create, share, and browse homebrew races, classes, backgrounds, subclasses, and items for D&D 5e." />
   <meta property="og:title" content="Compendium · Phmurt Studios" />
@@ -17,7 +20,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
   <script src="builder-data.js"></script>
@@ -857,6 +860,13 @@
   </footer>
 
   <script>
+    // ── HTML Escape Utility ──────────────────────────────────────────────────
+    // Escapes all HTML special characters to prevent XSS attacks
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
     // ── Stubs so homebrew JS works without full builder context ──────────────
     // DND_DATA is loaded from builder-data.js (above).
     // We only need a minimal addInventoryItemById stub for catalog Add btns.
@@ -868,9 +878,9 @@
         var copy = Object.assign({}, item, { source: 'homebrew' });
         _registerHomebrewItem(copy);
         saveHomebrewItems();
-        showRestToast('Added to Collection', '"' + item.name + '" is now in your homebrew items.');
+        showRestToast('Added to Collection', '"' + escapeHtml(item.name) + '" is now in your homebrew items.');
       } else {
-        showRestToast('Already in Collection', '"' + item.name + '" is already saved.');
+        showRestToast('Already in Collection', '"' + escapeHtml(item.name) + '" is already saved.');
       }
     }
 
@@ -888,7 +898,7 @@
     function showRestToast(title,msg){
       const toast=document.createElement('div');
       toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--crimson-border);padding:14px 24px;font-family:"Cinzel",serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);z-index:9000;text-align:center;';
-      toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${title}</div><div style="font-family:'Spectral',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${msg}</div>`;
+      toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${escapeHtml(title)}</div><div style="font-family:'Spectral',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${escapeHtml(msg)}</div>`;
       document.body.appendChild(toast);
       setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); },2500);
     }
@@ -938,8 +948,24 @@
       }
     }
 
+    // ── Input sanitization: strip HTML tags from all string fields ──
+    function _sanitizeHBStrings(obj) {
+      if (obj == null) return obj;
+      if (typeof obj === 'string') return obj.replace(/<[^>]*>/g, '');
+      if (Array.isArray(obj)) return obj.map(_sanitizeHBStrings);
+      if (typeof obj === 'object') {
+        var out = {};
+        for (var k in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, k)) out[k] = _sanitizeHBStrings(obj[k]);
+        }
+        return out;
+      }
+      return obj;
+    }
+
     // ── Internal: register one item into both DBs ────────────────
     function _registerHomebrewItem(item) {
+      item = _sanitizeHBStrings(item);
       item.source = 'homebrew';
       DND_DATA.homebrewDB[item.id] = item;
       DND_DATA.itemDB[item.id]     = item;
@@ -1221,7 +1247,7 @@
       // Toast
       showRestToast(
         _homebrewModalMode === 'edit' ? 'Item Updated' : 'Item Created',
-        '"' + item.name + '" ' + (_homebrewModalMode === 'edit' ? 'has been updated.' : 'added to your homebrew collection.')
+        '"' + escapeHtml(item.name) + '" ' + (_homebrewModalMode === 'edit' ? 'has been updated.' : 'added to your homebrew collection.')
       );
 
       // Handle sharing checkbox
@@ -1229,7 +1255,7 @@
       if (shareEl && shareEl.checked) {
         hbShareEntry('item', item.id).then(function(result) {
           if (result.error) showRestToast('Share Failed', result.error);
-          else showRestToast('Shared!', '"' + item.name + '" is now in the community compendium.');
+          else showRestToast('Shared!', '"' + escapeHtml(item.name) + '" is now in the community compendium.');
         });
       } else if (shareEl && !shareEl.checked && item.shared) {
         hbUnshareEntry('item', item.id);
@@ -1253,7 +1279,7 @@
       scheduleSave();
 
       if (_catalogOpen) { buildCatalogFilters(); renderCatalog(); }
-      showRestToast('Item Deleted', '"' + name + '" has been removed.');
+      showRestToast('Item Deleted', '"' + escapeHtml(name) + '" has been removed.');
     }
 
     // ── Edit a homebrew item ──────────────────────────────────────
@@ -1332,13 +1358,13 @@
         html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bg-card);">';
         html += '<div style="flex:1;min-width:0;">';
         html += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
-        html += '<span style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">' + item.name + '</span>';
-        if(item.rarity && item.rarity !== 'common') html += '<span style="color:'+rc+';font-size:7px;">' + item.rarity + '</span>';
+        html += '<span style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">' + escapeHtml(item.name) + '</span>';
+        if(item.rarity && item.rarity !== 'common') html += '<span style="color:'+rc+';font-size:7px;">' + escapeHtml(item.rarity) + '</span>';
         if(item.attunement) html += '<span style="color:#8b6914;font-size:7px;border:1px solid #8b6914;padding:0 4px;">ATT</span>';
-        html += '<span style="font-size:10px;color:var(--text-faint);">' + catLabel + (item.subcategory && item.subcategory !== 'Homebrew' ? ' · ' + item.subcategory : '') + '</span>';
+        html += '<span style="font-size:10px;color:var(--text-faint);">' + escapeHtml(catLabel) + (item.subcategory && item.subcategory !== 'Homebrew' ? ' · ' + escapeHtml(item.subcategory) : '') + '</span>';
         html += '</div>';
-        if(props.length) html += '<div style="font-size:10px;color:var(--text-faint);margin-top:2px;">' + props.join(' · ') + '</div>';
-        if(item.desc) html += '<div style="font-size:11px;color:var(--text-dim);margin-top:3px;line-height:1.5;">' + item.desc.substring(0,140) + (item.desc.length>140?'…':'') + '</div>';
+        if(props.length) html += '<div style="font-size:10px;color:var(--text-faint);margin-top:2px;">' + props.map(escapeHtml).join(' · ') + '</div>';
+        if(item.desc) html += '<div style="font-size:11px;color:var(--text-dim);margin-top:3px;line-height:1.5;">' + escapeHtml(item.desc.substring(0,140)) + (item.desc.length>140?'…':'') + '</div>';
         html += '</div>';
         html += '<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">';
         html += '<button data-item-id="' + item.id + '" class="catalog-add-btn" style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;background:var(--crimson);border:none;color:#f5f0e8;cursor:pointer;">Add</button>';
@@ -1435,12 +1461,12 @@
 
           html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--bg-card);">';
           html += '<div style="flex:1;min-width:0;">';
-          html += '<div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">' + item.name;
-          if(item.rarity && item.rarity !== 'common') html += ' <span style="color:'+rc+';font-size:7px;">' + item.rarity + '</span>';
+          html += '<div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">' + escapeHtml(item.name);
+          if(item.rarity && item.rarity !== 'common') html += ' <span style="color:'+rc+';font-size:7px;">' + escapeHtml(item.rarity) + '</span>';
           if(item.attunement) html += ' <span style="color:#8b6914;font-size:7px;border:1px solid #8b6914;padding:0 4px;">ATT</span>';
           html += '</div>';
-          if(props.length) html += '<div style="font-size:10px;color:var(--text-faint);margin-top:2px;">' + props.join(' · ') + '</div>';
-          if(item.desc)   html += '<div style="font-size:11px;color:var(--text-dim);margin-top:3px;line-height:1.5;">' + item.desc.substring(0,140) + (item.desc.length>140?'…':'') + '</div>';
+          if(props.length) html += '<div style="font-size:10px;color:var(--text-faint);margin-top:2px;">' + props.map(escapeHtml).join(' · ') + '</div>';
+          if(item.desc)   html += '<div style="font-size:11px;color:var(--text-dim);margin-top:3px;line-height:1.5;">' + escapeHtml(item.desc.substring(0,140)) + (item.desc.length>140?'…':'') + '</div>';
           html += '</div>';
           // Use data-item-id to avoid any quote nesting
           html += '<button data-item-id="' + item.id + '" class="catalog-add-btn" style="font-family:Cinzel,serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;background:var(--crimson);border:none;color:#f5f0e8;cursor:pointer;flex-shrink:0;white-space:nowrap;">Add</button>';
@@ -1651,6 +1677,7 @@
 
     // ── Inject one entity into DND_DATA and runtime store ─────────
     function _injectHomebrewEntity(type, entry) {
+      entry = _sanitizeHBStrings(entry);
       entry.source = 'homebrew';
       _homebrewEntities[type][entry.id] = entry;
 
@@ -2863,7 +2890,7 @@
       var typeLabels = { race:'Race', class:'Class', background:'Background', subclass:'Subclass' };
       showRestToast(
         _hbeMode === 'edit' ? typeLabels[type]+' Updated' : 'Homebrew '+typeLabels[type]+' Created',
-        '"' + entry.name + '" is now available in the character builder.'
+        '"' + escapeHtml(entry.name) + '" is now available in the character builder.'
       );
 
       // Handle sharing checkbox
@@ -2873,7 +2900,7 @@
           if (result.error) {
             showRestToast('Share Failed', result.error);
           } else {
-            showRestToast('Shared!', '"' + entry.name + '" is now in the community compendium.');
+            showRestToast('Shared!', '"' + escapeHtml(entry.name) + '" is now in the community compendium.');
           }
         });
       } else if (shareEl && !shareEl.checked && entry.shared) {
@@ -2890,7 +2917,7 @@
       if (type === 'race')       renderRaces();
       if (type === 'class')      renderClasses();
       if (type === 'background') renderBackgrounds();
-      showRestToast('Deleted', '"' + name + '" has been removed.');
+      showRestToast('Deleted', '"' + escapeHtml(name) + '" has been removed.');
     }
 
     function editHBEntity(type, id) {
@@ -3282,12 +3309,12 @@
         var sub = '';
         if (type === 'race')       sub = (e.size||'Medium') + ' · ' + e.speed + ' ft';
         if (type === 'class')      sub = 'd'+(e.hitDie||8)+' · '+(e.spellcastingAbility?'Caster':'Martial');
-        if (type === 'background') sub = (e.skills||[]).join(', ');
+        if (type === 'background') sub = (e.skills||[]).map(escapeHtml).join(', ');
         if (type === 'subclass') {
           var parentCls = DND_DATA.classes[e.parentClass];
-          sub = parentCls ? parentCls.name : e.parentClass;
+          sub = parentCls ? escapeHtml(parentCls.name) : escapeHtml(e.parentClass);
         }
-        if (type === 'item')       sub = (e.category||'')+' · '+(e.rarity||'common');
+        if (type === 'item')       sub = escapeHtml(e.category||'')+' · '+escapeHtml(e.rarity||'common');
 
         html += '<div class="hbc-mine-card" data-type="'+type+'" data-id="'+id+'" '
           + 'style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg-card);">';
@@ -3298,7 +3325,7 @@
         // Info
         html += '<div style="flex:1;min-width:0;">';
         html += '<div style="display:flex;align-items:center;gap:8px;">';
-        html += '<span style="font-family:Cinzel,serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">'+e.name+'</span>';
+        html += '<span style="font-family:Cinzel,serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">'+escapeHtml(e.name)+'</span>';
         html += '<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:'+col+';border:1px solid '+col+';padding:1px 5px;">'+lbl+'</span>';
         if (isShared) html += '<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:#2e8b57;border:1px solid #2e8b57;padding:1px 5px;">Shared</span>';
         html += '</div>';
@@ -3378,7 +3405,7 @@
       if (!S.communityData) {
         var result = await hbFetchCompendium();
         if (result.error && result.data.length === 0) {
-          container.innerHTML = '<div style="text-align:center;padding:24px;font-size:13px;color:var(--text-faint);">'+result.error+'</div>';
+          container.innerHTML = '<div style="text-align:center;padding:24px;font-size:13px;color:var(--text-faint);">'+_esc(result.error)+'</div>';
           return;
         }
         S.communityData = result.data;
@@ -3452,7 +3479,7 @@
         if (row.tags && row.tags.length) {
           tagHtml = '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;">'
             + row.tags.slice(0,5).map(function(t) {
-                return '<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--text-faint);background:var(--bg-card);border:1px solid var(--border);padding:1px 6px;">'+t+'</span>';
+                return '<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--text-faint);background:var(--bg-card);border:1px solid var(--border);padding:1px 6px;">'+_esc(t)+'</span>';
               }).join('')
             + '</div>';
         }
@@ -3463,7 +3490,7 @@
         html += '<div style="display:flex;align-items:flex-start;gap:10px;">';
         html += '<div style="flex:1;min-width:0;">';
         html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
-        html += '<span style="font-family:Cinzel,serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">'+row.name+'</span>';
+        html += '<span style="font-family:Cinzel,serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text);">'+_esc(row.name)+'</span>';
         html += '<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:'+col+';border:1px solid '+col+';padding:1px 5px;">'+lbl+'</span>';
         if (isLocal) html += '<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:#2e8b57;border:1px solid #2e8b57;padding:1px 5px;">In Collection</span>';
         html += '</div>';
@@ -3615,11 +3642,11 @@
           if (dropdown) {
           var ddBtn = document.createElement('button');
           ddBtn.className = 'nav-user-btn';
-          ddBtn.innerHTML = session.name + ' &#9660;';
+          ddBtn.innerHTML = escapeHtml(session.name) + ' &#9660;';
           ddBtn.onclick = function() { dropdown.classList.toggle('open'); };
           var ddMenu = document.createElement('div');
           ddMenu.className = 'nav-user-menu';
-          ddMenu.innerHTML = '<div class="nav-user-name">' + session.email + '</div>'
+          ddMenu.innerHTML = '<div class="nav-user-name">' + escapeHtml(session.email) + '</div>'
             + '<a href="my-characters.html">My Characters</a>'
             + '<button onclick="PhmurtDB.logout()">Sign Out</button>';
           dropdown.appendChild(ddBtn);
@@ -4052,7 +4079,7 @@
         if (type === 'class')      renderClasses();
         if (type === 'background') renderBackgrounds();
       }
-      showRestToast('Imported', '"' + entry.name + '" added to your collection.');
+      showRestToast('Imported', '"' + escapeHtml(entry.name) + '" added to your collection.');
       return Promise.resolve();
     }
 

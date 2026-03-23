@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
   <title>Character Builder · Phmurt Studios</title>
   <meta name="description" content="Build your D&D 5e character step by step with the Phmurt Studios character builder." />
   <meta property="og:title" content="Character Builder · Phmurt Studios" />
@@ -15,7 +18,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
   <style>
@@ -1246,6 +1249,14 @@
   <!-- builder-data-35.js lazy-loaded on first 3.5e edition switch -->
   <script>
 // ══════════════════════════════════════════════════════════════
+// GLOBAL HTML ESCAPE UTILITY
+// ══════════════════════════════════════════════════════════════
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ══════════════════════════════════════════════════════════════
 // MULTICLASS LEVEL-UP UI
 // ══════════════════════════════════════════════════════════════
 
@@ -1660,9 +1671,9 @@ function renderRaces(){
     d.onclick=()=>selectRace(id);
     const asi=Object.entries(race.asi).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
     const hbBadge=race.source==='homebrew'?'<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:#8b6914;margin-left:6px;">✶ HB</span>':'';
-    const editBtn=race.source==='homebrew'?'<button data-hbe-edit-type="race" data-hbe-edit-id="'+id+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
+    const editBtn=race.source==='homebrew'?'<button data-hbe-edit-type="race" data-hbe-edit-id="'+escapeHtml(id)+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
     d.style.position='relative';
-    d.innerHTML=`<div class="cb-card-name">${race.name}${hbBadge}</div><div class="cb-card-detail">${asi} · ${race.size} · ${race.speed}ft</div>${editBtn}`;
+    d.innerHTML=`<div class="cb-card-name">${escapeHtml(race.name)}${hbBadge}</div><div class="cb-card-detail">${escapeHtml(asi)} · ${escapeHtml(race.size)} · ${escapeHtml(race.speed)}ft</div>${editBtn}`;
     c.appendChild(d);
   });
   // Wire edit buttons for homebrew entities
@@ -1682,21 +1693,21 @@ function selectRace(id){
 function renderRaceDetail(id){
   const race=DND_DATA.races[id];
   const d=document.getElementById('raceDetail');
-  let html=`<div class="cb-detail"><div class="cb-detail-title">${race.name}</div>
-    <div class="cb-detail-sub">${race.size} · ${race.speed}ft · ${(race.languages||[]).join(', ')}</div>
+  let html=`<div class="cb-detail"><div class="cb-detail-title">${escapeHtml(race.name)}</div>
+    <div class="cb-detail-sub">${escapeHtml(race.size)} · ${escapeHtml(race.speed)}ft · ${(race.languages||[]).map(l=>escapeHtml(l)).join(', ')}</div>
     <div class="cb-asi-badges">${Object.entries(race.asi||{}).map(([k,v])=>`<span class="cb-asi-badge">${DND_DATA.abilityShort[k]} +${v}</span>`).join('')}</div>
     <div class="cb-detail-body">`;
-  (race.traits||[]).forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`);
+  (race.traits||[]).forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${escapeHtml(t.name)}</div><div class="cb-trait-desc">${escapeHtml(t.desc)}</div></div>`);
   html+='</div>';
   if((race.subraces||[]).length){
     html+=`<div class="cb-subrace-section"><div class="cb-subrace-title" style="color:var(--crimson);font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin:20px 0 12px;">⚠ Choose Subrace (Required)</div><div class="cb-cards" style="margin-bottom:12px;">`;
     (race.subraces||[]).forEach(sr=>{
       const asi=Object.entries(sr.asi||{}).map(([k,v])=>DND_DATA.abilityShort[k]+' +'+v).join(', ');
       const detail=asi||(sr.traits&&sr.traits[0]?sr.traits[0].desc.split('.')[0]:'');
-      html+=`<div class="cb-card ${C.subrace===sr.id?'selected':''}" onclick="selectSubrace('${sr.id}')"><div class="cb-card-name">${sr.name}</div><div class="cb-card-detail">${detail}</div></div>`;
+      html+=`<div class="cb-card ${C.subrace===sr.id?'selected':''}" onclick="selectSubrace('${escapeHtml(sr.id)}')"><div class="cb-card-name">${escapeHtml(sr.name)}</div><div class="cb-card-detail">${escapeHtml(detail)}</div></div>`;
     });
     html+='</div>';
-    if(C.subrace){ const sr=(race.subraces||[]).find(s=>s.id===C.subrace); if(sr) sr.traits.forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${t.name}</div><div class="cb-trait-desc">${t.desc}</div></div>`); }
+    if(C.subrace){ const sr=(race.subraces||[]).find(s=>s.id===C.subrace); if(sr) sr.traits.forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${escapeHtml(t.name)}</div><div class="cb-trait-desc">${escapeHtml(t.desc)}</div></div>`); }
     html+='</div>';
   }
   html+='</div>'; d.innerHTML=html;
@@ -1714,10 +1725,10 @@ function renderClasses(){
     d.setAttribute('data-cls-id', id);
     d.onclick=()=>selectClass(id);
     const hbBadge=cls.source==='homebrew'?'<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:#8b6914;margin-left:6px;">✶ HB</span>':'';
-    const editBtn=cls.source==='homebrew'?'<button data-hbe-edit-type="class" data-hbe-edit-id="'+id+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
+    const editBtn=cls.source==='homebrew'?'<button data-hbe-edit-type="class" data-hbe-edit-id="'+escapeHtml(id)+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
     d.style.position='relative';
     const sp=cls.spellcastingAbility?` · ${DND_DATA.abilityShort[cls.spellcastingAbility]} Spells`:'';
-    d.innerHTML=`<div class="cb-card-name">${cls.name}${hbBadge}</div><div class="cb-card-detail">d${cls.hitDie} Hit Die${sp}</div><div class="cb-card-badge">${cls.primaryAbility.toUpperCase()}</div>${editBtn}`;
+    d.innerHTML=`<div class="cb-card-name">${escapeHtml(cls.name)}${hbBadge}</div><div class="cb-card-detail">d${cls.hitDie} Hit Die${sp}</div><div class="cb-card-badge">${cls.primaryAbility.toUpperCase()}</div>${editBtn}`;
     c.appendChild(d);
   });
   // Wire edit buttons for homebrew entities
@@ -1741,14 +1752,14 @@ function renderClassDetail(id){
   const cls=DND_DATA.classes[id];
   const saves=(cls.saves||[]).map(function(s){return DND_DATA.abilityNames[s]||s;}).join(', ');
   document.getElementById('classDetail').innerHTML=`<div class="cb-detail">
-    <div class="cb-detail-title">${cls.name}</div>
-    <div class="cb-detail-sub">d${cls.hitDie} Hit Die · Saves: ${saves}</div>
+    <div class="cb-detail-title">${escapeHtml(cls.name)}</div>
+    <div class="cb-detail-sub">d${cls.hitDie} Hit Die · Saves: ${escapeHtml(saves)}</div>
     <div class="cb-detail-body">
-    <div class="cb-trait"><div class="cb-trait-name">Armor</div><div class="cb-trait-desc">${(cls.armorProf||[]).join(', ')||'None'}</div></div>
-    <div class="cb-trait"><div class="cb-trait-name">Weapons</div><div class="cb-trait-desc">${cls.weaponProf.join(', ')}</div></div>
-    <div class="cb-trait"><div class="cb-trait-name">Skills: Choose ${cls.skillCount}</div><div class="cb-trait-desc">${cls.skillOptions.join(', ')}</div></div>
-    ${cls.spellcastingAbility?`<div class="cb-trait"><div class="cb-trait-name">Spellcasting</div><div class="cb-trait-desc">${DND_DATA.abilityNames[cls.spellcastingAbility]}-based.</div></div>`:''}
-    <div style="margin-top:16px;">${cls.features.map(f=>`<div class="cb-trait"><div class="cb-trait-name">Lv${f.level}: ${f.name}</div><div class="cb-trait-desc">${f.desc}</div></div>`).join('')}</div>
+    <div class="cb-trait"><div class="cb-trait-name">Armor</div><div class="cb-trait-desc">${escapeHtml((cls.armorProf||[]).join(', ')||'None')}</div></div>
+    <div class="cb-trait"><div class="cb-trait-name">Weapons</div><div class="cb-trait-desc">${escapeHtml(cls.weaponProf.join(', '))}</div></div>
+    <div class="cb-trait"><div class="cb-trait-name">Skills: Choose ${cls.skillCount}</div><div class="cb-trait-desc">${escapeHtml(cls.skillOptions.join(', '))}</div></div>
+    ${cls.spellcastingAbility?`<div class="cb-trait"><div class="cb-trait-name">Spellcasting</div><div class="cb-trait-desc">${escapeHtml(DND_DATA.abilityNames[cls.spellcastingAbility])}-based.</div></div>`:''}
+    <div style="margin-top:16px;">${cls.features.map(f=>`<div class="cb-trait"><div class="cb-trait-name">Lv${f.level}: ${escapeHtml(f.name)}</div><div class="cb-trait-desc">${escapeHtml(f.desc)}</div></div>`).join('')}</div>
     </div></div>`;
 }
 
@@ -1763,9 +1774,9 @@ function renderBackgrounds(){
     d.setAttribute('data-bg-id', id);
     d.onclick=()=>selectBackground(id);
     const hbBadge=bg.source==='homebrew'?'<span style="font-family:Cinzel,serif;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:#8b6914;margin-left:6px;">✶ HB</span>':'';
-    const editBtn=bg.source==='homebrew'?'<button data-hbe-edit-type="background" data-hbe-edit-id="'+id+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
+    const editBtn=bg.source==='homebrew'?'<button data-hbe-edit-type="background" data-hbe-edit-id="'+escapeHtml(id)+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#8b6914;cursor:pointer;font-size:11px;" title="Edit">✎</button>':'';
     d.style.position='relative';
-    d.innerHTML=`<div class="cb-card-name">${bg.name}${hbBadge}</div><div class="cb-card-detail">${bg.skills.join(', ')}</div>${editBtn}`;
+    d.innerHTML=`<div class="cb-card-name">${escapeHtml(bg.name)}${hbBadge}</div><div class="cb-card-detail">${escapeHtml(bg.skills.join(', '))}</div>${editBtn}`;
     c.appendChild(d);
   });
   // Wire edit buttons for homebrew entities
@@ -1784,13 +1795,13 @@ function selectBackground(id){
 }
 function renderBgDetail(id){
   const bg=DND_DATA.backgrounds[id];
-  let extras=[]; if(bg.languages) extras.push(`${bg.languages} language${bg.languages>1?'s':''}`); if(bg.tools) extras.push(...(bg.tools||[]));
+  let extras=[]; if(bg.languages) extras.push(`${bg.languages} language${bg.languages>1?'s':''}`); if(bg.tools) extras.push(...(bg.tools||[]).map(t=>escapeHtml(t)));
   document.getElementById('bgDetail').innerHTML=`<div class="cb-detail">
-    <div class="cb-detail-title">${bg.name}</div>
-    <div class="cb-detail-sub">Skills: ${bg.skills.join(', ')}${extras.length?' · '+extras.join(', '):''}</div>
+    <div class="cb-detail-title">${escapeHtml(bg.name)}</div>
+    <div class="cb-detail-sub">Skills: ${escapeHtml(bg.skills.join(', '))}${extras.length?' · '+extras.join(', '):''}</div>
     <div class="cb-detail-body">
-    <div class="cb-trait"><div class="cb-trait-name">${bg.feature}</div><div class="cb-trait-desc">${bg.featureDesc}</div></div>
-    <div class="cb-trait"><div class="cb-trait-name">Equipment</div><div class="cb-trait-desc">${bg.equipment}</div></div>
+    <div class="cb-trait"><div class="cb-trait-name">${escapeHtml(bg.feature)}</div><div class="cb-trait-desc">${escapeHtml(bg.featureDesc)}</div></div>
+    <div class="cb-trait"><div class="cb-trait-name">Equipment</div><div class="cb-trait-desc">${escapeHtml(bg.equipment)}</div></div>
     </div></div>`;
 }
 
@@ -1935,7 +1946,7 @@ function updateAsiNote(){
   const race=DND_DATA.races[C.race]; const bonuses=[];
   Object.entries(race.asi).forEach(([k,v])=>bonuses.push(`${DND_DATA.abilityNames[k]} +${v}`));
   if(C.subrace){ const sr=race.subraces.find(s=>s.id===C.subrace); if(sr) Object.entries(sr.asi||{}).forEach(([k,v])=>bonuses.push(`${DND_DATA.abilityNames[k]} +${v}`)); }
-  if(bonuses.length){ note.style.display='block'; note.innerHTML=`<strong>Racial Bonuses Applied</strong>: ${race.name}: ${bonuses.join(', ')}.`; }
+  if(bonuses.length){ note.style.display='block'; note.innerHTML=`<strong>Racial Bonuses Applied</strong>: ${escapeHtml(race.name)}: ${escapeHtml(bonuses.join(', '))}.`; }
   else note.style.display='none';
 }
 
@@ -1953,7 +1964,7 @@ function renderSkills(){
   const rem=canChoose-chosen;
 
   document.getElementById('profAlert').innerHTML=
-    `<strong>${cls?cls.name+' Skills':''}</strong>. Choose <span style="color:var(--crimson);font-family:'Cinzel',serif;font-size:15px;">${rem}</span> more${cls?` from: <em>${clsAll?'any skill':cls.skillOptions.join(', ')}</em>`:''}.${bg?` Background grants: <em>${bg.skills.join(', ')}</em>`:''} <span style="opacity:.5;font-size:12px;">Dimmed skills are unavailable for your class.</span>`;
+    `<strong>${cls?escapeHtml(cls.name)+' Skills':''}</strong>. Choose <span style="color:var(--crimson);font-family:'Cinzel',serif;font-size:15px;">${rem}</span> more${cls?` from: <em>${clsAll?'any skill':escapeHtml(cls.skillOptions.join(', '))}</em>`:''}.${bg?` Background grants: <em>${escapeHtml(bg.skills.join(', '))}</em>`:''} <span style="opacity:.5;font-size:12px;">Dimmed skills are unavailable for your class.</span>`;
 
   const grid=document.getElementById('skillsGrid'); grid.innerHTML='';
   Object.entries(DND_DATA.skills).forEach(([id,skill])=>{
@@ -2016,7 +2027,7 @@ function renderEquipment(){
     if(!Array.isArray(choice)||choice.length===0) return;
     if(choice.length===1){
       const d=document.createElement('div'); d.className='cb-equip-choice';
-      d.innerHTML=`<div class="cb-equip-label">Always Included</div><div style="font-size:15px;color:var(--text-dim);font-style:italic;padding:4px 0;">✓ ${choice[0]}</div>`;
+      d.innerHTML=`<div class="cb-equip-label">Always Included</div><div style="font-size:15px;color:var(--text-dim);font-style:italic;padding:4px 0;">✓ ${escapeHtml(choice[0])}</div>`;
       fixedEl.appendChild(d);
     } else {
       const idx=ci;
@@ -2042,10 +2053,10 @@ function renderEquipment(){
             <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;">Choose Specific Weapon</div>
             <select style="background:var(--bg-card);border:1px solid var(--crimson-border);color:var(--text);font-family:'Spectral',serif;font-size:14px;padding:7px 10px;width:100%;" onchange="C.weaponChoices['${wKey}']=this.value;renderEquipment();">
               <option value="">Select a weapon...</option>
-              ${wpns.map(w=>{const n=typeof w==='object'?w.name:w;const d=typeof w==='object'?` — ${w.damage} ${w.type}${w.props&&w.props!=='—'?' ('+w.props+')':''}`:'';
-return `<option value="${n}" ${curW===n?'selected':''}>${n}${d}</option>`;}).join('')}
+              ${wpns.map(w=>{const n=typeof w==='object'?w.name:w;const d=typeof w==='object'?` — ${escapeHtml(w.damage)} ${escapeHtml(w.type)}${w.props&&w.props!=='—'?' ('+escapeHtml(w.props)+')':''}`:'';
+return `<option value="${escapeHtml(n)}" ${curW===n?'selected':''}>${escapeHtml(n)}${d}</option>`;}).join('')}
             </select>
-            ${curW?`<div style="font-size:12px;color:var(--text-muted);font-style:italic;margin-top:5px;">✓ ${curW}</div>`:''}
+            ${curW?`<div style="font-size:12px;color:var(--text-muted);font-style:italic;margin-top:5px;">✓ ${escapeHtml(curW)}</div>`:''}
           </div>`;
         }
       }
@@ -2055,7 +2066,7 @@ return `<option value="${n}" ${curW===n?'selected':''}>${n}${d}</option>`;}).joi
         </div>
         <div class="cb-equip-options">${choice.map((opt,j)=>`
           <div class="cb-equip-option ${C.equipChoices[idx]===j?'selected':''}" onclick="C.equipChoices[${idx}]=${j};C.weaponChoices={};document.getElementById('sl-equip').textContent='Gear chosen';renderEquipment();">
-            ${C.equipChoices[idx]===j?'✓ ':''}${opt}
+            ${C.equipChoices[idx]===j?'✓ ':''}${escapeHtml(opt)}
           </div>`).join('')}
         </div>${weapDrop}`;
       container.appendChild(d);
@@ -2094,7 +2105,9 @@ function renderSpells(){
   const spellList=DND_DATA.spells[C.cls];
   if(!spellList){
     var hbClsName = cls.name || 'This class';
-    container.innerHTML='<div class="cb-detail" style="text-align:center;padding:56px 32px;"><div style="font-size:40px;margin-bottom:16px;opacity:.2;">📜</div><div class="cb-detail-title">'+hbClsName+': Spellcasting</div><div class="cb-detail-sub" style="margin-top:10px;">Spell list not configured. Edit this homebrew class to assign a spell list.</div><button onclick="editHBEntity(\'class\',\''+C.cls+'\')" style="margin-top:20px;font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;background:transparent;border:1px solid #8b6914;color:#8b6914;cursor:pointer;">✎ Edit Homebrew Class</button></div>';
+    container.innerHTML='<div class="cb-detail" style="text-align:center;padding:56px 32px;"><div style="font-size:40px;margin-bottom:16px;opacity:.2;">📜</div><div class="cb-detail-title">'+escapeHtml(hbClsName)+': Spellcasting</div><div class="cb-detail-sub" style="margin-top:10px;">Spell list not configured. Edit this homebrew class to assign a spell list.</div><button data-hb-edit-type="class" data-hb-edit-id="'+escapeHtml(C.cls)+'" style="margin-top:20px;font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;background:transparent;border:1px solid #8b6914;color:#8b6914;cursor:pointer;">✎ Edit Homebrew Class</button></div>';
+    var editBtn = container.querySelector('[data-hb-edit-type]');
+    if (editBtn) editBtn.addEventListener('click', function(){ editHBEntity(this.dataset.hbEditType, this.dataset.hbEditId); });
     return;
   }
 
@@ -2393,7 +2406,7 @@ function showSpellInfo(spellName, spellLevel){
   if(!d){
     overlay.innerHTML = '<div class="spell-info-box">'
       + '<button class="spell-info-close" onclick="document.getElementById(\'spell-info-overlay\').remove()">×</button>'
-      + '<div class="spell-info-name">' + spellName + '</div>'
+      + '<div class="spell-info-name">' + escapeHtml(spellName) + '</div>'
       + '<div class="spell-info-school">No description available</div>'
       + '</div>';
     document.body.appendChild(overlay);
@@ -2408,15 +2421,15 @@ function showSpellInfo(spellName, spellLevel){
 
   overlay.innerHTML = '<div class="spell-info-box">'
     + '<button class="spell-info-close" onclick="document.getElementById(\'spell-info-overlay\').remove()">×</button>'
-    + '<div class="spell-info-name">' + spellName + atkBadge + '</div>'
-    + '<div class="spell-info-school">' + (d.school||'') + ' · ' + lvLabel + ' Level</div>'
+    + '<div class="spell-info-name">' + escapeHtml(spellName) + atkBadge + '</div>'
+    + '<div class="spell-info-school">' + escapeHtml(d.school||'') + ' · ' + lvLabel + ' Level</div>'
     + '<div class="spell-info-stats">'
-    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Casting Time</div><div class="spell-info-stat-val">' + (d.castTime||'—') + '</div></div>'
-    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Range</div><div class="spell-info-stat-val">' + (d.range||'—') + '</div></div>'
-    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Duration</div><div class="spell-info-stat-val">' + (d.duration||'—') + '</div></div>'
-    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Components</div><div class="spell-info-stat-val">' + (d.components||'—') + '</div></div>'
+    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Casting Time</div><div class="spell-info-stat-val">' + escapeHtml(d.castTime||'—') + '</div></div>'
+    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Range</div><div class="spell-info-stat-val">' + escapeHtml(d.range||'—') + '</div></div>'
+    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Duration</div><div class="spell-info-stat-val">' + escapeHtml(d.duration||'—') + '</div></div>'
+    + '<div class="spell-info-stat"><div class="spell-info-stat-label">Components</div><div class="spell-info-stat-val">' + escapeHtml(d.components||'—') + '</div></div>'
     + '</div>'
-    + '<div class="spell-info-desc">' + (d.desc||'') + '</div>'
+    + '<div class="spell-info-desc">' + escapeHtml(d.desc||'') + '</div>'
     + '</div>';
 
   document.body.appendChild(overlay);
@@ -2588,10 +2601,10 @@ function buildFinalSheet(){
   }());
   const tagsEl=document.getElementById('cs-tags');
   tagsEl.innerHTML=[
-    bg?`<span class="cs-tag">${bg.name}</span>`:'',
-    C.details.alignment?`<span class="cs-tag">${C.details.alignment}</span>`:'',
-    `<span class="cs-tag">${race.size}</span>`,
-    `<span class="cs-tag">${speed} ft</span>`,
+    bg?`<span class="cs-tag">${escapeHtml(bg.name)}</span>`:'',
+    C.details.alignment?`<span class="cs-tag">${escapeHtml(C.details.alignment)}</span>`:'',
+    `<span class="cs-tag">${escapeHtml(race.size)}</span>`,
+    `<span class="cs-tag">${escapeHtml(speed)} ft</span>`,
     `<span class="cs-tag">PB +${pb2}</span>`
   ].join('');
 
@@ -2870,7 +2883,7 @@ function buildSpellsTab(){
   const cls=sheetState.cls; const pb2=sheetState.pb2||2;
   const el=document.getElementById('cs-spells-content');
   if(!cls||!cls.spellcastingAbility){
-    el.innerHTML=`<div class="cs-no-spell"><div style="font-size:48px;opacity:.15;margin-bottom:16px;">⚔</div><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;color:var(--text-muted);text-transform:uppercase;">${cls.name}. No Spellcasting</div></div>`;
+    el.innerHTML=`<div class="cs-no-spell"><div style="font-size:48px;opacity:.15;margin-bottom:16px;">⚔</div><div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;color:var(--text-muted);text-transform:uppercase;">${escapeHtml(cls.name)}. No Spellcasting</div></div>`;
     return;
   }
   const sm=mod(totalScore(cls.spellcastingAbility));
@@ -3236,7 +3249,7 @@ function buildNotesTab(){
   document.getElementById('cs-trait-ideals').innerHTML=makeBlock('Ideals',d?.ideals);
   document.getElementById('cs-trait-bonds').innerHTML=makeBlock('Bonds',d?.bonds);
   document.getElementById('cs-trait-flaws').innerHTML=makeBlock('Flaws',d?.flaws);
-  document.getElementById('cs-backstory-block').innerHTML=d?.backstory?`<div class="cs-action-title">Backstory</div><div style="font-size:14px;color:var(--text-dim);line-height:1.8;font-style:italic;">${d.backstory}</div>`:'';
+  document.getElementById('cs-backstory-block').innerHTML=d?.backstory?`<div class="cs-action-title">Backstory</div><div style="font-size:14px;color:var(--text-dim);line-height:1.8;font-style:italic;">${escapeHtml(d.backstory)}</div>`:'';
   const saved=localStorage.getItem('phmurt_notes_'+C.cls);
   if(saved) document.getElementById('cs-notes').value=saved;
 }
@@ -3319,7 +3332,7 @@ function doLongRest(){
 function showRestToast(title,msg){
   const toast=document.createElement('div');
   toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--crimson-border);padding:14px 24px;font-family:"Cinzel",serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);z-index:9000;text-align:center;';
-  toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${title}</div><div style="font-family:'Spectral',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${msg}</div>`;
+  toast.innerHTML=`<div style="color:var(--crimson);margin-bottom:4px;">${escapeHtml(title)}</div><div style="font-family:'Spectral',serif;font-size:14px;font-style:italic;letter-spacing:1px;text-transform:none;">${escapeHtml(msg)}</div>`;
   document.body.appendChild(toast);
   setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); },2500);
 }
@@ -3824,15 +3837,15 @@ function luRenderSubclassPicker() {
     // Get the first level's features as a preview
     var firstFeats = sub.features[sub.choiceLevel] || [];
 
-    html += '<div onclick="luSelectSubclass(\'' + sub.id + '\')"';
+    html += '<div onclick="luSelectSubclass(\'' + escapeHtml(sub.id) + '\')"';
     html += ' style="padding:16px 18px;border:2px solid ' + (isChosen ? 'var(--crimson)' : 'var(--border)') + ';';
     html += 'background:' + (isChosen ? 'rgba(139,26,16,0.08)' : 'var(--bg-card)') + ';cursor:pointer;">';
 
     // Name row
-    html += '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:' + (isChosen ? 'var(--crimson)' : 'var(--text)') + ';margin-bottom:8px;">' + sub.name + '</div>';
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:' + (isChosen ? 'var(--crimson)' : 'var(--text)') + ';margin-bottom:8px;">' + escapeHtml(sub.name) + '</div>';
 
     // Flavor text
-    html += '<div style="font-size:13px;color:var(--text-dim);line-height:1.65;margin-bottom:10px;">' + sub.flavorText + '</div>';
+    html += '<div style="font-size:13px;color:var(--text-dim);line-height:1.65;margin-bottom:10px;">' + escapeHtml(sub.flavorText) + '</div>';
 
     // Features you get right now
     if (firstFeats.length) {
@@ -3840,8 +3853,8 @@ function luRenderSubclassPicker() {
       html += '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;">Features at this level</div>';
       firstFeats.forEach(function(f) {
         html += '<div style="margin-bottom:8px;">';
-        html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:4px;">' + f.name + '</div>';
-        html += '<div style="font-size:12px;color:var(--text-dim);line-height:1.6;">' + f.desc + '</div>';
+        html += '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:4px;">' + escapeHtml(f.name) + '</div>';
+        html += '<div style="font-size:12px;color:var(--text-dim);line-height:1.6;">' + escapeHtml(f.desc) + '</div>';
         html += '</div>';
       });
       html += '</div>';
@@ -5569,6 +5582,23 @@ function init(){
 
 var HOMEBREW_ENTITIES_KEY = 'phmurt_homebrew_entities';
 
+// ── Input sanitization for homebrew entities ──────────────────
+// Strips HTML tags from all string fields to prevent stored XSS.
+// Applied both on save (defense at write) and on load (defense at read).
+function _sanitizeHBStrings(obj) {
+  if (obj == null) return obj;
+  if (typeof obj === 'string') return obj.replace(/<[^>]*>/g, '');
+  if (Array.isArray(obj)) return obj.map(_sanitizeHBStrings);
+  if (typeof obj === 'object') {
+    var out = {};
+    for (var k in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, k)) out[k] = _sanitizeHBStrings(obj[k]);
+    }
+    return out;
+  }
+  return obj;
+}
+
 // Runtime store (injected into DND_DATA on load)
 // Structure: { races:{}, classes:{}, backgrounds:{}, subclasses:{} }
 var _homebrewEntities = { races:{}, classes:{}, backgrounds:{}, subclasses:{} };
@@ -5606,6 +5636,7 @@ function saveHomebrewEntities() {
 
 // ── Inject one entity into DND_DATA and runtime store ─────────
 function _injectHomebrewEntity(type, entry) {
+  entry = _sanitizeHBStrings(entry);
   entry.source = 'homebrew';
   _homebrewEntities[type][entry.id] = entry;
 
@@ -8108,7 +8139,7 @@ function renderRaces35() {
     d.className = 'cb-card'+(C35.race===id?' selected':'');
     d.onclick = function() { selectRace35(id); };
     var asi = Object.entries(race.asi).map(function(e) { return DND35_DATA.abilityShort[e[0]]+(e[1]>0?'+':'')+e[1]; }).join(', ')||'No ASI';
-    d.innerHTML = '<div class="cb-card-name">'+race.name+'</div><div class="cb-card-detail">'+asi+' · '+race.size+' · '+race.speed+' ft</div>';
+    d.innerHTML = '<div class="cb-card-name">'+escapeHtml(race.name)+'</div><div class="cb-card-detail">'+escapeHtml(asi)+' · '+escapeHtml(race.size)+' · '+escapeHtml(race.speed)+' ft</div>';
     c.appendChild(d);
   });
 }
@@ -8125,11 +8156,11 @@ function renderRaceDetail35(id) {
   var badges = Object.entries(race.asi).map(function(e) {
     return '<span class="cb-asi-badge">'+DND35_DATA.abilityShort[e[0]]+(e[1]>0?'+':'')+e[1]+'</span>';
   }).join('');
-  var html = '<div class="cb-detail"><div class="cb-detail-title">'+race.name+'</div>';
-  html += '<div class="cb-detail-sub">'+race.size+' · '+race.speed+' ft · '+race.languages.join(', ')+'</div>';
+  var html = '<div class="cb-detail"><div class="cb-detail-title">'+escapeHtml(race.name)+'</div>';
+  html += '<div class="cb-detail-sub">'+escapeHtml(race.size)+' · '+escapeHtml(race.speed)+' ft · '+race.languages.map(function(l){return escapeHtml(l);}).join(', ')+'</div>';
   html += '<div class="cb-asi-badges">'+badges+'</div><div class="cb-detail-body">';
   race.traits.forEach(function(t) {
-    html += '<div class="cb-trait"><div class="cb-trait-name">'+t.name+'</div><div class="cb-trait-desc">'+t.desc+'</div></div>';
+    html += '<div class="cb-trait"><div class="cb-trait-name">'+escapeHtml(t.name)+'</div><div class="cb-trait-desc">'+escapeHtml(t.desc)+'</div></div>';
   });
   html += '</div></div>';
   document.getElementById('raceDetail35').innerHTML = html;
@@ -8144,7 +8175,7 @@ function renderClasses35() {
     d.className = 'cb-card'+(C35.cls===id?' selected':'');
     d.onclick = function() { selectClass35(id); };
     var bab = cls.babProg==='good'?'Good BAB':cls.babProg==='medium'?'Med BAB':'Poor BAB';
-    d.innerHTML = '<div class="cb-card-name">'+cls.name+'</div><div class="cb-card-detail">d'+cls.hitDie+' HD · '+bab+' · '+cls.skillPoints+'+INT skills</div><div class="cb-card-badge">'+cls.primaryAbility.toUpperCase()+'</div>';
+    d.innerHTML = '<div class="cb-card-name">'+escapeHtml(cls.name)+'</div><div class="cb-card-detail">d'+cls.hitDie+' HD · '+bab+' · '+cls.skillPoints+'+INT skills</div><div class="cb-card-badge">'+cls.primaryAbility.toUpperCase()+'</div>';
     c.appendChild(d);
   });
 }
@@ -8164,13 +8195,13 @@ function renderClassDetail35(id) {
   var fort = cls.goodSaves.includes('fort')?'Good':'Poor';
   var ref = cls.goodSaves.includes('ref')?'Good':'Poor';
   var will = cls.goodSaves.includes('will')?'Good':'Poor';
-  var html = '<div class="cb-detail"><div class="cb-detail-title">'+cls.name+'</div>';
+  var html = '<div class="cb-detail"><div class="cb-detail-title">'+escapeHtml(cls.name)+'</div>';
   html += '<div class="cb-detail-sub">d'+cls.hitDie+' HD · BAB '+bab+' · Fort '+fort+' · Ref '+ref+' · Will '+will+'</div>';
   html += '<div class="cb-detail-body">';
-  html += '<div class="cb-trait"><div class="cb-trait-name">Class Skills ('+cls.skillPoints+'+INT per level)</div><div class="cb-trait-desc">'+cls.classSkills.join(', ')+'</div></div>';
-  html += '<div class="cb-trait"><div class="cb-trait-name">Armor Proficiencies</div><div class="cb-trait-desc">'+(cls.armorProf.join(', ')||'None')+'</div></div>';
+  html += '<div class="cb-trait"><div class="cb-trait-name">Class Skills ('+cls.skillPoints+'+INT per level)</div><div class="cb-trait-desc">'+escapeHtml(cls.classSkills.join(', '))+'</div></div>';
+  html += '<div class="cb-trait"><div class="cb-trait-name">Armor Proficiencies</div><div class="cb-trait-desc">'+escapeHtml(cls.armorProf.join(', ')||'None')+'</div></div>';
   cls.features.forEach(function(f) {
-    html += '<div class="cb-trait"><div class="cb-trait-name">Level '+f.level+': '+f.name+'</div><div class="cb-trait-desc">'+f.desc+'</div></div>';
+    html += '<div class="cb-trait"><div class="cb-trait-name">Level '+f.level+': '+escapeHtml(f.name)+'</div><div class="cb-trait-desc">'+escapeHtml(f.desc)+'</div></div>';
   });
   html += '</div></div>';
   document.getElementById('classDetail35').innerHTML = html;

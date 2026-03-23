@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Agent" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
+  <title>DM Random Generators · Phmurt Studios</title>
+  <meta name="description" content="Comprehensive D&D random generator suite. NPC, tavern, dungeon, treasure, encounter, plot hooks, and more — everything a DM needs." />
+  <meta property="og:title" content="DM Random Generators · Phmurt Studios" />
+  <meta property="og:description" content="The ultimate D&D random generator suite for Dungeon Masters." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://phmurtstudios.com/generators.html" />
+  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="DM Random Generators · Phmurt Studios" />
+  <meta name="twitter:description" content="The ultimate D&D random generator suite for Dungeon Masters." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
+  <script src="supabase-config.js"></script>
+  <script src="phmurt-auth.js"></script>
+  <style>
+    /* ═══════════════════════════════ GENERATORS PAGE STYLES ═══════════════════════════════ */
+    .gen-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 200px);
+      background: var(--bg);
+    }
+
+    @media (max-width: 1024px) {
+      .gen-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── SIDEBAR ── */
+    .gen-sidebar {
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 24px;
+      position: sticky;
+      top: 0;
+      max-height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .gen-sidebar-title {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--crimson);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gen-sidebar-title::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: var(--crimson);
+    }
+
+    .gen-category {
+      margin-bottom: 24px;
+    }
+
+    .gen-category-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .gen-nav-item {
+      display: block;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      background: var(--bg-mid);
+      border: 1px solid var(--border-subtle);
+      border-radius: 2px;
+      font-family: 'Spectral', serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      border: none;
+      width: 100%;
+    }
+
+    .gen-nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+      border-left: 3px solid var(--crimson);
+      padding-left: 11px;
+    }
+
+    .gen-nav-item.active {
+      background: rgba(192, 57, 43, 0.15);
+      color: var(--crimson);
+      border-left: 3px solid var(--crimson);
+      padding-left: 11px;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .gen-main {
+      padding: 48px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 768px) {
+      .gen-main {
+        padding: 32px 20px;
+      }
+    }
+
+    .gen-panel {
+      display: none;
+    }
+
+    .gen-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .gen-title {
+      font-family: 'Cinzel', serif;
+      font-size: 32px;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .gen-description {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+      max-width: 600px;
+    }
+
+    /* ── CONTROLS ── */
+    .gen-controls {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 24px;
+      margin-bottom: 32px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .gen-control-group {
+      display: grid;
+      gap: 6px;
+    }
+
+    .gen-control-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .gen-control-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text);
+      padding: 8px 12px;
+      font-family: 'Spectral', serif;
+      font-size: 14px;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .gen-control-input:focus {
+      outline: none;
+      border-color: var(--crimson-border);
+      background: rgba(192, 57, 43, 0.08);
+    }
+
+    select.gen-control-input {
+      cursor: pointer;
+    }
+
+    .gen-button-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .gen-button {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border: 1px solid var(--crimson-border);
+      background: transparent;
+      color: var(--crimson);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 2px;
+    }
+
+    .gen-button:hover {
+      background: var(--crimson-soft);
+      border-color: var(--crimson);
+    }
+
+    .gen-button.primary {
+      background: var(--crimson);
+      color: #f5ede0;
+      border-color: var(--crimson);
+    }
+
+    .gen-button.primary:hover {
+      background: var(--crimson-dim);
+      border-color: var(--crimson-dim);
+    }
+
+    .gen-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── OUTPUT ── */
+    .gen-output {
+      background: var(--bg-card);
+      border: 1px solid var(--crimson-border);
+      border-radius: 2px;
+      padding: 32px;
+      margin-bottom: 32px;
+      min-height: 200px;
+      position: relative;
+    }
+
+    .gen-output::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+    }
+
+    .gen-output.rolling {
+      animation: pulse 0.6s ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .gen-output-empty {
+      color: var(--text-muted);
+      text-align: center;
+      padding: 60px 20px;
+      font-style: italic;
+    }
+
+    .gen-result {
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .gen-result-item {
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gen-result-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .gen-result-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .gen-result-value {
+      font-size: 16px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .gen-npc-card {
+      background: var(--bg-mid);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .gen-npc-name {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: var(--crimson);
+      margin-bottom: 4px;
+    }
+
+    .gen-npc-class {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .gen-npc-stat {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .gen-npc-stat-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .gen-npc-stat-value {
+      color: var(--text);
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .gen-result-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .gen-result-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border: 1px solid var(--text-muted);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 2px;
+    }
+
+    .gen-result-btn:hover {
+      border-color: var(--crimson);
+      color: var(--crimson);
+    }
+
+    .gen-result-btn.copied {
+      border-color: var(--crimson);
+      color: var(--crimson);
+      background: var(--crimson-soft);
+    }
+
+    /* ── HISTORY PANEL ── */
+    .gen-history-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .gen-history-header {
+      background: var(--bg-mid);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .gen-history-toggle {
+      display: inline-block;
+      width: 16px;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .gen-history-toggle.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .gen-history-items {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .gen-history-item {
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 2px;
+      font-size: 12px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gen-history-item:hover {
+      background: var(--bg-mid);
+      color: var(--text);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .gen-sidebar {
+        position: relative;
+        max-height: none;
+        border-bottom: 1px solid var(--border);
+        border-right: none;
+      }
+
+      .gen-nav-item {
+        display: inline-block;
+        width: auto;
+        margin-right: 8px;
+        margin-bottom: 8px;
+      }
+
+      .gen-main {
+        padding: 32px 24px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .gen-main {
+        padding: 24px 16px;
+      }
+
+      .gen-title {
+        font-size: 24px;
+      }
+
+      .gen-controls {
+        padding: 16px;
+      }
+
+      .gen-output {
+        padding: 20px;
+      }
+
+      .gen-npc-stat {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body data-nav-active="Generators" data-footer-copy="Roll Well. Play Weird.">
+  <div id="ps-site-shell"></div>
+  <div id="ps-page-breadcrumb"></div>
+
+  <div class="ps-page-hero">
+    <div class="ps-page-eyebrow">DM Tools</div>
+    <div class="ps-page-title">Random Generator Suite</div>
+    <div class="ps-page-subtitle">Everything You Need to Improvise</div>
+  </div>
+
+  <div class="ps-divider" style="margin: 32px 0;">
+    <div class="ps-div-line"></div>
+    <div class="ps-div-ornament">
+      <div class="ps-div-dot"></div>
+      <div class="ps-div-gem"></div>
+      <div class="ps-div-dot"></div>
+    </div>
+    <div class="ps-div-line r"></div>
+  </div>
+
+  <div class="gen-container">
+    <!-- SIDEBAR -->
+    <div class="gen-sidebar">
+      <div class="gen-sidebar-title">Generators</div>
+
+      <div class="gen-category">
+        <label class="gen-category-label">Characters</label>
+        <button class="gen-nav-item active" data-gen="npc">NPC Generator</button>
+      </div>
+
+      <div class="gen-category">
+        <label class="gen-category-label">Places</label>
+        <button class="gen-nav-item" data-gen="tavern">Tavern / Inn</button>
+        <button class="gen-nav-item" data-gen="dungeon">Dungeon</button>
+      </div>
+
+      <div class="gen-category">
+        <label class="gen-category-label">Encounters</label>
+        <button class="gen-nav-item" data-gen="encounter">Encounter</button>
+        <button class="gen-nav-item" data-gen="treasure">Treasure & Loot</button>
+      </div>
+
+      <div class="gen-category">
+        <label class="gen-category-label">Adventure</label>
+        <button class="gen-nav-item" data-gen="plot">Plot Hooks</button>
+        <button class="gen-nav-item" data-gen="weather">Weather</button>
+      </div>
+
+      <div class="gen-category">
+        <label class="gen-category-label">Magic</label>
+        <button class="gen-nav-item" data-gen="wildmagic">Wild Magic Surge</button>
+        <button class="gen-nav-item" data-gen="potion">Potion Effects</button>
+      </div>
+
+      <div class="gen-category">
+        <label class="gen-category-label">Flavor</label>
+        <button class="gen-nav-item" data-gen="flavor">Flavor & Details</button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="gen-main">
+
+      <!-- NPC GENERATOR -->
+      <div class="gen-panel active" data-gen="npc">
+        <h1 class="gen-title">NPC Generator</h1>
+        <p class="gen-description">Create detailed, memorable NPCs with personality, motivation, and quirks. Click Generate to create a complete character.</p>
+
+        <div class="gen-controls">
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateNPC()">Generate NPC</button>
+            <button class="gen-button" onclick="generateMultipleNPC(5)">Generate 5</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="npcOutput">
+          <div class="gen-output-empty">Click Generate to create an NPC</div>
+        </div>
+
+        <div class="gen-history-panel">
+          <div class="gen-history-header" onclick="toggleHistoryPanel(this)">
+            <span>History</span>
+            <span class="gen-history-toggle">▼</span>
+          </div>
+          <div class="gen-history-items" id="npcHistory"></div>
+        </div>
+      </div>
+
+      <!-- TAVERN GENERATOR -->
+      <div class="gen-panel" data-gen="tavern">
+        <h1 class="gen-title">Tavern & Inn Generator</h1>
+        <p class="gen-description">Generate complete taverns with names, atmospheres, signature drinks, and rumors. Every tavern needs a barkeep.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Tavern Type</label>
+            <select class="gen-control-input" id="tavernType">
+              <option value="any">Random</option>
+              <option value="tavern">Tavern</option>
+              <option value="inn">Inn</option>
+              <option value="brewery">Brewery</option>
+              <option value="wine">Wine Bar</option>
+              <option value="roadside">Roadside Stop</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateTavern()">Generate Tavern</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="tavernOutput">
+          <div class="gen-output-empty">Click Generate to create a tavern</div>
+        </div>
+      </div>
+
+      <!-- DUNGEON GENERATOR -->
+      <div class="gen-panel" data-gen="dungeon">
+        <h1 class="gen-title">Dungeon Generator</h1>
+        <p class="gen-description">Generate a small 3-5 room dungeon with connections, encounters, and themes.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Dungeon Type</label>
+            <select class="gen-control-input" id="dungeonType">
+              <option value="any">Random</option>
+              <option value="tomb">Tomb</option>
+              <option value="cave">Cave</option>
+              <option value="temple">Temple</option>
+              <option value="lair">Monster Lair</option>
+              <option value="mine">Mine</option>
+              <option value="fortress">Fortress</option>
+              <option value="sewer">Sewer</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateDungeon()">Generate Dungeon</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="dungeonOutput">
+          <div class="gen-output-empty">Click Generate to create a dungeon</div>
+        </div>
+      </div>
+
+      <!-- ENCOUNTER GENERATOR -->
+      <div class="gen-panel" data-gen="encounter">
+        <h1 class="gen-title">Encounter Generator</h1>
+        <p class="gen-description">Generate balanced combat or roleplay encounters based on party size and difficulty.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Environment</label>
+            <select class="gen-control-input" id="encEnvironment">
+              <option value="any">Random</option>
+              <option value="forest">Forest</option>
+              <option value="mountain">Mountain</option>
+              <option value="dungeon">Dungeon</option>
+              <option value="urban">Urban</option>
+              <option value="desert">Desert</option>
+              <option value="arctic">Arctic</option>
+              <option value="swamp">Swamp</option>
+              <option value="underdark">Underdark</option>
+              <option value="coastal">Coastal</option>
+              <option value="grassland">Grassland</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Average Party Level</label>
+            <input type="number" class="gen-control-input" id="partyLevel" min="1" max="20" value="5" />
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Party Size</label>
+            <input type="number" class="gen-control-input" id="partySize" min="1" max="10" value="4" />
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Difficulty</label>
+            <select class="gen-control-input" id="encDifficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+              <option value="deadly">Deadly</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateEncounter()">Generate Encounter</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="encounterOutput">
+          <div class="gen-output-empty">Click Generate to create an encounter</div>
+        </div>
+      </div>
+
+      <!-- TREASURE GENERATOR -->
+      <div class="gen-panel" data-gen="treasure">
+        <h1 class="gen-title">Treasure & Loot Generator</h1>
+        <p class="gen-description">Generate treasure hoards, coins, gems, art objects, and magical items.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Treasure Type</label>
+            <select class="gen-control-input" id="treasureType">
+              <option value="coins">Coins Only</option>
+              <option value="individual">Individual Treasure</option>
+              <option value="hoard" selected>Treasure Hoard</option>
+              <option value="gems">Gems</option>
+              <option value="art">Art Objects</option>
+              <option value="magic">Magic Items</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Challenge Rating</label>
+            <select class="gen-control-input" id="treasureCR">
+              <option value="0-4">CR 0-4</option>
+              <option value="5-10">CR 5-10</option>
+              <option value="11-16" selected>CR 11-16</option>
+              <option value="17+">CR 17+</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateTreasure()">Generate Treasure</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="treasureOutput">
+          <div class="gen-output-empty">Click Generate to create treasure</div>
+        </div>
+      </div>
+
+      <!-- PLOT HOOKS GENERATOR -->
+      <div class="gen-panel" data-gen="plot">
+        <h1 class="gen-title">Plot Hook Generator</h1>
+        <p class="gen-description">Generate adventure hooks with patrons, complications, and rewards.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Adventure Type</label>
+            <select class="gen-control-input" id="plotGenre">
+              <option value="any">Random</option>
+              <option value="mystery">Mystery</option>
+              <option value="heist">Heist</option>
+              <option value="rescue">Rescue</option>
+              <option value="escort">Escort</option>
+              <option value="exploration">Exploration</option>
+              <option value="political">Political</option>
+              <option value="supernatural">Supernatural</option>
+              <option value="war">War</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generatePlotHook()">Generate Hook</button>
+            <button class="gen-button" onclick="generateMultiplePlots(3)">Generate 3</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="plotOutput">
+          <div class="gen-output-empty">Click Generate to create a plot hook</div>
+        </div>
+      </div>
+
+      <!-- WEATHER GENERATOR -->
+      <div class="gen-panel" data-gen="weather">
+        <h1 class="gen-title">Weather Generator</h1>
+        <p class="gen-description">Generate weather conditions and random atmospheric events.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Climate</label>
+            <select class="gen-control-input" id="climate">
+              <option value="any">Random</option>
+              <option value="tropical">Tropical</option>
+              <option value="temperate">Temperate</option>
+              <option value="arctic">Arctic</option>
+              <option value="desert">Desert</option>
+              <option value="coastal">Coastal</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Season</label>
+            <select class="gen-control-input" id="season">
+              <option value="any">Random</option>
+              <option value="spring">Spring</option>
+              <option value="summer">Summer</option>
+              <option value="fall">Fall</option>
+              <option value="winter">Winter</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateWeather()">Generate Weather</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="weatherOutput">
+          <div class="gen-output-empty">Click Generate to create weather</div>
+        </div>
+      </div>
+
+      <!-- WILD MAGIC SURGE -->
+      <div class="gen-panel" data-gen="wildmagic">
+        <h1 class="gen-title">Wild Magic Surge Table</h1>
+        <p class="gen-description">Roll d100 and experience the chaos of wild magic. 100 unique effects.</p>
+
+        <div class="gen-controls">
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="rollWildMagic()">Roll d100 Wild Magic</button>
+            <button class="gen-button" onclick="generateMultipleWildMagic(3)">Roll 3 Times</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="wildmagicOutput">
+          <div class="gen-output-empty">Click Roll to trigger wild magic</div>
+        </div>
+      </div>
+
+      <!-- POTION EFFECTS -->
+      <div class="gen-panel" data-gen="potion">
+        <h1 class="gen-title">Potion Effects Generator</h1>
+        <p class="gen-description">Discover what mysterious potions do when imbibed.</p>
+
+        <div class="gen-controls">
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generatePotion()">Generate Potion</button>
+            <button class="gen-button" onclick="generateMultiplePotions(5)">Generate 5</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="potionOutput">
+          <div class="gen-output-empty">Click Generate to create a potion effect</div>
+        </div>
+      </div>
+
+      <!-- FLAVOR & DETAILS -->
+      <div class="gen-panel" data-gen="flavor">
+        <h1 class="gen-title">Flavor & Random Details</h1>
+        <p class="gen-description">Generate atmospheric details, ambient sounds, graffiti, and more.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Detail Type</label>
+            <select class="gen-control-input" id="flavorType">
+              <option value="any">Random</option>
+              <option value="pocket">What's in Their Pockets?</option>
+              <option value="graffiti">Graffiti / Inscriptions</option>
+              <option value="sound">Ambient Sounds</option>
+              <option value="books">Book Titles on a Shelf</option>
+              <option value="poster">Wanted Poster Name</option>
+              <option value="shop">Shop Inventory</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateFlavor()">Generate Detail</button>
+            <button class="gen-button" onclick="generateMultipleFlavor(5)">Generate 5</button>
+          </div>
+        </div>
+
+        <div class="gen-output" id="flavorOutput">
+          <div class="gen-output-empty">Click Generate to create a detail</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="ps-site-footer"></div>
+
+  <script src="phmurt-shell.js"></script>
+  <script>
+    // ═══════════════════════════════ GENERATOR DATA & UTILITIES ═══════════════════════════════
+
+    const DATA = {
+      npcNames: {
+        common: ['Aldric', 'Beatrice', 'Caspian', 'Delilah', 'Everett', 'Fiona', 'Garrett', 'Helena', 'Ivan', 'Joanna', 'Kieran', 'Lysandra', 'Marcus', 'Nola', 'Orrin', 'Petra', 'Quincy', 'Rosemary', 'Silas', 'Tabitha', 'Ulysses', 'Violet', 'Wyatt', 'Xander', 'Yara', 'Zeke', 'Arabella', 'Brennan', 'Cecilia', 'Dorian', 'Esme', 'Fielding', 'Gwendolyn', 'Hugo', 'Imogen', 'Jasper', 'Killian', 'Lilith', 'Matthias', 'Noreen', 'Oswald', 'Penelope', 'Quill', 'Raelynn', 'Sebastian', 'Thaddeus', 'Ursula', 'Vera', 'Winona', 'Xanthe'],
+        elvish: ['Aelindor', 'Bel\'amin', 'Caelith', 'Dalendil', 'Elara', 'Faelondor', 'Galadriel', 'Haemir', 'Iaelith', 'Jaelon', 'Kael\'thas', 'Laendil', 'Maelar', 'Nalindor', 'Orendil', 'Paelenth', 'Quaelith', 'Raelindor', 'Saelir', 'Thalindor', 'Uilendor', 'Vaelith', 'Wailendor', 'Xaelith', 'Yaelindor', 'Zaladrion', 'Aendalir', 'Belamir', 'Caerwyn', 'Daladrion'],
+        dwarvish: ['Thorin', 'Dwalin', 'Balin', 'Dori', 'Nori', 'Ori', 'Oin', 'Gloin', 'Bifur', 'Bofur', 'Bombur', 'Kili', 'Fili', 'Durin', 'Thrain', 'Thror', 'Flurry', 'Granite', 'Ironfoot', 'Firebeard', 'Bronzebeard', 'Steelhammer', 'Stonefist', 'Coalheaver', 'Metalsmith', 'Brunhilda', 'Magrit', 'Torfhild', 'Kathra', 'Sigrid'],
+        orcish: ['Durotan', 'Thrall', 'Gul\'dan', 'Orgrim', 'Blackhand', 'Gruul', 'Garrosh', 'Nazgrim', 'Azgalor', 'Mannaroth', 'Tichondrius', 'Varimathras', 'Kargath', 'Groam', 'Rugal', 'Korthazz', 'Drog', 'Thukh', 'Morzul', 'Grax'],
+        halfling: ['Bilbo', 'Frodo', 'Pippin', 'Merry', 'Rosie', 'Lobelia', 'Drogo', 'Primrose', 'Fatty', 'Bungo', 'Belladonna', 'Tooks', 'Baggins', 'Brandybuck', 'Took', 'Gamgee', 'Gollum', 'Sackville', 'Bracegirdle', 'Boffin'],
+        gnomish: ['Fizzbang', 'Tinkertop', 'Sparkle', 'Gizmo', 'Nimble', 'Copper', 'Sprocket', 'Whistlebottom', 'Glimmergold', 'Thistletop', 'Brassnut', 'Copperbottom', 'Flickertail', 'Snickerdoodle', 'Puddlejump', 'Geargrind', 'Spindlelegs', 'Tumblewick', 'Fizzlebop', 'Gnatwhisker'],
+        infernal: ['Azzarax', 'Baalzebub', 'Cththorax', 'Drakmath', 'Errextor', 'Floximus', 'Gorthazar', 'Haxzaroth', 'Ixthamon', 'Jarthaxes', 'Krakthon', 'Lixaroth', 'Morthazul', 'Naxareth', 'Orthazax', 'Pyraxian', 'Quixrath', 'Raxathor', 'Saxarion', 'Ththarax'],
+        exotic: ['Amaranthus', 'Beaumont', 'Cornelius', 'Damascius', 'Evangeline', 'Fortunatus', 'Gregarious', 'Harmonious', 'Infinitus', 'Jubilant', 'Kaleidescope', 'Luminous', 'Magnificent', 'Nebulous', 'Opulent', 'Perpetual', 'Querulous', 'Resplendent', 'Serendipitous', 'Transcendent']
+      },
+      races: ['Human', 'Elf', 'Dwarf', 'Halfling', 'Dragonborn', 'Gnome', 'Half-Elf', 'Half-Orc', 'Tiefling', 'Goliath'],
+      genders: ['Male', 'Female', 'Non-binary'],
+      occupations: ['Innkeeper', 'Blacksmith', 'Bard', 'Cleric', 'Paladin', 'Ranger', 'Rogue', 'Wizard', 'Sorcerer', 'Druid', 'Barbarian', 'Monk', 'Fighter', 'Scholar', 'Merchant', 'Guard', 'Constable', 'Mayor', 'Noble', 'Peasant', 'Farmer', 'Miller', 'Baker', 'Butcher', 'Leatherworker', 'Woodworker', 'Mason', 'Carpenter', 'Thatcher', 'Weaver', 'Dyer', 'Glassblower', 'Jeweler', 'Alchemist', 'Apothecary', 'Healer', 'Herbalist', 'Midwife', 'Gravedigger', 'Executioner', 'Torturer', 'Assassin', 'Smuggler', 'Pirate', 'Sailor', 'Fisherman', 'Hunter', 'Trapper', 'Mapmaker', 'Cartographer', 'Scribe', 'Clerk', 'Archivist', 'Librarian', 'Minstrel', 'Actor', 'Acrobat', 'Juggler', 'Dancer', 'Gladiator', 'Knight', 'Squire', 'Page', 'Servant', 'Slave', 'Beggar', 'Vagrant', 'Hermit', 'Hermetic', 'Mystic', 'Oracle', 'Priest', 'Nun', 'Monk', 'Abbott', 'Bishop', 'Pope', 'Prostitute', 'Courtesan', 'Courtesan', 'Entertainer', 'Storyteller', 'Poet', 'Painter', 'Sculptor', 'Musician', 'Composer', 'Conductor', 'Teacher', 'Tutor', 'Professor', 'Astrologer', 'Astronomer', 'Physician', 'Surgeon', 'Dentist', 'Barber', 'Perfumer'],
+      personality: ['Adventurous', 'Cautious', 'Charming', 'Cynical', 'Devious', 'Earnest', 'Flamboyant', 'Grim', 'Helpful', 'Indifferent', 'Jovial', 'Keen', 'Lazy', 'Mischievous', 'Nervous', 'Obsequious', 'Paranoid', 'Quick-tempered', 'Rational', 'Sarcastic', 'Thoughtful', 'Unyielding', 'Vivacious', 'Wary', 'Xenophobic', 'Youthful', 'Zealous', 'Altruistic', 'Bitter', 'Condescending', 'Deceptive', 'Eccentric', 'Fraudulent', 'Gregarious', 'Harsh', 'Idealistic', 'Jealous', 'Kindhearted', 'Lustful', 'Melancholic', 'Naive', 'Obnoxious', 'Pessimistic', 'Querulous', 'Resilient', 'Stoic', 'Untrustworthy', 'Vain', 'Whimsical'],
+      physicalDesc: ['Scarred face', 'Missing an eye', 'Tattooed arms', 'Hunched back', 'Towering height', 'Extremely short', 'One-handed', 'Hook hand', 'Peg leg', 'Bulging muscles', 'Gaunt and skeletal', 'Rotund belly', 'Beautiful features', 'Ugly mug', 'Sharp cheekbones', 'Crooked nose', 'Silver-tongued', 'Missing teeth', 'Gold teeth', 'Rotten teeth', 'Beautiful smile', 'Piercing eyes', 'Clouded eyes', 'Milky eyes', 'Bloodshot eyes', 'Wild hair', 'Bald head', 'Long beard', 'Clean-shaven', 'Weathered skin', 'Youthful face', 'Wrinkled face', 'Fresh burn scars', 'Old whip marks', 'Battle-worn armor', 'Fine silks', 'Ragged clothes', 'Immaculate appearance', 'Filthy and grimy', 'Smells of alcohol', 'Smells of flowers', 'Smells of smoke', 'Smells of blood', 'Distinctive accent', 'Cultured voice', 'Rough voice', 'Soft voice', 'Booming voice', 'Whispered voice'],
+      secrets: ['Secretly a noble in disguise', 'Has a hidden family', 'Was formerly a slave', 'Is wanted for murder', 'Worships a dark god', 'Is a shape-shifter', 'Is a spy for another nation', 'Betrayed a loved one', 'Is dying of a curse', 'Committed a terrible crime', 'Has a long-lost child', 'Is searching for a legendary artifact', 'Knows the location of buried treasure', 'Is running from their past', 'Has a forbidden romance', 'Is possessed by a spirit', 'Deals with the devil', 'Is gathering an army in secret', 'Knows of a prophecy', 'Is a werewolf or shape-shifter', 'Runs an illegal operation', 'Is a deserter from the military', 'Killed someone important', 'Has amnesia about their past', 'Is collecting souls', 'Is a lich or undead', 'Collects forbidden knowledge', 'Seeks revenge against a powerful enemy', 'Protects a dangerous secret', 'Is searching for immortality'],
+      voices: ['Stutters when nervous', 'Speaks in riddles', 'Often quotes poetry', 'Laughs at inappropriate moments', 'Talks very fast', 'Speaks in a slow drawl', 'Uses grand gestures', 'Rarely speaks above a whisper', 'Constantly curses', 'Speaks in archaic language', 'Mimics accents of others', 'Speaks multiple languages', 'Tells long-winded stories', 'Gets distracted mid-sentence', 'Repeats themselves', 'Finishes others\' sentences', 'Speaks in metaphors', 'Makes terrible jokes', 'Speaks with a lisp', 'Uses formal speech always'],
+      quirks: ['Collects coins obsessively', 'Talks to themselves constantly', 'Hums the same tune always', 'Picks at their nails', 'Twitches when lying', 'Never makes eye contact', 'Stares intensely', 'Fidgets with a ring', 'Polishes a weapon obsessively', 'Writes in a journal constantly', 'Draws strange symbols', 'Practices sword forms constantly', 'Meditates for hours', 'Drinks excessively', 'Never eats meat', 'Eats only bread', 'Allergic to certain metals', 'Refuses to touch certain things', 'Must count everything', 'Arranges objects in precise order', 'Sleeps standing up', 'Never sleeps', 'Sleeps during the day only', 'Changes their name frequently', 'Insists on cleanliness', 'Filthy and unkempt', 'Superstitious about numbers', 'Reads palms of others', 'Makes predictions', 'Collects unusual objects'],
+      tavernAdjectives: ['Golden', 'Silver', 'Rusty', 'Crimson', 'Drunken', 'Sleeping', 'Wandering', 'Broken', 'Jolly', 'Weary', 'Hopeful', 'Desperate', 'Wild', 'Peaceful', 'Haunted', 'Blessed', 'Cursed', 'Enchanted', 'Shadowy', 'Glorious', 'Humble', 'Grand', 'Tiny', 'Merry', 'Solemn', 'Festive', 'Gloomy', 'Shining', 'Dusty', 'Ancient', 'New', 'Hidden', 'Lost', 'Forgotten', 'Mysterious', 'Treacherous', 'Reliable', 'Crooked', 'Straight', 'Twisted', 'Fair'],
+      tavernNouns: ['Dragon', 'Unicorn', 'Goblet', 'Tankard', 'Shield', 'Stag', 'Raven', 'Phoenix', 'Griffin', 'Basilisk', 'Hydra', 'Sphinx', 'Harpy', 'Pegasus', 'Manticore', 'Chimera', 'Wyvern', 'Drake', 'Serpent', 'Kraken', 'Leviathan', 'Golem', 'Troll', 'Ogre', 'Giant', 'Dwarf', 'Elf', 'Knight', 'King', 'Queen', 'Crown', 'Sword', 'Axe', 'Bow', 'Arrow', 'Wand', 'Staff', 'Chalice', 'Cauldron', 'Torch', 'Lamp', 'Bell', 'Horn', 'Drum', 'Lute'],
+      tavernAtmosphere: ['Cozy and warm, with roaring fireplaces and dim candlelight', 'Loud and raucous, full of singing and dice games', 'Quiet and contemplative, attracting scholars and monks', 'Dark and suspicious, where shadows hide secrets', 'Grand and opulent, dripping with wealth and luxury', 'Dilapidated and dangerous, full of armed thugs', 'Festive and celebratory, always hosting some event', 'Melancholic and haunting, filled with tragic stories', 'Chaotic and wild, with performers and entertainers', 'Respectable and orderly, run with military precision', 'Sleazy and corrupt, where deals are made in darkness', 'Magical and otherworldly, with strange ethereal lights', 'Homey and familial, like visiting an old friend', 'Tense and political, full of nobles and conspiracies', 'Raucous and bawdy, with adult entertainment', 'Quaint and rural, smelling of hay and countryside', 'Sophisticated and cultured, with fine wine and art', 'Gritty and working-class, full of laborers and craftsmen', 'Mystical and spiritual, adorned with religious symbols', 'Decrepit and rotting, barely standing, smelling of mold'],
+      tavernDrinks: ['Dragonsbreath Ale', 'Pixie Dust Wine', 'Moonshine Whiskey', 'Elvish Starlight', 'Dwarven Stoneroot', 'Orcish Bloodwine', 'Halfling\'s Golden Nectar', 'Mead of the Ancients', 'Spiced Rum of the South', 'Northern Frostbite', 'Swamp Water Swill', 'Honeyed Mead of the Bees', 'Absinthe of Mad Visions', 'Tangleroot Tea', 'Shadowbrewed Coffee', 'Dragon\'s Kiss Liqueur', 'Fey Wine of Revelry', 'Poison of Paradise', 'Cloudberry Cordial', 'Fermented Lightning'],
+      tavernFeatures: ['A live bard competition every Firesday', 'A wizard\'s chess game that moves itself', 'Carved dragon heads above the bar', 'A secret basement speakeasy', 'Magical paintings that change with mood', 'A fireplace that never goes out', 'Enchanted tables that predict the future', 'A pet griffon that intimidates troublemakers', 'A ghost that tells jokes', 'A treasure map carved into the bar', 'Stained glass windows depicting battles', 'A library of rare books', 'Live performances every evening', 'A dance floor that glows with magic', 'Weapons mounted on every wall', 'A throne-like seat for the most important patron', 'A fountain of eternal ale', 'Walls covered in graffiti from famous adventurers', 'A constantly changing menu written in mysterious runes', 'Hot springs beneath the building'],
+      tavernRumors: ['A dragon was seen flying north three days ago', 'The king\'s daughter has gone missing', 'A cult is gathering recruits in the shadows', 'Someone found a map to an ancient tomb', 'The bandits on the road are getting bolder', 'A plague is spreading in the southern villages', 'Necromancers were spotted in the forest', 'A legendary sword was found in the old ruins', 'A merchant\'s caravan disappeared without a trace', 'The local lord\'s son challenges all to single combat', 'A demon escaped from its binding ritual', 'Someone claims to have seen a god', 'The harvest will fail this year', 'A theif stole the crown jewels', 'An army is marching from the east', 'A wizard opened a portal to another world', 'The mayor is secretly a shape-shifter', 'Vampires have awakened in the crypt', 'A prophecy foretold the end of the world', 'A time-traveler arrived from the future'],
+      dungeonRooms: ['Grand Entrance Hall with towering columns', 'Treasure Vault filled with glittering gold', 'Chamber of Ancient Statues watching silently', 'Flooded Cavern with underground lake', 'Library of Forbidden Knowledge', 'Throne Room with skeleton king', 'Torture Chamber with instruments of pain', 'Garden of Petrified Victims', 'Alchemy Lab bubbling with strange potions', 'Ritual Chamber with summoning circle', 'Barracks for the Undead', 'Dining Hall with long stone tables', 'Prison Cells with broken chains', 'Armory stocked with ancient weapons', 'Bedroom of the Dungeon Master', 'Observatory with star maps', 'Forge still burning with magical flames', 'Crypt with many sarcophagi', 'Throne Room of the Dark Lord', 'Maze of stone corridors'],
+      dungeonThemes: ['Ancient tomb of a long-dead king', 'Temple to a forgotten dark god', 'Lair of a fearsome dragon', 'Underground hideout of a thieves\' guild', 'Haunted castle of a cursed noble', 'Crystalline cavern of gems and ice', 'Volcanic lair of fire elementals', 'Eldritch dimension of horrors', 'Lost city of an ancient civilization', 'Corrupted nature sanctuary'],
+      trapTypes: ['Pit Trap', 'Poison Dart Trap', 'Ceiling Collapse', 'Blade Trap', 'Fire Trap', 'Ice Trap', 'Lightning Trap', 'Acid Spray', 'Petrification Trap', 'Paralysis Trap', 'Sleep Gas', 'Teleportation Trap', 'Curse Trap', 'Explosive Rune', 'Gelatinous Cube', 'Swinging Blades', 'Arrow Shower', 'Guillotine Blade', 'Spiked Floors', 'Pressure Plate'],
+      puzzles: ['Arrange statues in correct order', 'Solve a riddle to unlock the door', 'Match the symbols on the wall', 'Activate stones in specific sequence', 'Move heavy blocks to reveal path', 'Find the hidden switch', 'Solve a mathematical puzzle', 'Decipher ancient runes', 'Complete a missing mosaic pattern', 'Answer questions posed by a guardian', 'Press tiles that spell a word', 'Balance weights on a scale', 'Open locks with music', 'Navigate a magical illusion maze', 'Extinguish flames in correct order', 'Combine ingredients for a potion', 'Reflect light with mirrors', 'Rotate rings to align patterns', 'Translate ancient languages', 'Sacrifice items to proceed'],
+      monsters: [
+        { name: 'Goblin', cr: 0.125 },
+        { name: 'Kobold', cr: 0.125 },
+        { name: 'Orc', cr: 0.5 },
+        { name: 'Wolf', cr: 0.25 },
+        { name: 'Giant Spider', cr: 0.25 },
+        { name: 'Bandit', cr: 0.125 },
+        { name: 'Cultist', cr: 0.125 },
+        { name: 'Ghoul', cr: 1 },
+        { name: 'Ogre', cr: 2 },
+        { name: 'Wyvern', cr: 6 },
+        { name: 'Chimera', cr: 6 },
+        { name: 'Manticore', cr: 3 },
+        { name: 'Harpy', cr: 1 },
+        { name: 'Griffon', cr: 2 },
+        { name: 'Hydra', cr: 8 },
+        { name: 'Basilisk', cr: 3 },
+        { name: 'Vampire', cr: 13 },
+        { name: 'Lich', cr: 21 },
+        { name: 'Demon', cr: 5 },
+        { name: 'Devil', cr: 9 },
+        { name: 'Dragon', cr: 17 },
+        { name: 'Ancient Dragon', cr: 24 },
+        { name: 'Troll', cr: 5 },
+        { name: 'Golem', cr: 5 },
+        { name: 'Wraith', cr: 3 },
+        { name: 'Specter', cr: 4 },
+        { name: 'Ghost', cr: 4 },
+        { name: 'Lich', cr: 21 },
+        { name: 'Medusa', cr: 6 },
+        { name: 'Erinyes', cr: 12 }
+      ],
+      gems: ['Diamond', 'Ruby', 'Emerald', 'Sapphire', 'Opal', 'Pearl', 'Jade', 'Amethyst', 'Topaz', 'Garnet', 'Aquamarine', 'Tourmaline', 'Tanzanite', 'Peridot', 'Spinel', 'Tourmaline', 'Turquoise', 'Moonstone', 'Sunstone', 'Labradorite', 'Lapis Lazuli', 'Malachite', 'Azurite', 'Carnelian', 'Jasper', 'Aventurine', 'Citrine', 'Smoky Quartz'],
+      artObjects: ['Gilded Statue', 'Oil Painting', 'Marble Bust', 'Carved Jade Panel', 'Illuminated Manuscript', 'Tapestry', 'Golden Cup', 'Silver Chalice', 'Bronze Relief', 'Ivory Carving', 'Crystal Sculpture', 'Enameled Box', 'Bejeweled Brooch', 'Ornate Mirror', 'Embroidered Cloak', 'Stained Glass Window', 'Carved Wooden Chest', 'Jeweled Dagger', 'Silk Scroll', 'Amber Necklace'],
+      magicItems: ['Sword of Sharpness', 'Cloak of Elvenkind', 'Ring of Protection', 'Amulet of Health', 'Boots of Speed', 'Bag of Holding', 'Wand of Fireballs', 'Staff of the Magi', 'Cloak of Invisibility', 'Ring of Invisibility', 'Belt of Giant Strength', 'Helm of Telepathy', 'Deck of Many Things', 'Portable Hole', 'Robe of the Archmagi', 'Ring of Three Wishes', 'Deck of Cards', 'Dagger of Venom', 'Boots of Levitation', 'Helm of Brilliance'],
+      potions: ['Healing Potion', 'Greater Healing Potion', 'Superior Healing Potion', 'Supreme Healing Potion', 'Potion of Strength', 'Potion of Constitution', 'Potion of Dexterity', 'Potion of Intelligence', 'Potion of Wisdom', 'Potion of Charisma', 'Potion of Fire Resistance', 'Potion of Cold Resistance', 'Potion of Acid Resistance', 'Potion of Lightning Resistance', 'Potion of Poison Resistance', 'Potion of Water Breathing', 'Potion of Flying', 'Potion of Invisibility', 'Potion of Growth', 'Potion of Diminution'],
+      plotHooks: [
+        { genre: 'mystery', hook: 'A wealthy merchant\'s daughter has vanished from a locked room. There are no clues except a strange smell.' },
+        { genre: 'heist', hook: 'A legendary artifact sits in the vault of the most secure fortress in the realm. The patron offers a fortune for its retrieval.' },
+        { genre: 'rescue', hook: 'A child has been kidnapped by bandits. The parents will pay handsomely for their safe return.' },
+        { genre: 'escort', hook: 'A diplomat must reach another kingdom before war is declared. The roads are dangerous and time is running short.' },
+        { genre: 'exploration', hook: 'An ancient map shows the location of a lost civilization. The reward for finding it would be immense.' },
+        { genre: 'political', hook: 'A noble has been accused of treason. The party must uncover the truth before an innocent life is lost.' },
+        { genre: 'supernatural', hook: 'Strange creatures have been terrorizing a village at night. The cause remains unknown.' },
+        { genre: 'war', hook: 'An army approaches the kingdom. The party must prepare the defenses and gather allies.' },
+        { genre: 'mystery', hook: 'A series of mysterious deaths has plagued the city. The pattern suggests dark magic.' },
+        { genre: 'heist', hook: 'A thief has stolen something priceless. The patron wants it back by any means.' },
+      ],
+      wildmagic: [
+        'Your skin turns a bright blue. It fades after 1d10 minutes.',
+        'You are transported 60 feet in a random direction.',
+        'You cast Fireball centered on yourself.',
+        'You become invisible for 1 minute.',
+        'An eyeball appears on your palm and looks around.',
+        'You are incapacitated for 1d4 rounds.',
+        'You gain vulnerability to all damage for 1 minute.',
+        'You become extremely charming. Disadvantage on attack rolls.',
+        'You regain all hit points.',
+        'You must succeed on a DC 15 Dexterity save or fall prone.',
+        'You grow 1d4 feet taller for 1 minute.',
+        'You shrink 1d4 feet smaller for 1 minute.',
+        'You sprout 1d4 additional arms for 1 minute.',
+        'You become weightless for 1d4 rounds.',
+        'You are blinded until the end of your next turn.',
+        'You gain advantage on all Wisdom saves for 1 minute.',
+        'Your hair turns into a nest of snakes for 1d4 hours.',
+        'You speak only in rhyme for 1 minute.',
+        'You smell of sulfur for 1d4 days.',
+        'You are compelled to dance for 1 minute.',
+        'You age 1d10 years.',
+        'You regress 1d10 years in age.',
+        'You cast Mirror Image.',
+        'You are knocked prone and restrained by vines.',
+        'You gain the ability to speak with animals for 1 hour.',
+        'You cast Confusion on creatures within 30 feet.',
+        'You teleport up to 30 feet away in a random direction.',
+        'You are surrounded by an aura of magical light.',
+        'You gain resistance to magic damage for 1 minute.',
+        'You are stunned until the end of your next turn.',
+        'You cast Slow centered on yourself.',
+        'You gain advantage on the next attack roll.',
+        'You are blinded and deafened for 1 round.',
+        'You cast Fog Cloud centered on your location.',
+        'Your body becomes semi-transparent.',
+        'You are surrounded by swirling leaves and petals.',
+        'You gain the ability to sense magical auras.',
+        'You cast Darkness centered on yourself.',
+        'You become friendly with the nearest creature.',
+        'You speak a language you don\'t normally know for 1 hour.',
+        'You gain darkvision to 60 feet for 1 hour.',
+        'You cannot tell the truth for 1 minute.',
+        'You cast Mage Hand Legerdemain.',
+        'Your shadow detaches and moves independently.',
+        'You gain advantage on saving throws for 1 minute.',
+        'You become temporarily bald.',
+        'You cast Cure Wounds on yourself.',
+        'You are surrounded by an aura of extreme heat.',
+        'You cast Blind Sense for 1 minute.',
+        'You gain resistance to nonmagical damage for 1 minute.',
+      ],
+      pocketItems: ['A crumpled love letter', 'A lucky coin', 'A small portrait', 'A key with no lock', 'A dried flower', 'A torn map', 'A stone with strange markings', 'A lock of hair', 'A dice set', 'A broken locket', 'A mysterious note', 'A wax seal', 'A twig shaped like a wand', 'A piece of jewelry', 'A token or charm', 'A stub of chalk', 'A piece of rope', 'A broken quill', 'A copper ring', 'A stone figurine', 'A small book', 'A recipe written in code', 'A sketch of a face', 'A token from someone else', 'A curse written on parchment', 'A picture of a place', 'A deed or contract', 'A strange metal object', 'A vial of ash', 'A lock of someone else\'s hair', 'A gambling debt', 'A family heirloom', 'A wanted poster', 'A spy\'s codebook', 'A child\'s toy', 'A religious relic', 'A love poem', 'A curse charm', 'A ticket or pass', 'A prophecy written in ancient script'],
+      graffiti: ['Here lies my heart', 'Beware the watchers', 'The end is nigh', 'X marks the spot', 'Gold lies below', 'The king is dead', 'Join us', 'Help me', 'The old ways return', 'See the signs', 'Caution: trap ahead', 'A fool was here', 'Love is blind', 'Time is running out', 'The curse begins', 'Find the relic', 'They\'re watching', 'This way to safety', 'We were here', 'Forever cursed', 'Truth lies in darkness', 'Beware false prophets', 'The ritual failed', 'He never left', 'She is alive', 'The treasure moves', 'Old magic awakens', 'The door opens at midnight', 'In blood we rise', 'The king\'s secret'],
+      sounds: ['A distant howl', 'Dripping water', 'Eerie wind', 'Scraping metal', 'Creaking wood', 'Whispered voices', 'Chanting', 'Screaming', 'Laughter echoing', 'Bells tolling', 'Thunder rumbling', 'A heartbeat', 'Heavy breathing', 'Footsteps in darkness', 'Chains rattling', 'A bell ringing once', 'Singing voice', 'Breaking glass', 'A sword being drawn', 'Soft weeping', 'Insects buzzing', 'A baby crying', 'Claws scratching', 'An explosion', 'A growl', 'Galloping hooves', 'A scream cut short', 'Rustling leaves', 'A door slamming', 'Whispering secrets'],
+      bookTitles: ['The Necronomicon', 'A Treatise on Dragons', 'How to Befriend a Tarrasque', 'The History of Kings', 'Forbidden Summoning', 'Love in the Time of Plague', 'The Wanderer\'s Guide', 'Secrets of the Ancients', 'A Cook\'s Journal', 'The Art of War', 'Meditations on Power', 'Recipes for Immortality', 'The Thief\'s Handbook', 'A Lover\'s Lament', 'The Merchant\'s Ledger', 'Tales of the Road', 'The Wizard\'s Grimoire', 'A Sailor\'s Log', 'The Poet\'s Collection', 'A Criminal\'s Confession']
+    };
+
+    // Utility functions
+    function random(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function randomNth(n, arr) {
+      const result = [];
+      for (let i = 0; i < n; i++) {
+        result.push(random(arr));
+      }
+      return result;
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        psToast('Copied to clipboard!', 2000);
+      });
+    }
+
+    function switchGenerator(genName) {
+      document.querySelectorAll('.gen-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.gen-nav-item').forEach(n => n.classList.remove('active'));
+
+      document.querySelector(`[data-gen="${genName}"]`).classList.add('active');
+      document.querySelector(`[data-gen="${genName}"].gen-nav-item`).classList.add('active');
+
+      window.location.hash = '#' + genName;
+    }
+
+    function toggleHistoryPanel(header) {
+      const toggle = header.querySelector('.gen-history-toggle');
+      const items = header.nextElementSibling;
+      toggle.classList.toggle('collapsed');
+      items.style.maxHeight = items.style.maxHeight === 'none' ? '400px' : 'none';
+    }
+
+    // Navigation
+    document.querySelectorAll('.gen-nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const gen = btn.dataset.gen;
+        switchGenerator(gen);
+      });
+    });
+
+    // Handle hash navigation
+    window.addEventListener('hashchange', () => {
+      const gen = window.location.hash.slice(1) || 'npc';
+      switchGenerator(gen);
+    });
+
+    // Initialize on load
+    if (window.location.hash) {
+      const gen = window.location.hash.slice(1);
+      switchGenerator(gen);
+    }
+
+    // ═══════════════════════════════ GENERATOR FUNCTIONS ═══════════════════════════════
+
+    function generateNPC() {
+      const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish, DATA.npcNames.dwarvish, DATA.npcNames.orcish, DATA.npcNames.halfling, DATA.npcNames.gnomish, DATA.npcNames.infernal, DATA.npcNames.exotic]);
+      const npc = {
+        name: random(namePool),
+        race: random(DATA.races),
+        gender: random(DATA.genders),
+        occupation: random(DATA.occupations),
+        personality: random(DATA.personality),
+        appearance: random(DATA.physicalDesc),
+        secret: random(DATA.secrets),
+        voice: random(DATA.voices),
+        quirk: random(DATA.quirks),
+      };
+
+      const html = `
+        <div class="gen-npc-card gen-result">
+          <div class="gen-npc-name">${npc.name}</div>
+          <div class="gen-npc-class">${npc.race} ${npc.occupation} • ${npc.gender}</div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Appearance</div>
+            <div class="gen-npc-stat-value">${npc.appearance}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Personality</div>
+            <div class="gen-npc-stat-value">${npc.personality}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Voice</div>
+            <div class="gen-npc-stat-value">${npc.voice}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Quirk</div>
+            <div class="gen-npc-stat-value">${npc.quirk}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Secret</div>
+            <div class="gen-npc-stat-value">${npc.secret}</div>
+          </div>
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('${npc.name}, the ${npc.race} ${npc.occupation}. ${npc.appearance}. ${npc.personality}. Secret: ${npc.secret}')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('NPC', '${npc.name}')">Pin</button>
+          </div>
+        </div>
+      `;
+
+      const output = document.getElementById('npcOutput');
+      output.innerHTML = html;
+    }
+
+    function generateMultipleNPC(count) {
+      let html = '';
+      for (let i = 0; i < count; i++) {
+        const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish, DATA.npcNames.dwarvish, DATA.npcNames.orcish, DATA.npcNames.halfling, DATA.npcNames.gnomish, DATA.npcNames.infernal, DATA.npcNames.exotic]);
+        const npc = {
+          name: random(namePool),
+          race: random(DATA.races),
+          gender: random(DATA.genders),
+          occupation: random(DATA.occupations),
+          personality: random(DATA.personality),
+          appearance: random(DATA.physicalDesc),
+          secret: random(DATA.secrets),
+          voice: random(DATA.voices),
+          quirk: random(DATA.quirks),
+        };
+
+        html += `
+          <div class="gen-npc-card gen-result">
+            <div class="gen-npc-name">${npc.name}</div>
+            <div class="gen-npc-class">${npc.race} ${npc.occupation} • ${npc.gender}</div>
+            <div class="gen-npc-stat">
+              <div class="gen-npc-stat-label">Personality</div>
+              <div class="gen-npc-stat-value">${npc.personality}</div>
+            </div>
+            <div class="gen-npc-stat">
+              <div class="gen-npc-stat-label">Secret</div>
+              <div class="gen-npc-stat-value">${npc.secret}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('npcOutput').innerHTML = html;
+    }
+
+    function generateTavern() {
+      const type = document.getElementById('tavernType').value;
+      const types = ['tavern', 'inn', 'brewery', 'wine', 'roadside'];
+      const selectedType = type === 'any' ? random(types) : type;
+
+      const tavernName = random(DATA.tavernAdjectives) + ' ' + random(DATA.tavernNouns);
+      const tavern = {
+        name: tavernName,
+        type: selectedType.charAt(0).toUpperCase() + selectedType.slice(1),
+        atmosphere: random(DATA.tavernAtmosphere),
+        drink: random(DATA.tavernDrinks),
+        feature: random(DATA.tavernFeatures),
+        rumor: random(DATA.tavernRumors),
+      };
+
+      // Generate barkeep
+      const namePool = random([DATA.npcNames.common, DATA.npcNames.dwarvish]);
+      const barkeep = {
+        name: random(namePool),
+        race: randomInt(1, 2) === 1 ? 'Human' : 'Dwarf',
+        quirk: random(DATA.quirks),
+      };
+
+      const html = `
+        <div class="gen-result">
+          <div class="gen-result-item">
+            <div class="gen-result-label">Tavern Name</div>
+            <div class="gen-result-value">${tavern.name}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Type</div>
+            <div class="gen-result-value">${tavern.type}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Atmosphere</div>
+            <div class="gen-result-value">${tavern.atmosphere}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Signature Drink</div>
+            <div class="gen-result-value">${tavern.drink}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Notable Feature</div>
+            <div class="gen-result-value">${tavern.feature}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Current Rumor</div>
+            <div class="gen-result-value">${tavern.rumor}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Barkeep</div>
+            <div class="gen-result-value">${barkeep.name}, the ${barkeep.race}. ${barkeep.quirk}</div>
+          </div>
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('${tavern.name} - A ${tavern.type.toLowerCase()}. Drink: ${tavern.drink}. Barkeep: ${barkeep.name}')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Tavern', '${tavern.name}')">Pin</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('tavernOutput').innerHTML = html;
+    }
+
+    function generateDungeon() {
+      const type = document.getElementById('dungeonType').value;
+      const types = ['tomb', 'cave', 'temple', 'lair', 'mine', 'fortress', 'sewer'];
+      const selectedType = type === 'any' ? random(types) : type;
+
+      const theme = random(DATA.dungeonThemes);
+      const rooms = randomNth(randomInt(3, 5), DATA.dungeonRooms);
+      const mainTrap = random(DATA.trapTypes);
+      const mainPuzzle = random(DATA.puzzles);
+      const monsters = randomNth(randomInt(2, 4), DATA.monsters);
+
+      let html = `
+        <div class="gen-result">
+          <div class="gen-result-item">
+            <div class="gen-result-label">Dungeon Type</div>
+            <div class="gen-result-value">${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Theme</div>
+            <div class="gen-result-value">${theme}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Rooms</div>
+            <div class="gen-result-value">
+              ${rooms.map((r, i) => `<div>${i + 1}. ${r}</div>`).join('')}
+            </div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Main Trap</div>
+            <div class="gen-result-value">${mainTrap}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Puzzle</div>
+            <div class="gen-result-value">${mainPuzzle}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Encounters</div>
+            <div class="gen-result-value">
+              ${monsters.map(m => `<div>${m.name} (CR ${m.cr})</div>`).join('')}
+            </div>
+          </div>
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('Dungeon: ${selectedType}. Theme: ${theme}. Trap: ${mainTrap}.')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Dungeon', '${selectedType}')">Pin</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('dungeonOutput').innerHTML = html;
+    }
+
+    function generateEncounter() {
+      const env = document.getElementById('encEnvironment').value;
+      const level = parseInt(document.getElementById('partyLevel').value);
+      const size = parseInt(document.getElementById('partySize').value);
+      const difficulty = document.getElementById('encDifficulty').value;
+
+      const environments = ['forest', 'mountain', 'dungeon', 'urban', 'desert', 'arctic', 'swamp', 'underdark', 'coastal', 'grassland'];
+      const selectedEnv = env === 'any' ? random(environments) : env;
+
+      const monsters = randomNth(randomInt(2, 5), DATA.monsters.filter(m => Math.abs(m.cr - level) <= 3));
+      const totalCR = monsters.reduce((sum, m) => sum + m.cr, 0);
+
+      const html = `
+        <div class="gen-result">
+          <div class="gen-result-item">
+            <div class="gen-result-label">Environment</div>
+            <div class="gen-result-value">${selectedEnv.charAt(0).toUpperCase() + selectedEnv.slice(1)}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Difficulty</div>
+            <div class="gen-result-value">${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Enemies</div>
+            <div class="gen-result-value">
+              ${monsters.map(m => `<div>${m.name} (CR ${m.cr})</div>`).join('')}
+            </div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Estimated XP</div>
+            <div class="gen-result-value">${(totalCR * 100).toFixed(0)} XP total</div>
+          </div>
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('Encounter in ${selectedEnv}. ${difficulty} difficulty.')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Encounter', selectedEnv)">Pin</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('encounterOutput').innerHTML = html;
+    }
+
+    function generateTreasure() {
+      const type = document.getElementById('treasureType').value;
+      const cr = document.getElementById('treasureCR').value;
+
+      let treasure = {};
+
+      if (type === 'coins' || type === 'individual' || type === 'hoard') {
+        const cpMultiplier = cr === '0-4' ? randomInt(5, 15) : cr === '5-10' ? randomInt(30, 60) : cr === '11-16' ? randomInt(100, 200) : randomInt(500, 1000);
+        treasure.cp = cpMultiplier * 100;
+        treasure.sp = cpMultiplier * 50;
+        treasure.gp = cpMultiplier * 25;
+        treasure.pp = cpMultiplier;
+      }
+
+      if (type === 'gems' || type === 'hoard') {
+        treasure.gems = randomNth(randomInt(1, 4), DATA.gems);
+      }
+
+      if (type === 'art' || type === 'hoard') {
+        treasure.art = randomNth(randomInt(1, 3), DATA.artObjects);
+      }
+
+      if (type === 'magic' || type === 'hoard') {
+        treasure.magic = randomNth(randomInt(1, 3), DATA.magicItems);
+      }
+
+      let html = '<div class="gen-result">';
+
+      if (treasure.cp) {
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Coins</div>
+            <div class="gen-result-value">${treasure.cp} CP, ${treasure.sp} SP, ${treasure.gp} GP, ${treasure.pp} PP</div>
+          </div>
+        `;
+      }
+
+      if (treasure.gems) {
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Gems</div>
+            <div class="gen-result-value">${treasure.gems.join(', ')}</div>
+          </div>
+        `;
+      }
+
+      if (treasure.art) {
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Art Objects</div>
+            <div class="gen-result-value">${treasure.art.join(', ')}</div>
+          </div>
+        `;
+      }
+
+      if (treasure.magic) {
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Magic Items</div>
+            <div class="gen-result-value">${treasure.magic.join(', ')}</div>
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="gen-result-actions">
+          <button class="gen-result-btn" onclick="copyToClipboard('Treasure: ${treasure.gp} GP worth')">Copy</button>
+          <button class="gen-result-btn" onclick="pinToNotes('Treasure', 'Hoard')">Pin</button>
+        </div>
+      </div>
+      `;
+
+      document.getElementById('treasureOutput').innerHTML = html;
+    }
+
+    function generatePlotHook() {
+      const genre = document.getElementById('plotGenre').value;
+      const genres = ['mystery', 'heist', 'rescue', 'escort', 'exploration', 'political', 'supernatural', 'war'];
+      const selectedGenre = genre === 'any' ? random(genres) : genre;
+
+      const hook = random(DATA.plotHooks.filter(h => h.genre === selectedGenre || genre === 'any'));
+      const patron = random(['A mysterious stranger', 'A local noble', 'A merchant guild', 'A religious order', 'A crime lord', 'A government official', 'A desperate peasant', 'A wizard', 'A former adventurer', 'An ancient spirit']);
+      const reward = randomInt(100, 1000) + ' gold pieces';
+
+      const html = `
+        <div class="gen-result">
+          <div class="gen-result-item">
+            <div class="gen-result-label">Adventure Type</div>
+            <div class="gen-result-value">${selectedGenre.charAt(0).toUpperCase() + selectedGenre.slice(1)}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Patron</div>
+            <div class="gen-result-value">${patron}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Hook</div>
+            <div class="gen-result-value">${hook.hook}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Reward</div>
+            <div class="gen-result-value">${reward}</div>
+          </div>
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('${hook.hook} - Reward: ${reward}')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Hook', 'Adventure')">Pin</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('plotOutput').innerHTML = html;
+    }
+
+    function generateMultiplePlots(count) {
+      let html = '';
+      for (let i = 0; i < count; i++) {
+        const hook = random(DATA.plotHooks);
+        const patron = random(['A mysterious stranger', 'A local noble', 'A merchant guild', 'A religious order', 'A crime lord', 'A government official', 'A desperate peasant', 'A wizard', 'A former adventurer', 'An ancient spirit']);
+
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Hook ${i + 1}</div>
+            <div class="gen-result-value">${patron} seeks your aid: ${hook.hook}</div>
+          </div>
+        `;
+      }
+
+      document.getElementById('plotOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+    }
+
+    function generateWeather() {
+      const climate = document.getElementById('climate').value;
+      const season = document.getElementById('season').value;
+      const climates = ['tropical', 'temperate', 'arctic', 'desert', 'coastal'];
+      const seasons = ['spring', 'summer', 'fall', 'winter'];
+
+      const selectedClimate = climate === 'any' ? random(climates) : climate;
+      const selectedSeason = season === 'any' ? random(seasons) : season;
+
+      const temps = {
+        tropical: { spring: '75-85F', summer: '85-95F', fall: '75-85F', winter: '70-80F' },
+        temperate: { spring: '50-65F', summer: '70-85F', fall: '50-65F', winter: '30-45F' },
+        arctic: { spring: '-10-0F', summer: '20-35F', fall: '-10-0F', winter: '-30--10F' },
+        desert: { spring: '65-80F', summer: '95-110F', fall: '65-80F', winter: '40-55F' },
+        coastal: { spring: '55-70F', summer: '75-85F', fall: '55-70F', winter: '45-60F' }
+      };
+
+      const conditions = ['Clear skies', 'Partly cloudy', 'Overcast', 'Light rain', 'Heavy rain', 'Thunderstorm', 'Fog', 'Snow', 'Sleet', 'Hail', 'Windy', 'Still and calm'];
+      const events = ['Aurora', 'Meteor shower', 'Magical storm', 'Rainbow', 'Unusual cloud formations', 'Eclipse', 'Earthquake', 'Volcanic ash', 'Unusual animals seen', 'Magical phenomenon'];
+
+      const weather = {
+        climate: selectedClimate,
+        season: selectedSeason,
+        temperature: temps[selectedClimate][selectedSeason],
+        condition: random(conditions),
+        wind: randomInt(0, 40) + ' mph',
+        visibility: randomInt(10, 100) + ' feet',
+        event: randomInt(1, 5) === 1 ? random(events) : 'None',
+      };
+
+      const html = `
+        <div class="gen-result">
+          <div class="gen-result-item">
+            <div class="gen-result-label">Climate & Season</div>
+            <div class="gen-result-value">${weather.climate} - ${weather.season}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Temperature</div>
+            <div class="gen-result-value">${weather.temperature}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Condition</div>
+            <div class="gen-result-value">${weather.condition}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Wind</div>
+            <div class="gen-result-value">${weather.wind}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Visibility</div>
+            <div class="gen-result-value">${weather.visibility}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Special Event</div>
+            <div class="gen-result-value">${weather.event}</div>
+          </div>
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('${weather.condition}, ${weather.temperature}, wind ${weather.wind}')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Weather', 'Forecast')">Pin</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('weatherOutput').innerHTML = html;
+    }
+
+    function rollWildMagic() {
+      const roll = randomInt(1, 100);
+      const effect = DATA.wildmagic[roll - 1] || random(DATA.wildmagic);
+
+      const html = `
+        <div class="gen-result">
+          <div class="gen-result-item">
+            <div class="gen-result-label">d100 Roll</div>
+            <div class="gen-result-value">${roll}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Effect</div>
+            <div class="gen-result-value">${effect}</div>
+          </div>
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('Wild Magic Surge (${roll}): ${effect}')">Copy</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('wildmagicOutput').innerHTML = html;
+    }
+
+    function generateMultipleWildMagic(count) {
+      let html = '';
+      for (let i = 0; i < count; i++) {
+        const roll = randomInt(1, 100);
+        const effect = DATA.wildmagic[roll - 1] || random(DATA.wildmagic);
+
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Roll ${i + 1}: d100 = ${roll}</div>
+            <div class="gen-result-value">${effect}</div>
+          </div>
+        `;
+      }
+
+      document.getElementById('wildmagicOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+    }
+
+    function generatePotion() {
+      const colors = ['crimson', 'silver', 'golden', 'emerald', 'sapphire', 'violet', 'obsidian', 'pearlescent'];
+      const effects = ['grants a sense of euphoria', 'causes hallucinations', 'grants temporary strength', 'heals wounds', 'grants invisibility for 1 minute', 'grants the ability to speak with animals', 'grants resistance to fire', 'grants the ability to fly for 10 minutes'];
+      const duration = randomInt(1, 10) + ' hours';
+      const side = randomInt(1, 3) === 1 ? 'Slight tingling in extremities' : 'None';
+
+      const potion = {
+        color: random(colors),
+        effect: random(effects),
+        duration: duration,
+        sideEffect: side,
+      };
+
+      const html = `
+        <div class="gen-result">
+          <div class="gen-result-item">
+            <div class="gen-result-label">Appearance</div>
+            <div class="gen-result-value">${potion.color.charAt(0).toUpperCase() + potion.color.slice(1)} liquid</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Effect</div>
+            <div class="gen-result-value">${potion.effect}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Duration</div>
+            <div class="gen-result-value">${potion.duration}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Side Effect</div>
+            <div class="gen-result-value">${potion.sideEffect}</div>
+          </div>
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('Potion: ${potion.effect} for ${potion.duration}')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Potion', 'Brew')">Pin</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('potionOutput').innerHTML = html;
+    }
+
+    function generateMultiplePotions(count) {
+      let html = '';
+      const colors = ['crimson', 'silver', 'golden', 'emerald', 'sapphire', 'violet', 'obsidian', 'pearlescent'];
+      const effects = ['grants a sense of euphoria', 'causes hallucinations', 'grants temporary strength', 'heals wounds', 'grants invisibility', 'speaks with animals', 'grants fire resistance', 'grants flight'];
+
+      for (let i = 0; i < count; i++) {
+        const color = random(colors);
+        const effect = random(effects);
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Potion ${i + 1}</div>
+            <div class="gen-result-value">${color.charAt(0).toUpperCase() + color.slice(1)} vial - ${effect}</div>
+          </div>
+        `;
+      }
+
+      document.getElementById('potionOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+    }
+
+    function generateFlavor() {
+      const type = document.getElementById('flavorType').value;
+      const types = ['pocket', 'graffiti', 'sound', 'books', 'poster', 'shop'];
+      const selectedType = type === 'any' ? random(types) : type;
+
+      let html = '<div class="gen-result">';
+
+      if (selectedType === 'pocket') {
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Item in Pocket</div>
+            <div class="gen-result-value">${random(DATA.pocketItems)}</div>
+          </div>
+        `;
+      } else if (selectedType === 'graffiti') {
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Graffiti on Wall</div>
+            <div class="gen-result-value">"${random(DATA.graffiti)}"</div>
+          </div>
+        `;
+      } else if (selectedType === 'sound') {
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Ambient Sound</div>
+            <div class="gen-result-value">${random(DATA.sounds)}</div>
+          </div>
+        `;
+      } else if (selectedType === 'books') {
+        const books = randomNth(3, DATA.bookTitles);
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Books on Shelf</div>
+            <div class="gen-result-value">${books.map(b => `"${b}"`).join('<br>')}</div>
+          </div>
+        `;
+      } else if (selectedType === 'poster') {
+        const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish]);
+        const crime = random(['Murder', 'Theft', 'Espionage', 'Fraud', 'Treason', 'Witchcraft']);
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">Wanted Poster</div>
+            <div class="gen-result-value">Wanted for ${crime}: ${random(namePool)}<br>Reward: ${randomInt(100, 5000)} GP</div>
+          </div>
+        `;
+      } else if (selectedType === 'shop') {
+        const shops = ['Weapons', 'Potions', 'Magic Items', 'General Store', 'Books', 'Armor'];
+        const shop = random(shops);
+        const items = randomNth(5, DATA.magicItems);
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">${shop} Shop Inventory</div>
+            <div class="gen-result-value">${items.join('<br>')}</div>
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="gen-result-actions">
+          <button class="gen-result-btn" onclick="copyToClipboard('Generated flavor detail')">Copy</button>
+        </div>
+      </div>
+      `;
+
+      document.getElementById('flavorOutput').innerHTML = html;
+    }
+
+    function generateMultipleFlavor(count) {
+      const types = ['pocket', 'graffiti', 'sound', 'books', 'poster'];
+      let html = '';
+
+      for (let i = 0; i < count; i++) {
+        const type = random(types);
+        if (type === 'pocket') {
+          html += `<div class="gen-result-item"><div class="gen-result-label">Detail ${i + 1}</div><div class="gen-result-value">${random(DATA.pocketItems)}</div></div>`;
+        } else if (type === 'graffiti') {
+          html += `<div class="gen-result-item"><div class="gen-result-label">Graffiti</div><div class="gen-result-value">"${random(DATA.graffiti)}"</div></div>`;
+        } else if (type === 'sound') {
+          html += `<div class="gen-result-item"><div class="gen-result-label">Sound</div><div class="gen-result-value">${random(DATA.sounds)}</div></div>`;
+        } else if (type === 'books') {
+          const books = randomNth(2, DATA.bookTitles);
+          html += `<div class="gen-result-item"><div class="gen-result-label">Books</div><div class="gen-result-value">${books.join(', ')}</div></div>`;
+        }
+      }
+
+      document.getElementById('flavorOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+    }
+
+    function pinToNotes(type, name) {
+      psToast(`${type} "${name}" pinned to notes!`, 2000);
+    }
+  </script>
+</body>
+</html>

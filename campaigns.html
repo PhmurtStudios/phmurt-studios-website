@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
   <title>Campaign Manager · Phmurt Studios</title>
   <meta name="description" content="Manage your D&D campaigns with our comprehensive campaign manager. Track parties, encounters, sessions, and initiative." />
   <meta property="og:title" content="Campaign Manager · Phmurt Studios" />
@@ -17,7 +20,1059 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
+  <script src="supabase-config.js"></script>
+  <script src="phmurt-auth.js"></script>
+  <script src="phmurt-shell.js"></script>
+  <script src="monster-data.js"></script>
+
+  <style>
+    /* ═══════════════════════════════
+       CAMPAIGN PAGE
+       ═══════════════════════════════ */
+    .campaign-container { padding: 0 56px 56px; }
+
+    .campaign-tabs {
+      display: flex; gap: 2px; background: var(--crimson-border);
+      border-bottom: 1px solid var(--crimson-border); margin-bottom: 32px;
+    }
+    .campaign-tab {
+      flex: 1; padding: 16px; background: var(--bg-card); border: none; cursor: pointer;
+      font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-muted); position: relative;
+      transition: background 0.3s, color 0.3s;
+    }
+    .campaign-tab:hover { background: var(--bg-hover); color: var(--text); }
+    .campaign-tab.active { background: var(--crimson); color: #f5f0e8; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Campaign Grid */
+    .campaign-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: var(--crimson-border); border: 1px solid var(--crimson-border); margin-bottom: 56px;
+    }
+    .campaign-card {
+      background: var(--bg-card); padding: 32px 26px; cursor: pointer;
+      position: relative; overflow: hidden; transition: background 0.3s;
+    }
+    .campaign-card:hover { background: var(--bg-hover); }
+    .campaign-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .campaign-card-system {
+      font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; color: var(--crimson);
+      text-transform: uppercase; padding: 3px 9px; border: 1px solid var(--crimson-border); display: inline-block;
+    }
+    .campaign-card-delete { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 0; transition: color 0.2s; }
+    .campaign-card-delete:hover { color: var(--crimson); }
+    .campaign-card-title { font-size: 21px; color: var(--text); font-weight: 300; margin: 12px 0 8px; line-height: 1.25; }
+    .campaign-card-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; font-style: italic; margin-bottom: 16px; min-height: 52px; }
+    .campaign-card-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--crimson-border); padding-top: 12px; }
+    .campaign-card-players { font-size: 11px; color: var(--crimson); margin-top: 8px; }
+
+    /* Form Styles */
+    .form-group { margin-bottom: 20px; }
+    .form-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .form-input, .form-textarea, .form-select {
+      width: 100%; padding: 12px 14px; background: var(--bg-input); border: 1px solid var(--border);
+      color: var(--text); font-family: 'Spectral', serif; font-size: 14px; border-radius: 2px;
+      transition: border-color 0.2s; box-sizing: border-box;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--crimson-border); }
+    .form-textarea { resize: vertical; min-height: 100px; }
+    .form-button {
+      padding: 12px 28px; background: var(--crimson); border: none; color: #f5f0e8;
+      font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: background 0.2s; margin-right: 8px;
+    }
+    .form-button:hover { background: var(--crimson-dim); }
+    .form-button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+    .form-button.secondary:hover { border-color: var(--crimson); color: var(--crimson); }
+
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--bg); border: 1px solid var(--crimson-border); border-radius: 2px; padding: 40px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
+    .modal-content.wide { max-width: 900px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+    .modal-title { font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); }
+    .modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 0; }
+    .modal-close:hover { color: var(--crimson); }
+
+    /* Section Headers */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--crimson-border); }
+    .section-title { font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); }
+    .section-add-btn {
+      padding: 8px 18px; background: var(--crimson); border: none; color: #f5f0e8;
+      font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: background 0.2s;
+    }
+    .section-add-btn:hover { background: var(--crimson-dim); }
+    .section-btns { display: flex; gap: 8px; }
+
+    /* Party Cards */
+    .party-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); margin-bottom: 32px; }
+    .party-card { background: var(--bg-card); padding: 24px; position: relative; }
+    .party-card-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
+    .party-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 4px; transition: color 0.2s; }
+    .party-btn:hover { color: var(--crimson); }
+    .party-card-name { font-size: 18px; color: var(--text); font-weight: 300; margin-bottom: 8px; }
+    .party-card-info { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 12px; }
+    .party-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 12px; border-top: 1px solid var(--crimson-border); margin-top: 12px; }
+    .party-stat { text-align: center; }
+    .party-stat-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .party-stat-value { font-size: 16px; color: var(--crimson); font-weight: 300; }
+    .party-card-linked { font-size: 10px; color: var(--crimson); font-style: italic; margin-top: 8px; }
+
+    /* Monster Search & Filters */
+    .monster-search-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .monster-search-bar .form-input { flex: 1; min-width: 200px; }
+    .monster-search-bar .form-select { width: 160px; flex: none; }
+    .monster-filter-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .filter-tag {
+      padding: 4px 12px; border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); font-family: 'Cinzel', serif; font-size: 8px;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: all 0.2s;
+    }
+    .filter-tag.active { background: var(--crimson); border-color: var(--crimson); color: #f5f0e8; }
+    .filter-tag:hover { border-color: var(--crimson); color: var(--crimson); }
+    .filter-tag.active:hover { background: var(--crimson-dim); }
+    .monster-results-count { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+
+    /* Monster Grid & Cards */
+    .monster-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); margin: 0 0 28px; max-height: 400px; overflow-y: auto; }
+    .monster-card { background: var(--bg-card); padding: 16px; cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; }
+    .monster-card:hover { background: var(--bg-hover); }
+    .monster-info { flex: 1; }
+    .monster-name { font-size: 14px; color: var(--text); margin-bottom: 4px; }
+    .monster-stats { font-size: 11px; color: var(--text-muted); }
+    .monster-card-btns { display: flex; gap: 8px; }
+    .monster-add-btn, .monster-view-btn {
+      background: none; border: none; color: var(--crimson); font-size: 16px;
+      cursor: pointer; padding: 0 4px; transition: color 0.2s;
+    }
+    .monster-add-btn:hover, .monster-view-btn:hover { color: var(--crimson-dim); }
+
+    /* Monster Stat Block */
+    .stat-block { background: var(--bg-card); border: 1px solid var(--crimson-border); padding: 28px; border-radius: 2px; }
+    .stat-block-name { font-family: 'Cinzel', serif; font-size: 22px; color: var(--crimson); margin-bottom: 4px; }
+    .stat-block-meta { font-size: 12px; color: var(--text-dim); font-style: italic; margin-bottom: 16px; }
+    .stat-block-divider { border: none; border-top: 2px solid var(--crimson); margin: 12px 0; opacity: 0.4; }
+    .stat-block-row { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 4px; }
+    .stat-block-row strong { color: var(--text); font-weight: 500; }
+    .stat-block-abilities { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; text-align: center; margin: 12px 0; }
+    .stat-block-ability { }
+    .stat-block-ability-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1px; color: var(--crimson); text-transform: uppercase; margin-bottom: 4px; }
+    .stat-block-ability-score { font-size: 14px; color: var(--text); }
+    .stat-block-ability-mod { font-size: 11px; color: var(--text-muted); }
+    .stat-block-section-title { font-family: 'Cinzel', serif; font-size: 13px; color: var(--crimson); text-transform: uppercase; letter-spacing: 2px; margin: 16px 0 8px; border-bottom: 1px solid var(--crimson-border); padding-bottom: 4px; }
+    .stat-block-trait { margin-bottom: 8px; font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+    .stat-block-trait em { font-style: italic; color: var(--text); font-weight: 500; }
+
+    /* Encounter Builder */
+    .encounter-section { background: var(--bg-card); border: 1px solid var(--crimson-border); border-radius: 2px; padding: 28px; margin-bottom: 32px; }
+    .encounter-subsection-title { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--crimson); margin: 28px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--crimson-border); }
+    .encounter-subsection-title:first-child { margin-top: 0; }
+    .cr-calculator { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .cr-result { background: var(--crimson-soft); border: 1px solid var(--crimson-border); padding: 16px; border-radius: 2px; text-align: center; }
+    .cr-result-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .cr-result-value { font-size: 32px; color: var(--crimson); font-weight: 300; }
+    .cr-thresholds { background: var(--bg); border: 1px solid var(--crimson-border); border-radius: 2px; padding: 12px; font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-top: 12px; }
+    .cr-threshold-row { display: flex; justify-content: space-between; padding: 4px 0; }
+    .cr-threshold-label { color: var(--text-muted); }
+
+    .added-monsters { background: var(--bg); border: 1px solid var(--crimson-border); border-radius: 2px; padding: 16px; margin-top: 16px; }
+    .added-monster-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 12px; background: var(--bg-card); border: 1px solid var(--crimson-border); border-radius: 2px; margin-bottom: 8px; }
+    .added-monster-row:last-child { margin-bottom: 0; }
+    .added-monster-name { color: var(--text); font-size: 13px; }
+    .added-monster-input { padding: 6px 8px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text); font-family: 'Spectral', serif; font-size: 12px; border-radius: 2px; text-align: center; width: 100%; box-sizing: border-box; }
+    .added-monster-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0; transition: color 0.2s; }
+    .added-monster-remove:hover { color: var(--crimson); }
+
+    .encounter-difficulty { background: var(--crimson-soft); border: 1px solid var(--crimson-border); border-radius: 2px; padding: 20px; margin-top: 20px; text-align: center; }
+    .difficulty-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .difficulty-value { font-size: 28px; color: var(--crimson); margin-bottom: 12px; }
+    .difficulty-xp { font-size: 12px; color: var(--text-dim); }
+
+    /* Encounter List */
+    .encounter-list { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); }
+    .encounter-item { background: var(--bg-card); padding: 20px; cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; }
+    .encounter-item:hover { background: var(--bg-hover); }
+    .encounter-item-name { font-size: 16px; color: var(--text); margin-bottom: 4px; }
+    .encounter-item-monsters { font-size: 12px; color: var(--text-muted); }
+    .encounter-item-actions { display: flex; gap: 12px; }
+    .encounter-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0; transition: color 0.2s; }
+    .encounter-btn:hover { color: var(--crimson); }
+
+    /* Session Notes */
+    .notes-list { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); }
+    .note-item { background: var(--bg-card); padding: 20px; cursor: pointer; transition: background 0.2s; }
+    .note-item:hover { background: var(--bg-hover); }
+    .note-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .note-title { font-size: 16px; color: var(--text); margin: 0; }
+    .note-date { font-size: 11px; color: var(--text-muted); }
+    .note-preview { font-size: 13px; color: var(--text-dim); line-height: 1.6; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .note-delete-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0; transition: color 0.2s; }
+    .note-delete-btn:hover { color: var(--crimson); }
+
+    /* Initiative Tracker */
+    .initiative-section { background: var(--bg-card); border: 1px solid var(--crimson-border); border-radius: 2px; padding: 28px; margin-bottom: 32px; }
+    .initiative-list { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); margin-bottom: 20px; }
+    .initiative-row { background: var(--bg-card); padding: 16px; display: grid; grid-template-columns: 40px 150px 60px 80px 120px 1fr auto; gap: 12px; align-items: center; }
+    .initiative-row.current { background: var(--crimson-soft); }
+    .initiative-init { text-align: center; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 1px; color: var(--crimson); font-weight: 400; }
+    .initiative-name { font-size: 14px; color: var(--text); cursor: pointer; }
+    .initiative-name:hover { color: var(--crimson); text-decoration: underline; }
+    .initiative-hp-input { padding: 6px 8px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text); font-family: 'Spectral', serif; font-size: 12px; border-radius: 2px; text-align: center; width: 100%; box-sizing: border-box; }
+    .initiative-ac { text-align: center; color: var(--text-dim); font-size: 12px; }
+    .initiative-conditions { display: flex; flex-wrap: wrap; gap: 4px; }
+    .condition-badge { background: var(--crimson-soft); border: 1px solid var(--crimson-border); color: var(--crimson); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 8px; border-radius: 2px; cursor: pointer; transition: all 0.2s; }
+    .condition-badge.active { background: var(--crimson); color: #f5f0e8; }
+    .initiative-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0; transition: color 0.2s; }
+    .initiative-remove:hover { color: var(--crimson); }
+    .initiative-controls { display: flex; gap: 12px; justify-content: center; padding-top: 20px; border-top: 1px solid var(--crimson-border); }
+    .initiative-control-btn { padding: 10px 20px; background: var(--crimson); border: none; color: #f5f0e8; font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: background 0.2s; }
+    .initiative-control-btn:hover { background: var(--crimson-dim); }
+    .initiative-control-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+    .round-counter { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 12px; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* Players Tab */
+    .invite-section { background: var(--bg-card); border: 1px solid var(--crimson-border); border-radius: 2px; padding: 28px; margin-bottom: 32px; }
+    .invite-code-display { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+    .invite-code { font-family: 'Cinzel', serif; font-size: 24px; letter-spacing: 6px; color: var(--crimson); background: var(--bg); border: 1px solid var(--crimson-border); padding: 12px 24px; border-radius: 2px; user-select: all; }
+    .copy-btn { padding: 10px 18px; background: var(--crimson); border: none; color: #f5f0e8; font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 2px; }
+    .copy-btn:hover { background: var(--crimson-dim); }
+    .player-list { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); margin-top: 20px; }
+    .player-row { background: var(--bg-card); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .player-info { display: flex; align-items: center; gap: 12px; }
+    .player-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--crimson); color: #f5f0e8; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 14px; }
+    .player-name { font-size: 14px; color: var(--text); }
+    .player-role { font-size: 11px; color: var(--text-muted); }
+    .player-character { font-size: 11px; color: var(--crimson); }
+
+    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+    .empty-state-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
+
+    /* ═══════════ Battlemap ═══════════ */
+
+    /* ═══════════ Battlemap ═══════════ */
+    .battlemap-wrap { display: flex; gap: 0; background: var(--bg); border: 1px solid var(--crimson-border); min-height: 640px; border-radius: 2px; overflow: hidden; position: relative; }
+    .battlemap-main { flex: 1; display: flex; flex-direction: column; background: var(--bg-card); }
+    .battlemap-toolbar {
+      display: flex; flex-wrap: wrap; gap: 3px; padding: 6px 10px; background: var(--bg);
+      border-bottom: 1px solid var(--crimson-border); align-items: center;
+    }
+    .bm-toolbar-group { display: inline-flex; align-items: center; gap: 2px; padding: 2px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 3px; }
+    .bm-tool {
+      padding: 5px 9px; background: transparent; border: 1px solid transparent; color: var(--text-muted);
+      font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; border-radius: 2px; transition: all 0.15s; white-space: nowrap;
+    }
+    .bm-tool:hover { background: var(--bg-hover); color: var(--text); }
+    .bm-tool.active { background: var(--crimson); color: #f5f0e8; }
+    .bm-sep { width: 1px; height: 22px; background: var(--border); margin: 0 3px; }
+    .bm-label { font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin: 0 3px; }
+    .bm-color-pick { width: 24px; height: 24px; border: 1px solid var(--border); background: none; padding: 0; cursor: pointer; border-radius: 2px; }
+    .battlemap-canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #1a1a2e; min-height: 520px; }
+    #battlemapCanvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    
+    /* Minimap */
+    .bm-minimap-container {
+      position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.8);
+      border: 2px solid var(--crimson-border); border-radius: 2px;
+      padding: 4px; z-index: 50; width: 140px; height: 140px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+    #bmMinimap { display: block; width: 100%; height: 100%; cursor: grab; background: #1a1a2e; }
+    #bmMinimap:active { cursor: grabbing; }
+    .bm-minimap-viewport { stroke: var(--crimson); stroke-width: 2; fill: rgba(220, 20, 60, 0.1); }
+    
+    /* Grid coordinates */
+    .bm-grid-coords {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; font-family: 'Cinzel', serif; font-size: 9px;
+      color: var(--crimson); opacity: 0.5; z-index: 10;
+    }
+    .bm-coord-label { position: absolute; padding: 2px 4px; }
+    
+    /* Vignette effect */
+    .bm-vignette {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+      pointer-events: none; z-index: 15;
+    }
+    
+    /* Quick actions bar */
+    .bm-quick-actions {
+      position: absolute; bottom: 160px; right: 12px; display: flex;
+      flex-direction: column; gap: 6px; z-index: 50;
+    }
+    .bm-quick-btn {
+      width: 40px; height: 40px; border-radius: 50%; background: var(--crimson);
+      border: 1px solid var(--crimson-border); color: #f5f0e8; font-size: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      font-family: 'Cinzel', serif; font-weight: bold;
+    }
+    .bm-quick-btn:hover { background: var(--crimson-dim); transform: scale(1.1); }
+    .bm-quick-btn[title] { position: relative; }
+    .bm-quick-btn[title]:hover::after {
+      content: attr(title); position: absolute; right: 50px; top: 50%;
+      transform: translateY(-50%); background: rgba(0,0,0,0.9); color: #f5f0e8;
+      padding: 4px 8px; border-radius: 2px; font-size: 10px; white-space: nowrap;
+      z-index: 100;
+    }
+    
+    /* Token HP bars */
+    .bm-token-hp-bar {
+      position: absolute; width: 30px; height: 4px; background: rgba(0,0,0,0.6);
+      border: 1px solid var(--crimson-border); border-radius: 1px;
+    }
+    .bm-token-hp-fill { height: 100%; background: linear-gradient(90deg, #4a90d9, #2ecc71); border-radius: 1px; }
+    
+    /* Status icons on tokens */
+    .bm-token-status-icons {
+      position: absolute; display: flex; gap: 2px; font-size: 10px;
+    }
+    
+    /* Token context menu */
+    .bm-token-context-menu {
+      position: absolute; background: var(--bg-card); border: 1px solid var(--crimson-border);
+      border-radius: 2px; padding: 0; min-width: 140px; z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .bm-context-item {
+      padding: 8px 12px; cursor: pointer; transition: background 0.15s;
+      border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text);
+    }
+    .bm-context-item:last-child { border-bottom: none; }
+    .bm-context-item:hover { background: var(--crimson-soft); color: var(--crimson); }
+    
+    /* Opacity slider */
+    .bm-opacity-control {
+      display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 2px;
+    }
+    .bm-opacity-label { font-family: 'Cinzel', serif; font-size: 7px; color: var(--text-muted); text-transform: uppercase; }
+    
+    /* Layer indicator */
+    .bm-layer-indicator {
+      display: flex; gap: 4px; align-items: center; padding: 4px 10px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 2px;
+    }
+    .bm-layer-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--crimson); }
+    .bm-layer-text { font-size: 10px; color: var(--text-muted); }
+    
+    /* HP editor modal styles */
+    .hp-editor-input { padding: 8px; width: 60px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text); border-radius: 2px; text-align: center; }
+    .hp-editor-sep { color: var(--text-muted); margin: 0 4px; }
+    
+    /* Aura visualization */
+    .bm-token-aura {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      border: 1px dashed; opacity: 0.4;
+    }
+    
+    .battlemap-sidebar {
+      width: 250px; background: var(--bg-card); overflow-y: auto; padding: 14px;
+      display: flex; flex-direction: column; gap: 14px; border-left: 1px solid var(--crimson-border);
+    }
+    .bm-sidebar-title { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--crimson); text-transform: uppercase; margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px solid var(--crimson-border); }
+    .bm-token-btn {
+      display: flex; justify-content: space-between; align-items: center; padding: 7px 10px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 2px; cursor: pointer;
+      transition: all 0.15s; margin-bottom: 3px;
+    }
+    .bm-token-btn:hover { border-color: var(--crimson); background: var(--bg-hover); }
+    .bm-token-btn-name { font-size: 12px; color: var(--text); }
+    .bm-token-btn-meta { font-size: 10px; color: var(--text-muted); }
+    .bm-token-btn-add { background: none; border: none; color: var(--crimson); font-size: 16px; cursor: pointer; padding: 0 4px; }
+    .bm-zoom-display { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; margin: 0 3px; min-width: 36px; text-align: center; }
+    .bm-info { font-size: 11px; color: var(--text-muted); padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; line-height: 1.5; }
+    .bm-placed-tokens { margin-top: 6px; }
+    .bm-placed-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; margin-bottom: 2px; font-size: 11px; color: var(--text); transition: background 0.15s; }
+    .bm-placed-row:hover { background: var(--bg-hover); }
+    .bm-placed-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; padding: 0; }
+    .bm-placed-remove:hover { color: var(--crimson); }
+    .bm-upload-area { width: 100%; padding: 10px; background: var(--bg); border: 1px dashed var(--border); border-radius: 2px; cursor: pointer; font-size: 11px; color: var(--text-muted); transition: all 0.15s; font-family: 'Spectral', serif; text-align: center; }
+    .bm-upload-area:hover { border-color: var(--crimson); color: var(--crimson); }
+    .bm-upload-area.has-image { border-style: solid; border-color: var(--crimson-border); color: var(--text); }
+    .bm-map-preview { width: 100%; height: 48px; object-fit: cover; border-radius: 2px; margin-top: 4px; border: 1px solid var(--border); }
+    
+    /* Pulsing token selection */
+    @keyframes bm-pulse-glow {
+      0%, 100% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+      50% { box-shadow: 0 0 16px rgba(255, 215, 0, 0.8); }
+    }
+    .bm-selected-pulse { animation: bm-pulse-glow 1.5s ease-in-out infinite; }
+
+    /* Campaign List / Detail Toggle */
+    .campaign-list-view { display: none; }
+    .campaign-list-view.active { display: block; }
+    .campaign-detail { display: none; }
+    .campaign-detail.active { display: block; }
+    .campaign-detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--crimson-border); }
+    .campaign-detail-title { flex: 1; }
+    .campaign-detail-name { font-size: 42px; color: var(--text); font-weight: 300; margin-bottom: 8px; }
+    .campaign-detail-system { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; color: var(--crimson); text-transform: uppercase; }
+    .campaign-detail-desc { font-size: 15px; color: var(--text-dim); line-height: 1.7; margin-top: 16px; }
+    .campaign-detail-back { padding: 10px 20px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+    .campaign-detail-back:hover { border-color: var(--crimson); color: var(--crimson); }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .campaign-grid { grid-template-columns: repeat(2, 1fr); }
+      .party-grid, .monster-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .campaign-container { padding: 0 24px 24px; }
+      .campaign-grid { grid-template-columns: 1fr; }
+      .campaign-tabs { flex-wrap: wrap; }
+      .added-monster-row { grid-template-columns: 1fr; }
+      .cr-calculator { grid-template-columns: 1fr; }
+      .initiative-row { grid-template-columns: 1fr; gap: 8px; }
+      .campaign-detail-name { font-size: 32px; }
+      .stat-block-abilities { grid-template-columns: repeat(3, 1fr); }
+      .monster-search-bar .form-select { width: 100%; }
+      .battlemap-wrap { flex-direction: column; }
+      .battlemap-sidebar { width: 100%; max-height: 200px; }
+      .battlemap-canvas-wrap { min-height: 350px; }
+      .bm-minimap-container { display: none; }
+      .bm-quick-actions { display: none; }
+    }
+</head>
+<body data-nav-active="Campaigns" data-footer-copy="Roll Well. Play Weird." data-breadcrumb="Home|index.html;Campaigns">
+
+  <div id="ps-site-shell"></div>
+  <div id="ps-page-breadcrumb"></div>
+
+  <div class="ps-page-hero">
+    <div class="ps-page-eyebrow">Campaign Management</div>
+    <div class="ps-page-title">Campaigns</div>
+    <div class="ps-page-subtitle">Plan Your Adventures</div>
+    <p class="ps-page-intro">Create campaigns, manage party members, build encounters with 260+ SRD monsters, track sessions, run initiative, invite players, and battle on interactive maps.</p>
+  </div>
+
+  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
+
+  <div class="campaign-container">
+    <!-- Join Campaign Banner -->
+    <div id="joinBanner" style="display:none; background: var(--crimson-soft); border: 1px solid var(--crimson-border); padding: 20px 28px; margin-bottom: 32px; border-radius: 2px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div class="form-label" style="margin-bottom: 4px;">Join a Campaign</div>
+          <div style="font-size: 13px; color: var(--text-dim);">Enter an invite code to join another player's campaign</div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="text" class="form-input" id="joinCodeInput" placeholder="Enter code" style="width: 200px;">
+          <button class="form-button" onclick="joinCampaign()">Join</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campaign List View -->
+    <div id="campaignList" class="campaign-list-view active">
+      <!-- Auth notice -->
+      <div id="authNotice" style="background: var(--crimson-soft); border: 1px solid var(--crimson-border); padding: 20px 28px; margin-bottom: 24px; border-radius: 2px; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="font-size: 15px; color: var(--text); margin-bottom: 4px;">Sign in to manage campaigns</div>
+            <div style="font-size: 13px; color: var(--text-dim);">You need an account to create, join, and manage campaigns with other players.</div>
+          </div>
+          <button class="form-button" onclick="requireAuth()">Sign In</button>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">My Campaigns</div>
+        <div class="section-btns">
+          <button class="section-add-btn" id="joinCampaignBtn" onclick="toggleJoinBanner()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Join Campaign</button>
+          <button class="section-add-btn" id="createCampaignBtn" onclick="openCreateCampaignModal()">+ New Campaign</button>
+        </div>
+      </div>
+      <div id="campaignGrid" class="campaign-grid">
+        <div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No campaigns yet. Create your first adventure!</div></div>
+      </div>
+    </div>
+
+    <!-- Campaign Detail View -->
+    <div id="campaignDetail" class="campaign-detail">
+      <div class="campaign-detail-header">
+        <div class="campaign-detail-title">
+          <div class="campaign-detail-name" id="detailName">Campaign Name</div>
+          <div class="campaign-detail-system" id="detailSystem">5E</div>
+          <div class="campaign-detail-desc" id="detailDesc">Description</div>
+          <div id="campaignSummary" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:24px;font-size:13px;color:var(--text-dim);">
+            <div><span style="color:var(--text);font-weight:bold;" id="partySizeText">0</span> Party Members</div>
+            <div><span style="color:var(--text);font-weight:bold;" id="encounterCountText">0</span> Encounters</div>
+            <div><span style="color:var(--text);font-weight:bold;" id="sessionCountText">0</span> Sessions</div>
+          </div>
+        </div>
+        <button class="campaign-detail-back" onclick="backToCampaignList()">Back to Campaigns</button>
+      </div>
+
+      <div class="campaign-tabs">
+        <button class="campaign-tab active" onclick="switchTab('party', this)">Party</button>
+        <button class="campaign-tab" onclick="switchTab('encounters', this)">Encounters</button>
+        <button class="campaign-tab" onclick="switchTab('notes', this)">Session Notes</button>
+        <button class="campaign-tab" onclick="switchTab('initiative', this)">Initiative</button>
+        <button class="campaign-tab" onclick="switchTab('players', this)">Players</button>
+        <button class="campaign-tab" onclick="switchTab('battlemap', this)">Battlemap</button>
+      </div>
+
+      <!-- Party Tab -->
+      <div id="partyTab" class="tab-content active">
+        <div class="section-header">
+          <div class="section-title">Party Members</div>
+          <button class="section-add-btn" onclick="openAddPartyModal()">+ Add Member</button>
+        </div>
+        <div id="partyGrid" class="party-grid">
+          <div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No party members yet. Add your first player character!</div></div>
+        </div>
+      </div>
+
+      <!-- Encounters Tab -->
+      <div id="encountersTab" class="tab-content">
+        <div class="section-header">
+          <div class="section-title">Encounters</div>
+          <button class="section-add-btn" onclick="openEncounterBuilderModal()">+ New Encounter</button>
+        </div>
+        <div id="encounterList" class="encounter-list">
+          <div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No encounters saved. Build your first encounter!</div></div>
+        </div>
+      </div>
+
+      <!-- Notes Tab -->
+      <div id="notesTab" class="tab-content">
+        <div class="section-header">
+          <div class="section-title">Session Notes</div>
+          <button class="section-add-btn" onclick="openAddNoteModal()">+ Add Note</button>
+        </div>
+        <div style="margin-bottom: 16px;"><input type="text" id="noteSearchInput" class="form-input" placeholder="Search notes..." onkeyup="filterNotesList()" style="width: 100%; max-width: 300px;"></div>
+        <div id="notesList" class="notes-list">
+          <div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No session notes yet. Record your first session!</div></div>
+        </div>
+      </div>
+
+      <!-- Initiative Tab -->
+      <div id="initiativeTab" class="tab-content">
+        <div class="section-header">
+          <div class="section-title">Initiative Tracker</div>
+          <div class="section-btns">
+            <button class="section-add-btn" onclick="addPartyToInitiative()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Add All Party</button>
+            <button class="section-add-btn" onclick="openInitiativeModal()">+ Add Combatant</button>
+          </div>
+        </div>
+        <div id="initiativeSection" class="initiative-section">
+          <div class="round-counter" id="roundCounter">Round 1</div>
+          <div id="initiativeList" class="initiative-list">
+            <div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No combatants yet. Add party members or monsters to start combat!</div></div>
+          </div>
+          <div id="initiativeControls" class="initiative-controls" style="display: none;">
+            <button class="initiative-control-btn" onclick="previousTurn()" id="prevBtn">Previous</button>
+            <button class="initiative-control-btn" onclick="nextTurn()" id="nextBtn">Next Turn</button>
+            <button class="initiative-control-btn" onclick="resetInitiative()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Reset Combat</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Players Tab -->
+      <div id="playersTab" class="tab-content">
+        <div class="section-header">
+          <div class="section-title">Campaign Players</div>
+        </div>
+        <div class="invite-section">
+          <div class="form-label" style="margin-bottom: 12px;">Invite Code</div>
+          <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Share this code with other players so they can join your campaign.</div>
+          <div class="invite-code-display">
+            <div class="invite-code" id="inviteCode">------</div>
+            <button class="copy-btn" onclick="copyInviteCode()">Copy</button>
+            <button class="copy-btn" onclick="regenerateInviteCode()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">New Code</button>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Players who join can link their characters to party member slots and view campaign details.</div>
+        </div>
+        <div id="playerList"></div>
+      </div>
+
+      <!-- Battlemap Tab -->
+      <div id="battlemapTab" class="tab-content">
+      <!-- Battlemap Tab -->
+      <div id="battlemapTab" class="tab-content">
+        <input type="file" id="bmMapUpload" accept="image/*" style="display:none" onchange="handleMapUpload(this)">
+        <div class="battlemap-wrap">
+          <div class="battlemap-main">
+            <div class="battlemap-toolbar" id="bmToolbar">
+              <div class="bm-toolbar-group">
+                <button class="bm-tool active" data-bm-tool="select" onclick="setBmTool('select')" title="Select & Move tokens">Select</button>
+                <button class="bm-tool" data-bm-tool="draw" onclick="setBmTool('draw')" title="Freehand draw">Draw</button>
+                <button class="bm-tool" data-bm-tool="line" onclick="setBmTool('line')" title="Straight line">Line</button>
+                <button class="bm-tool" data-bm-tool="rect" onclick="setBmTool('rect')" title="Rectangle">Rect</button>
+                <button class="bm-tool" data-bm-tool="circle" onclick="setBmTool('circle')" title="Circle/ellipse">Circle</button>
+                <button class="bm-tool" data-bm-tool="cone" onclick="setBmTool('cone')" title="Spell cone">Cone</button>
+                <button class="bm-tool" data-bm-tool="polygon" onclick="setBmTool('polygon')" title="Polygon">Polygon</button>
+              </div>
+              <div class="bm-toolbar-group">
+                <button class="bm-tool" data-bm-tool="text" onclick="setBmTool('text')" title="Text label">Text</button>
+                <button class="bm-tool" data-bm-tool="stamp" onclick="setBmTool('stamp')" title="Stamp symbols">Stamp</button>
+                <button class="bm-tool" data-bm-tool="ruler" onclick="setBmTool('ruler')" title="Measure distance">Ruler</button>
+                <button class="bm-tool" data-bm-tool="radius" onclick="setBmTool('radius')" title="Radius AoE">Radius</button>
+              </div>
+              <div class="bm-toolbar-group">
+                <button class="bm-tool" data-bm-tool="fog" onclick="setBmTool('fog')" title="Paint fog of war">Fog</button>
+                <button class="bm-tool" data-bm-tool="eraser" onclick="setBmTool('eraser')" title="Erase">Eraser</button>
+              </div>
+              <div class="bm-sep"></div>
+              <input type="color" class="bm-color-pick" id="bmDrawColor" value="#dc143c" onchange="bm.drawColor=this.value" title="Drawing color">
+              <select class="form-select" id="bmLineWidth" onchange="bm.drawWidth=parseInt(this.value)" style="width:56px;padding:3px 4px;font-size:10px;">
+                <option value="2">Thin</option>
+                <option value="3" selected>Med</option>
+                <option value="6">Thick</option>
+                <option value="10">Bold</option>
+              </select>
+              <div class="bm-opacity-control">
+                <span class="bm-opacity-label">Opacity</span>
+                <input type="range" id="bmDrawOpacity" min="0" max="100" value="100" oninput="bm.drawOpacity=this.value/100" style="width:50px;">
+              </div>
+              <div class="bm-sep"></div>
+              <div class="bm-toolbar-group">
+                <button class="bm-tool" id="bmGridBtn" onclick="toggleBmGrid()" title="Toggle grid">Grid</button>
+                <button class="bm-tool" id="bmGridTypeBtn" onclick="toggleBmGridType()" title="Square/Hex grid">Sq</button>
+                <button class="bm-tool" onclick="bmZoom(0.25)" title="Zoom in">+</button>
+                <span class="bm-zoom-display" id="bmZoomDisplay">100%</span>
+                <button class="bm-tool" onclick="bmZoom(-0.25)" title="Zoom out">−</button>
+                <button class="bm-tool" onclick="resetBmView()" title="Reset view">Reset</button>
+              </div>
+              <div class="bm-sep"></div>
+              <div class="bm-toolbar-group">
+                <button class="bm-tool" onclick="undoBm()" title="Undo">Undo</button>
+                <button class="bm-tool" onclick="revealAllFog()" title="Remove all fog">Reveal</button>
+                <button class="bm-tool" onclick="hideAllFog()" title="Fog entire map">Fog All</button>
+                <button class="bm-tool" onclick="clearBattlemap()" title="Clear everything">Clear</button>
+              </div>
+              <div class="bm-sep"></div>
+              <div class="bm-layer-indicator">
+                <span class="bm-layer-dot" id="bmLayerDot"></span>
+                <span class="bm-layer-text" id="bmLayerText">Map</span>
+                <select class="form-select" id="bmLayerSelect" onchange="setBmLayer(this.value)" style="width:72px;padding:3px 4px;font-size:10px;">
+                  <option value="map">Map</option>
+                  <option value="tokens">Tokens</option>
+                  <option value="gm">GM</option>
+                </select>
+              </div>
+            </div>
+            <div class="battlemap-canvas-wrap" id="bmCanvasWrap">
+              <canvas id="battlemapCanvas"></canvas>
+              <div id="bmCoordLabels" class="bm-grid-coords"></div>
+              <div class="bm-vignette"></div>
+              <div class="bm-minimap-container" style="display:none;">
+                <canvas id="bmMinimap"></canvas>
+              </div>
+              <div class="bm-quick-actions" id="bmQuickActions" style="display:none;">
+                <button class="bm-quick-btn" onclick="quickAddToken()" title="Quick Token">+</button>
+                <button class="bm-quick-btn" onclick="quickRollD20()" title="Roll d20">d</button>
+                <button class="bm-quick-btn" onclick="centerView()" title="Center View">C</button>
+              </div>
+            </div>
+          </div>
+          <div class="battlemap-sidebar" id="bmSidebar">
+            <div>
+              <div class="bm-sidebar-title">Map Background</div>
+              <div class="bm-upload-area" id="bmUploadArea" onclick="document.getElementById('bmMapUpload').click()">
+                <span id="bmUploadLabel">Click to upload a map image</span>
+              </div>
+              <div id="bmMapPreviewWrap" style="display:none;">
+                <img id="bmMapPreview" class="bm-map-preview" alt="Map preview">
+                <button class="bm-tool" onclick="removeMapImage()" style="margin-top:4px;width:100%;text-align:center;">Remove Image</button>
+              </div>
+              <div style="display:flex;gap:4px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+                <input type="color" class="bm-color-pick" id="bmBgColor" value="#1a1a2e" onchange="bm.bgColor=this.value" title="Background color">
+                <button class="bm-tool" onclick="setBmBgPreset('#1a1a2e')" style="padding:3px 7px;">Dark</button>
+                <button class="bm-tool" onclick="setBmBgPreset('#2d4a2d')" style="padding:3px 7px;">Forest</button>
+                <button class="bm-tool" onclick="setBmBgPreset('#3a3020')" style="padding:3px 7px;">Cave</button>
+                <button class="bm-tool" onclick="setBmBgPreset('#1a3a4a')" style="padding:3px 7px;">Water</button>
+                <button class="bm-tool" onclick="setBmBgPreset('#5a4a3a')" style="padding:3px 7px;">Sand</button>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+                <label class="bm-label" style="margin:0;">Grid Size</label>
+                <select class="form-select" id="bmGridSizeSelect" onchange="setBmGridSize(parseInt(this.value))" style="width:72px;padding:3px 4px;font-size:10px;">
+                  <option value="20">Tiny</option>
+                  <option value="30">Small</option>
+                  <option value="40" selected>Medium</option>
+                  <option value="50">Large</option>
+                  <option value="60">XL</option>
+                </select>
+                <label class="bm-label" style="margin:0;">Grid Op</label>
+                <input type="range" id="bmGridOpacity" min="0" max="100" value="30" oninput="bm.gridOpacity=this.value/100" style="width:50px;" title="Grid line opacity">
+              </div>
+            </div>
+            <div>
+              <div class="bm-sidebar-title">Token Options</div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
+                <button class="bm-tool" onclick="toggleTokenAuras()" id="bmAuraBtn" style="padding:4px 8px;">Auras</button>
+                <button class="bm-tool" onclick="toggleTokenHPBars()" id="bmHPBarBtn" style="padding:4px 8px;">HP Bars</button>
+                <button class="bm-tool" onclick="toggleTokenStatus()" id="bmStatusBtn" style="padding:4px 8px;">Status</button>
+              </div>
+            </div>
+            <div>
+              <div class="bm-sidebar-title">Add Tokens</div>
+              <div id="bmTokenPanel"></div>
+            </div>
+            <div>
+              <div class="bm-sidebar-title">On Map (<span id="bmTokenCount">0</span>)</div>
+              <div id="bmPlacedTokens" class="bm-placed-tokens"></div>
+            </div>
+            <div class="bm-info" id="bmRulerInfo" style="display:none;">
+              <strong>Ruler:</strong> <span id="bmRulerText">0 ft</span>
+            </div>
+            <div class="bm-info" id="bmRadiusInfo" style="display:none;">
+              <strong>Radius:</strong> <span id="bmRadiusText">0 ft</span>
+            </div>
+            <div class="bm-info">
+              <strong>Controls</strong><br>
+              Scroll = zoom &nbsp;|&nbsp; Shift+drag = pan<br>
+              Click token = select &nbsp;|&nbsp; Drag = move<br>
+              Dbl-click = stat block &nbsp;|&nbsp; Right-click = menu<br>
+              Fog: paint, Alt+click = clear &nbsp;|&nbsp; 1 sq = 5 ft
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ps-site-footer"></div>
+
+  <!-- Token Context Menu (hidden by default) -->
+  <div id="bmContextMenu" class="bm-token-context-menu" style="display:none; position:fixed;">
+    <div class="bm-context-item" onclick="editTokenHP()">Edit HP</div>
+    <div class="bm-context-item" onclick="changeTokenColor()">Change Color</div>
+    <div class="bm-context-item" onclick="changeTokenSize()">Change Size</div>
+    <div class="bm-context-item" onclick="removeContextToken()">Remove</div>
+  </div>
+
+  <!-- Modal: Create Campaign -->
+  <div id="createCampaignModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Create Campaign</div>
+        <button class="modal-close" onclick="closeModal('createCampaignModal')">×</button>
+      </div>
+      <form onsubmit="createCampaign(event)">
+        <div class="form-group"><label class="form-label">Campaign Name</label><input type="text" class="form-input" id="campaignName" required placeholder="Enter campaign name"></div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="campaignDesc" placeholder="Brief description of your campaign"></textarea></div>
+        <div class="form-group"><label class="form-label">System</label><select class="form-select" id="campaignSystem"><option value="5e">D&D 5e</option><option value="3.5e">D&D 3.5e</option></select></div>
+        <div class="form-group"><label class="form-label">Setting</label><input type="text" class="form-input" id="campaignSetting" placeholder="e.g., Forgotten Realms"></div>
+        <button type="submit" class="form-button">Create Campaign</button>
+        <button type="button" class="form-button secondary" onclick="closeModal('createCampaignModal')">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Party Member -->
+  <div id="addPartyModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Add Party Member</div>
+        <button class="modal-close" onclick="closeModal('addPartyModal')">×</button>
+      </div>
+      <form onsubmit="addPartyMember(event)">
+        <div class="form-group"><label class="form-label">Character Name</label><input type="text" class="form-input" id="partyName" required placeholder="Enter character name"></div>
+        <div class="form-group"><label class="form-label">Player Name</label><input type="text" class="form-input" id="partyPlayer" placeholder="Enter player name"></div>
+        <div class="form-group"><label class="form-label">Race</label><input type="text" class="form-input" id="partyRace" placeholder="e.g., Half-Elf"></div>
+        <div class="form-group"><label class="form-label">Class</label><input type="text" class="form-input" id="partyClass" placeholder="e.g., Rogue"></div>
+        <div class="form-group"><label class="form-label">Level</label><input type="number" class="form-input" id="partyLevel" min="1" max="20" value="1"></div>
+        <div class="form-group"><label class="form-label">Hit Points</label><input type="number" class="form-input" id="partyHP" min="1" placeholder="Enter current HP"></div>
+        <div class="form-group"><label class="form-label">Max Hit Points</label><input type="number" class="form-input" id="partyMaxHP" min="1" placeholder="Enter max HP"></div>
+        <div class="form-group"><label class="form-label">Armor Class</label><input type="number" class="form-input" id="partyAC" min="1" placeholder="Enter AC"></div>
+        <div class="form-group"><label class="form-label">Conditions</label><input type="text" class="form-input" id="partyConditions" placeholder="e.g., poisoned, stunned (comma-separated)"></div>
+        <button type="submit" class="form-button">Add Member</button>
+        <button type="button" class="form-button secondary" onclick="closeModal('addPartyModal')">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Encounter Builder -->
+  <div id="encounterBuilderModal" class="modal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <div class="modal-title">Encounter Builder</div>
+      <div class="modal-header">
+        <div class="modal-title">Encounter Builder</div>
+        <button class="modal-close" onclick="closeModal('encounterBuilderModal')">×</button>
+      </div>
+
+      <div class="encounter-section">
+        <div class="encounter-subsection-title">CR Calculator</div>
+        <div class="cr-calculator">
+          <div><label class="form-label">Party Size</label><input type="number" class="form-input" id="partySizeCalc" min="1" value="4" onchange="calculateCR()"></div>
+          <div><label class="form-label">Average Level</label><input type="number" class="form-input" id="avgLevelCalc" min="1" max="20" value="5" onchange="calculateCR()"></div>
+        </div>
+        <div id="crResults"></div>
+
+        <div class="encounter-subsection-title">Add Monsters</div>
+
+        <!-- Monster Search & Filter -->
+        <div class="monster-search-bar">
+          <input type="text" class="form-input" id="monsterSearchInput" placeholder="Search monsters by name..." oninput="filterMonsters()">
+          <select class="form-select" id="monsterTypeFilter" onchange="filterMonsters()">
+            <option value="">All Types</option>
+          </select>
+          <select class="form-select" id="monsterCRFilter" onchange="filterMonsters()">
+            <option value="">All CRs</option>
+            <option value="0-0">CR 0</option>
+            <option value="0.125-0.25">CR 1/8 to 1/4</option>
+            <option value="0.5-0.5">CR 1/2</option>
+            <option value="1-2">CR 1 to 2</option>
+            <option value="3-5">CR 3 to 5</option>
+            <option value="6-10">CR 6 to 10</option>
+            <option value="11-16">CR 11 to 16</option>
+            <option value="17-30">CR 17+</option>
+          </select>
+          <select class="form-select" id="monsterSizeFilter" onchange="filterMonsters()">
+            <option value="">All Sizes</option>
+            <option value="Tiny">Tiny</option>
+            <option value="Small">Small</option>
+            <option value="Medium">Medium</option>
+            <option value="Large">Large</option>
+            <option value="Huge">Huge</option>
+            <option value="Gargantuan">Gargantuan</option>
+          </select>
+        </div>
+        <div class="monster-results-count" id="monsterResultsCount" style="margin: 8px 0;"></div>
+        <div id="monsterList" class="monster-grid"></div>
+        <div id="monsterLoadMore" style="text-align:center;padding:12px;display:none;">
+          <button class="form-button secondary" onclick="loadMoreMonsters()">Load More Monsters</button>
+        </div>
+
+        <div class="encounter-subsection-title">Encounter Name</div>
+        <input type="text" class="form-input" id="encounterName" placeholder="Enter encounter name" style="margin-bottom: 16px;">
+
+        <div class="encounter-subsection-title">Added Monsters</div>
+        <div id="addedMonstersList" class="added-monsters"></div>
+
+        <div style="margin-top: 20px;">
+          <button type="button" class="form-button" onclick="saveEncounter()">Save Encounter</button>
+          <button type="button" class="form-button secondary" onclick="closeModal('encounterBuilderModal')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Monster Stat Block -->
+  <div id="statBlockModal" class="modal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <div class="modal-title">Monster Stat Block</div>
+        <button class="modal-close" onclick="closeModal('statBlockModal')">×</button>
+      </div>
+      <div id="statBlockContent" class="stat-block"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Session Note -->
+  <div id="addNoteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Add Session Note</div>
+        <button class="modal-close" onclick="closeModal('addNoteModal')">×</button>
+      </div>
+      <form onsubmit="addSessionNote(event)">
+        <div class="form-group"><label class="form-label">Session Title</label><input type="text" class="form-input" id="noteTitle" required placeholder="e.g., Session 5 - The Goblin Stronghold"></div>
+        <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="noteContent" required placeholder="Record what happened in this session..." style="min-height: 200px;"></textarea></div>
+        <button type="submit" class="form-button">Save Note</button>
+        <button type="button" class="form-button secondary" onclick="closeModal('addNoteModal')">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Initiative Combatant -->
+  <div id="initiativeModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Add Combatant</div>
+        <button class="modal-close" onclick="closeModal('initiativeModal')">×</button>
+      </div>
+      <form onsubmit="addCombatant(event)">
+        <div class="form-group">
+          <label class="form-label">Combatant Type</label>
+          <select class="form-select" id="combatantType" onchange="updateCombatantList()">
+            <option value="party">Party Member</option>
+            <option value="monster">Monster (SRD)</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div id="partyMembersSelect" class="form-group">
+          <label class="form-label">Select Party Member</label>
+          <select class="form-select" id="selectPartyMember"></select>
+        </div>
+        <div id="monsterSelectGroup" class="form-group" style="display: none;">
+          <label class="form-label">Search Monster</label>
+          <input type="text" class="form-input" id="initMonsterSearch" placeholder="Type to search..." oninput="filterInitMonsters()">
+          <select class="form-select" id="selectMonster" size="8" style="margin-top: 8px; height: auto;"></select>
+        </div>
+        <div id="customNameGroup" class="form-group" style="display: none;">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-input" id="customName" placeholder="Enter combatant name">
+        </div>
+        <div id="customHPGroup" class="form-group" style="display: none;">
+          <label class="form-label">HP</label>
+          <input type="number" class="form-input" id="customHP" min="1" value="10">
+        </div>
+        <div id="customACGroup" class="form-group" style="display: none;">
+          <label class="form-label">AC</label>
+          <input type="number" class="form-input" id="customAC" min="1" value="10">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Initiative</label>
+          <select class="form-select" id="rollInitiative" onchange="toggleManualInit()">
+            <option value="roll">Roll (1d20 + modifier)</option>
+            <option value="manual">Manual Entry</option>
+          </select>
+        </div>
+        <div id="manualInitGroup" class="form-group" style="display: none;">
+          <label class="form-label">Initiative Score</label>
+          <input type="number" class="form-input" id="manualInitScore" min="0">
+        </div>
+        <button type="submit" class="form-button">Add to Combat</button>
+        <button type="button" class="form-button secondary" onclick="closeModal('initiativeModal')">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════
+    // XP BY CR TABLE (5e)
+    // ═══════════════════════════════
+    var CR_XP = {
+      0: 10, 0.125: 25, 0.25: 50, 0.5: 100, 1: 200, 2: 450, 3: 700, 4: 1100,
+      5: 1800, 6: 2300, 7: 2900, 8: 3900, 9: 5000, 10: 5900, 11: 7200, 12: 8400,
+      13: 10000, 14: 11500, 15: 13000, 16: 15000, 17: 18000, 18: 20000, 19: 22000,
+      20: 25000, 21: 33000, 22: 41000, 23: 50000, 24: 62000, 25: 75000, 26: 90000,
+      27: 105000, 28: 120000, 29: 135000, 30: 155000
+    };
+
+    // XP thresholds per character level (5e DMG)
+    var XP_THRESHOLDS = {
+      1:  {easy: 25, medium: 50, hard: 75, deadly: 100},
+      2:  {easy: 50, medium: 100, hard: 150, deadly: 200},
+      3:  {easy: 75, medium: 150, hard: 225, deadly: 400},
+      4:  {easy: 125, medium: 250, hard: 375, deadly: 500},
+      5:  {easy: 250, medium: 500, hard: 750, deadly: 1100},
+      6:  {easy: 300, medium: 600, hard: 900, deadly: 1400},
+      7:  {easy: 350, medium: 750, hard: 1100, deadly: 1700},
+      8:  {easy: 450, medium: 900, hard: 1400, deadly: 2100},
+      9:  {easy: 550, medium: 1100, hard: 1600, deadly: 2400},
+      10: {easy: 600, medium: 1200, hard: 1900, deadly: 2800},
+      11: {easy: 800, medium: 1600, hard: 2400, deadly: 3600},
+      12: {easy: 1000, medium: 2000, hard: 3000, deadly: 4500},
+      13: {easy: 1100, medium: 2200, hard: 3400, deadly: 5100},
+      14: {easy: 1250, medium: 2500, hard: 3800, deadly: 5700},
+      15: {easy: 1400, medium: 2800, hard: 4300, deadly: 6400},
+      16: {easy: 1600, medium: 3200, hard: 4800, deadly: 7200},
+      17: {easy: 2000, medium: 3900, hard: 5900, deadly: 8800},
+      18: {easy: 2100, medium: 4200, hard: 6300, deadly: 9500},
+      19: {easy: 2400, medium: 4900, hard: 7300, deadly: 10900},
+      20: {easy: 2800, medium: 5700, hard: 8500, deadly: 12700}
+    };
+
+    // ═══════════════════════════════
+    // STATE
+    // ═══════════════════════════════
+    var currentCampaignId = null;
+    var campaigns = [];
+    var currentInitiativeTurn = 0;
+    var currentRound = 1;
+    var activeTypeFilters = [];
+
+    // ═══════════════════════════════
+    // AUTH HELPERS
+    // ═══════════════════════════════
+    function getAuthUser() {
+      // Returns the signed-in user or null
+      // PhmurtDB.getSession() returns a wrapper: { userId, name, email, ... }
+      // This matches how character-builder.html uses it
+      if (typeof PhmurtDB === 'undefined') return null;
+      var session = null;
+      try { session = PhmurtDB.getSession(); } catch(e) {}
+      if (!session) return null;
+      return {
+        id: session.userId || session.id || session.uid || session.email,
+        name: session.name || session.displayName || session.email || 'Adventurer',
+        email: session.email || ''
+      };
+    }
+
+    function requireAuth() {
+      var user = getAuthUser();
+      if (user) return user;
+      // Not signed in: open auth modal (same pattern as character-builder.html)
+      if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.openAuth === 'function') {
+        PhmurtDB.openAuth();
+      } else {
+        var navBtn = document.getElementById('nav-auth-btn');
+        if (navBtn) navBtn.click();
+      }
+      return null;
+    }
+
+    function updateAuthUI() {
+      var user = getAuthUser();
+      var signInNotice = document.getElementById('authNotice');
+      var createBtn = document.getElementById('createCampaignBtn');
+      var joinBtn = document.getElementById('joinCampaignBtn');
+      if (user) {
+        if (signInNotice) signInNotice.style.display = 'none';
+        if (createBtn) createBtn.disabled = false;
+        if (joinBtn) joinBtn.disabled = false;
+      } else {
+        if (signInNotice) signInNotice.style.display = 'block';
+        if (createBtn) createBtn.disabled = false; // allow click to trigger auth prompt
+        if (joinBtn) joinBtn.disabled = false;
+      }
+    }
+
+    function onAuthChanged() {
+      var user = getAuthUser();
+      updateAuthUI();
+      if (user && !window._lastAuthUser) {
+        loadCampaigns();
+        renderCampaignList();
+        if (window.psToast) psToast('Signed in as ' + user.name);
+      }
+      window._lastAuthUser = user;
+    }
+
+    // ═══════════════════════════════
+    // INIT
+    // ═══════════════════════════════
+    function init() {
+      loadCampaigns();
+      renderCampaignList();
+      buildTypeFilterTags();
+      updateAuthUI();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
+  <title>Campaign Manager · Phmurt Studios</title>
+  <meta name="description" content="Manage your D&D campaigns with our comprehensive campaign manager. Track parties, encounters, sessions, and initiative." />
+  <meta property="og:title" content="Campaign Manager · Phmurt Studios" />
+  <meta property="og:description" content="Manage your D&D campaigns with our comprehensive campaign manager." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://phmurtstudios.com/campaigns.html" />
+  <meta property="og:image" content="https://phmurtstudios.com/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
   <script src="phmurt-shell.js"></script>
@@ -1035,1125 +2090,58 @@
         ownerName: currentUser.name,
         players: [{ id: currentUser.id, name: currentUser.name, email: currentUser.email, role: 'dm', joinedAt: new Date().toISOString(), characterId: null }],
         party: [],
-        encounters: [],
-        notes: [],
-        initiative: []
-      };
-      campaigns.push(campaign);
-      // Save to registry and add to user's campaign list
-      saveCampaigns();
-      var myIds = getMyCampaignIds();
-      if (myIds.indexOf(campaign.id) === -1) myIds.push(campaign.id);
-      saveMyCampaignIds(myIds);
-      closeModal('createCampaignModal');
-      renderCampaignList();
-      if (window.psToast) psToast('Campaign created!');
-    }
-
-    function deleteCampaign(id, event) {
-      event.stopPropagation();
-      if (confirm('Are you sure you want to delete this campaign? This cannot be undone.')) {
-        campaigns = campaigns.filter(function(c) { return c.id !== id; });
-        // Remove from registry and user's list
-        var registry = loadAllCampaignsFromRegistry();
-        delete registry[id];
-        saveRegistry(registry);
-        var myIds = getMyCampaignIds().filter(function(cid) { return cid !== id; });
-        saveMyCampaignIds(myIds);
-        renderCampaignList();
-      }
-    }
-
-    function renderCampaignList() {
-      var grid = document.getElementById('campaignGrid');
-      if (campaigns.length === 0) {
-        grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No campaigns yet. Create your first adventure!</div></div>';
-        return;
-      }
-      grid.innerHTML = campaigns.map(function(c) {
-        var partyCount = c.party ? c.party.length : 0;
-        var encounterCount = c.encounters ? c.encounters.length : 0;
-        var playerCount = c.players ? c.players.length : 1;
-        return '<div class="campaign-card" onclick="openCampaign(\'' + c.id + '\')">' +
-          '<div class="campaign-card-header"><span class="campaign-card-system">' + c.system.toUpperCase() + '</span>' +
-          '<button class="campaign-card-delete" onclick="deleteCampaign(\'' + c.id + '\', event)">×</button></div>' +
-          '<div class="campaign-card-title">' + escapeHtml(c.name) + '</div>' +
-          '<div class="campaign-card-desc">' + escapeHtml(c.description || 'No description') + '</div>' +
-          '<div class="campaign-card-meta"><span>' + partyCount + ' Members</span><span>' + encounterCount + ' Encounters</span></div>' +
-          '<div class="campaign-card-players">' + playerCount + ' player' + (playerCount !== 1 ? 's' : '') + '</div>' +
-          '</div>';
-      }).join('');
-    }
-
-    function openCampaign(id) {
-      currentCampaignId = id;
-      var campaign = getCampaign(id);
-      document.getElementById('detailName').textContent = campaign.name;
-      document.getElementById('detailSystem').textContent = campaign.system.toUpperCase();
-      document.getElementById('detailDesc').textContent = campaign.description || '';
-      var partySize = (campaign.party || []).length;
-      var encounterCount = (campaign.encounters || []).length;
-      var sessionCount = (campaign.notes || []).length;
-      document.getElementById('partySizeText').textContent = partySize;
-      document.getElementById('encounterCountText').textContent = encounterCount;
-      document.getElementById('sessionCountText').textContent = sessionCount;
-      document.getElementById('campaignList').classList.remove('active');
-      document.getElementById('campaignDetail').classList.add('active');
-      // Reset to party tab
-      switchTab('party', document.querySelector('.campaign-tab'));
-      renderParty();
-      renderEncounters();
-      renderNotes();
-      renderInitiative();
-      renderPlayers();
-    }
-
-    function backToCampaignList() {
-      currentCampaignId = null;
-      currentInitiativeTurn = 0;
-      currentRound = 1;
-      document.getElementById('campaignList').classList.add('active');
-      document.getElementById('campaignDetail').classList.remove('active');
-      renderCampaignList();
-    }
 
     // ═══════════════════════════════
-    // TAB SWITCHING
-    // ═══════════════════════════════
-    function switchTab(tabName, btn) {
-      ['partyTab', 'encountersTab', 'notesTab', 'initiativeTab', 'playersTab', 'battlemapTab'].forEach(function(id) {
-        document.getElementById(id).classList.remove('active');
-      });
-      document.querySelectorAll('.campaign-tab').forEach(function(t) { t.classList.remove('active'); });
-      document.getElementById(tabName + 'Tab').classList.add('active');
-      if (btn) btn.classList.add('active');
-      if (tabName === 'battlemap') { initBattlemap(); }
-    }
-
-    // getCurrentUser is now replaced by getAuthUser() and requireAuth() above
-
-    // ═══════════════════════════════
-    // PARTY MANAGEMENT
-    // ═══════════════════════════════
-    function openAddPartyModal() {
-      document.getElementById('partyName').value = '';
-      document.getElementById('partyPlayer').value = '';
-      document.getElementById('partyRace').value = '';
-      document.getElementById('partyClass').value = '';
-      document.getElementById('partyLevel').value = '1';
-      document.getElementById('partyHP').value = '';
-      document.getElementById('partyAC').value = '';
-      var form = document.querySelector('#addPartyModal form');
-      form.onsubmit = addPartyMember;
-      openModal('addPartyModal');
-    }
-
-    function addPartyMember(event) {
-      event.preventDefault();
-      var campaign = getCampaign(currentCampaignId);
-      var hp = parseInt(document.getElementById('partyHP').value) || 10;
-      var member = {
-        id: Date.now().toString(),
-        name: document.getElementById('partyName').value,
-        player: document.getElementById('partyPlayer').value,
-        race: document.getElementById('partyRace').value,
-        class: document.getElementById('partyClass').value,
-        level: parseInt(document.getElementById('partyLevel').value),
-        hp: hp,
-        maxHp: parseInt(document.getElementById('partyMaxHP').value) || hp,
-        ac: parseInt(document.getElementById('partyAC').value) || 10,
-        conditions: []
-      };
-      if (!campaign.party) campaign.party = [];
-      campaign.party.push(member);
-      saveCampaigns();
-      closeModal('addPartyModal');
-      renderParty();
-    }
-
-    function deletePartyMember(id, event) {
-      event.stopPropagation();
-      var campaign = getCampaign(currentCampaignId);
-      var member = campaign.party.find(function(m) { return m.id === id; });
-      if (!confirm('Delete party member "' + member.name + '"? This cannot be undone.')) return;
-      campaign.party = campaign.party.filter(function(m) { return m.id !== id; });
-      saveCampaigns();
-      renderParty();
-    }
-
-    function editPartyMember(id) {
-      var campaign = getCampaign(currentCampaignId);
-      var member = campaign.party.find(function(m) { return m.id === id; });
-      document.getElementById('partyName').value = member.name;
-      document.getElementById('partyPlayer').value = member.player;
-      document.getElementById('partyRace').value = member.race;
-      document.getElementById('partyClass').value = member.class;
-      document.getElementById('partyLevel').value = member.level;
-      document.getElementById('partyHP').value = member.hp;
-      document.getElementById('partyAC').value = member.ac;
-      document.getElementById('partyMaxHP').value = member.maxHp || member.hp;
-      if (document.getElementById('partyConditions')) {
-        document.getElementById('partyConditions').value = (member.conditions || []).join(', ');
-      }
-      var form = document.querySelector('#addPartyModal form');
-      form.onsubmit = function(e) {
-        e.preventDefault();
-        member.name = document.getElementById('partyName').value;
-        member.player = document.getElementById('partyPlayer').value;
-        member.race = document.getElementById('partyRace').value;
-        member.class = document.getElementById('partyClass').value;
-        member.level = parseInt(document.getElementById('partyLevel').value);
-        member.hp = parseInt(document.getElementById('partyHP').value) || 10;
-        member.maxHp = parseInt(document.getElementById('partyMaxHP').value) || 10;
-        member.ac = parseInt(document.getElementById('partyAC').value) || 10;
-        if (document.getElementById('partyConditions')) {
-          var condStr = document.getElementById('partyConditions').value || '';
-          member.conditions = condStr.split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c.length > 0; });
-        }
-        saveCampaigns();
-        closeModal('addPartyModal');
-        renderParty();
-        form.onsubmit = addPartyMember;
-      };
-      openModal('addPartyModal');
-    }
-
-    function updatePartyMemberHP(id) {
-      var campaign = getCampaign(currentCampaignId);
-      var member = campaign.party.find(function(m) { return m.id === id; });
-      var input = document.querySelector('input[onchange*="updatePartyMemberHP"][value="' + member.hp + '"]');
-      if (!input) {
-        var inputs = document.querySelectorAll('input[onchange*="updatePartyMemberHP"]');
-        for (var i = 0; i < inputs.length; i++) {
-          if (inputs[i].parentElement.parentElement.textContent.indexOf(member.name) >= 0) {
-            input = inputs[i];
-            break;
-          }
-        }
-      }
-      if (input) member.hp = parseInt(input.value) || 0;
-      saveCampaigns();
-    }
-
-    function renderParty() {
-      var campaign = getCampaign(currentCampaignId);
-      var grid = document.getElementById('partyGrid');
-      if (!campaign.party || campaign.party.length === 0) {
-        grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No party members yet. Add your first player character!</div></div>';
-        return;
-      }
-      grid.innerHTML = campaign.party.map(function(m) {
-        var linkedPlayer = (campaign.players || []).find(function(p) { return p.characterId === m.id; });
-        var conditions = m.conditions || [];
-        var conditionsHtml = conditions.length > 0 ? '<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Conditions: ' + escapeHtml(conditions.join(', ')) + '</div>' : '';
-        return '<div class="party-card">' +
-          '<div class="party-card-actions"><button class="party-btn" onclick="editPartyMember(\'' + m.id + '\')">✎</button><button class="party-btn" onclick="deletePartyMember(\'' + m.id + '\', event)">×</button></div>' +
-          '<div class="party-card-name">' + escapeHtml(m.name) + '</div>' +
-          '<div class="party-card-info"><div>' + escapeHtml(m.race) + ' ' + escapeHtml(m.class) + '</div>' +
-          '<div style="color:var(--text-muted);font-size:11px;">Level ' + m.level + '</div>' +
-          (m.player ? '<div style="color:var(--text-muted);font-size:11px;">Played by ' + escapeHtml(m.player) + '</div>' : '') +
-          '</div>' +
-          (linkedPlayer ? '<div class="party-card-linked">Linked to ' + escapeHtml(linkedPlayer.name) + '</div>' : '') +
-          '<div class="party-stats"><div class="party-stat"><span class="party-stat-label">AC</span><span class="party-stat-value" style="font-size:18px;color:var(--crimson);">' + m.ac + '</span></div>' +
-          '<div class="party-stat"><span class="party-stat-label">HP</span><input type="number" value="' + m.hp + '" min="0" max="' + m.maxHp + '" onchange="updatePartyMemberHP(\'' + m.id + '\')" style="width:50px;padding:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text);border-radius:2px;"/><span style="color:var(--text-muted);margin-left:4px;">/' + m.maxHp + '</span></div></div>' +
-          conditionsHtml +
-          '</div>';
-      }).join('');
-    }
-
-    // ═══════════════════════════════
-    // MONSTER SEARCH & FILTER
-    // ═══════════════════════════════
-    var monsterPageSize = 30;
-    var monsterDisplayCount = 30;
-    var lastFilteredMonsters = [];
-
-    function buildTypeFilterTags() {
-      var types = [];
-      (window.SRD_MONSTERS || []).forEach(function(m) {
-        if (types.indexOf(m.type) === -1) types.push(m.type);
-      });
-      types.sort();
-      // Populate the type dropdown
-      var select = document.getElementById('monsterTypeFilter');
-      if (!select) return;
-      select.innerHTML = '<option value="">All Types (' + (window.SRD_MONSTERS || []).length + ')</option>';
-      types.forEach(function(t) {
-        var count = (window.SRD_MONSTERS || []).filter(function(m) { return m.type === t; }).length;
-        var label = t.charAt(0).toUpperCase() + t.slice(1);
-        select.innerHTML += '<option value="' + t + '">' + label + ' (' + count + ')</option>';
-      });
-    }
-
-    function getFilteredMonsters() {
-      var monsters = window.SRD_MONSTERS || [];
-      var search = (document.getElementById('monsterSearchInput') || {}).value || '';
-      search = search.toLowerCase().trim();
-      var crRange = (document.getElementById('monsterCRFilter') || {}).value || '';
-      var sizeFilter = (document.getElementById('monsterSizeFilter') || {}).value || '';
-      var typeFilter = (document.getElementById('monsterTypeFilter') || {}).value || '';
-
-      var filtered = monsters.filter(function(m) {
-        if (search && m.name.toLowerCase().indexOf(search) === -1) return false;
-        if (sizeFilter && m.size !== sizeFilter) return false;
-        if (typeFilter && m.type !== typeFilter) return false;
-        if (crRange) {
-          var parts = crRange.split('-');
-          var lo = parseFloat(parts[0]), hi = parseFloat(parts[1]);
-          if (m.crNum < lo || m.crNum > hi) return false;
-        }
-        return true;
-      });
-      // Sort: by CR ascending, then by name
-      filtered.sort(function(a, b) {
-        if (a.crNum !== b.crNum) return a.crNum - b.crNum;
-        return a.name.localeCompare(b.name);
-      });
-      return filtered;
-    }
-
-    function filterMonsters() {
-      lastFilteredMonsters = getFilteredMonsters();
-      monsterDisplayCount = monsterPageSize;
-      var countEl = document.getElementById('monsterResultsCount');
-      if (countEl) countEl.textContent = lastFilteredMonsters.length + ' monsters found';
-      renderMonsterList(lastFilteredMonsters);
-    }
-
-    function loadMoreMonsters() {
-      monsterDisplayCount += monsterPageSize;
-      renderMonsterList(lastFilteredMonsters);
-    }
-
-    function renderMonsterList(monsters) {
-      if (!monsters) monsters = lastFilteredMonsters;
-      var container = document.getElementById('monsterList');
-      var loadMoreBtn = document.getElementById('monsterLoadMore');
-      if (!container) return;
-      var shown = monsters.slice(0, monsterDisplayCount);
-      container.innerHTML = shown.map(function(m) {
-        var origIdx = (window.SRD_MONSTERS || []).indexOf(m);
-        var typeLabel = m.type.charAt(0).toUpperCase() + m.type.slice(1);
-        return '<div class="monster-card">' +
-          '<div class="monster-info"><div class="monster-name">' + m.name + '</div>' +
-          '<div class="monster-stats">CR ' + m.cr + ' · ' + m.size + ' ' + typeLabel + (m.subtype ? ' (' + m.subtype + ')' : '') + ' · AC ' + m.ac + ' · ' + m.hp + ' HP</div></div>' +
-          '<div class="monster-card-btns">' +
-          '<button type="button" class="monster-view-btn" onclick="showStatBlock(' + origIdx + ')" title="View Stat Block">&#128203;</button>' +
-          '<button type="button" class="monster-add-btn" onclick="addMonsterToEncounter(' + origIdx + ')" title="Add to Encounter">+</button>' +
-          '</div></div>';
-      }).join('');
-      // Show/hide Load More
-      if (loadMoreBtn) {
-        loadMoreBtn.style.display = monsters.length > monsterDisplayCount ? 'block' : 'none';
-        if (monsters.length > monsterDisplayCount) {
-          loadMoreBtn.querySelector('button').textContent = 'Load More (' + (monsters.length - monsterDisplayCount) + ' remaining)';
-        }
-      }
-    }
-
-    // ═══════════════════════════════
-    // MONSTER STAT BLOCK DISPLAY
-    // ═══════════════════════════════
-    function abilityMod(score) {
-      var mod = Math.floor((score - 10) / 2);
-      return mod >= 0 ? '+' + mod : '' + mod;
-    }
-
-    function showStatBlock(idx) {
-      var m = (window.SRD_MONSTERS || [])[idx];
-      if (!m) return;
-      var html = '<div class="stat-block-name">' + m.name + '</div>' +
-        '<div class="stat-block-meta">' + m.size + ' ' + m.type + (m.subtype ? ' (' + m.subtype + ')' : '') + ', ' + m.alignment + '</div>' +
-        '<hr class="stat-block-divider">' +
-        '<div class="stat-block-row"><strong>Armor Class</strong> ' + m.ac + (m.acType ? ' (' + m.acType + ')' : '') + '</div>' +
-        '<div class="stat-block-row"><strong>Hit Points</strong> ' + m.hp + (m.hpFormula ? ' (' + m.hpFormula + ')' : '') + '</div>' +
-        '<div class="stat-block-row"><strong>Speed</strong> ' + m.speed + '</div>' +
-        '<hr class="stat-block-divider">' +
-        '<div class="stat-block-abilities">' +
-        ['str','dex','con','int','wis','cha'].map(function(a) {
-          return '<div class="stat-block-ability"><div class="stat-block-ability-label">' + a.toUpperCase() + '</div>' +
-            '<div class="stat-block-ability-score">' + m[a] + '</div>' +
-            '<div class="stat-block-ability-mod">(' + abilityMod(m[a]) + ')</div></div>';
-        }).join('') +
-        '</div>' +
-        '<hr class="stat-block-divider">';
-
-      if (m.saves) html += '<div class="stat-block-row"><strong>Saving Throws</strong> ' + m.saves + '</div>';
-      if (m.skills) html += '<div class="stat-block-row"><strong>Skills</strong> ' + m.skills + '</div>';
-      if (m.damageVulnerabilities) html += '<div class="stat-block-row"><strong>Damage Vulnerabilities</strong> ' + m.damageVulnerabilities + '</div>';
-      if (m.damageResistances) html += '<div class="stat-block-row"><strong>Damage Resistances</strong> ' + m.damageResistances + '</div>';
-      if (m.damageImmunities) html += '<div class="stat-block-row"><strong>Damage Immunities</strong> ' + m.damageImmunities + '</div>';
-      if (m.conditionImmunities) html += '<div class="stat-block-row"><strong>Condition Immunities</strong> ' + m.conditionImmunities + '</div>';
-      if (m.senses) html += '<div class="stat-block-row"><strong>Senses</strong> ' + m.senses + '</div>';
-      if (m.languages) html += '<div class="stat-block-row"><strong>Languages</strong> ' + m.languages + '</div>';
-      html += '<div class="stat-block-row"><strong>Challenge</strong> ' + m.cr + ' (' + (m.xp || 0).toLocaleString() + ' XP)</div>';
-
-      if (m.traits && m.traits.length > 0) {
-        html += '<div class="stat-block-section-title">Traits</div>';
-        m.traits.forEach(function(t) {
-          html += '<div class="stat-block-trait"><em>' + t.name + '.</em> ' + t.desc + '</div>';
-        });
-      }
-      if (m.actions && m.actions.length > 0) {
-        html += '<div class="stat-block-section-title">Actions</div>';
-        m.actions.forEach(function(a) {
-          html += '<div class="stat-block-trait"><em>' + a.name + '.</em> ' + a.desc + '</div>';
-        });
-      }
-      if (m.reactions && m.reactions.length > 0) {
-        html += '<div class="stat-block-section-title">Reactions</div>';
-        m.reactions.forEach(function(r) {
-          html += '<div class="stat-block-trait"><em>' + r.name + '.</em> ' + r.desc + '</div>';
-        });
-      }
-      if (m.legendaryActions && m.legendaryActions.length > 0) {
-        html += '<div class="stat-block-section-title">Legendary Actions</div>';
-        html += '<div class="stat-block-trait" style="margin-bottom:12px;">The creature can take 3 legendary actions, choosing from the options below. Only one legendary action can be used at a time and only at the end of another creature\'s turn. The creature regains spent legendary actions at the start of its turn.</div>';
-        m.legendaryActions.forEach(function(la) {
-          html += '<div class="stat-block-trait"><em>' + la.name + '.</em> ' + la.desc + '</div>';
-        });
-      }
-
-      document.getElementById('statBlockContent').innerHTML = html;
-      openModal('statBlockModal');
-    }
-
-    // ═══════════════════════════════
-    // ENCOUNTER BUILDER
-    // ═══════════════════════════════
-    function openEncounterBuilderModal() {
-      var campaign = getCampaign(currentCampaignId);
-      document.getElementById('partySizeCalc').value = (campaign.party || []).length || 4;
-      document.getElementById('avgLevelCalc').value = calculateAverageLevel();
-      document.getElementById('encounterName').value = '';
-      document.getElementById('addedMonstersList').innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">No monsters added yet. Click + on a monster above to add it.</div>';
-      // Reset search/filters
-      document.getElementById('monsterSearchInput').value = '';
-      document.getElementById('monsterCRFilter').value = '';
-      document.getElementById('monsterSizeFilter').value = '';
-      activeTypeFilters = [];
-      document.querySelectorAll('#monsterTypeTags .filter-tag').forEach(function(t) { t.classList.remove('active'); });
-      filterMonsters();
-      calculateCR();
-      openModal('encounterBuilderModal');
-    }
-
-    function calculateAverageLevel() {
-      var campaign = getCampaign(currentCampaignId);
-      if (!campaign.party || campaign.party.length === 0) return 1;
-      var sum = campaign.party.reduce(function(a, m) { return a + m.level; }, 0);
-      return Math.round(sum / campaign.party.length);
-    }
-
-    function addMonsterToEncounter(idx) {
-      var m = (window.SRD_MONSTERS || [])[idx];
-      if (!m) return;
-      var container = document.getElementById('addedMonstersList');
-      // Remove empty state text if present
-      if (container.querySelector('div[style]') && !container.querySelector('.added-monster-row')) {
-        container.innerHTML = '';
-      }
-      var row = document.createElement('div');
-      row.className = 'added-monster-row';
-      row.dataset.idx = idx;
-      row.dataset.cr = m.crNum;
-      row.dataset.hp = m.hp;
-      row.dataset.ac = m.ac;
-      row.dataset.name = m.name;
-      row.innerHTML = '<div class="added-monster-name">' + m.name + '</div>' +
-        '<input type="number" class="added-monster-input" value="1" min="1" onchange="calculateCR()">' +
-        '<div style="font-size:11px;color:var(--text-muted);">CR ' + m.cr + '</div>' +
-        '<div style="font-size:11px;color:var(--text-muted);">' + m.hp + ' HP</div>' +
-        '<button type="button" class="added-monster-remove" onclick="this.parentElement.remove(); calculateCR();">×</button>';
-      container.appendChild(row);
-      calculateCR();
-      if (window.psToast) psToast(m.name + ' added');
-    }
-
-    function calculateCR() {
-      var partySize = parseInt(document.getElementById('partySizeCalc').value) || 1;
-      var avgLevel = Math.min(20, Math.max(1, parseInt(document.getElementById('avgLevelCalc').value) || 1));
-      var monsterRows = document.querySelectorAll('#addedMonstersList .added-monster-row');
-
-      // Calculate thresholds from DMG table
-      var thresh = XP_THRESHOLDS[avgLevel] || XP_THRESHOLDS[1];
-      var easyXP = thresh.easy * partySize;
-      var mediumXP = thresh.medium * partySize;
-      var hardXP = thresh.hard * partySize;
-      var deadlyXP = thresh.deadly * partySize;
-
-      // Sum monster XP
-      var baseXP = 0;
-      var totalMonsters = 0;
-      monsterRows.forEach(function(row) {
-        var cr = parseFloat(row.dataset.cr);
-        var count = parseInt(row.querySelector('input').value) || 1;
-        baseXP += (CR_XP[cr] || 0) * count;
-        totalMonsters += count;
-      });
-
-      // Encounter multiplier
-      var multiplier = 1;
-      if (totalMonsters === 2) multiplier = 1.5;
-      else if (totalMonsters >= 3 && totalMonsters <= 6) multiplier = 2;
-      else if (totalMonsters >= 7 && totalMonsters <= 10) multiplier = 2.5;
-      else if (totalMonsters >= 11 && totalMonsters <= 14) multiplier = 3;
-      else if (totalMonsters >= 15) multiplier = 4;
-
-      var adjustedXP = Math.round(baseXP * multiplier);
-
-      var difficulty = 'Trivial';
-      if (adjustedXP >= deadlyXP) difficulty = 'Deadly';
-      else if (adjustedXP >= hardXP) difficulty = 'Hard';
-      else if (adjustedXP >= mediumXP) difficulty = 'Medium';
-      else if (adjustedXP >= easyXP) difficulty = 'Easy';
-
-      document.getElementById('crResults').innerHTML =
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">' +
-        '<div class="cr-result"><div class="cr-result-label">Adjusted XP</div><div class="cr-result-value">' + adjustedXP.toLocaleString() + '</div></div>' +
-        '<div class="cr-result"><div class="cr-result-label">Difficulty</div><div class="cr-result-value" style="font-size:24px;">' + difficulty + '</div></div></div>' +
-        '<div class="cr-thresholds">' +
-        '<div class="cr-threshold-row"><span class="cr-threshold-label">Easy:</span><span>' + easyXP.toLocaleString() + ' XP</span></div>' +
-        '<div class="cr-threshold-row"><span class="cr-threshold-label">Medium:</span><span>' + mediumXP.toLocaleString() + ' XP</span></div>' +
-        '<div class="cr-threshold-row"><span class="cr-threshold-label">Hard:</span><span>' + hardXP.toLocaleString() + ' XP</span></div>' +
-        '<div class="cr-threshold-row"><span class="cr-threshold-label">Deadly:</span><span>' + deadlyXP.toLocaleString() + ' XP</span></div>' +
-        '<div class="cr-threshold-row" style="margin-top:8px;border-top:1px solid var(--crimson-border);padding-top:8px;"><span class="cr-threshold-label">Base XP (unmodified):</span><span>' + baseXP.toLocaleString() + ' XP</span></div>' +
-        '<div class="cr-threshold-row"><span class="cr-threshold-label">Multiplier (' + totalMonsters + ' creatures):</span><span>×' + multiplier + '</span></div></div>';
-    }
-
-    function saveEncounter() {
-      var name = document.getElementById('encounterName').value.trim();
-      if (!name) { alert('Please enter an encounter name'); return; }
-      var monsterRows = document.querySelectorAll('#addedMonstersList .added-monster-row');
-      if (monsterRows.length === 0) { alert('Please add at least one monster'); return; }
-
-      var monsters = [];
-      monsterRows.forEach(function(row) {
-        var count = parseInt(row.querySelector('input').value) || 1;
-        var idx = parseInt(row.dataset.idx);
-        var m = (window.SRD_MONSTERS || [])[idx];
-        for (var i = 0; i < count; i++) {
-          monsters.push({
-            id: Date.now().toString() + Math.random(),
-            name: row.dataset.name,
-            cr: parseFloat(row.dataset.cr),
-            hp: parseInt(row.dataset.hp),
-            ac: parseInt(row.dataset.ac),
-            currentHp: parseInt(row.dataset.hp),
-            monsterIdx: idx
-          });
-        }
-      });
-
-      var campaign = getCampaign(currentCampaignId);
-      if (!campaign.encounters) campaign.encounters = [];
-      campaign.encounters.push({ id: Date.now().toString(), name: name, monsters: monsters, createdAt: new Date().toISOString() });
-      saveCampaigns();
-      closeModal('encounterBuilderModal');
-      renderEncounters();
-      if (window.psToast) psToast('Encounter saved!');
-    }
-
-    function deleteEncounter(id, event) {
-      event.stopPropagation();
-      var campaign = getCampaign(currentCampaignId);
-      var encounter = campaign.encounters.find(function(e) { return e.id === id; });
-      if (!confirm('Delete encounter "' + encounter.name + '"? This cannot be undone.')) return;
-      campaign.encounters = campaign.encounters.filter(function(e) { return e.id !== id; });
-      saveCampaigns();
-      renderEncounters();
-    }
-
-    function loadEncounterToInitiative(id, event) {
-      event.stopPropagation();
-      var campaign = getCampaign(currentCampaignId);
-      var encounter = campaign.encounters.find(function(e) { return e.id === id; });
-      if (!campaign.initiative) campaign.initiative = [];
-
-      encounter.monsters.forEach(function(m) {
-        var monster = (window.SRD_MONSTERS || [])[m.monsterIdx];
-        var initMod = monster ? Math.floor((monster.dex - 10) / 2) : 0;
-        campaign.initiative.push({
-          id: Date.now().toString() + Math.random(),
-          name: m.name,
-          type: 'monster',
-          ac: m.ac,
-          hp: m.hp,
-          maxHp: m.hp,
-          initiative: Math.floor(Math.random() * 20) + 1 + initMod,
-          conditions: [],
-          monsterIdx: m.monsterIdx
-        });
-      });
-
-      campaign.initiative.sort(function(a, b) { return b.initiative - a.initiative; });
-      saveCampaigns();
-      renderInitiative();
-      switchTab('initiative', document.querySelectorAll('.campaign-tab')[3]);
-      if (window.psToast) psToast('Encounter loaded to initiative!');
-    }
-
-    function renderEncounters() {
-      var campaign = getCampaign(currentCampaignId);
-      var container = document.getElementById('encounterList');
-      if (!campaign.encounters || campaign.encounters.length === 0) {
-        container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No encounters saved. Build your first encounter!</div></div>';
-        return;
-      }
-      container.innerHTML = campaign.encounters.map(function(e) {
-        var monsterCount = e.monsters.length;
-        var names = [];
-        e.monsters.forEach(function(m) { if (names.indexOf(m.name) === -1) names.push(m.name); });
-        return '<div class="encounter-item"><div class="encounter-item-info">' +
-          '<div class="encounter-item-name">' + escapeHtml(e.name) + '</div>' +
-          '<div class="encounter-item-monsters">' + monsterCount + ' creature' + (monsterCount !== 1 ? 's' : '') + ': ' + escapeHtml(names.join(', ')) + '</div></div>' +
-          '<div class="encounter-item-actions">' +
-          '<button class="encounter-btn" onclick="loadEncounterToInitiative(\'' + e.id + '\', event)" title="Load to Initiative">▶</button>' +
-          '<button class="encounter-btn" onclick="deleteEncounter(\'' + e.id + '\', event)">×</button></div></div>';
-      }).join('');
-    }
-
-    // ═══════════════════════════════
-    // SESSION NOTES
-    // ═══════════════════════════════
-    function openAddNoteModal() {
-      document.getElementById('noteTitle').value = '';
-      document.getElementById('noteContent').value = '';
-      openModal('addNoteModal');
-    }
-
-    function addSessionNote(event) {
-      event.preventDefault();
-      var campaign = getCampaign(currentCampaignId);
-      if (!campaign.notes) campaign.notes = [];
-      campaign.notes.unshift({
-        id: Date.now().toString(),
-        title: document.getElementById('noteTitle').value,
-        content: document.getElementById('noteContent').value,
-        createdAt: new Date().toISOString()
-      });
-      saveCampaigns();
-      closeModal('addNoteModal');
-      renderNotes();
-    }
-
-    function deleteNote(id, event) {
-      event.stopPropagation();
-      if (!confirm('Delete this note? This cannot be undone.')) return;
-      var campaign = getCampaign(currentCampaignId);
-      campaign.notes = campaign.notes.filter(function(n) { return n.id !== id; });
-      saveCampaigns();
-      renderNotes();
-    }
-
-    function formatNoteMarkdown(text) {
-      var html = escapeHtml(text);
-      html = html.replace(/^### (.*?)$/gm, '<h3 style="font-size:14px;font-weight:bold;margin:8px 0 4px 0;">$1</h3>');
-      html = html.replace(/^## (.*?)$/gm, '<h2 style="font-size:16px;font-weight:bold;margin:12px 0 6px 0;">$1</h2>');
-      html = html.replace(/^# (.*?)$/gm, '<h1 style="font-size:18px;font-weight:bold;margin:16px 0 8px 0;">$1</h1>');
-      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      return html;
-    }
-
-    var noteSearchFilter = '';
-
-    function filterNotesList() {
-      noteSearchFilter = (document.getElementById('noteSearchInput') || {}).value || '';
-      renderNotes();
-    }
-
-    function renderNotes() {
-      var campaign = getCampaign(currentCampaignId);
-      var container = document.getElementById('notesList');
-      if (!campaign.notes || campaign.notes.length === 0) {
-        container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No session notes yet. Record your first session!</div></div>';
-        return;
-      }
-      var notes = campaign.notes.slice().sort(function(a, b) {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      });
-      var filtered = notes.filter(function(n) {
-        var search = noteSearchFilter.toLowerCase();
-        return !search || n.title.toLowerCase().indexOf(search) >= 0 || n.content.toLowerCase().indexOf(search) >= 0;
-      });
-      container.innerHTML = filtered.map(function(n) {
-        var date = new Date(n.createdAt);
-        var dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        var preview = n.content.substring(0, 150) + (n.content.length > 150 ? '...' : '');
-        var formattedPreview = formatNoteMarkdown(preview);
-        return '<div class="note-item"><div class="note-header"><h3 class="note-title">' + escapeHtml(n.title) + '</h3>' +
-          '<button class="note-delete-btn" onclick="deleteNote(\'' + n.id + '\', event)">×</button></div>' +
-          '<div class="note-date">' + dateStr + '</div>' +
-          '<div class="note-preview">' + formattedPreview + '</div></div>';
-      }).join('');
-    }
-
-    // ═══════════════════════════════
-    // INITIATIVE TRACKER
-    // ═══════════════════════════════
-    function openInitiativeModal() {
-      document.getElementById('combatantType').value = 'party';
-      document.getElementById('rollInitiative').value = 'roll';
-      document.getElementById('manualInitGroup').style.display = 'none';
-      updateCombatantList();
-      openModal('initiativeModal');
-    }
-
-    function toggleManualInit() {
-      document.getElementById('manualInitGroup').style.display =
-        document.getElementById('rollInitiative').value === 'manual' ? 'block' : 'none';
-    }
-
-    function updateCombatantList() {
-      var type = document.getElementById('combatantType').value;
-      document.getElementById('partyMembersSelect').style.display = type === 'party' ? 'block' : 'none';
-      document.getElementById('monsterSelectGroup').style.display = type === 'monster' ? 'block' : 'none';
-      document.getElementById('customNameGroup').style.display = type === 'custom' ? 'block' : 'none';
-      document.getElementById('customHPGroup').style.display = type === 'custom' ? 'block' : 'none';
-      document.getElementById('customACGroup').style.display = type === 'custom' ? 'block' : 'none';
-
-      if (type === 'party') {
-        var campaign = getCampaign(currentCampaignId);
-        var select = document.getElementById('selectPartyMember');
-        select.innerHTML = (campaign.party || []).map(function(m) {
-          return '<option value="' + m.id + '">' + m.name + ' (Lvl ' + m.level + ')</option>';
-        }).join('');
-      }
-      if (type === 'monster') {
-        filterInitMonsters();
-      }
-    }
-
-    function filterInitMonsters() {
-      var search = (document.getElementById('initMonsterSearch').value || '').toLowerCase();
-      var select = document.getElementById('selectMonster');
-      var monsters = window.SRD_MONSTERS || [];
-      var filtered = monsters.filter(function(m) {
-        return !search || m.name.toLowerCase().indexOf(search) >= 0;
-      });
-      select.innerHTML = filtered.map(function(m) {
-        var idx = monsters.indexOf(m);
-        return '<option value="' + idx + '">' + m.name + ' (CR ' + m.cr + ', AC ' + m.ac + ', ' + m.hp + ' HP)</option>';
-      }).join('');
-    }
-
-    function addCombatant(event) {
-      event.preventDefault();
-      var campaign = getCampaign(currentCampaignId);
-      var type = document.getElementById('combatantType').value;
-      var rollType = document.getElementById('rollInitiative').value;
-
-      var combatant = { id: Date.now().toString() + Math.random(), conditions: [] };
-
-      if (type === 'party') {
-        var partyId = document.getElementById('selectPartyMember').value;
-        var member = campaign.party.find(function(m) { return m.id === partyId; });
-        if (!member) return;
-        combatant.name = member.name;
-        combatant.type = 'party';
-        combatant.ac = member.ac;
-        combatant.hp = member.hp;
-        combatant.maxHp = member.hp;
-      } else if (type === 'monster') {
-        var monsterIdx = parseInt(document.getElementById('selectMonster').value);
-        var monster = (window.SRD_MONSTERS || [])[monsterIdx];
-        if (!monster) return;
-        combatant.name = monster.name;
-        combatant.type = 'monster';
-        combatant.ac = monster.ac;
-        combatant.hp = monster.hp;
-        combatant.maxHp = monster.hp;
-        combatant.monsterIdx = monsterIdx;
-      } else {
-        combatant.name = document.getElementById('customName').value || 'Unknown';
-        combatant.type = 'custom';
-        combatant.ac = parseInt(document.getElementById('customAC').value) || 10;
-        combatant.hp = parseInt(document.getElementById('customHP').value) || 10;
-        combatant.maxHp = combatant.hp;
-      }
-
-      if (rollType === 'roll') {
-        var dexMod = 0;
-        if (type === 'monster') {
-          var mRef = (window.SRD_MONSTERS || [])[combatant.monsterIdx];
-          if (mRef) dexMod = Math.floor((mRef.dex - 10) / 2);
-        }
-        combatant.initiative = Math.floor(Math.random() * 20) + 1 + dexMod;
-      } else {
-        combatant.initiative = parseInt(document.getElementById('manualInitScore').value) || 0;
-      }
-
-      if (!campaign.initiative) campaign.initiative = [];
-      campaign.initiative.push(combatant);
-      campaign.initiative.sort(function(a, b) { return b.initiative - a.initiative; });
-      saveCampaigns();
-      closeModal('initiativeModal');
-      renderInitiative();
-    }
-
-    function addPartyToInitiative() {
-      var campaign = getCampaign(currentCampaignId);
-      if (!campaign.party || campaign.party.length === 0) {
-        if (window.psToast) psToast('No party members to add');
-        return;
-      }
-      if (!campaign.initiative) campaign.initiative = [];
-      campaign.party.forEach(function(m) {
-        campaign.initiative.push({
-          id: Date.now().toString() + Math.random(),
-          name: m.name,
-          type: 'party',
-          ac: m.ac,
-          hp: m.hp,
-          maxHp: m.hp,
-          initiative: Math.floor(Math.random() * 20) + 1,
-          conditions: []
-        });
-      });
-      campaign.initiative.sort(function(a, b) { return b.initiative - a.initiative; });
-      saveCampaigns();
-      renderInitiative();
-      if (window.psToast) psToast('Party added to initiative!');
-    }
-
-    function updateCombatantHP(id) {
-      var campaign = getCampaign(currentCampaignId);
-      var combatant = campaign.initiative.find(function(c) { return c.id === id; });
-      var input = document.querySelector('input[data-hp-id="' + id + '"]');
-      combatant.hp = Math.max(0, parseInt(input.value) || 0);
-      saveCampaigns();
-    }
-
-    function toggleCondition(id, condition) {
-      var campaign = getCampaign(currentCampaignId);
-      var combatant = campaign.initiative.find(function(c) { return c.id === id; });
-      var idx = combatant.conditions.indexOf(condition);
-      if (idx >= 0) combatant.conditions.splice(idx, 1);
-      else combatant.conditions.push(condition);
-      saveCampaigns();
-      renderInitiative();
-    }
-
-    function removeCombatant(id) {
-      var campaign = getCampaign(currentCampaignId);
-      campaign.initiative = campaign.initiative.filter(function(c) { return c.id !== id; });
-      if (currentInitiativeTurn >= campaign.initiative.length) currentInitiativeTurn = 0;
-      saveCampaigns();
-      renderInitiative();
-    }
-
-    function nextTurn() {
-      var campaign = getCampaign(currentCampaignId);
-      if (!campaign.initiative || campaign.initiative.length === 0) return;
-      currentInitiativeTurn++;
-      if (currentInitiativeTurn >= campaign.initiative.length) {
-        currentInitiativeTurn = 0;
-        currentRound++;
-      }
-      saveCampaigns();
-      renderInitiative();
-    }
-
-    function previousTurn() {
-      var campaign = getCampaign(currentCampaignId);
-      if (!campaign.initiative || campaign.initiative.length === 0) return;
-      currentInitiativeTurn--;
-      if (currentInitiativeTurn < 0) {
-        currentInitiativeTurn = campaign.initiative.length - 1;
-        currentRound = Math.max(1, currentRound - 1);
-      }
-      saveCampaigns();
-      renderInitiative();
-    }
-
-    function resetInitiative() {
-      var campaign = getCampaign(currentCampaignId);
-      campaign.initiative = [];
-      currentInitiativeTurn = 0;
-      currentRound = 1;
-      saveCampaigns();
-      renderInitiative();
-    }
-
-    function viewCombatantStatBlock(id) {
-      var campaign = getCampaign(currentCampaignId);
-      var combatant = campaign.initiative.find(function(c) { return c.id === id; });
-      if (combatant && combatant.monsterIdx !== undefined) {
-        showStatBlock(combatant.monsterIdx);
-      }
-    }
-
-    function applyDamage(id) {
-      var campaign = getCampaign(currentCampaignId);
-      var combatant = campaign.initiative.find(function(c) { return c.id === id; });
-      var dmg = prompt('Damage taken (number):');
-      if (dmg === null) return;
-      var damageAmount = parseInt(dmg) || 0;
-      combatant.hp = Math.max(0, combatant.hp - damageAmount);
-      saveCampaigns();
-      renderInitiative();
-    }
-
-    function applyHealing(id) {
-      var campaign = getCampaign(currentCampaignId);
-      var combatant = campaign.initiative.find(function(c) { return c.id === id; });
-      var heal = prompt('Healing (number):');
-      if (heal === null) return;
-      var healAmount = parseInt(heal) || 0;
-      combatant.hp = Math.min(combatant.maxHp, combatant.hp + healAmount);
-      saveCampaigns();
-      renderInitiative();
-    }
-
-    function toggleDeathSave(id, type) {
-      var campaign = getCampaign(currentCampaignId);
-      var combatant = campaign.initiative.find(function(c) { return c.id === id; });
-      if (!combatant.deathSaves) combatant.deathSaves = { successes: 0, failures: 0 };
-      if (type === 'success') {
-        combatant.deathSaves.successes = (combatant.deathSaves.successes + 1) % 4;
-      } else {
-        combatant.deathSaves.failures = (combatant.deathSaves.failures + 1) % 4;
-      }
-      saveCampaigns();
-      renderInitiative();
-    }
-
-    function renderInitiative() {
-      var campaign = getCampaign(currentCampaignId);
-      var container = document.getElementById('initiativeList');
-      var controls = document.getElementById('initiativeControls');
-      var roundEl = document.getElementById('roundCounter');
-
-      roundEl.textContent = 'Round ' + currentRound;
-
-      if (!campaign.initiative || campaign.initiative.length === 0) {
-        container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No combatants yet. Add party members or monsters to start combat!</div></div>';
-        controls.style.display = 'none';
-        return;
-      }
-
-      controls.style.display = 'flex';
-      var conditions = ['Blinded','Charmed','Deafened','Frightened','Grappled','Incapacitated','Invisible','Paralyzed','Petrified','Poisoned','Prone','Restrained','Stunned','Unconscious'];
-
-      container.innerHTML = campaign.initiative.map(function(c, idx) {
-        var isCurrent = idx === currentInitiativeTurn;
-        var hpPercent = c.maxHp > 0 ? Math.round((c.hp / c.maxHp) * 100) : 100;
-        var hpColor = hpPercent > 50 ? '#4caf50' : hpPercent > 25 ? '#ffc107' : '#f44336';
-        var typeColor = c.type === 'party' ? '#4caf50' : c.type === 'monster' ? '#f44336' : '#9e9e9e';
-        var nameClick = c.monsterIdx !== undefined ? ' onclick="viewCombatantStatBlock(\'' + c.id + '\')"' : '';
-        var deathSaves = c.deathSaves || { successes: 0, failures: 0 };
-        var isUnconscious = c.hp <= 0;
-        var deathSavesHtml = isUnconscious ? '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Death Saves - Successes: <span style="color:#4caf50;">' + deathSaves.successes + '/3</span> Failures: <span style="color:#f44336;">' + deathSaves.failures + '/3</span> ' +
-          '<button onclick="toggleDeathSave(\'' + c.id + '\', \'success\')" style="padding:2px 6px;margin:0 2px;font-size:10px;">+S</button>' +
-          '<button onclick="toggleDeathSave(\'' + c.id + '\', \'failure\')" style="padding:2px 6px;margin:0 2px;font-size:10px;">+F</button></div>' : '';
-
-        return '<div class="initiative-row ' + (isCurrent ? 'current' : '') + '" style="border-left:4px solid ' + typeColor + ';">' +
-          '<div class="initiative-init" style="color:' + typeColor + '">' + c.initiative + '</div>' +
-          '<div class="initiative-name" style="color:' + typeColor + '"' + nameClick + '>' + escapeHtml(c.name) + '</div>' +
-          '<div style="text-align:center;color:' + typeColor + ';font-size:11px;text-transform:capitalize;">' + c.type + '</div>' +
-          '<div style="display:flex;align-items:center;gap:4px;"><input type="number" class="initiative-hp-input" data-hp-id="' + c.id + '" value="' + c.hp + '" min="0" onchange="updateCombatantHP(\'' + c.id + '\')" style="color:' + hpColor + ';width:50px;">' +
-          '<span style="color:var(--text-muted);font-size:11px;">/' + c.maxHp + '</span>' +
-          '<button onclick="applyDamage(\'' + c.id + '\')" style="padding:2px 6px;font-size:10px;">-HP</button>' +
-          '<button onclick="applyHealing(\'' + c.id + '\')" style="padding:2px 6px;font-size:10px;">+HP</button></div>' +
-          '<div class="initiative-ac">AC ' + c.ac + '</div>' +
-          '<div class="initiative-conditions">' +
-          conditions.map(function(cond) {
-            return '<div class="condition-badge ' + (c.conditions.indexOf(cond) >= 0 ? 'active' : '') + '" onclick="toggleCondition(\'' + c.id + '\',\'' + cond + '\')">' + cond + '</div>';
-          }).join('') +
-          '</div>' +
-          deathSavesHtml +
-          '<button class="initiative-remove" onclick="removeCombatant(\'' + c.id + '\')">×</button></div>';
-      }).join('');
-    }
-
-    // ═══════════════════════════════
-    // MULTIPLAYER / PLAYERS SYSTEM
-    // ═══════════════════════════════
-    function toggleJoinBanner() {
-      var user = requireAuth();
-      if (!user) return;
-      var banner = document.getElementById('joinBanner');
-      banner.style.display = banner.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function joinCampaign() {
-      var currentUser = requireAuth();
-      if (!currentUser) return;
-
-      var code = (document.getElementById('joinCodeInput').value || '').toUpperCase().trim();
-      if (!code || code.length < 4) {
-        if (window.psToast) psToast('Please enter a valid invite code');
-        return;
-      }
-
-      // Search the shared registry (not just user's campaigns) for the invite code
-      var registry = loadAllCampaignsFromRegistry();
-      var campaign = null;
-      var campaignId = null;
-      Object.keys(registry).forEach(function(cid) {
-        if (registry[cid].inviteCode === code) {
-          campaign = registry[cid];
-          campaignId = cid;
-        }
-      });
-
-      if (!campaign) {
-        if (window.psToast) psToast('Campaign not found. The DM must create it on this device first, or check the code.');
-        return;
-      }
-
-      var alreadyJoined = (campaign.players || []).find(function(p) { return p.id === currentUser.id; });
-      if (alreadyJoined) {
-        // Make sure it's in user's campaign list
-        var myIds = getMyCampaignIds();
-        if (myIds.indexOf(campaignId) === -1) {
-          myIds.push(campaignId);
-          saveMyCampaignIds(myIds);
-          loadCampaigns();
-        }
-        if (window.psToast) psToast('You\'re already in this campaign!');
-        openCampaign(campaignId);
-        return;
-      }
-
-      // Add user to campaign players
-      if (!campaign.players) campaign.players = [];
-      campaign.players.push({
-        id: currentUser.id,
-        name: currentUser.name,
-        email: currentUser.email,
-        role: 'player',
-        joinedAt: new Date().toISOString(),
-        characterId: null
-      });
-
-      // Save to registry
-      registry[campaignId] = campaign;
-      saveRegistry(registry);
-
-      // Add to user's campaign list
-      var myIds = getMyCampaignIds();
-      if (myIds.indexOf(campaignId) === -1) myIds.push(campaignId);
-      saveMyCampaignIds(myIds);
-
-      // Reload campaigns list
-      loadCampaigns();
-
-      document.getElementById('joinBanner').style.display = 'none';
-      document.getElementById('joinCodeInput').value = '';
-      if (window.psToast) psToast('Joined "' + campaign.name + '"!');
-      renderCampaignList();
-      openCampaign(campaignId);
-    }
-
-    function copyInviteCode() {
-      var campaign = getCampaign(currentCampaignId);
-      if (!campaign) return;
-      var code = campaign.inviteCode;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(code).then(function() {
-          if (window.psToast) psToast('Invite code copied!');
-        });
-      } else {
-        // Fallback
-        var temp = document.createElement('textarea');
-        temp.value = code;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand('copy');
-        document.body.removeChild(temp);
-        if (window.psToast) psToast('Invite code copied!');
-      }
-    }
-
-    function regenerateInviteCode() {
-      var campaign = getCampaign(currentCampaignId);
-      campaign.inviteCode = generateInviteCode();
-      saveCampaigns();
-      document.getElementById('inviteCode').textContent = campaign.inviteCode;
-      if (window.psToast) psToast('New invite code generated!');
-    }
-
-    function linkCharacter(playerId) {
-      var campaign = getCampaign(currentCampaignId);
-      var player = campaign.players.find(function(p) { return p.id === playerId; });
-      if (!player) return;
-
-      var partyOptions = (campaign.party || []).map(function(m) { return m.name; });
-      if (partyOptions.length === 0) {
-        if (window.psToast) psToast('Add party members first');
-        return;
-      }
-
-      var choice = prompt('Link to which character?\n' + partyOptions.map(function(n, i) { return (i + 1) + '. ' + n; }).join('\n') + '\n\nEnter number:');
-      if (!choice) return;
-      var idx = parseInt(choice) - 1;
-      if (idx >= 0 && idx < campaign.party.length) {
-        player.characterId = campaign.party[idx].id;
-        saveCampaigns();
-        renderPlayers();
-        renderParty();
-        if (window.psToast) psToast(player.name + ' linked to ' + campaign.party[idx].name);
-      }
-    }
-
-    function removePlayer(playerId) {
-      var campaign = getCampaign(currentCampaignId);
-      if (campaign.ownerId === playerId) {
-        if (window.psToast) psToast('Cannot remove the campaign owner');
-        return;
-      }
-      campaign.players = campaign.players.filter(function(p) { return p.id !== playerId; });
-      saveCampaigns();
-      renderPlayers();
-    }
-
-    function renderPlayers() {
-      var campaign = getCampaign(currentCampaignId);
-      document.getElementById('inviteCode').textContent = campaign.inviteCode || '------';
-
-      var container = document.getElementById('playerList');
-      if (!campaign.players || campaign.players.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-text">No players yet.</div></div>';
-        return;
-      }
-
-      container.innerHTML = '<div class="player-list">' + campaign.players.map(function(p) {
-        var initial = (p.name || '?').charAt(0).toUpperCase();
-        var linkedChar = p.characterId ? (campaign.party || []).find(function(m) { return m.id === p.characterId; }) : null;
-        var isOwner = p.id === campaign.ownerId;
-
-        return '<div class="player-row"><div class="player-info"><div class="player-avatar">' + initial + '</div><div>' +
-          '<div class="player-name">' + escapeHtml(p.name) + (isOwner ? ' <span style="color:var(--crimson);font-size:10px;">(DM)</span>' : '') + '</div>' +
-          '<div class="player-role">' + p.role + '</div>' +
-          (linkedChar ? '<div class="player-character">Playing: ' + escapeHtml(linkedChar.name) + '</div>' : '') +
-          '</div></div><div style="display:flex;gap:8px;">' +
-          '<button class="form-button secondary" style="padding:6px 14px;font-size:8px;" onclick="linkCharacter(\'' + p.id + '\')">Link Character</button>' +
-          (!isOwner ? '<button class="form-button secondary" style="padding:6px 14px;font-size:8px;" onclick="removePlayer(\'' + p.id + '\')">Remove</button>' : '') +
-          '</div></div>';
-      }).join('') + '</div>';
-    }
-
-    // ═══════════════════════════════
-    // BATTLEMAP SYSTEM
+    // BATTLEMAP SYSTEM (ENHANCED)
     // ═══════════════════════════════
     var bm = {
-      canvas: null, ctx: null,
+      canvas: null, ctx: null, minimapCanvas: null, minimapCtx: null,
       gridSize: 40, gridCols: 40, gridRows: 30,
       offsetX: 0, offsetY: 0, zoom: 1,
-      tokens: [], drawings: [], shapes: [], fog: {},
+      tokens: [], drawings: [], shapes: [], fog: {}, texts: [], stamps: [],
       undoStack: [],
       tool: 'select', selectedTokenIdx: -1,
       isDragging: false, dragOffX: 0, dragOffY: 0,
       isPanning: false, panStartX: 0, panStartY: 0, panOffX: 0, panOffY: 0,
-      drawPoints: [], drawColor: '#dc143c', drawWidth: 3,
+      drawPoints: [], drawColor: '#dc143c', drawWidth: 3, drawOpacity: 1,
       rulerStart: null, rulerEnd: null,
+      radiusStart: null, radiusEnd: null,
       shapeStart: null, shapeEnd: null,
+      polygonPoints: [],
       fogPaint: true,
-      showGrid: true, gridOpacity: 0.3, bgColor: '#1a1a2e',
+      showGrid: true, gridType: 'square', gridOpacity: 0.3, bgColor: '#1a1a2e',
       bgImage: null, bgImageData: null,
-      animId: null, mouseDown: false, lastDblClick: 0
+      showTokenAuras: false, showTokenHPBars: true, showTokenStatus: false,
+      currentLayer: 'map', gmLayer: {},
+      animId: null, mouseDown: false, lastDblClick: 0,
+      contextMenuToken: -1
     };
+
+    // Status icon mappings
+    var STATUS_ICONS = {
+      dead: '☠',
+      unconscious: '⊘',
+      poisoned: '☣',
+      burning: '🔥',
+      shocked: '⚡',
+      frozen: '❄',
+      shielded: '⚔',
+      blessed: '✨',
+      cursed: '✕'
+    };
+
+    // Stamp symbols
+    var STAMPS = {
+      trap: '⚠',
+      treasure: '💰',
+      door: '🚪',
+      stairs: '⬆',
+      campfire: '🔥',
+      chest: '📦',
+      altar: '⛪',
+      skull: '☠'
+    };
+    var currentStamp = 'trap';
 
     // Map image upload
     function handleMapUpload(input) {
@@ -2166,7 +2154,6 @@
         img.onload = function() {
           bm.bgImage = img;
           bm.bgImageData = e.target.result;
-          // Show preview
           var preview = document.getElementById('bmMapPreview');
           var previewWrap = document.getElementById('bmMapPreviewWrap');
           var uploadArea = document.getElementById('bmUploadArea');
@@ -2196,6 +2183,8 @@
       if (!bm.canvas) {
         bm.canvas = document.getElementById('battlemapCanvas');
         bm.ctx = bm.canvas.getContext('2d');
+        bm.minimapCanvas = document.getElementById('bmMinimap');
+        bm.minimapCtx = bm.minimapCanvas ? bm.minimapCanvas.getContext('2d') : null;
         bm.canvas.addEventListener('mousedown', onBmMouseDown);
         bm.canvas.addEventListener('mousemove', onBmMouseMove);
         bm.canvas.addEventListener('mouseup', onBmMouseUp);
@@ -2206,6 +2195,11 @@
         bm.canvas.addEventListener('touchstart', onBmTouchStart, { passive: false });
         bm.canvas.addEventListener('touchmove', onBmTouchMove, { passive: false });
         bm.canvas.addEventListener('touchend', onBmTouchEnd);
+        if (bm.minimapCanvas) {
+          bm.minimapCanvas.addEventListener('mousedown', onMinimapMouseDown);
+          bm.minimapCanvas.addEventListener('mousemove', onMinimapMouseMove);
+          bm.minimapCanvas.addEventListener('mouseup', onMinimapMouseUp);
+        }
       }
       resizeBmCanvas();
       loadBattlemapState();
@@ -2218,12 +2212,81 @@
       var wrap = document.getElementById('bmCanvasWrap');
       if (!wrap) return;
       var w = wrap.clientWidth, h = wrap.clientHeight;
-      if (w > 0 && h > 0) { bm.canvas.width = w; bm.canvas.height = h; }
+      if (w > 0 && h > 0) { 
+        bm.canvas.width = w; 
+        bm.canvas.height = h;
+        if (bm.minimapCanvas) {
+          bm.minimapCanvas.width = 140;
+          bm.minimapCanvas.height = 140;
+        }
+      }
     }
 
     function bmRenderLoop() {
       renderBattlemap();
+      if (bm.minimapCanvas && bm.minimapCtx) renderMinimap();
+      renderGridCoordinates();
       bm.animId = requestAnimationFrame(bmRenderLoop);
+    }
+
+    function renderGridCoordinates() {
+      var coordContainer = document.getElementById('bmCoordLabels');
+      if (!coordContainer || !bm.showGrid) { coordContainer.innerHTML = ''; return; }
+      
+      var gs = bm.gridSize * bm.zoom;
+      var startCol = Math.floor(-bm.offsetX / gs);
+      var startRow = Math.floor(-bm.offsetY / gs);
+      var endCol = startCol + Math.ceil(bm.canvas.width / gs) + 1;
+      var endRow = startRow + Math.ceil(bm.canvas.height / gs) + 1;
+      
+      var html = '';
+      // Top labels (column letters)
+      for (var col = startCol; col <= Math.min(startCol + 25, endCol); col++) {
+        var x = Math.round(col * gs + bm.offsetX);
+        var letter = String.fromCharCode(65 + (col % 26));
+        if (x >= 0 && x <= bm.canvas.width) {
+          html += '<div class="bm-coord-label" style="left:' + (x + 5) + 'px;top:5px;">' + letter + '</div>';
+        }
+      }
+      // Left labels (row numbers)
+      for (var row = startRow; row <= Math.min(startRow + 20, endRow); row++) {
+        var y = Math.round(row * gs + bm.offsetY);
+        if (y >= 0 && y <= bm.canvas.height) {
+          html += '<div class="bm-coord-label" style="left:5px;top:' + (y + 5) + 'px;">' + (row + 1) + '</div>';
+        }
+      }
+      coordContainer.innerHTML = html;
+    }
+
+    function renderMinimap() {
+      if (!bm.minimapCanvas || !bm.minimapCtx) return;
+      var c = bm.minimapCtx;
+      var mw = 140, mh = 140;
+      
+      c.fillStyle = bm.bgColor;
+      c.fillRect(0, 0, mw, mh);
+      
+      var scale = Math.min(mw / (bm.gridSize * bm.gridCols), mh / (bm.gridSize * bm.gridRows));
+      
+      // Draw tokens on minimap
+      bm.tokens.forEach(function(t) {
+        c.fillStyle = t.color;
+        c.beginPath();
+        c.arc(t.x * scale + 5, t.y * scale + 5, 2, 0, Math.PI * 2);
+        c.fill();
+      });
+      
+      // Draw viewport rectangle
+      var vpX = (-bm.offsetX / (bm.gridSize * bm.zoom)) * scale;
+      var vpY = (-bm.offsetY / (bm.gridSize * bm.zoom)) * scale;
+      var vpW = (bm.canvas.width / (bm.gridSize * bm.zoom)) * scale;
+      var vpH = (bm.canvas.height / (bm.gridSize * bm.zoom)) * scale;
+      
+      c.strokeStyle = 'rgba(220, 20, 60, 0.6)';
+      c.lineWidth = 2;
+      c.strokeRect(vpX, vpY, vpW, vpH);
+      c.fillStyle = 'rgba(220, 20, 60, 0.1)';
+      c.fillRect(vpX, vpY, vpW, vpH);
     }
 
     function renderBattlemap() {
@@ -2254,43 +2317,81 @@
         var startCol = Math.floor(-ox / gs), startRow = Math.floor(-oy / gs);
         var endCol = startCol + Math.ceil(w / gs) + 1;
         var endRow = startRow + Math.ceil(h / gs) + 1;
-        c.beginPath();
-        for (var col = startCol; col <= endCol; col++) {
-          var x = Math.round(col * gs + ox) + 0.5;
-          c.moveTo(x, 0); c.lineTo(x, h);
+        
+        if (bm.gridType === 'hex') {
+          // Hex grid rendering
+          for (var row = startRow; row <= endRow; row++) {
+            for (var col = startCol; col <= endCol; col++) {
+              var hx = col * gs * 0.75;
+              var hy = row * gs + (col % 2) * gs * 0.5;
+              drawHexagon(c, hx + ox, hy + oy, gs * 0.5, 'rgba(255,255,255,' + (opacity * 0.3) + ')', null);
+            }
+          }
+        } else {
+          // Square grid (default)
+          c.beginPath();
+          for (var col = startCol; col <= endCol; col++) {
+            var x = Math.round(col * gs + ox) + 0.5;
+            c.moveTo(x, 0); c.lineTo(x, h);
+          }
+          for (var row = startRow; row <= endRow; row++) {
+            var y = Math.round(row * gs + oy) + 0.5;
+            c.moveTo(0, y); c.lineTo(w, y);
+          }
+          c.stroke();
+          // Major gridlines every 5 cells
+          c.strokeStyle = 'rgba(255,255,255,' + (opacity * 0.2) + ')';
+          c.lineWidth = 1.5;
+          c.beginPath();
+          for (var col = startCol; col <= endCol; col++) {
+            if (col % 5 === 0) { var x = Math.round(col * gs + ox) + 0.5; c.moveTo(x, 0); c.lineTo(x, h); }
+          }
+          for (var row = startRow; row <= endRow; row++) {
+            if (row % 5 === 0) { var y = Math.round(row * gs + oy) + 0.5; c.moveTo(0, y); c.lineTo(w, y); }
+          }
+          c.stroke();
         }
-        for (var row = startRow; row <= endRow; row++) {
-          var y = Math.round(row * gs + oy) + 0.5;
-          c.moveTo(0, y); c.lineTo(w, y);
-        }
-        c.stroke();
-        // Major gridlines every 5 cells
-        c.strokeStyle = 'rgba(255,255,255,' + (opacity * 0.2) + ')';
-        c.lineWidth = 1.5;
-        c.beginPath();
-        for (var col = startCol; col <= endCol; col++) {
-          if (col % 5 === 0) { var x = Math.round(col * gs + ox) + 0.5; c.moveTo(x, 0); c.lineTo(x, h); }
-        }
-        for (var row = startRow; row <= endRow; row++) {
-          if (row % 5 === 0) { var y = Math.round(row * gs + oy) + 0.5; c.moveTo(0, y); c.lineTo(w, y); }
-        }
-        c.stroke();
       }
 
-      // Saved drawings (polylines and lines)
+      // Saved drawings, shapes, texts, stamps
       bm.drawings.forEach(function(d) { drawPathOrLine(c, d, ox, oy); });
-
-      // Saved shapes (rect, circle, cone)
       bm.shapes.forEach(function(s) { drawShape(c, s, ox, oy, false); });
+      bm.texts.forEach(function(t) { drawText(c, t, ox, oy); });
+      bm.stamps.forEach(function(s) { drawStamp(c, s, ox, oy); });
 
       // Current draw preview
       if ((bm.tool === 'draw' || bm.tool === 'line') && bm.drawPoints.length > 0 && bm.mouseDown) {
-        drawPathOrLine(c, { type: bm.tool === 'line' ? 'line' : 'path', points: bm.drawPoints, color: bm.drawColor, width: bm.drawWidth }, ox, oy);
+        drawPathOrLine(c, { type: bm.tool === 'line' ? 'line' : 'path', points: bm.drawPoints, color: bm.drawColor, width: bm.drawWidth, opacity: bm.drawOpacity }, ox, oy);
+      }
+
+      // Polygon preview
+      if (bm.tool === 'polygon' && bm.polygonPoints.length > 0) {
+        c.strokeStyle = bm.drawColor;
+        c.lineWidth = bm.drawWidth * bm.zoom;
+        c.beginPath();
+        c.moveTo(bm.polygonPoints[0].x * bm.zoom + ox, bm.polygonPoints[0].y * bm.zoom + oy);
+        for (var i = 1; i < bm.polygonPoints.length; i++) {
+          c.lineTo(bm.polygonPoints[i].x * bm.zoom + ox, bm.polygonPoints[i].y * bm.zoom + oy);
+        }
+        if (bm.mouseDown) c.stroke();
       }
 
       // Current shape preview
       if ((bm.tool === 'rect' || bm.tool === 'circle' || bm.tool === 'cone') && bm.shapeStart && bm.shapeEnd && bm.mouseDown) {
         drawShape(c, { type: bm.tool, x1: bm.shapeStart.x, y1: bm.shapeStart.y, x2: bm.shapeEnd.x, y2: bm.shapeEnd.y, color: bm.drawColor, width: bm.drawWidth, fill: bm.tool === 'cone' ? bm.drawColor + '33' : null }, ox, oy, true);
+      }
+
+      // Radius AoE preview
+      if (bm.tool === 'radius' && bm.radiusStart && bm.radiusEnd && bm.mouseDown) {
+        var rx = bm.radiusStart.x * bm.zoom + ox, ry = bm.radiusStart.y * bm.zoom + oy;
+        var rdx = (bm.radiusEnd.x - bm.radiusStart.x) / bm.gridSize;
+        var rdy = (bm.radiusEnd.y - bm.radiusStart.y) / bm.gridSize;
+        var rr = Math.sqrt(rdx * rdx + rdy * rdy) * bm.gridSize * bm.zoom;
+        c.strokeStyle = bm.drawColor; c.lineWidth = 2; c.setLineDash([6, 4]);
+        c.beginPath(); c.arc(rx, ry, rr, 0, Math.PI * 2); c.stroke();
+        c.setLineDash([]);
+        c.fillStyle = bm.drawColor + '33';
+        c.beginPath(); c.arc(rx, ry, rr, 0, Math.PI * 2); c.fill();
       }
 
       // Fog of war
@@ -2303,13 +2404,24 @@
         });
       }
 
-      // Tokens
+      // Tokens with enhanced rendering
       bm.tokens.forEach(function(t, idx) {
         var tx = t.x * gs + ox, ty = t.y * gs + oy;
         var sz = t.size * gs;
         var cx = tx + sz / 2, cy = ty + sz / 2;
         var rad = sz / 2 - 3 * bm.zoom;
         if (rad < 4) rad = 4;
+
+        // Aura visualization
+        if (bm.showTokenAuras && t.auraRadius) {
+          c.strokeStyle = t.auraColor || 'rgba(100, 200, 255, 0.3)';
+          c.lineWidth = 1;
+          c.setLineDash([4, 4]);
+          c.beginPath();
+          c.arc(cx, cy, t.auraRadius * gs * bm.zoom, 0, Math.PI * 2);
+          c.stroke();
+          c.setLineDash([]);
+        }
 
         // Drop shadow
         c.save();
@@ -2336,9 +2448,10 @@
         c.lineWidth = 1;
         c.beginPath(); c.arc(cx, cy, rad - 2 * bm.zoom, 0, Math.PI * 2); c.stroke();
 
-        // Selection ring
+        // Selection ring with pulsing glow
         if (idx === bm.selectedTokenIdx) {
-          c.strokeStyle = '#ffd700';
+          var pulseIntensity = Math.sin(Date.now() / 300) * 0.5 + 0.5;
+          c.strokeStyle = 'rgba(255, 215, 0, ' + (0.4 + pulseIntensity * 0.4) + ')';
           c.lineWidth = 2;
           c.setLineDash([5, 3]);
           c.beginPath(); c.arc(cx, cy, rad + 4 * bm.zoom, 0, Math.PI * 2); c.stroke();
@@ -2353,13 +2466,43 @@
         c.fillText(t.label, cx, cy);
         c.shadowColor = 'transparent'; c.shadowBlur = 0;
 
+        // HP Bar
+        if (bm.showTokenHPBars && t.hp !== undefined && t.maxHP !== undefined) {
+          var hpPercent = Math.max(0, Math.min(1, t.hp / t.maxHP));
+          var barWidth = sz * 0.8, barHeight = 4 * bm.zoom;
+          var barX = cx - barWidth / 2, barY = ty + sz + 2 * bm.zoom;
+          c.fillStyle = 'rgba(0,0,0,0.6)';
+          c.fillRect(barX, barY, barWidth, barHeight);
+          var hpColor = hpPercent > 0.5 ? '#4a90d9' : (hpPercent > 0.25 ? '#f39c12' : '#e74c3c');
+          c.fillStyle = hpColor;
+          c.fillRect(barX, barY, barWidth * hpPercent, barHeight);
+          c.strokeStyle = 'rgba(255,255,255,0.3)';
+          c.lineWidth = 1;
+          c.strokeRect(barX, barY, barWidth, barHeight);
+        }
+
+        // Status icons
+        if (bm.showTokenStatus && t.status && t.status.length > 0) {
+          var statusStr = '';
+          t.status.forEach(function(s) {
+            statusStr += STATUS_ICONS[s] || s.charAt(0);
+          });
+          c.fillStyle = 'rgba(0,0,0,0.7)';
+          c.font = '9px Cinzel, serif';
+          var sw = c.measureText(statusStr).width + 4;
+          c.fillRect(cx - sw / 2, ty - 12 * bm.zoom, sw, 10 * bm.zoom);
+          c.fillStyle = '#ffd700';
+          c.textAlign = 'center'; c.textBaseline = 'middle';
+          c.fillText(statusStr, cx, ty - 7 * bm.zoom);
+        }
+
         // Name label
         if (bm.zoom >= 0.4) {
           var nameFont = Math.max(8, Math.round(10 * bm.zoom));
           c.font = nameFont + 'px Spectral, serif';
           var nameW = c.measureText(t.name).width + 10;
           var nameH = nameFont + 6;
-          var nameY = ty + sz + 3 * bm.zoom;
+          var nameY = ty + sz + (bm.showTokenHPBars ? 14 * bm.zoom : 3 * bm.zoom);
           // Rounded label background
           c.fillStyle = 'rgba(0,0,0,0.7)';
           c.beginPath();
@@ -2384,15 +2527,12 @@
       if (bm.tool === 'ruler' && bm.rulerStart && bm.rulerEnd && bm.mouseDown) {
         var rx1 = bm.rulerStart.x * bm.zoom + ox, ry1 = bm.rulerStart.y * bm.zoom + oy;
         var rx2 = bm.rulerEnd.x * bm.zoom + ox, ry2 = bm.rulerEnd.y * bm.zoom + oy;
-        // Line
         c.strokeStyle = '#ffd700'; c.lineWidth = 2.5; c.setLineDash([8, 4]);
         c.beginPath(); c.moveTo(rx1, ry1); c.lineTo(rx2, ry2); c.stroke();
         c.setLineDash([]);
-        // Endpoint circles
         c.fillStyle = '#ffd700';
         c.beginPath(); c.arc(rx1, ry1, 4, 0, Math.PI * 2); c.fill();
         c.beginPath(); c.arc(rx2, ry2, 4, 0, Math.PI * 2); c.fill();
-        // Distance
         var rdx = (bm.rulerEnd.x - bm.rulerStart.x) / bm.gridSize;
         var rdy = (bm.rulerEnd.y - bm.rulerStart.y) / bm.gridSize;
         var rdist = Math.sqrt(rdx * rdx + rdy * rdy);
@@ -2408,10 +2548,24 @@
       }
     }
 
-    // Drawing helpers
+    // Helper drawing functions
+    function drawHexagon(c, cx, cy, r, stroke, fill) {
+      c.beginPath();
+      for (var i = 0; i < 6; i++) {
+        var angle = Math.PI / 3 * i;
+        var x = cx + r * Math.cos(angle);
+        var y = cy + r * Math.sin(angle);
+        if (i === 0) c.moveTo(x, y); else c.lineTo(x, y);
+      }
+      c.closePath();
+      if (fill) { c.fillStyle = fill; c.fill(); }
+      if (stroke) { c.strokeStyle = stroke; c.stroke(); }
+    }
+
     function drawPathOrLine(c, d, ox, oy) {
       if (!d.points || d.points.length < 2) return;
       c.strokeStyle = d.color || '#dc143c';
+      c.globalAlpha = d.opacity || 1;
       c.lineWidth = (d.width || 3) * bm.zoom;
       c.lineCap = 'round'; c.lineJoin = 'round';
       c.beginPath();
@@ -2425,6 +2579,25 @@
         }
       }
       c.stroke();
+      c.globalAlpha = 1;
+    }
+
+    function drawText(c, t, ox, oy) {
+      var tx = t.x * bm.zoom + ox, ty = t.y * bm.zoom + oy;
+      c.fillStyle = t.color || '#ffd700';
+      c.font = (t.size || 14) * bm.zoom + 'px Spectral, serif';
+      c.textAlign = 'left'; c.textBaseline = 'top';
+      c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 3;
+      c.fillText(t.text, tx, ty);
+      c.shadowColor = 'transparent';
+    }
+
+    function drawStamp(c, s, ox, oy) {
+      var sx = s.x * bm.zoom + ox, sy = s.y * bm.zoom + oy;
+      c.fillStyle = s.color || '#dc143c';
+      c.font = 'bold ' + Math.round(24 * bm.zoom) + 'px Arial';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(s.symbol || STAMPS.trap, sx, sy);
     }
 
     function drawShape(c, s, ox, oy, preview) {
@@ -2443,10 +2616,9 @@
         if (s.fill) { c.fillStyle = s.fill; c.beginPath(); c.ellipse(cx, cy, Math.max(1, rx), Math.max(1, ry), 0, 0, Math.PI * 2); c.fill(); }
         c.beginPath(); c.ellipse(cx, cy, Math.max(1, rx), Math.max(1, ry), 0, 0, Math.PI * 2); c.stroke();
       } else if (s.type === 'cone') {
-        // Cone from origin point fanning out
         var angle = Math.atan2(y2 - y1, x2 - x1);
         var dist = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-        var spread = Math.PI / 6; // 30° half-angle = 60° cone
+        var spread = Math.PI / 6;
         c.beginPath();
         c.moveTo(x1, y1);
         c.lineTo(x1 + dist * Math.cos(angle - spread), y1 + dist * Math.sin(angle - spread));
@@ -2454,7 +2626,6 @@
         c.closePath();
         if (s.fill || preview) { c.fillStyle = (s.color || '#dc143c') + '33'; c.fill(); }
         c.stroke();
-        // Distance label
         var coneDistSq = ((s.x2 - s.x1) * (s.x2 - s.x1) + (s.y2 - s.y1) * (s.y2 - s.y1));
         var coneFt = Math.round(Math.sqrt(coneDistSq) / bm.gridSize * 5);
         c.fillStyle = s.color || '#dc143c';
@@ -2485,7 +2656,6 @@
       return -1;
     }
 
-    // Double click to view stat block
     function onBmDblClick(e) {
       var pos = getCanvasPos(e);
       var idx = tokenAt(pos.x, pos.y);
@@ -2494,7 +2664,6 @@
       }
     }
 
-    // Mouse events
     function onBmMouseDown(e) {
       var pos = getCanvasPos(e);
       bm.mouseDown = true;
@@ -2508,14 +2677,11 @@
         return;
       }
 
-      // Right click = remove token
+      // Right click = context menu
       if (e.button === 2) {
         var tidx = tokenAt(pos.x, pos.y);
         if (tidx >= 0) {
-          bm.tokens.splice(tidx, 1);
-          if (bm.selectedTokenIdx === tidx) bm.selectedTokenIdx = -1;
-          else if (bm.selectedTokenIdx > tidx) bm.selectedTokenIdx--;
-          saveBattlemapState(); renderBmPlacedTokens();
+          showTokenContextMenu(tidx, e.clientX, e.clientY);
         }
         return;
       }
@@ -2537,9 +2703,32 @@
         bm.drawPoints = [w, w];
       } else if (bm.tool === 'rect' || bm.tool === 'circle' || bm.tool === 'cone') {
         bm.shapeStart = w; bm.shapeEnd = w;
+      } else if (bm.tool === 'polygon') {
+        bm.polygonPoints.push(w);
+        if (bm.polygonPoints.length > 1 && Math.abs(bm.polygonPoints[bm.polygonPoints.length - 1].x - bm.polygonPoints[0].x) < 10 &&
+            Math.abs(bm.polygonPoints[bm.polygonPoints.length - 1].y - bm.polygonPoints[0].y) < 10) {
+          var p = { type: 'polygon', points: bm.polygonPoints.slice(), color: bm.drawColor, width: bm.drawWidth };
+          bm.shapes.push(p); bm.undoStack.push({ kind: 'shape', idx: bm.shapes.length - 1 });
+          bm.polygonPoints = [];
+          saveBattlemapState();
+        }
+      } else if (bm.tool === 'text') {
+        var text = prompt('Enter text:');
+        if (text) {
+          bm.texts.push({ x: w.x, y: w.y, text: text, color: bm.drawColor, size: 14 });
+          bm.undoStack.push({ kind: 'text', idx: bm.texts.length - 1 });
+          saveBattlemapState();
+        }
+      } else if (bm.tool === 'stamp') {
+        bm.stamps.push({ x: w.x, y: w.y, symbol: STAMPS[currentStamp], color: bm.drawColor });
+        bm.undoStack.push({ kind: 'stamp', idx: bm.stamps.length - 1 });
+        saveBattlemapState();
       } else if (bm.tool === 'ruler') {
         bm.rulerStart = w; bm.rulerEnd = w;
         document.getElementById('bmRulerInfo').style.display = 'block';
+      } else if (bm.tool === 'radius') {
+        bm.radiusStart = w; bm.radiusEnd = w;
+        document.getElementById('bmRadiusInfo').style.display = 'block';
       } else if (bm.tool === 'fog') {
         var g = screenToGrid(pos.x, pos.y);
         var key = g.col + ',' + g.row;
@@ -2574,6 +2763,12 @@
         var dy = (bm.rulerEnd.y - bm.rulerStart.y) / bm.gridSize;
         var dist = Math.sqrt(dx * dx + dy * dy);
         document.getElementById('bmRulerText').textContent = Math.round(dist * 5) + ' ft (' + dist.toFixed(1) + ' sq)';
+      } else if (bm.tool === 'radius' && bm.mouseDown && bm.radiusStart) {
+        bm.radiusEnd = w;
+        var dx = (bm.radiusEnd.x - bm.radiusStart.x) / bm.gridSize;
+        var dy = (bm.radiusEnd.y - bm.radiusStart.y) / bm.gridSize;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        document.getElementById('bmRadiusText').textContent = Math.round(dist * 5) + ' ft radius';
       } else if (bm.tool === 'fog' && bm.mouseDown) {
         var g = screenToGrid(pos.x, pos.y);
         var key = g.col + ',' + g.row;
@@ -2584,7 +2779,7 @@
 
       // Cursor
       if (!bm.isPanning && !bm.isDragging) {
-        var cursors = { select: tokenAt(pos.x, pos.y) >= 0 ? 'move' : 'default', draw: 'crosshair', line: 'crosshair', rect: 'crosshair', circle: 'crosshair', cone: 'crosshair', ruler: 'crosshair', fog: 'cell', eraser: 'pointer' };
+        var cursors = { select: tokenAt(pos.x, pos.y) >= 0 ? 'move' : 'default', draw: 'crosshair', line: 'crosshair', rect: 'crosshair', circle: 'crosshair', cone: 'crosshair', polygon: 'crosshair', text: 'text', stamp: 'cell', ruler: 'crosshair', radius: 'crosshair', fog: 'cell', eraser: 'pointer' };
         bm.canvas.style.cursor = cursors[bm.tool] || 'default';
       }
     }
@@ -2594,7 +2789,7 @@
       if (bm.isDragging) { bm.isDragging = false; bm.canvas.style.cursor = 'default'; saveBattlemapState(); renderBmPlacedTokens(); }
 
       if (bm.tool === 'draw' && bm.drawPoints.length > 1) {
-        var d = { type: 'path', points: bm.drawPoints.slice(), color: bm.drawColor, width: bm.drawWidth };
+        var d = { type: 'path', points: bm.drawPoints.slice(), color: bm.drawColor, width: bm.drawWidth, opacity: bm.drawOpacity };
         bm.drawings.push(d); bm.undoStack.push({ kind: 'drawing', idx: bm.drawings.length - 1 });
         bm.drawPoints = []; saveBattlemapState();
       }
@@ -2602,7 +2797,7 @@
         var p0 = bm.drawPoints[0], p1 = bm.drawPoints[bm.drawPoints.length - 1];
         var dd = Math.sqrt((p1.x - p0.x) * (p1.x - p0.x) + (p1.y - p0.y) * (p1.y - p0.y));
         if (dd > 3) {
-          var d = { type: 'line', points: [p0, p1], color: bm.drawColor, width: bm.drawWidth };
+          var d = { type: 'line', points: [p0, p1], color: bm.drawColor, width: bm.drawWidth, opacity: bm.drawOpacity };
           bm.drawings.push(d); bm.undoStack.push({ kind: 'drawing', idx: bm.drawings.length - 1 });
           saveBattlemapState();
         }
@@ -2632,6 +2827,29 @@
       bm.offsetX = pos.x - (pos.x - bm.offsetX) * ratio;
       bm.offsetY = pos.y - (pos.y - bm.offsetY) * ratio;
       document.getElementById('bmZoomDisplay').textContent = Math.round(bm.zoom * 100) + '%';
+    }
+
+    // Minimap interaction
+    var minimapDragging = false;
+    function onMinimapMouseDown(e) {
+      minimapDragging = true;
+      updateMapFromMinimap(e);
+    }
+    function onMinimapMouseMove(e) {
+      if (minimapDragging) updateMapFromMinimap(e);
+    }
+    function onMinimapMouseUp(e) {
+      minimapDragging = false;
+    }
+    function updateMapFromMinimap(e) {
+      var rect = bm.minimapCanvas.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var scale = Math.min(140 / (bm.gridSize * bm.gridCols), 140 / (bm.gridSize * bm.gridRows));
+      var worldX = x / scale;
+      var worldY = y / scale;
+      bm.offsetX = -worldX * bm.gridSize * bm.zoom + bm.canvas.width / 2;
+      bm.offsetY = -worldY * bm.gridSize * bm.zoom + bm.canvas.height / 2;
     }
 
     // Touch
@@ -2685,6 +2903,8 @@
       var last = bm.undoStack.pop();
       if (last.kind === 'drawing' && bm.drawings.length > 0) bm.drawings.pop();
       else if (last.kind === 'shape' && bm.shapes.length > 0) bm.shapes.pop();
+      else if (last.kind === 'text' && bm.texts.length > 0) bm.texts.pop();
+      else if (last.kind === 'stamp' && bm.stamps.length > 0) bm.stamps.pop();
       saveBattlemapState();
     }
 
@@ -2693,8 +2913,10 @@
       bm.tool = tool;
       bm.selectedTokenIdx = -1;
       bm.rulerStart = null; bm.rulerEnd = null;
+      bm.radiusStart = null; bm.radiusEnd = null;
       bm.drawPoints = []; bm.shapeStart = null; bm.shapeEnd = null;
       document.getElementById('bmRulerInfo').style.display = tool === 'ruler' ? 'block' : 'none';
+      document.getElementById('bmRadiusInfo').style.display = tool === 'radius' ? 'block' : 'none';
       document.querySelectorAll('.bm-tool[data-bm-tool]').forEach(function(b) {
         b.classList.toggle('active', b.dataset.bmTool === tool);
       });
@@ -2705,22 +2927,71 @@
       var btn = document.getElementById('bmGridBtn');
       if (btn) btn.classList.toggle('active', bm.showGrid);
     }
+    
+    function toggleBmGridType() {
+      bm.gridType = bm.gridType === 'square' ? 'hex' : 'square';
+      var btn = document.getElementById('bmGridTypeBtn');
+      if (btn) btn.textContent = bm.gridType === 'square' ? 'Sq' : 'Hx';
+    }
+
     function bmZoom(delta) {
       var oldZoom = bm.zoom;
       bm.zoom = Math.min(3, Math.max(0.2, bm.zoom + delta));
-      // Zoom toward center
       var cx = bm.canvas.width / 2, cy = bm.canvas.height / 2;
       var ratio = bm.zoom / oldZoom;
       bm.offsetX = cx - (cx - bm.offsetX) * ratio;
       bm.offsetY = cy - (cy - bm.offsetY) * ratio;
       document.getElementById('bmZoomDisplay').textContent = Math.round(bm.zoom * 100) + '%';
     }
-    function resetBmView() { bm.offsetX = 0; bm.offsetY = 0; bm.zoom = 1; document.getElementById('bmZoomDisplay').textContent = '100%'; }
+    
+    function resetBmView() { 
+      bm.offsetX = 0; 
+      bm.offsetY = 0; 
+      bm.zoom = 1; 
+      document.getElementById('bmZoomDisplay').textContent = '100%'; 
+    }
+    
+    function centerView() {
+      if (bm.tokens.length === 0) return;
+      var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      bm.tokens.forEach(function(t) {
+        minX = Math.min(minX, t.x); minY = Math.min(minY, t.y);
+        maxX = Math.max(maxX, t.x + t.size); maxY = Math.max(maxY, t.y + t.size);
+      });
+      var centerX = (minX + maxX) / 2;
+      var centerY = (minY + maxY) / 2;
+      bm.offsetX = bm.canvas.width / 2 - centerX * bm.gridSize * bm.zoom;
+      bm.offsetY = bm.canvas.height / 2 - centerY * bm.gridSize * bm.zoom;
+    }
+
     function setBmGridSize(size) { bm.gridSize = size; saveBattlemapState(); }
     function setBmBgPreset(color) {
       bm.bgColor = color;
       document.getElementById('bmBgColor').value = color;
       saveBattlemapState();
+    }
+
+    function setBmLayer(layer) {
+      bm.currentLayer = layer;
+      var dot = document.getElementById('bmLayerDot');
+      var text = document.getElementById('bmLayerText');
+      if (dot) dot.style.background = layer === 'gm' ? '#ffd700' : (layer === 'tokens' ? '#4a90d9' : 'var(--crimson)');
+      if (text) text.textContent = layer.charAt(0).toUpperCase() + layer.slice(1);
+    }
+
+    function toggleTokenAuras() {
+      bm.showTokenAuras = !bm.showTokenAuras;
+      document.getElementById('bmAuraBtn').classList.toggle('active', bm.showTokenAuras);
+    }
+
+    function toggleTokenHPBars() {
+      bm.showTokenHPBars = !bm.showTokenHPBars;
+      document.getElementById('bmHPBarBtn').classList.toggle('active', bm.showTokenHPBars);
+    }
+
+    function toggleTokenStatus() {
+      bm.showTokenStatus = !bm.showTokenStatus;
+      document.getElementById('bmStatusBtn').classList.toggle('active', bm.showTokenStatus);
     }
 
     function revealAllFog() { bm.fog = {}; saveBattlemapState(); }
@@ -2735,7 +3006,7 @@
     }
     function clearBattlemap() {
       if (!confirm('Clear all tokens, drawings, and fog from this map?')) return;
-      bm.tokens = []; bm.drawings = []; bm.shapes = []; bm.fog = {}; bm.undoStack = [];
+      bm.tokens = []; bm.drawings = []; bm.shapes = []; bm.texts = []; bm.stamps = []; bm.fog = {}; bm.undoStack = []; bm.polygonPoints = [];
       bm.selectedTokenIdx = -1;
       saveBattlemapState(); renderBmPlacedTokens();
     }
@@ -2754,7 +3025,6 @@
           if (ok) { px = c; py = r; found = true; }
         }
       }
-      // Deduplicate labels: if there's already a token with same first letter, append a number
       var letter = name.charAt(0).toUpperCase();
       var sameLabel = bm.tokens.filter(function(t) { return t.label.charAt(0) === letter; }).length;
       var label = sameLabel > 0 ? letter + (sameLabel + 1) : letter;
@@ -2763,7 +3033,8 @@
         id: Date.now().toString() + Math.random(),
         name: name, type: type, color: color, size: size,
         x: px, y: py, label: label,
-        monsterIdx: monsterIdx !== undefined ? monsterIdx : null
+        monsterIdx: monsterIdx !== undefined ? monsterIdx : null,
+        hp: 10, maxHP: 10, auraRadius: 0, auraColor: '#4a90d9', status: []
       });
       saveBattlemapState(); renderBmPlacedTokens();
       if (window.psToast) psToast(name + ' placed on map');
@@ -2781,6 +3052,72 @@
       var s = sizeStr.toLowerCase();
       if (s === 'large') return 2; if (s === 'huge') return 3; if (s === 'gargantuan') return 4;
       return 1;
+    }
+
+    // Token context menu
+    function showTokenContextMenu(idx, x, y) {
+      bm.contextMenuToken = idx;
+      var menu = document.getElementById('bmContextMenu');
+      menu.style.left = x + 'px';
+      menu.style.top = y + 'px';
+      menu.style.display = 'block';
+      document.addEventListener('click', hideContextMenu);
+    }
+
+    function hideContextMenu() {
+      var menu = document.getElementById('bmContextMenu');
+      menu.style.display = 'none';
+      document.removeEventListener('click', hideContextMenu);
+    }
+
+    function editTokenHP() {
+      if (bm.contextMenuToken < 0) return;
+      var t = bm.tokens[bm.contextMenuToken];
+      var newHP = prompt('Current HP:', t.hp || 10);
+      if (newHP !== null) {
+        t.hp = parseInt(newHP) || 10;
+        saveBattlemapState();
+      }
+      hideContextMenu();
+    }
+
+    function changeTokenColor() {
+      if (bm.contextMenuToken < 0) return;
+      var t = bm.tokens[bm.contextMenuToken];
+      var newColor = prompt('Token color (hex):', t.color);
+      if (newColor) {
+        t.color = newColor;
+        saveBattlemapState();
+      }
+      hideContextMenu();
+    }
+
+    function changeTokenSize() {
+      if (bm.contextMenuToken < 0) return;
+      var t = bm.tokens[bm.contextMenuToken];
+      var newSize = prompt('Token size (1-4):', t.size);
+      if (newSize) {
+        t.size = Math.min(4, Math.max(1, parseInt(newSize) || 1));
+        saveBattlemapState();
+      }
+      hideContextMenu();
+    }
+
+    function removeContextToken() {
+      if (bm.contextMenuToken < 0) return;
+      removeTokenFromMapByIdx(bm.contextMenuToken);
+      hideContextMenu();
+    }
+
+    // Quick actions
+    function quickAddToken() {
+      var name = prompt('Token name:');
+      if (name) addTokenToMap(name, 'custom', '#888888', 1);
+    }
+
+    function quickRollD20() {
+      var roll = Math.floor(Math.random() * 20) + 1;
+      if (window.psToast) psToast('d20 roll: ' + roll);
     }
 
     // Token panel
@@ -2846,9 +3183,9 @@
       var campaign = getCampaign(currentCampaignId);
       if (!campaign) return;
       campaign.battlemap = {
-        tokens: bm.tokens, drawings: bm.drawings, shapes: bm.shapes,
+        tokens: bm.tokens, drawings: bm.drawings, shapes: bm.shapes, texts: bm.texts, stamps: bm.stamps,
         fog: bm.fog, gridSize: bm.gridSize, bgColor: bm.bgColor,
-        bgImageData: bm.bgImageData || null
+        bgImageData: bm.bgImageData || null, showTokenAuras: bm.showTokenAuras, showTokenHPBars: bm.showTokenHPBars
       };
       saveCampaigns();
     }
@@ -2856,16 +3193,16 @@
     function loadBattlemapState() {
       var campaign = getCampaign(currentCampaignId);
       if (!campaign || !campaign.battlemap) {
-        bm.tokens = []; bm.drawings = []; bm.shapes = []; bm.fog = {}; bm.undoStack = [];
+        bm.tokens = []; bm.drawings = []; bm.shapes = []; bm.texts = []; bm.stamps = []; bm.fog = {}; bm.undoStack = [];
         bm.bgImage = null; bm.bgImageData = null;
         return;
       }
       var d = campaign.battlemap;
-      bm.tokens = d.tokens || []; bm.drawings = d.drawings || []; bm.shapes = d.shapes || [];
+      bm.tokens = d.tokens || []; bm.drawings = d.drawings || []; bm.shapes = d.shapes || []; bm.texts = d.texts || []; bm.stamps = d.stamps || [];
       bm.fog = d.fog || {}; bm.undoStack = [];
+      bm.showTokenAuras = d.showTokenAuras || false; bm.showTokenHPBars = d.showTokenHPBars !== false;
       if (d.gridSize) { bm.gridSize = d.gridSize; var gsel = document.getElementById('bmGridSizeSelect'); if (gsel) gsel.value = d.gridSize; }
       if (d.bgColor) { bm.bgColor = d.bgColor; var bgEl = document.getElementById('bmBgColor'); if (bgEl) bgEl.value = d.bgColor; }
-      // Load background image
       if (d.bgImageData) {
         bm.bgImageData = d.bgImageData;
         var img = new Image();
@@ -2888,7 +3225,6 @@
 
     window.addEventListener('resize', function() { if (bm.canvas) resizeBmCanvas(); });
 
-    // ═══════════════════════════════
     // UTILITY
     // ═══════════════════════════════
     function escapeHtml(text) {

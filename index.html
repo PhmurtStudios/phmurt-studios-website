@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
   <title>Phmurt Studios</title>
   <meta name="description" content="Phmurt Studios | Independent game design studio creating custom D&D classes, homebrew RPG systems, and original tabletop games." />
   <meta property="og:title" content="Phmurt Studios" />
@@ -22,7 +25,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
 </head>
@@ -109,6 +112,30 @@
       <div class="ps-card-title">More in the Grimoire</div>
       <div class="ps-card-excerpt">New classes, systems, and supplements are in development. Browse the full archive.</div>
       <div class="ps-card-footer"><span class="ps-card-tag">View All</span><span class="ps-card-arrow">↗</span></div>
+    </a>
+  </div>
+
+  <div class="ps-section-header">
+    <div class="ps-section-title">Player &amp; DM Tools</div>
+  </div>
+  <div class="ps-grid reveal">
+    <a href="learn.html" class="ps-card">
+      <div class="ps-card-type">Tutorial</div>
+      <div class="ps-card-title">How to Play D&amp;D</div>
+      <div class="ps-card-excerpt">An interactive guide for new adventurers. Learn the basics of dice, combat, and roleplaying step by step.</div>
+      <div class="ps-card-footer"><span class="ps-card-tag">Beginner</span><span class="ps-card-arrow">↗</span></div>
+    </a>
+    <a href="gallery.html" class="ps-card">
+      <div class="ps-card-type">Gallery</div>
+      <div class="ps-card-title">Character Gallery</div>
+      <div class="ps-card-excerpt">12 ready-to-play characters across every class. Grab one and jump straight into the game.</div>
+      <div class="ps-card-footer"><span class="ps-card-tag">All Classes</span><span class="ps-card-arrow">↗</span></div>
+    </a>
+    <a href="generators.html" class="ps-card">
+      <div class="ps-card-type">DM Suite</div>
+      <div class="ps-card-title">Random Generators</div>
+      <div class="ps-card-excerpt">NPCs, dungeons, taverns, treasure, encounters, weather, wild magic, and more. Everything a DM needs on the fly.</div>
+      <div class="ps-card-footer"><span class="ps-card-tag">10 Generators</span><span class="ps-card-arrow">↗</span></div>
     </a>
   </div>
 

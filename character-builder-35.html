@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
   <title>D&D 3.5e Character Builder · Phmurt Studios</title>
   <meta name="description" content="Build a D&D 3.5 Edition character step by step. Choose race, class, abilities, skills, feats, and equipment." />
   <meta property="og:title" content="D&D 3.5e Character Builder · Phmurt Studios" />
@@ -17,7 +20,7 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
   <script src="builder-data-35.js"></script>
@@ -162,6 +165,46 @@
     .cb-weapon-dmg { font-size:12px; color:var(--text-dim); font-style:italic; }
     .cb-roll-btn { font-family:'Cinzel',serif; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; padding:7px 12px; background:var(--crimson-soft); border:1px solid var(--crimson-border); color:var(--text-dim); cursor:pointer; transition:all 0.15s; text-align:left; display:flex; justify-content:space-between; align-items:center; }
     .cb-roll-btn:hover { background:var(--crimson); color:#f5f0e8; }
+    /* Dice animation shake */
+    @keyframes diceShake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-3px) rotate(-2deg); }
+      50% { transform: translateX(3px) rotate(2deg); }
+      75% { transform: translateX(-2px) rotate(-1deg); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes dicePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .dp-die.animate { animation: diceShake 0.5s ease-in-out; }
+    .dp-die.crit { animation: dicePulse 0.3s ease-in-out; }
+    .dp-die.fail { animation: dicePulse 0.3s ease-in-out; }
+    /* Helpful prompt */
+    .cb-detail-prompt { font-size:14px; color:var(--text-muted); font-style:italic; text-align:center; padding:40px 20px; background:rgba(192,57,43,0.04); border:1px dashed rgba(192,57,43,0.2); border-radius:2px; }
+    /* Death saves tracker */
+    .cs-death-saves { margin-top:20px; padding:16px; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.3); }
+    .cs-death-saves-title { font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--crimson); margin-bottom:12px; }
+    .cs-death-saves-row { display:flex; gap:24px; }
+    .cs-death-saves-col { flex:1; }
+    .cs-death-saves-label { font-size:11px; color:var(--text-faint); margin-bottom:8px; font-style:italic; }
+    .cs-death-pips { display:flex; gap:8px; }
+    .cs-death-pip { width:24px; height:24px; border:2px solid rgba(192,57,43,0.4); background:transparent; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+    .cs-death-pip.success { background:#4CAF50; border-color:#4CAF50; }
+    .cs-death-pip.failure { background:var(--crimson); border-color:var(--crimson); }
+    .cs-death-save-btn { font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; padding:8px 16px; background:var(--crimson); border:none; color:white; cursor:pointer; margin-top:8px; }
+    .cs-death-save-btn:hover { background:var(--crimson-dim); }
+    /* Conditions tracker */
+    .cs-conditions { margin-top:20px; padding:16px; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.3); }
+    .cs-conditions-title { font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--crimson); margin-bottom:12px; }
+    .cs-conditions-tags { display:flex; gap:6px; flex-wrap:wrap; }
+    .cs-condition-tag { padding:6px 12px; background:transparent; border:1px solid rgba(192,57,43,0.3); color:var(--text-muted); font-size:11px; cursor:pointer; transition:all 0.2s; font-family:'Cinzel',serif; letter-spacing:1px; text-transform:uppercase; }
+    .cs-condition-tag:hover { border-color:var(--crimson); color:var(--crimson); }
+    .cs-condition-tag.active { background:var(--crimson); border-color:var(--crimson); color:white; }
+    /* Roll Initiative button */
+    .cs-init-btn { font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; padding:12px 24px; background:var(--crimson); border:none; color:white; cursor:pointer; margin-bottom:16px; width:100%; }
+    .cs-init-btn:hover { background:var(--crimson-dim); }
+
     @media (max-width:860px) {
       .cb-wrap { grid-template-columns:1fr; }
       .cb-sidebar { position:static; height:auto; display:flex; overflow-x:auto; padding:12px 0; border-right:none; border-bottom:1px solid rgba(192,57,43,0.2); }
@@ -575,6 +618,29 @@ function nextStep35(n) { goToStep35(n+1); }
 function prevStep35(n) { goToStep35(n-1, true); }
 
 // ── STEP 1: RACE ──
+var raceFlavorTexts35 = {
+  human: "Versatile and ambitious",
+  dwarf: "Steadfast and honorable",
+  elf: "Graceful and perceptive",
+  gnome: "Clever and energetic",
+  "half-elf": "Adaptable and charismatic",
+  "half-orc": "Strong and determined",
+  halfling: "Lucky and resourceful"
+};
+var classFlavorTexts35 = {
+  barbarian: "Rage incarnate, unstoppable force",
+  bard: "Charming performer and jack-of-all-trades",
+  cleric: "Divine conduit and healer",
+  druid: "Nature's guardian and shapeshifter",
+  fighter: "Master of arms and tactics",
+  monk: "Disciplined warrior and ascetic",
+  paladin: "Holy warrior bound by oath",
+  ranger: "Tracker and nature's sentinel",
+  rogue: "Swift and cunning shadow",
+  sorcerer: "Wild magic unleashed within",
+  wizard: "Master of arcane knowledge"
+};
+
 function renderRaces35() {
   var c = document.getElementById('raceCards35'); c.innerHTML = '';
   Object.entries(DND35_DATA.races).forEach(function(kv) {
@@ -583,7 +649,8 @@ function renderRaces35() {
     d.className = 'cb-card'+(C35.race===id?' selected':'');
     d.onclick = function() { selectRace35(id); };
     var asi = Object.entries(race.asi).map(function(e) { return DND35_DATA.abilityShort[e[0]]+(e[1]>0?'+':'')+e[1]; }).join(', ')||'No ASI';
-    d.innerHTML = '<div class="cb-card-name">'+race.name+'</div><div class="cb-card-detail">'+asi+' · '+race.size+' · '+race.speed+' ft</div>';
+    var flavor = raceFlavorTexts35[id] || '';
+    d.innerHTML = '<div class="cb-card-name">'+race.name+'</div><div class="cb-card-detail">'+(flavor?'<div style="font-size:12px;margin-bottom:6px;color:var(--crimson);">'+flavor+'</div>':'')+asi+' · '+race.size+' · '+race.speed+' ft</div>';
     c.appendChild(d);
   });
 }
@@ -596,6 +663,10 @@ function selectRace35(id) {
   renderRaceDetail35(id); updateMini35(); updateAsiNote35();
 }
 function renderRaceDetail35(id) {
+  if (!id) {
+    document.getElementById('raceDetail35').innerHTML = '<div class="cb-detail-prompt">Select a race above to see its traits and abilities.</div>';
+    return;
+  }
   var race = DND35_DATA.races[id];
   var badges = Object.entries(race.asi).map(function(e) {
     return '<span class="cb-asi-badge">'+DND35_DATA.abilityShort[e[0]]+(e[1]>0?'+':'')+e[1]+'</span>';
@@ -619,7 +690,8 @@ function renderClasses35() {
     d.className = 'cb-card'+(C35.cls===id?' selected':'');
     d.onclick = function() { selectClass35(id); };
     var bab = cls.babProg==='good'?'Good BAB':cls.babProg==='medium'?'Med BAB':'Poor BAB';
-    d.innerHTML = '<div class="cb-card-name">'+cls.name+'</div><div class="cb-card-detail">d'+cls.hitDie+' HD · '+bab+' · '+cls.skillPoints+'+INT skills</div><div class="cb-card-badge">'+cls.primaryAbility.toUpperCase()+'</div>';
+    var flavor = classFlavorTexts35[id] || '';
+    d.innerHTML = '<div class="cb-card-name">'+cls.name+'</div><div class="cb-card-detail">'+(flavor?'<div style="font-size:12px;margin-bottom:6px;color:var(--crimson);">'+flavor+'</div>':'')+' d'+cls.hitDie+' HD · '+bab+' · '+cls.skillPoints+'+INT skills</div><div class="cb-card-badge">'+cls.primaryAbility.toUpperCase()+'</div>';
     c.appendChild(d);
   });
 }
@@ -634,6 +706,10 @@ function selectClass35(id) {
   renderClassDetail35(id); updateMini35();
 }
 function renderClassDetail35(id) {
+  if (!id) {
+    document.getElementById('classDetail35').innerHTML = '<div class="cb-detail-prompt">Select a class above to see its features and proficiencies.</div>';
+    return;
+  }
   var cls = DND35_DATA.classes[id];
   var bab = cls.babProg==='good'?'+1':'+0';
   var fort = cls.goodSaves.includes('fort')?'Good':'Poor';
@@ -1050,7 +1126,7 @@ function showDice35(opts) {
   var row = document.getElementById('dp35-row'); row.innerHTML = '';
   opts.dice.forEach(function(d,i) {
     var el = document.createElement('div');
-    el.className = 'dp-die'+(d.sides===20?' d20':'')+(d.isCrit?' crit':d.isFail?' fail':'');
+    el.className = 'dp-die animate'+(d.sides===20?' d20':'')+(d.isCrit?' crit':d.isFail?' fail':'');
     el.style.animationDelay = (i*0.07)+'s';
     el.innerHTML = d.val+'<span class="dp-die-label">d'+d.sides+'</span>';
     row.appendChild(el);
@@ -1076,6 +1152,10 @@ function closeDice35() {
   popup.classList.remove('show'); popup.classList.add('exit'); overlay.classList.remove('show');
   setTimeout(function(){popup.classList.remove('exit');},350);
 }
+// Escape key to close dice popup
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDice35();
+});
 function rollCheck35(type, label, bonus) {
   var roll = Math.ceil(Math.random()*20);
   var total = roll+bonus;
@@ -1231,6 +1311,13 @@ function buildMainTab35(maxHP,ac,babVal,dexMod,strMod) {
       }).join('')+'</div>';
   }
 
+  // Death saves state
+  var curHP = parseInt(document.getElementById('hp35cur')?.value || maxHP);
+  var showDeathSaves = curHP <= 0;
+  
+  // Conditions state
+  var activeConditions = window.activeConditions35 || {};
+  
   var html = '<div class="cs-main-grid">'+
     '<div>'+
       '<div class="cs-box" style="padding:14px;"><div class="cs-box-title">Ability Scores</div><div class="cs-ability-grid">'+abilHTML+'</div></div>'+
@@ -1259,6 +1346,7 @@ function buildMainTab35(maxHP,ac,babVal,dexMod,strMod) {
       '</div>'+
       '<div class="cs-stat-row">'+
         '<div class="cs-stat"><div class="cs-stat-val">'+(babVal>=0?'+':'')+babVal+'</div><div class="cs-stat-label">Base Attack</div></div>'+
+        '<div class="cs-stat" style="cursor:pointer;" onclick="rollCheck35(\'Grapple\',\'Grapple Check\','+(babVal+strMod)+')" title="Click to roll"><div class="cs-stat-val">'+(babVal+strMod>=0?'+':'')+(babVal+strMod)+'</div><div class="cs-stat-label" style="color:var(--crimson);">Grapple ▸</div></div>'+
         '<div class="cs-stat"><div class="cs-stat-val">'+sheet35State.race.speed+' ft</div><div class="cs-stat-label">Speed</div></div>'+
         '<div class="cs-stat"><div class="cs-stat-val">d'+sheet35State.cls.hitDie+'</div><div class="cs-stat-label">Hit Die</div></div>'+
       '</div>'+
@@ -1281,6 +1369,25 @@ function buildMainTab35(maxHP,ac,babVal,dexMod,strMod) {
       '<div class="cs-box" style="padding:14px;"><div class="cs-box-title">Key Skills. Click to Roll</div>'+buildKeySkills35()+'</div>'+
     '</div>'+
   '</div>';
+  // Add death saves section if HP = 0
+  if (showDeathSaves) {
+    var successPips = Array.from({length:3}, function(_,i) {
+      return '<div class="cs-death-pip '+(C35.deathSaveSuccesses && C35.deathSaveSuccesses > i ? 'success' : '')+'" onclick="C35.deathSaveSuccesses=C35.deathSaveSuccesses||0;C35.deathSaveSuccesses='+(C35.deathSaveSuccesses && C35.deathSaveSuccesses > i ? i : i+1)+';buildMainTab35('+maxHP+','+sheet35State.ac+','+sheet35State.babVal+','+sheet35State.dexMod+','+sheet35State.strMod+');" title="Click to toggle"></div>';
+    }).join('');
+    var failurePips = Array.from({length:3}, function(_,i) {
+      return '<div class="cs-death-pip '+(C35.deathSaveFailures && C35.deathSaveFailures > i ? 'failure' : '')+'" onclick="C35.deathSaveFailures=C35.deathSaveFailures||0;C35.deathSaveFailures='+(C35.deathSaveFailures && C35.deathSaveFailures > i ? i : i+1)+';buildMainTab35('+maxHP+','+sheet35State.ac+','+sheet35State.babVal+','+sheet35State.dexMod+','+sheet35State.strMod+');" title="Click to toggle"></div>';
+    }).join('');
+    html += '<div class="cs-death-saves"><div class="cs-death-saves-title">Death Saves (Unconscious)</div><div class="cs-death-saves-row"><div class="cs-death-saves-col"><div class="cs-death-saves-label">Successes</div><div class="cs-death-pips">'+successPips+'</div></div><div class="cs-death-saves-col"><div class="cs-death-saves-label">Failures</div><div class="cs-death-pips">'+failurePips+'</div></div></div><button class="cs-death-save-btn" onclick="rollDeathSave35('+maxHP+','+sheet35State.ac+','+sheet35State.babVal+','+sheet35State.dexMod+','+sheet35State.strMod+')">Roll Death Save (d20)</button></div>';
+  }
+  
+  // Add conditions tracker
+  var allConditions = ['Blinded','Confused','Dazed','Deafened','Exhausted','Fatigued','Frightened','Grappled','Nauseated','Paralyzed','Prone','Shaken','Sickened','Stunned'];
+  var conditionsTags = allConditions.map(function(cond) {
+    var isActive = activeConditions[cond];
+    return '<div class="cs-condition-tag '+(isActive?'active':'')+'" onclick="toggleCondition35(\''+cond+'\','+maxHP+','+sheet35State.ac+','+sheet35State.babVal+','+sheet35State.dexMod+','+sheet35State.strMod+')">'+cond+'</div>';
+  }).join('');
+  html += '<div class="cs-conditions"><div class="cs-conditions-title">Conditions</div><div class="cs-conditions-tags">'+conditionsTags+'</div></div>';
+  
   document.getElementById('tab35-main').innerHTML = html;
   renderRollLog35();
 }
@@ -1311,6 +1418,7 @@ function buildCombatTab35() {
   var cls = sheet35State.cls; if (!cls) return;
   var babVal = sheet35State.babVal;
   var strMod = sheet35State.strMod; var dexMod = sheet35State.dexMod;
+  var initMod = dexMod;
   var allW = [].concat(DND35_DATA.weapons.simple_melee,DND35_DATA.weapons.simple_ranged,DND35_DATA.weapons.martial_melee,DND35_DATA.weapons.martial_ranged);
   var weapons = [];
   var equip=cls.equipment||[]; var ci=0;
@@ -1326,7 +1434,8 @@ function buildCombatTab35() {
   var defaults={fighter:[{name:'Longsword',damage:'1d8',type:'S',crit:'19-20/×2',range:'—'}],barbarian:[{name:'Greataxe',damage:'1d12',type:'S',crit:'×3',range:'—'}],monk:[{name:'Unarmed Strike',damage:'1d6',type:'B',crit:'×2',range:'—'}],rogue:[{name:'Short Sword',damage:'1d6',type:'P',crit:'19-20/×2',range:'—'}]};
   if(defaults[C35.cls])defaults[C35.cls].forEach(function(w){if(!weapons.find(function(x){return x.name===w.name;}))weapons.push(w);});
 
-  var html = '<div class="cs-action-section"><div class="cs-action-title">Weapon Attacks. Click to Roll</div>';
+  var html = '<button class="cs-init-btn" onclick="rollCheck35(\'Initiative\',\'Combat Initiative\','+initMod+')">⚔ Roll Initiative ('+(initMod>=0?'+':'')+initMod+')</button>'+
+    '<div class="cs-action-section"><div class="cs-action-title">Weapon Attacks. Click to Roll</div>';
   if (weapons.length) {
     html += weapons.map(function(w){
       var isRanged=w.range&&w.range!=='—'&&parseInt(w.range)>5;
@@ -1515,6 +1624,55 @@ function buildNotesTab35() {
   document.getElementById('tab35-notes').innerHTML = html;
   var saved = localStorage.getItem('phmurt_notes35_'+(C35.cls||''));
   if (saved) { var f=document.getElementById('notes35Field'); if(f) f.value=saved; }
+}
+
+
+// ── DEATH SAVES ──
+function rollDeathSave35(maxHP, ac, babVal, dexMod, strMod) {
+  var roll = Math.ceil(Math.random()*20);
+  var isCrit = roll === 20;
+  var isFail = roll === 1;
+  
+  // 20 regains 1 HP, 1 counts as 2 failures, 10+ is success
+  if (isCrit) {
+    // Regain 1 HP
+    var curInput = document.getElementById('hp35cur');
+    if (curInput) curInput.value = '1';
+    clampHP35();
+    C35.deathSaveSuccesses = 0;
+    C35.deathSaveFailures = 0;
+    showToast35('Critical Success','You regain 1 hit point!');
+  } else if (isFail) {
+    // Count as 2 failures
+    C35.deathSaveFailures = (C35.deathSaveFailures || 0) + 2;
+    if (C35.deathSaveFailures >= 3) {
+      showToast35('Character Dead','Three failed death saves. Your character has died.');
+    }
+  } else if (roll >= 10) {
+    // Success
+    C35.deathSaveSuccesses = (C35.deathSaveSuccesses || 0) + 1;
+    if (C35.deathSaveSuccesses >= 3) {
+      showToast35('Stabilized','Three successful death saves. You are stabilized.');
+    }
+  } else {
+    // Failure
+    C35.deathSaveFailures = (C35.deathSaveFailures || 0) + 1;
+    if (C35.deathSaveFailures >= 3) {
+      showToast35('Character Dead','Three failed death saves. Your character has died.');
+    }
+  }
+  
+  C35.rollLog.unshift({ts:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),type:'Death Save',label:'Death Save',roll:roll,bonus:0,total:roll,crit:isCrit,fail:isFail});
+  showDice35({type:'Death Save',label:'Death Save',dice:[{val:roll,sides:20,isCrit:isCrit,isFail:isFail}],bonus:0,total:roll,isCrit:isCrit,isFail:isFail});
+  renderRollLog35();
+  buildMainTab35(maxHP,ac,babVal,dexMod,strMod);
+}
+
+// ── CONDITIONS ──
+function toggleCondition35(condition, maxHP, ac, babVal, dexMod, strMod) {
+  window.activeConditions35 = window.activeConditions35 || {};
+  window.activeConditions35[condition] = !window.activeConditions35[condition];
+  buildMainTab35(maxHP, ac, babVal, dexMod, strMod);
 }
 
 // ── HP ──

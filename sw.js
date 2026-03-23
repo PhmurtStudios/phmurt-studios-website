@@ -1,4 +1,5 @@
-const CACHE_NAME = 'phmurt-v1';
+const CACHE_VERSION = 2;
+const CACHE_NAME = 'phmurt-v' + CACHE_VERSION;
 const PRECACHE_URLS = [
   '/',
   'index.html',
@@ -9,6 +10,9 @@ const PRECACHE_URLS = [
   'monster-data.js',
   'logo.png'
 ];
+
+// Maximum age for cached assets before forced revalidation (24 hours)
+const MAX_CACHE_AGE = 24 * 60 * 60 * 1000;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -30,6 +34,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
+          // Delete all caches that don't match current version
           if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
@@ -44,23 +49,18 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return;
-  }
+  // Only handle GET requests from same origin
+  if (request.method !== 'GET') return;
+  if (url.protocol === 'chrome-extension:') return;
+  if (url.origin !== self.location.origin) return;
 
-  // Skip chrome extensions
-  if (url.protocol === 'chrome-extension:') {
-    return;
-  }
-
-  // Network-first strategy for HTML pages
-  if (request.mode === 'navigate' || request.headers.get('accept').includes('text/html')) {
+  // Network-first for HTML pages (always get fresh content)
+  if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (!response || response.status !== 200) {
-            throw new Error('Network response was not ok');
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            throw new Error('Bad network response');
           }
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -71,7 +71,6 @@ self.addEventListener('fetch', (event) => {
         .catch(() => {
           return caches.match(request).then((response) => {
             if (response) return response;
-            // Offline fallback
             return caches.match('index.html');
           });
         })
@@ -79,22 +78,35 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first strategy for assets (CSS, JS, images)
+  // Stale-while-revalidate for assets (CSS, JS, images)
+  // Serves cached version immediately, fetches fresh copy in background
   event.respondWith(
-    caches.match(request).then((response) => {
-      if (response) {
-        return response;
-      }
-      return fetch(request).then((response) => {
-        if (!response || response.status !== 200) {
-          return response;
-        }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, responseToCache);
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(request).then((cachedResponse) => {
+        const fetchPromise = fetch(request).then((networkResponse) => {
+          // Only cache valid same-origin responses
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            cache.put(request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => {
+          // Network failed, cached version (if any) is already being returned
+          return cachedResponse;
         });
-        return response;
+
+        // Return cached version immediately, or wait for network
+        return cachedResponse || fetchPromise;
       });
     })
   );
+});
+
+// Listen for messages from the page to force cache refresh
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    caches.delete(CACHE_NAME);
+  }
 });

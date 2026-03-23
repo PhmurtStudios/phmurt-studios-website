@@ -4,6 +4,9 @@
       ['index.html', 'Home'],
       ['grimoire.html', 'Grimoire'],
       ['compendium.html', 'Compendium'],
+      ['learn.html', 'Learn'],
+      ['gallery.html', 'Gallery'],
+      ['generators.html', 'Generators'],
       ['character-builder.html', 'Builder'],
       ['character-sheets.html', 'Sheets'],
       ['campaigns.html', 'Campaigns'],
@@ -58,6 +61,18 @@
       { href: 'grimoire.html', label: 'Grimoire' },
       { label: 'Legendary Soups', current: true }
     ],
+    'learn.html': [
+      { href: 'index.html', label: 'Home' },
+      { label: 'Learn to Play', current: true }
+    ],
+    'gallery.html': [
+      { href: 'index.html', label: 'Home' },
+      { label: 'Character Gallery', current: true }
+    ],
+    'generators.html': [
+      { href: 'index.html', label: 'Home' },
+      { label: 'DM Generators', current: true }
+    ],
     'campaigns.html': [
       { href: 'index.html', label: 'Home' },
       { label: 'Campaigns', current: true }
@@ -91,6 +106,9 @@
       'character-builder-35.html': 'Builder',
       'character-sheets.html': 'Sheets',
       'sheet-dnd5e.html': 'Sheets',
+      'learn.html': 'Learn',
+      'gallery.html': 'Gallery',
+      'generators.html': 'Generators',
       'campaigns.html': 'Campaigns',
       'about.html': 'About',
       'my-characters.html': 'My Characters',
