@@ -307,11 +307,22 @@
 
     <!-- Campaign List View -->
     <div id="campaignList" class="campaign-list-view active">
+      <!-- Auth notice -->
+      <div id="authNotice" style="background: var(--crimson-soft); border: 1px solid var(--crimson-border); padding: 20px 28px; margin-bottom: 24px; border-radius: 2px; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="font-size: 15px; color: var(--text); margin-bottom: 4px;">Sign in to manage campaigns</div>
+            <div style="font-size: 13px; color: var(--text-dim);">You need an account to create, join, and manage campaigns with other players.</div>
+          </div>
+          <button class="form-button" onclick="requireAuth()">Sign In</button>
+        </div>
+      </div>
+
       <div class="section-header">
         <div class="section-title">My Campaigns</div>
         <div class="section-btns">
-          <button class="section-add-btn" onclick="toggleJoinBanner()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Join Campaign</button>
-          <button class="section-add-btn" onclick="openCreateCampaignModal()">+ New Campaign</button>
+          <button class="section-add-btn" id="joinCampaignBtn" onclick="toggleJoinBanner()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Join Campaign</button>
+          <button class="section-add-btn" id="createCampaignBtn" onclick="openCreateCampaignModal()">+ New Campaign</button>
         </div>
       </div>
       <div id="campaignGrid" class="campaign-grid">
@@ -638,24 +649,157 @@
     var activeTypeFilters = [];
 
     // ═══════════════════════════════
+    // AUTH HELPERS
+    // ═══════════════════════════════
+    function getAuthUser() {
+      // Returns the signed-in user or null — never creates a fake user
+      if (typeof PhmurtDB !== 'undefined') {
+        var session = PhmurtDB.getSession();
+        if (session) {
+          var u = session.user || session;
+          return { id: u.id || u.uid || u.email, name: u.user_metadata?.display_name || u.displayName || u.name || u.email || 'Adventurer', email: u.email || '' };
+        }
+        if (PhmurtDB.currentUser) {
+          var cu = PhmurtDB.currentUser;
+          return { id: cu.uid || cu.id || cu.email, name: cu.displayName || cu.name || cu.email || 'Adventurer', email: cu.email || '' };
+        }
+      }
+      return null;
+    }
+
+    function requireAuth() {
+      var user = getAuthUser();
+      if (user) return user;
+      // Not signed in — prompt
+      if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.openAuth === 'function') {
+        PhmurtDB.openAuth();
+      } else {
+        if (window.psToast) psToast('Please sign in to use campaigns');
+      }
+      return null;
+    }
+
+    function updateAuthUI() {
+      var user = getAuthUser();
+      var signInNotice = document.getElementById('authNotice');
+      var createBtn = document.getElementById('createCampaignBtn');
+      var joinBtn = document.getElementById('joinCampaignBtn');
+      if (user) {
+        if (signInNotice) signInNotice.style.display = 'none';
+        if (createBtn) createBtn.disabled = false;
+        if (joinBtn) joinBtn.disabled = false;
+      } else {
+        if (signInNotice) signInNotice.style.display = 'block';
+        if (createBtn) createBtn.disabled = false; // allow click to trigger auth prompt
+        if (joinBtn) joinBtn.disabled = false;
+      }
+    }
+
+    // ═══════════════════════════════
     // INIT
     // ═══════════════════════════════
     function init() {
       loadCampaigns();
       renderCampaignList();
       buildTypeFilterTags();
+      updateAuthUI();
+      // Re-check auth state periodically (handles post-login)
+      setInterval(function() {
+        var user = getAuthUser();
+        updateAuthUI();
+        // If user just signed in, reload campaigns to pick up any new ones
+        if (user && !window._lastAuthUser) {
+          loadCampaigns();
+          renderCampaignList();
+        }
+        window._lastAuthUser = user;
+      }, 2000);
     }
 
     // ═══════════════════════════════
-    // STORAGE
+    // STORAGE — shared campaign registry
     // ═══════════════════════════════
+    // Campaigns are stored in a shared registry (phmurt_campaign_registry) keyed by campaign ID.
+    // Each user also has a list of campaign IDs they belong to (phmurt_my_campaign_ids).
+    // This way, when user B joins via invite code, they can find and access the campaign
+    // that user A created — as long as they share the same browser/device.
+    // When PhmurtDB backend support is available, this will sync via the server.
+
+    function loadAllCampaignsFromRegistry() {
+      var reg = localStorage.getItem('phmurt_campaign_registry');
+      return reg ? JSON.parse(reg) : {};
+    }
+
+    function saveRegistry(registry) {
+      localStorage.setItem('phmurt_campaign_registry', JSON.stringify(registry));
+    }
+
+    function getMyCampaignIds() {
+      var user = getAuthUser();
+      if (!user) return [];
+      var key = 'phmurt_campaign_ids_' + user.id;
+      var stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    function saveMyCampaignIds(ids) {
+      var user = getAuthUser();
+      if (!user) return;
+      var key = 'phmurt_campaign_ids_' + user.id;
+      localStorage.setItem(key, JSON.stringify(ids));
+    }
+
     function loadCampaigns() {
-      var stored = localStorage.getItem('phmurt_campaigns');
-      campaigns = stored ? JSON.parse(stored) : [];
+      // Migrate: if old 'phmurt_campaigns' exists, import into registry
+      var old = localStorage.getItem('phmurt_campaigns');
+      if (old) {
+        var oldCampaigns = JSON.parse(old);
+        if (oldCampaigns.length > 0) {
+          var registry = loadAllCampaignsFromRegistry();
+          var user = getAuthUser();
+          var myIds = user ? getMyCampaignIds() : [];
+          oldCampaigns.forEach(function(c) {
+            registry[c.id] = c;
+            if (user && myIds.indexOf(c.id) === -1) myIds.push(c.id);
+          });
+          saveRegistry(registry);
+          if (user) saveMyCampaignIds(myIds);
+          localStorage.removeItem('phmurt_campaigns');
+        }
+      }
+
+      // Load campaigns the current user belongs to
+      var user = getAuthUser();
+      if (!user) { campaigns = []; return; }
+      var myIds = getMyCampaignIds();
+      var registry = loadAllCampaignsFromRegistry();
+
+      // Also scan registry for campaigns where user is a player (handles cross-user join)
+      Object.keys(registry).forEach(function(cid) {
+        var c = registry[cid];
+        if (myIds.indexOf(cid) === -1) {
+          var isPlayer = (c.players || []).some(function(p) { return p.id === user.id; });
+          if (isPlayer || c.ownerId === user.id) {
+            myIds.push(cid);
+          }
+        }
+      });
+      saveMyCampaignIds(myIds);
+
+      campaigns = [];
+      myIds.forEach(function(cid) {
+        if (registry[cid]) campaigns.push(registry[cid]);
+      });
     }
+
     function saveCampaigns() {
-      localStorage.setItem('phmurt_campaigns', JSON.stringify(campaigns));
+      var registry = loadAllCampaignsFromRegistry();
+      campaigns.forEach(function(c) {
+        registry[c.id] = c;
+      });
+      saveRegistry(registry);
     }
+
     function getCampaign(id) {
       return campaigns.find(function(c) { return c.id === id; });
     }
@@ -670,6 +814,8 @@
     // CAMPAIGN CRUD
     // ═══════════════════════════════
     function openCreateCampaignModal() {
+      var user = requireAuth();
+      if (!user) return;
       document.getElementById('campaignName').value = '';
       document.getElementById('campaignDesc').value = '';
       document.getElementById('campaignSystem').value = '5e';
@@ -686,7 +832,8 @@
 
     function createCampaign(event) {
       event.preventDefault();
-      var currentUser = getCurrentUser();
+      var currentUser = requireAuth();
+      if (!currentUser) return;
       var campaign = {
         id: Date.now().toString(),
         name: document.getElementById('campaignName').value,
@@ -704,7 +851,11 @@
         initiative: []
       };
       campaigns.push(campaign);
+      // Save to registry and add to user's campaign list
       saveCampaigns();
+      var myIds = getMyCampaignIds();
+      if (myIds.indexOf(campaign.id) === -1) myIds.push(campaign.id);
+      saveMyCampaignIds(myIds);
       closeModal('createCampaignModal');
       renderCampaignList();
       if (window.psToast) psToast('Campaign created!');
@@ -714,7 +865,12 @@
       event.stopPropagation();
       if (confirm('Are you sure you want to delete this campaign? This cannot be undone.')) {
         campaigns = campaigns.filter(function(c) { return c.id !== id; });
-        saveCampaigns();
+        // Remove from registry and user's list
+        var registry = loadAllCampaignsFromRegistry();
+        delete registry[id];
+        saveRegistry(registry);
+        var myIds = getMyCampaignIds().filter(function(cid) { return cid !== id; });
+        saveMyCampaignIds(myIds);
         renderCampaignList();
       }
     }
@@ -778,22 +934,7 @@
       if (btn) btn.classList.add('active');
     }
 
-    // ═══════════════════════════════
-    // CURRENT USER (account system)
-    // ═══════════════════════════════
-    function getCurrentUser() {
-      var stored = localStorage.getItem('phmurt_user');
-      if (stored) return JSON.parse(stored);
-      // Check if PhmurtDB has a user
-      if (window.PhmurtDB && window.PhmurtDB.currentUser) {
-        var u = window.PhmurtDB.currentUser;
-        return { id: u.uid || u.id || Date.now().toString(), name: u.displayName || u.name || 'Adventurer', email: u.email || '' };
-      }
-      // Fallback: create a local user identity
-      var user = { id: 'local_' + Date.now().toString(), name: 'Dungeon Master', email: '' };
-      localStorage.setItem('phmurt_user', JSON.stringify(user));
-      return user;
-    }
+    // getCurrentUser is now replaced by getAuthUser() and requireAuth() above
 
     // ═══════════════════════════════
     // PARTY MANAGEMENT
@@ -1507,31 +1648,53 @@
     // MULTIPLAYER / PLAYERS SYSTEM
     // ═══════════════════════════════
     function toggleJoinBanner() {
+      var user = requireAuth();
+      if (!user) return;
       var banner = document.getElementById('joinBanner');
       banner.style.display = banner.style.display === 'none' ? 'block' : 'none';
     }
 
     function joinCampaign() {
+      var currentUser = requireAuth();
+      if (!currentUser) return;
+
       var code = (document.getElementById('joinCodeInput').value || '').toUpperCase().trim();
       if (!code || code.length < 4) {
         if (window.psToast) psToast('Please enter a valid invite code');
         return;
       }
 
-      var campaign = campaigns.find(function(c) { return c.inviteCode === code; });
+      // Search the shared registry (not just user's campaigns) for the invite code
+      var registry = loadAllCampaignsFromRegistry();
+      var campaign = null;
+      var campaignId = null;
+      Object.keys(registry).forEach(function(cid) {
+        if (registry[cid].inviteCode === code) {
+          campaign = registry[cid];
+          campaignId = cid;
+        }
+      });
+
       if (!campaign) {
-        if (window.psToast) psToast('Campaign not found. Check the code and try again.');
+        if (window.psToast) psToast('Campaign not found. The DM must create it on this device first, or check the code.');
         return;
       }
 
-      var currentUser = getCurrentUser();
       var alreadyJoined = (campaign.players || []).find(function(p) { return p.id === currentUser.id; });
       if (alreadyJoined) {
+        // Make sure it's in user's campaign list
+        var myIds = getMyCampaignIds();
+        if (myIds.indexOf(campaignId) === -1) {
+          myIds.push(campaignId);
+          saveMyCampaignIds(myIds);
+          loadCampaigns();
+        }
         if (window.psToast) psToast('You\'re already in this campaign!');
-        openCampaign(campaign.id);
+        openCampaign(campaignId);
         return;
       }
 
+      // Add user to campaign players
       if (!campaign.players) campaign.players = [];
       campaign.players.push({
         id: currentUser.id,
@@ -1541,11 +1704,24 @@
         joinedAt: new Date().toISOString(),
         characterId: null
       });
-      saveCampaigns();
+
+      // Save to registry
+      registry[campaignId] = campaign;
+      saveRegistry(registry);
+
+      // Add to user's campaign list
+      var myIds = getMyCampaignIds();
+      if (myIds.indexOf(campaignId) === -1) myIds.push(campaignId);
+      saveMyCampaignIds(myIds);
+
+      // Reload campaigns list
+      loadCampaigns();
+
       document.getElementById('joinBanner').style.display = 'none';
       document.getElementById('joinCodeInput').value = '';
       if (window.psToast) psToast('Joined "' + campaign.name + '"!');
-      openCampaign(campaign.id);
+      renderCampaignList();
+      openCampaign(campaignId);
     }
 
     function copyInviteCode() {
