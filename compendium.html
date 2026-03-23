@@ -298,6 +298,43 @@
       padding: 1px 6px;
     }
 
+    .cmp-tag-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 7px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      color: var(--text-faint);
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .cmp-tag-filter {
+      font-family: 'Cinzel', serif;
+      font-size: 7px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: transparent;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .cmp-tag-filter.active {
+      background: var(--crimson);
+      border-color: var(--crimson);
+      color: #f5f0e8;
+    }
+
+    .cmp-tag-filter:hover {
+      border-color: var(--crimson-border);
+      color: var(--text);
+    }
+
     /* Buttons ──────────────────────────────────────────────────── */
     .cmp-btn {
       font-family: 'Cinzel', serif;
@@ -667,6 +704,7 @@
       <a href="compendium.html" class="active">Compendium</a>
       <a href="character-builder.html">Builder</a>
       <a href="character-sheets.html">Sheets</a>
+      <a href="campaigns.html">Campaigns</a>
       <a href="about.html">About</a>
       <a href="my-characters.html">My Characters</a>
     </div>
@@ -691,6 +729,8 @@
     <a href="character-builder.html">Builder</a>
     <div class="ps-mobile-divider"></div>
     <a href="character-sheets.html">Sheets</a>
+    <div class="ps-mobile-divider"></div>
+    <a href="campaigns.html">Campaigns</a>
     <div class="ps-mobile-divider"></div>
     <a href="about.html">About</a>
     <div class="ps-mobile-divider"></div>
@@ -780,6 +820,11 @@
         <button class="cmp-type-btn" data-tf="background">Backgrounds</button>
         <button class="cmp-type-btn" data-tf="subclass">Subclasses</button>
         <button class="cmp-type-btn" data-tf="item">Items</button>
+      </div>
+
+      <!-- Tag filters -->
+      <div class="cmp-tag-filters" id="cmp-tag-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+        <!-- Populated by cmpRenderTagFilters() -->
       </div>
 
       <!-- Content -->
@@ -967,6 +1012,7 @@
 
         // Form
         + inp('name', 'Item Name *', existing ? existing.name : '', 'e.g. Blade of Forgotten Kings')
+        + inp('tags', 'Tags (comma-separated)', existing && existing.tags ? existing.tags.join(', ') : '', 'magical, cursed, legendary')
         + sel('category', 'Category *', catOptions)
         + inp('subcategory', 'Subcategory', existing ? existing.subcategory : '', 'e.g. Named Weapons, Misc')
         + sel('rarity', 'Rarity', rarOpts)
@@ -1108,6 +1154,8 @@
 
       if (errors.length) return { errors: errors };
 
+      var tags = g('tags') ? g('tags').split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+
       var item = {
         id:          _homebrewEditId || homebrewId(name),
         name:        name,
@@ -1119,6 +1167,7 @@
         source:      'homebrew',
         desc:        desc,
         attunement:  gc('attunement'),
+        tags:        tags.length ? tags : undefined,
       };
 
       // Conditional fields
@@ -2161,6 +2210,7 @@
           F.inp('name', 'Race Name *', e.name, 'e.g. Aasimar'),
           F.sel('size', 'Size', ['Small','Medium','Large'], e.size||'Medium'),
         ]);
+        html += F.inp('tags', 'Tags (comma-separated)', (e.tags||[]).join(', '), 'elemental, demonic, winged');
 
         html += F.head('Movement & Senses');
         html += F.grid([
@@ -2266,6 +2316,7 @@
             F.inp('name', 'Class Name *', e.name, 'e.g. Blood Hunter'),
             F.sel('hitDie', 'Hit Die', hitDieOpts, e.hitDie||8),
           ]);
+          html += F.inp('tags', 'Tags (comma-separated)', (e.tags||[]).join(', '), 'gritty, bloodmagic, dark-arts');
           html += F.grid([
             F.sel('primaryAbility', 'Primary Ability', abilityOpts, e.primaryAbility||'str'),
             F.inp('skillCount', 'Skill Choices', e.skillCount||2, '2', 'number'),
@@ -2436,6 +2487,7 @@
 
         html += F.head('Identity');
         html += F.inp('name', 'Background Name *', e.name, 'e.g. Bounty Hunter');
+        html += F.inp('tags', 'Tags (comma-separated)', (e.tags||[]).join(', '), 'criminal, noble, folk-hero');
 
         html += F.head('Proficiencies');
         html += F.inp('skills', 'Skills (2, comma-separated) *', bgSkillVal, 'Deception, Intimidation');
@@ -2475,6 +2527,7 @@
         html += F.head('Identity');
         html += F.sel('parentClass', 'Parent Class *', parentOpts, e.parentClass||Object.keys(DND_DATA.classes)[0]);
         html += F.inp('name', 'Subclass Name *', e.name, 'e.g. School of Pyromancy');
+        html += F.inp('tags', 'Tags (comma-separated)', (e.tags||[]).join(', '), 'fire, elemental, magic');
         html += F.tex('desc', 'Subclass Description', e.desc||'', 'A brief flavour text...', 2);
 
         html += F.head('Expanded Spell List (Optional)');
@@ -2574,6 +2627,7 @@
           if(cb.checked) resistances.push(cb.value);
         });
 
+        var tags = g('tags') ? g('tags').split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
         entry = {
           id:         _hbeEditId || _homebrewEntityId('race', name),
           name:       name,
@@ -2590,6 +2644,7 @@
           languages:  langs.length ? langs : ['Common'],
           traits:     traits,
           subraces:   subraces,
+          tags:       tags.length ? tags : undefined,
         };
 
       } else if (type === 'class') {
@@ -2679,6 +2734,7 @@
         var slotArch     = g('slotArchetype') || null;
         var equipStr     = g('equipment');
         var equipment    = equipStr ? equipStr.split(',').map(function(v){return v.trim();}).filter(Boolean).map(function(item){return [item];}) : [];
+        var tags = g('tags') ? g('tags').split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
 
         entry = {
           id:                  _hbeEditId || _homebrewEntityId('class', name),
@@ -2706,6 +2762,7 @@
           spellcastingNotes:   g('spellcastingNotes')||'',
           extraAttackLevel:    extraAtkLv||undefined,
           extraAttackTotal:    extraAtkTot||undefined,
+          tags:                tags.length ? tags : undefined,
         };
         if (spellcasting) { entry.spellcastingAbility = spellcasting; }
         if (spellList)    { entry.spellList = spellList; }
@@ -2725,6 +2782,7 @@
         if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.style.display=''; return; }
 
         var tools = g('tools') ? g('tools').split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+        var tags = g('tags') ? g('tags').split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
 
         entry = {
           id:          _hbeEditId || _homebrewEntityId('background', name),
@@ -2740,6 +2798,7 @@
           bonds:       g('bonds') ? g('bonds').split('\n').filter(Boolean) : undefined,
           flaws:       g('flaws') ? g('flaws').split('\n').filter(Boolean) : undefined,
           specialty:   g('specialty') || undefined,
+          tags:        tags.length ? tags : undefined,
         };
 
       } else if (type === 'subclass') {
@@ -2770,6 +2829,8 @@
           });
         }
 
+        var tags = g('tags') ? g('tags').split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+
         entry = {
           id:            _hbeEditId || _homebrewEntityId('subclass', name),
           name:          name,
@@ -2777,6 +2838,7 @@
           desc:          g('desc'),
           features:      features,
           expandedSpells: expandedSpells.length ? expandedSpells : undefined,
+          tags:          tags.length ? tags : undefined,
         };
       }
 
@@ -3505,12 +3567,14 @@
 
     var _cmpTab        = 'mine';
     var _cmpTypeFilter = 'all';
+    var _cmpTagFilters = {}; // {tagName: true/false}
     var _cmpCommunityData = null;
 
     function cmpInit() {
       loadHomebrewItems();
       loadHomebrewEntities();
       cmpRefreshMineCount();
+      cmpRenderTagFilters();
       cmpRenderContent();
 
       // Wire type filter buttons
@@ -3568,12 +3632,14 @@
     function cmpSwitchTab(tab) {
       _cmpTab = tab;
       _cmpCommunityData = null;
+      _cmpTagFilters = {}; // Reset tag filters when switching tabs
       document.querySelectorAll('.cmp-tab').forEach(function(t) {
         t.classList.toggle('active', t.id === 'tab-' + tab);
       });
       // Reset sort default per tab
       var sortEl = document.getElementById('cmp-sort');
       if (sortEl) sortEl.value = tab === 'community' ? 'popular' : 'name';
+      cmpRenderTagFilters();
       cmpRenderContent();
     }
 
@@ -3588,6 +3654,65 @@
       el.innerHTML = total === 0
         ? 'No homebrew yet &mdash; create something!'
         : total + ' homebrew creation' + (total === 1 ? '' : 's') + ' in your collection';
+    }
+
+    // ── Tag filtering functions ────────────────────────────────────
+    function cmpGetAllTags(tabType) {
+      var allTags = new Set();
+      if (tabType === 'mine' || !tabType) {
+        ['race','class','background','subclass'].forEach(function(type) {
+          Object.values(_homebrewEntities[type] || {}).forEach(function(e) {
+            if (e.tags) {
+              e.tags.forEach(function(tag) { allTags.add(tag); });
+            }
+          });
+        });
+        Object.values(DND_DATA.homebrewDB || {}).forEach(function(e) {
+          if (e.tags) {
+            e.tags.forEach(function(tag) { allTags.add(tag); });
+          }
+        });
+      } else if (tabType === 'community') {
+        (_cmpCommunityData || []).forEach(function(row) {
+          if (row.tags) {
+            row.tags.forEach(function(tag) { allTags.add(tag); });
+          }
+        });
+      }
+      return Array.from(allTags).sort();
+    }
+
+    function cmpRenderTagFilters() {
+      var container = document.getElementById('cmp-tag-filters');
+      if (!container) return;
+      var tags = cmpGetAllTags(_cmpTab);
+      var html = '';
+      if (tags.length > 0) {
+        tags.forEach(function(tag) {
+          var active = _cmpTagFilters[tag];
+          html += '<button class="cmp-tag-filter' + (active ? ' active' : '') + '" '
+            + 'data-cmp-tag="' + cmpEsc(tag) + '">'
+            + cmpEsc(tag) + '</button>';
+        });
+        html += '<button class="cmp-tag-filter" onclick="cmpClearTagFilters()" '
+          + 'style="opacity:0.6;margin-left:4px;">Clear</button>';
+      }
+      container.innerHTML = html;
+      // Wire tag filter buttons
+      container.querySelectorAll('[data-cmp-tag]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var tag = this.getAttribute('data-cmp-tag');
+          _cmpTagFilters[tag] = !_cmpTagFilters[tag];
+          cmpRenderTagFilters();
+          cmpRenderContent();
+        });
+      });
+    }
+
+    function cmpClearTagFilters() {
+      _cmpTagFilters = {};
+      cmpRenderTagFilters();
+      cmpRenderContent();
     }
 
     function cmpRenderContent() {
@@ -3622,7 +3747,18 @@
       // Filter
       var filtered = all.filter(function(row) {
         if (_cmpTypeFilter !== 'all' && row.type !== _cmpTypeFilter) return false;
-        if (q && row.entry.name.toLowerCase().indexOf(q) === -1) return false;
+        if (q) {
+          var searchText = (row.entry.name + ' ' + (row.entry.tags || []).join(' ')).toLowerCase();
+          if (searchText.indexOf(q) === -1) return false;
+        }
+        // Tag filter (AND logic - all selected tags must match)
+        var activeTags = Object.keys(_cmpTagFilters).filter(function(t) { return _cmpTagFilters[t]; });
+        if (activeTags.length > 0) {
+          var entryTags = (row.entry.tags || []).map(function(t) { return t.toLowerCase(); });
+          for (var i = 0; i < activeTags.length; i++) {
+            if (entryTags.indexOf(activeTags[i].toLowerCase()) === -1) return false;
+          }
+        }
         return true;
       });
 
@@ -3677,12 +3813,20 @@
         if (sub)  html += '<div class="cmp-card-sub">' + sub + '</div>';
         if (desc) html += '<div class="cmp-card-desc">' + cmpEsc(desc) + '</div>';
 
+        // Render tags
+        var tagsHtml = '';
+        if (e.tags && e.tags.length) {
+          e.tags.forEach(function(tag) {
+            tagsHtml += '<span class="cmp-tag-badge">' + cmpEsc(tag) + '</span>';
+          });
+        }
+
         html += '<div class="cmp-card-footer">'
           + '<div style="display:flex;gap:5px;flex-wrap:wrap;">';
         if (isShared) {
           html += '<span class="cmp-badge" style="color:#2e8b57;border-color:#2e8b57;">&#10003; Shared</span>';
         }
-        html += '</div>'
+        html += tagsHtml + '</div>'
           + '<div class="cmp-card-actions">'
           + '<button class="cmp-btn share' + (isShared ? ' shared' : '') + '" '
           + 'data-share-type="' + type + '" data-share-id="' + id + '" '
@@ -3780,6 +3924,14 @@
         if (q) {
           var t = (row.name + ' ' + row.type + ' ' + (row.author_name || '') + ' ' + (row.tags || []).join(' ')).toLowerCase();
           if (t.indexOf(q) === -1) return false;
+        }
+        // Tag filter (AND logic - all selected tags must match)
+        var activeTags = Object.keys(_cmpTagFilters).filter(function(t) { return _cmpTagFilters[t]; });
+        if (activeTags.length > 0) {
+          var rowTags = (row.tags || []).map(function(t) { return t.toLowerCase(); });
+          for (var i = 0; i < activeTags.length; i++) {
+            if (rowTags.indexOf(activeTags[i].toLowerCase()) === -1) return false;
+          }
         }
         return true;
       });

@@ -710,3 +710,24 @@ a{text-decoration:none;color:inherit;}
 .ps-grimoire-search input:focus{outline:none;border-color:var(--crimson);}
 .ps-grimoire-search input::placeholder{color:var(--text-faint);font-style:italic;}
 @media(max-width:860px){.ps-grimoire-search{padding:0 24px 12px;}}
+
+/* ═══════════════════════════════
+   PAGE TRANSITIONS
+   ═══════════════════════════════ */
+body{opacity:1;animation:pageIn 0.3s ease;}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+body.page-out{opacity:0;transform:translateY(-8px);transition:opacity 0.18s, transform 0.18s;}
+
+/* ═══════════════════════════════
+   TOAST NOTIFICATIONS
+   ═══════════════════════════════ */
+#ps-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg-card);border:1px solid var(--crimson-border);color:var(--text);font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;z-index:9999;opacity:0;transition:opacity .3s, transform .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+#ps-toast.visible{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══════════════════════════════
+   (Keyboard shortcuts removed)
+
+/* ═══════════════════════════════
+   PARALLAX EFFECT
+   ═══════════════════════════════ */
+.ps-castle-wrap{will-change:transform;transition:transform 0.05s linear;}
