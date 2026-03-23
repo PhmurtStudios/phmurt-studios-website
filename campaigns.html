@@ -247,7 +247,49 @@
     .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
     .empty-state-text { font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
 
-    /* Campaign Detail */
+    /* ═══════════ Battlemap ═══════════ */
+    .battlemap-wrap { display: flex; gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); min-height: 620px; }
+    .battlemap-main { flex: 1; display: flex; flex-direction: column; background: var(--bg-card); }
+    .battlemap-toolbar {
+      display: flex; flex-wrap: wrap; gap: 2px; padding: 8px 12px; background: var(--bg);
+      border-bottom: 1px solid var(--crimson-border); align-items: center;
+    }
+    .bm-tool {
+      padding: 7px 14px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);
+      font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase;
+      cursor: pointer; border-radius: 2px; transition: all 0.2s; white-space: nowrap;
+    }
+    .bm-tool:hover { border-color: var(--crimson); color: var(--crimson); }
+    .bm-tool.active { background: var(--crimson); border-color: var(--crimson); color: #f5f0e8; }
+    .bm-sep { width: 1px; height: 24px; background: var(--crimson-border); margin: 0 6px; }
+    .bm-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin: 0 4px; }
+    .bm-color-pick { width: 28px; height: 28px; border: 1px solid var(--border); background: none; padding: 0; cursor: pointer; border-radius: 2px; }
+    .battlemap-canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #1a1a2e; min-height: 500px; }
+    #battlemapCanvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    .battlemap-sidebar {
+      width: 240px; background: var(--bg-card); overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .bm-sidebar-title { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--crimson); text-transform: uppercase; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--crimson-border); }
+    .bm-token-btn {
+      display: flex; justify-content: space-between; align-items: center; padding: 8px 10px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 2px; cursor: pointer;
+      transition: border-color 0.2s; margin-bottom: 4px;
+    }
+    .bm-token-btn:hover { border-color: var(--crimson); }
+    .bm-token-btn-name { font-size: 12px; color: var(--text); }
+    .bm-token-btn-meta { font-size: 10px; color: var(--text-muted); }
+    .bm-token-btn-add { background: none; border: none; color: var(--crimson); font-size: 16px; cursor: pointer; padding: 0 4px; }
+    .bm-zoom-display { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; margin: 0 4px; min-width: 40px; text-align: center; }
+    .bm-info { font-size: 11px; color: var(--text-muted); padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; line-height: 1.5; }
+    .bm-placed-tokens { margin-top: 8px; }
+    .bm-placed-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; margin-bottom: 3px; font-size: 11px; color: var(--text); }
+    .bm-placed-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; padding: 0; }
+    .bm-placed-remove:hover { color: var(--crimson); }
+
+    /* Campaign List / Detail Toggle */
+    .campaign-list-view { display: none; }
+    .campaign-list-view.active { display: block; }
     .campaign-detail { display: none; }
     .campaign-detail.active { display: block; }
     .campaign-detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--crimson-border); }
@@ -273,6 +315,9 @@
       .campaign-detail-name { font-size: 32px; }
       .stat-block-abilities { grid-template-columns: repeat(3, 1fr); }
       .monster-search-bar .form-select { width: 100%; }
+      .battlemap-wrap { flex-direction: column; }
+      .battlemap-sidebar { width: 100%; max-height: 200px; }
+      .battlemap-canvas-wrap { min-height: 350px; }
     }
   </style>
 </head>
@@ -285,7 +330,7 @@
     <div class="ps-page-eyebrow">Campaign Management</div>
     <div class="ps-page-title">Campaigns</div>
     <div class="ps-page-subtitle">Plan Your Adventures</div>
-    <p class="ps-page-intro">Create campaigns, manage party members, build encounters with 100+ SRD monsters, track sessions, run initiative, and invite players to join your game.</p>
+    <p class="ps-page-intro">Create campaigns, manage party members, build encounters with 260+ SRD monsters, track sessions, run initiative, invite players, and battle on interactive maps.</p>
   </div>
 
   <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
@@ -347,6 +392,7 @@
         <button class="campaign-tab" onclick="switchTab('notes', this)">Session Notes</button>
         <button class="campaign-tab" onclick="switchTab('initiative', this)">Initiative</button>
         <button class="campaign-tab" onclick="switchTab('players', this)">Players</button>
+        <button class="campaign-tab" onclick="switchTab('battlemap', this)">Battlemap</button>
       </div>
 
       <!-- Party Tab -->
@@ -420,6 +466,59 @@
           <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Players who join can link their characters to party member slots and view campaign details.</div>
         </div>
         <div id="playerList"></div>
+      </div>
+
+      <!-- Battlemap Tab -->
+      <div id="battlemapTab" class="tab-content">
+        <div class="battlemap-wrap">
+          <div class="battlemap-main">
+            <div class="battlemap-toolbar">
+              <button class="bm-tool active" data-bm-tool="select" onclick="setBmTool('select')">Select</button>
+              <button class="bm-tool" data-bm-tool="draw" onclick="setBmTool('draw')">Draw</button>
+              <button class="bm-tool" data-bm-tool="shape" onclick="setBmTool('shape')">Shape</button>
+              <button class="bm-tool" data-bm-tool="ruler" onclick="setBmTool('ruler')">Ruler</button>
+              <button class="bm-tool" data-bm-tool="fog" onclick="setBmTool('fog')">Fog</button>
+              <button class="bm-tool" data-bm-tool="eraser" onclick="setBmTool('eraser')">Eraser</button>
+              <div class="bm-sep"></div>
+              <label class="bm-label">Color</label>
+              <input type="color" class="bm-color-pick" id="bmDrawColor" value="#dc143c" onchange="bm.drawColor=this.value">
+              <div class="bm-sep"></div>
+              <button class="bm-tool" onclick="toggleBmGrid()">Grid</button>
+              <button class="bm-tool" onclick="bmZoom(0.25)">+</button>
+              <span class="bm-zoom-display" id="bmZoomDisplay">100%</span>
+              <button class="bm-tool" onclick="bmZoom(-0.25)">−</button>
+              <button class="bm-tool" onclick="resetBmView()">Reset</button>
+              <div class="bm-sep"></div>
+              <button class="bm-tool" onclick="revealAllFog()">Reveal All</button>
+              <button class="bm-tool" onclick="hideAllFog()">Fog All</button>
+              <button class="bm-tool" onclick="clearBattlemap()">Clear Map</button>
+            </div>
+            <div class="battlemap-canvas-wrap" id="bmCanvasWrap">
+              <canvas id="battlemapCanvas"></canvas>
+            </div>
+          </div>
+          <div class="battlemap-sidebar" id="bmSidebar">
+            <div>
+              <div class="bm-sidebar-title">Add Tokens</div>
+              <div id="bmTokenPanel"></div>
+            </div>
+            <div>
+              <div class="bm-sidebar-title">On Map</div>
+              <div id="bmPlacedTokens" class="bm-placed-tokens"></div>
+            </div>
+            <div class="bm-info" id="bmRulerInfo" style="display:none;">
+              <strong>Ruler:</strong> <span id="bmRulerText">0 ft</span>
+            </div>
+            <div class="bm-info">
+              <strong>Controls:</strong><br>
+              Scroll to zoom<br>
+              Shift+drag to pan<br>
+              Right-click token to remove<br>
+              Fog: click to toggle cells<br>
+              5 ft per grid square
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -926,12 +1025,13 @@
     // TAB SWITCHING
     // ═══════════════════════════════
     function switchTab(tabName, btn) {
-      ['partyTab', 'encountersTab', 'notesTab', 'initiativeTab', 'playersTab'].forEach(function(id) {
+      ['partyTab', 'encountersTab', 'notesTab', 'initiativeTab', 'playersTab', 'battlemapTab'].forEach(function(id) {
         document.getElementById(id).classList.remove('active');
       });
       document.querySelectorAll('.campaign-tab').forEach(function(t) { t.classList.remove('active'); });
       document.getElementById(tabName + 'Tab').classList.add('active');
       if (btn) btn.classList.add('active');
+      if (tabName === 'battlemap') { initBattlemap(); }
     }
 
     // getCurrentUser is now replaced by getAuthUser() and requireAuth() above
@@ -1811,6 +1911,669 @@
           '</div></div>';
       }).join('') + '</div>';
     }
+
+    // ═══════════════════════════════
+    // BATTLEMAP SYSTEM
+    // ═══════════════════════════════
+    var bm = {
+      canvas: null, ctx: null,
+      gridSize: 40, gridCols: 32, gridRows: 20,
+      offsetX: 0, offsetY: 0, zoom: 1,
+      tokens: [], drawings: [], shapes: [], fog: {},
+      tool: 'select', selectedTokenIdx: -1,
+      isDragging: false, dragOffX: 0, dragOffY: 0,
+      isPanning: false, panStartX: 0, panStartY: 0, panOffX: 0, panOffY: 0,
+      drawPoints: [], drawColor: '#dc143c', drawWidth: 3,
+      rulerStart: null, rulerEnd: null,
+      shapeStart: null, shapeEnd: null,
+      fogEnabled: false, fogPaint: true,
+      showGrid: true, bgColor: '#1a1a2e',
+      animId: null, initialized: false,
+      mouseDown: false
+    };
+
+    function initBattlemap() {
+      if (!bm.canvas) {
+        bm.canvas = document.getElementById('battlemapCanvas');
+        bm.ctx = bm.canvas.getContext('2d');
+        var wrap = document.getElementById('bmCanvasWrap');
+        bm.canvas.addEventListener('mousedown', onBmMouseDown);
+        bm.canvas.addEventListener('mousemove', onBmMouseMove);
+        bm.canvas.addEventListener('mouseup', onBmMouseUp);
+        bm.canvas.addEventListener('mouseleave', onBmMouseUp);
+        bm.canvas.addEventListener('wheel', onBmWheel, { passive: false });
+        bm.canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        // Touch support
+        bm.canvas.addEventListener('touchstart', onBmTouchStart, { passive: false });
+        bm.canvas.addEventListener('touchmove', onBmTouchMove, { passive: false });
+        bm.canvas.addEventListener('touchend', onBmTouchEnd);
+      }
+      resizeBmCanvas();
+      loadBattlemapState();
+      renderBmTokenPanel();
+      renderBmPlacedTokens();
+      if (!bm.animId) bmRenderLoop();
+    }
+
+    function resizeBmCanvas() {
+      var wrap = document.getElementById('bmCanvasWrap');
+      if (!wrap) return;
+      bm.canvas.width = wrap.clientWidth;
+      bm.canvas.height = wrap.clientHeight;
+    }
+
+    function bmRenderLoop() {
+      renderBattlemap();
+      bm.animId = requestAnimationFrame(bmRenderLoop);
+    }
+
+    function renderBattlemap() {
+      var c = bm.ctx, w = bm.canvas.width, h = bm.canvas.height;
+      if (!c || w === 0) return;
+      var gs = bm.gridSize * bm.zoom;
+      var ox = bm.offsetX, oy = bm.offsetY;
+
+      // Background
+      c.fillStyle = bm.bgColor;
+      c.fillRect(0, 0, w, h);
+
+      // Grid
+      if (bm.showGrid) {
+        c.strokeStyle = 'rgba(255,255,255,0.08)';
+        c.lineWidth = 1;
+        var startCol = Math.floor(-ox / gs);
+        var startRow = Math.floor(-oy / gs);
+        var endCol = startCol + Math.ceil(w / gs) + 1;
+        var endRow = startRow + Math.ceil(h / gs) + 1;
+        c.beginPath();
+        for (var col = startCol; col <= endCol; col++) {
+          var x = col * gs + ox;
+          c.moveTo(Math.round(x) + 0.5, 0);
+          c.lineTo(Math.round(x) + 0.5, h);
+        }
+        for (var row = startRow; row <= endRow; row++) {
+          var y = row * gs + oy;
+          c.moveTo(0, Math.round(y) + 0.5);
+          c.lineTo(w, Math.round(y) + 0.5);
+        }
+        c.stroke();
+      }
+
+      // Drawings (polylines)
+      bm.drawings.forEach(function(d) {
+        if (d.points.length < 2) return;
+        c.strokeStyle = d.color;
+        c.lineWidth = d.width * bm.zoom;
+        c.lineCap = 'round';
+        c.lineJoin = 'round';
+        c.beginPath();
+        c.moveTo(d.points[0].x * bm.zoom + ox, d.points[0].y * bm.zoom + oy);
+        for (var i = 1; i < d.points.length; i++) {
+          c.lineTo(d.points[i].x * bm.zoom + ox, d.points[i].y * bm.zoom + oy);
+        }
+        c.stroke();
+      });
+
+      // Shapes
+      bm.shapes.forEach(function(s) {
+        c.strokeStyle = s.color;
+        c.lineWidth = s.width * bm.zoom;
+        var x1 = s.x1 * bm.zoom + ox, y1 = s.y1 * bm.zoom + oy;
+        var x2 = s.x2 * bm.zoom + ox, y2 = s.y2 * bm.zoom + oy;
+        if (s.type === 'rect') {
+          c.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        } else {
+          var rx = Math.abs(x2 - x1) / 2, ry = Math.abs(y2 - y1) / 2;
+          var cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
+          c.beginPath();
+          c.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+          c.stroke();
+        }
+      });
+
+      // Current drawing preview
+      if (bm.tool === 'draw' && bm.drawPoints.length > 1) {
+        c.strokeStyle = bm.drawColor;
+        c.lineWidth = bm.drawWidth * bm.zoom;
+        c.lineCap = 'round';
+        c.lineJoin = 'round';
+        c.beginPath();
+        c.moveTo(bm.drawPoints[0].x * bm.zoom + ox, bm.drawPoints[0].y * bm.zoom + oy);
+        for (var i = 1; i < bm.drawPoints.length; i++) {
+          c.lineTo(bm.drawPoints[i].x * bm.zoom + ox, bm.drawPoints[i].y * bm.zoom + oy);
+        }
+        c.stroke();
+      }
+
+      // Current shape preview
+      if (bm.tool === 'shape' && bm.shapeStart && bm.shapeEnd) {
+        c.strokeStyle = bm.drawColor;
+        c.lineWidth = 2 * bm.zoom;
+        c.setLineDash([6, 4]);
+        var sx1 = bm.shapeStart.x * bm.zoom + ox, sy1 = bm.shapeStart.y * bm.zoom + oy;
+        var sx2 = bm.shapeEnd.x * bm.zoom + ox, sy2 = bm.shapeEnd.y * bm.zoom + oy;
+        c.strokeRect(sx1, sy1, sx2 - sx1, sy2 - sy1);
+        c.setLineDash([]);
+      }
+
+      // Fog of war
+      var fogKeys = Object.keys(bm.fog);
+      if (fogKeys.length > 0) {
+        c.fillStyle = 'rgba(0,0,0,0.75)';
+        fogKeys.forEach(function(key) {
+          var parts = key.split(',');
+          var fc = parseInt(parts[0]), fr = parseInt(parts[1]);
+          c.fillRect(fc * gs + ox, fr * gs + oy, gs, gs);
+        });
+      }
+
+      // Tokens
+      bm.tokens.forEach(function(t, idx) {
+        var tx = t.x * gs + ox;
+        var ty = t.y * gs + oy;
+        var sz = t.size * gs;
+        var centerX = tx + sz / 2;
+        var centerY = ty + sz / 2;
+        var radius = sz / 2 - 3 * bm.zoom;
+
+        // Token circle fill
+        c.fillStyle = t.color + '33'; // semi-transparent fill
+        c.beginPath();
+        c.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        c.fill();
+
+        // Token border
+        c.strokeStyle = t.color;
+        c.lineWidth = (idx === bm.selectedTokenIdx ? 3 : 2) * bm.zoom;
+        c.beginPath();
+        c.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        c.stroke();
+
+        // Selection ring
+        if (idx === bm.selectedTokenIdx) {
+          c.strokeStyle = '#ffffff';
+          c.lineWidth = 1;
+          c.setLineDash([4, 4]);
+          c.beginPath();
+          c.arc(centerX, centerY, radius + 4 * bm.zoom, 0, Math.PI * 2);
+          c.stroke();
+          c.setLineDash([]);
+        }
+
+        // Letter label
+        c.fillStyle = '#f5f0e8';
+        c.font = 'bold ' + Math.round(14 * bm.zoom * t.size) + 'px Cinzel, serif';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(t.label, centerX, centerY);
+
+        // Name below token
+        c.fillStyle = '#f5f0e8';
+        c.font = Math.round(10 * bm.zoom) + 'px Spectral, serif';
+        c.textAlign = 'center';
+        c.fillText(t.name, centerX, ty + sz + 10 * bm.zoom);
+      });
+
+      // Ruler
+      if (bm.tool === 'ruler' && bm.rulerStart && bm.rulerEnd) {
+        var rx1 = bm.rulerStart.x * bm.zoom + ox, ry1 = bm.rulerStart.y * bm.zoom + oy;
+        var rx2 = bm.rulerEnd.x * bm.zoom + ox, ry2 = bm.rulerEnd.y * bm.zoom + oy;
+        c.strokeStyle = '#ffd700';
+        c.lineWidth = 2;
+        c.setLineDash([8, 4]);
+        c.beginPath();
+        c.moveTo(rx1, ry1);
+        c.lineTo(rx2, ry2);
+        c.stroke();
+        c.setLineDash([]);
+        // Distance text
+        var dx = (bm.rulerEnd.x - bm.rulerStart.x) / bm.gridSize;
+        var dy = (bm.rulerEnd.y - bm.rulerStart.y) / bm.gridSize;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var ft = Math.round(dist * 5);
+        var midX = (rx1 + rx2) / 2, midY = (ry1 + ry2) / 2;
+        c.fillStyle = '#ffd700';
+        c.font = 'bold 14px Cinzel, serif';
+        c.textAlign = 'center';
+        c.fillText(ft + ' ft', midX, midY - 10);
+      }
+    }
+
+    // Coordinate helpers
+    function screenToWorld(sx, sy) {
+      return { x: (sx - bm.offsetX) / bm.zoom, y: (sy - bm.offsetY) / bm.zoom };
+    }
+    function screenToGrid(sx, sy) {
+      var gs = bm.gridSize * bm.zoom;
+      return { col: Math.floor((sx - bm.offsetX) / gs), row: Math.floor((sy - bm.offsetY) / gs) };
+    }
+    function getCanvasPos(e) {
+      var rect = bm.canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
+    function tokenAt(sx, sy) {
+      var gs = bm.gridSize * bm.zoom;
+      for (var i = bm.tokens.length - 1; i >= 0; i--) {
+        var t = bm.tokens[i];
+        var tx = t.x * gs + bm.offsetX;
+        var ty = t.y * gs + bm.offsetY;
+        var sz = t.size * gs;
+        if (sx >= tx && sx <= tx + sz && sy >= ty && sy <= ty + sz) return i;
+      }
+      return -1;
+    }
+
+    // Mouse events
+    function onBmMouseDown(e) {
+      var pos = getCanvasPos(e);
+      bm.mouseDown = true;
+
+      // Middle button or shift+left = pan
+      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+        bm.isPanning = true;
+        bm.panStartX = pos.x; bm.panStartY = pos.y;
+        bm.panOffX = bm.offsetX; bm.panOffY = bm.offsetY;
+        bm.canvas.style.cursor = 'grabbing';
+        return;
+      }
+
+      // Right click = remove token
+      if (e.button === 2) {
+        var tidx = tokenAt(pos.x, pos.y);
+        if (tidx >= 0) {
+          bm.tokens.splice(tidx, 1);
+          if (bm.selectedTokenIdx === tidx) bm.selectedTokenIdx = -1;
+          else if (bm.selectedTokenIdx > tidx) bm.selectedTokenIdx--;
+          saveBattlemapState();
+          renderBmPlacedTokens();
+        }
+        return;
+      }
+
+      if (bm.tool === 'select') {
+        var idx = tokenAt(pos.x, pos.y);
+        if (idx >= 0) {
+          bm.selectedTokenIdx = idx;
+          bm.isDragging = true;
+          var gs = bm.gridSize * bm.zoom;
+          bm.dragOffX = pos.x - (bm.tokens[idx].x * gs + bm.offsetX);
+          bm.dragOffY = pos.y - (bm.tokens[idx].y * gs + bm.offsetY);
+          bm.canvas.style.cursor = 'move';
+        } else {
+          bm.selectedTokenIdx = -1;
+        }
+      } else if (bm.tool === 'draw') {
+        var w = screenToWorld(pos.x, pos.y);
+        bm.drawPoints = [w];
+      } else if (bm.tool === 'shape') {
+        var w = screenToWorld(pos.x, pos.y);
+        bm.shapeStart = w;
+        bm.shapeEnd = w;
+      } else if (bm.tool === 'ruler') {
+        var w = screenToWorld(pos.x, pos.y);
+        bm.rulerStart = w;
+        bm.rulerEnd = w;
+        document.getElementById('bmRulerInfo').style.display = 'block';
+      } else if (bm.tool === 'fog') {
+        var g = screenToGrid(pos.x, pos.y);
+        var key = g.col + ',' + g.row;
+        if (e.altKey || bm.fog[key]) {
+          delete bm.fog[key];
+          bm.fogPaint = false;
+        } else {
+          bm.fog[key] = true;
+          bm.fogPaint = true;
+        }
+        saveBattlemapState();
+      } else if (bm.tool === 'eraser') {
+        var w = screenToWorld(pos.x, pos.y);
+        eraseAt(w.x, w.y);
+      }
+    }
+
+    function onBmMouseMove(e) {
+      var pos = getCanvasPos(e);
+      if (bm.isPanning) {
+        bm.offsetX = bm.panOffX + (pos.x - bm.panStartX);
+        bm.offsetY = bm.panOffY + (pos.y - bm.panStartY);
+        return;
+      }
+      if (bm.tool === 'select' && bm.isDragging && bm.selectedTokenIdx >= 0) {
+        var gs = bm.gridSize * bm.zoom;
+        var newX = (pos.x - bm.dragOffX - bm.offsetX) / gs;
+        var newY = (pos.y - bm.dragOffY - bm.offsetY) / gs;
+        bm.tokens[bm.selectedTokenIdx].x = Math.round(newX);
+        bm.tokens[bm.selectedTokenIdx].y = Math.round(newY);
+      } else if (bm.tool === 'draw' && bm.mouseDown && bm.drawPoints.length > 0) {
+        var w = screenToWorld(pos.x, pos.y);
+        bm.drawPoints.push(w);
+      } else if (bm.tool === 'shape' && bm.mouseDown && bm.shapeStart) {
+        bm.shapeEnd = screenToWorld(pos.x, pos.y);
+      } else if (bm.tool === 'ruler' && bm.mouseDown && bm.rulerStart) {
+        bm.rulerEnd = screenToWorld(pos.x, pos.y);
+        var dx = (bm.rulerEnd.x - bm.rulerStart.x) / bm.gridSize;
+        var dy = (bm.rulerEnd.y - bm.rulerStart.y) / bm.gridSize;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        document.getElementById('bmRulerText').textContent = Math.round(dist * 5) + ' ft (' + dist.toFixed(1) + ' sq)';
+      } else if (bm.tool === 'fog' && bm.mouseDown) {
+        var g = screenToGrid(pos.x, pos.y);
+        var key = g.col + ',' + g.row;
+        if (bm.fogPaint) bm.fog[key] = true;
+        else delete bm.fog[key];
+      } else if (bm.tool === 'eraser' && bm.mouseDown) {
+        var w = screenToWorld(pos.x, pos.y);
+        eraseAt(w.x, w.y);
+      }
+
+      // Update cursor
+      if (!bm.isPanning && !bm.isDragging) {
+        if (bm.tool === 'select') {
+          bm.canvas.style.cursor = tokenAt(pos.x, pos.y) >= 0 ? 'move' : 'default';
+        } else if (bm.tool === 'draw' || bm.tool === 'shape') {
+          bm.canvas.style.cursor = 'crosshair';
+        } else if (bm.tool === 'ruler') {
+          bm.canvas.style.cursor = 'crosshair';
+        } else if (bm.tool === 'fog') {
+          bm.canvas.style.cursor = 'cell';
+        } else if (bm.tool === 'eraser') {
+          bm.canvas.style.cursor = 'pointer';
+        }
+      }
+    }
+
+    function onBmMouseUp(e) {
+      if (bm.isPanning) {
+        bm.isPanning = false;
+        bm.canvas.style.cursor = 'default';
+      }
+      if (bm.isDragging) {
+        bm.isDragging = false;
+        bm.canvas.style.cursor = 'default';
+        saveBattlemapState();
+        renderBmPlacedTokens();
+      }
+      if (bm.tool === 'draw' && bm.drawPoints.length > 1) {
+        bm.drawings.push({ points: bm.drawPoints.slice(), color: bm.drawColor, width: bm.drawWidth });
+        bm.drawPoints = [];
+        saveBattlemapState();
+      }
+      if (bm.tool === 'shape' && bm.shapeStart && bm.shapeEnd) {
+        var dx = Math.abs(bm.shapeEnd.x - bm.shapeStart.x);
+        var dy = Math.abs(bm.shapeEnd.y - bm.shapeStart.y);
+        if (dx > 5 || dy > 5) {
+          bm.shapes.push({ type: 'rect', x1: bm.shapeStart.x, y1: bm.shapeStart.y, x2: bm.shapeEnd.x, y2: bm.shapeEnd.y, color: bm.drawColor, width: 2 });
+          saveBattlemapState();
+        }
+        bm.shapeStart = null; bm.shapeEnd = null;
+      }
+      if (bm.tool === 'fog') {
+        saveBattlemapState();
+      }
+      bm.mouseDown = false;
+    }
+
+    function onBmWheel(e) {
+      e.preventDefault();
+      var delta = e.deltaY > 0 ? -0.1 : 0.1;
+      var oldZoom = bm.zoom;
+      bm.zoom = Math.min(3, Math.max(0.25, bm.zoom + delta));
+      // Zoom toward mouse
+      var pos = getCanvasPos(e);
+      var ratio = bm.zoom / oldZoom;
+      bm.offsetX = pos.x - (pos.x - bm.offsetX) * ratio;
+      bm.offsetY = pos.y - (pos.y - bm.offsetY) * ratio;
+      document.getElementById('bmZoomDisplay').textContent = Math.round(bm.zoom * 100) + '%';
+    }
+
+    // Touch handlers for mobile
+    function onBmTouchStart(e) {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        var touch = e.touches[0];
+        var rect = bm.canvas.getBoundingClientRect();
+        var fakeE = { clientX: touch.clientX, clientY: touch.clientY, button: 0, shiftKey: false, altKey: false, preventDefault: function(){} };
+        onBmMouseDown(fakeE);
+      } else if (e.touches.length === 2) {
+        // Start pan
+        bm.isPanning = true;
+        var t1 = e.touches[0], t2 = e.touches[1];
+        var mx = (t1.clientX + t2.clientX) / 2, my = (t1.clientY + t2.clientY) / 2;
+        var rect = bm.canvas.getBoundingClientRect();
+        bm.panStartX = mx - rect.left; bm.panStartY = my - rect.top;
+        bm.panOffX = bm.offsetX; bm.panOffY = bm.offsetY;
+      }
+    }
+    function onBmTouchMove(e) {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        var touch = e.touches[0];
+        var fakeE = { clientX: touch.clientX, clientY: touch.clientY, button: 0 };
+        onBmMouseMove(fakeE);
+      } else if (e.touches.length === 2 && bm.isPanning) {
+        var t1 = e.touches[0], t2 = e.touches[1];
+        var mx = (t1.clientX + t2.clientX) / 2, my = (t1.clientY + t2.clientY) / 2;
+        var rect = bm.canvas.getBoundingClientRect();
+        bm.offsetX = bm.panOffX + (mx - rect.left - bm.panStartX);
+        bm.offsetY = bm.panOffY + (my - rect.top - bm.panStartY);
+      }
+    }
+    function onBmTouchEnd(e) {
+      onBmMouseUp({});
+    }
+
+    function eraseAt(wx, wy) {
+      var threshold = 15;
+      // Erase drawings
+      for (var i = bm.drawings.length - 1; i >= 0; i--) {
+        var d = bm.drawings[i];
+        for (var j = 0; j < d.points.length; j++) {
+          var dx = d.points[j].x - wx, dy = d.points[j].y - wy;
+          if (Math.sqrt(dx * dx + dy * dy) < threshold) {
+            bm.drawings.splice(i, 1);
+            saveBattlemapState();
+            return;
+          }
+        }
+      }
+      // Erase shapes
+      for (var i = bm.shapes.length - 1; i >= 0; i--) {
+        var s = bm.shapes[i];
+        var cx = (s.x1 + s.x2) / 2, cy = (s.y1 + s.y2) / 2;
+        if (Math.abs(wx - cx) < Math.abs(s.x2 - s.x1) / 2 + threshold && Math.abs(wy - cy) < Math.abs(s.y2 - s.y1) / 2 + threshold) {
+          bm.shapes.splice(i, 1);
+          saveBattlemapState();
+          return;
+        }
+      }
+    }
+
+    // Tool management
+    function setBmTool(tool) {
+      bm.tool = tool;
+      bm.selectedTokenIdx = -1;
+      bm.rulerStart = null; bm.rulerEnd = null;
+      document.getElementById('bmRulerInfo').style.display = tool === 'ruler' ? 'block' : 'none';
+      document.querySelectorAll('.bm-tool[data-bm-tool]').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.bmTool === tool);
+      });
+    }
+
+    function toggleBmGrid() { bm.showGrid = !bm.showGrid; }
+    function bmZoom(delta) {
+      bm.zoom = Math.min(3, Math.max(0.25, bm.zoom + delta));
+      document.getElementById('bmZoomDisplay').textContent = Math.round(bm.zoom * 100) + '%';
+    }
+    function resetBmView() {
+      bm.offsetX = 0; bm.offsetY = 0; bm.zoom = 1;
+      document.getElementById('bmZoomDisplay').textContent = '100%';
+    }
+
+    function revealAllFog() { bm.fog = {}; saveBattlemapState(); }
+    function hideAllFog() {
+      bm.fog = {};
+      for (var c = 0; c < bm.gridCols; c++) {
+        for (var r = 0; r < bm.gridRows; r++) {
+          bm.fog[c + ',' + r] = true;
+        }
+      }
+      saveBattlemapState();
+    }
+    function clearBattlemap() {
+      if (!confirm('Clear all tokens, drawings, and fog?')) return;
+      bm.tokens = []; bm.drawings = []; bm.shapes = []; bm.fog = {};
+      bm.selectedTokenIdx = -1;
+      saveBattlemapState();
+      renderBmPlacedTokens();
+    }
+
+    // Token management
+    function addTokenToMap(name, type, color, size, monsterIdx) {
+      // Find first open cell
+      var placed = {};
+      bm.tokens.forEach(function(t) {
+        for (var dx = 0; dx < t.size; dx++) {
+          for (var dy = 0; dy < t.size; dy++) {
+            placed[(t.x + dx) + ',' + (t.y + dy)] = true;
+          }
+        }
+      });
+      var px = 1, py = 1;
+      outer: for (var r = 1; r < bm.gridRows - size; r++) {
+        for (var c = 1; c < bm.gridCols - size; c++) {
+          var ok = true;
+          for (var dx = 0; dx < size; dx++) {
+            for (var dy = 0; dy < size; dy++) {
+              if (placed[(c + dx) + ',' + (r + dy)]) { ok = false; break; }
+            }
+            if (!ok) break;
+          }
+          if (ok) { px = c; py = r; break outer; }
+        }
+      }
+      bm.tokens.push({
+        id: Date.now().toString() + Math.random(),
+        name: name, type: type, color: color, size: size,
+        x: px, y: py,
+        label: name.charAt(0).toUpperCase(),
+        monsterIdx: monsterIdx !== undefined ? monsterIdx : null
+      });
+      saveBattlemapState();
+      renderBmPlacedTokens();
+      if (window.psToast) psToast(name + ' placed on map');
+    }
+
+    function removeTokenFromMapByIdx(idx) {
+      bm.tokens.splice(idx, 1);
+      if (bm.selectedTokenIdx === idx) bm.selectedTokenIdx = -1;
+      else if (bm.selectedTokenIdx > idx) bm.selectedTokenIdx--;
+      saveBattlemapState();
+      renderBmPlacedTokens();
+    }
+
+    function sizeFromCreature(sizeStr) {
+      if (!sizeStr) return 1;
+      var s = sizeStr.toLowerCase();
+      if (s === 'tiny') return 1;
+      if (s === 'small' || s === 'medium') return 1;
+      if (s === 'large') return 2;
+      if (s === 'huge') return 3;
+      if (s === 'gargantuan') return 4;
+      return 1;
+    }
+
+    // Token panel
+    function renderBmTokenPanel() {
+      var campaign = getCampaign(currentCampaignId);
+      if (!campaign) return;
+      var html = '';
+
+      // Party members
+      if (campaign.party && campaign.party.length > 0) {
+        html += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Party</div>';
+        campaign.party.forEach(function(m) {
+          html += '<div class="bm-token-btn" onclick="addTokenToMap(\'' + escapeHtml(m.name).replace(/'/g, "\\'") + '\',\'party\',\'#4a90d9\',1)">' +
+            '<div><div class="bm-token-btn-name">' + escapeHtml(m.name) + '</div><div class="bm-token-btn-meta">Lvl ' + m.level + ' ' + escapeHtml(m.class) + '</div></div>' +
+            '<span class="bm-token-btn-add">+</span></div>';
+        });
+      }
+
+      // Encounter monsters
+      if (campaign.encounters && campaign.encounters.length > 0) {
+        html += '<div style="font-size:10px;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:1px;">Encounters</div>';
+        campaign.encounters.forEach(function(enc) {
+          html += '<div style="font-size:11px;color:var(--crimson);margin:8px 0 4px;">' + escapeHtml(enc.name) + '</div>';
+          var unique = {};
+          enc.monsters.forEach(function(m) {
+            if (!unique[m.name]) unique[m.name] = { count: 0, monsterIdx: m.monsterIdx, name: m.name };
+            unique[m.name].count++;
+          });
+          Object.keys(unique).forEach(function(name) {
+            var u = unique[name];
+            var monster = (window.SRD_MONSTERS || [])[u.monsterIdx];
+            var sz = monster ? sizeFromCreature(monster.size) : 1;
+            html += '<div class="bm-token-btn" onclick="addTokenToMap(\'' + escapeHtml(u.name).replace(/'/g, "\\'") + '\',\'monster\',\'#dc143c\',' + sz + ',' + u.monsterIdx + ')">' +
+              '<div><div class="bm-token-btn-name">' + escapeHtml(u.name) + '</div><div class="bm-token-btn-meta">' + u.count + 'x · CR ' + (monster ? monster.cr : '?') + '</div></div>' +
+              '<span class="bm-token-btn-add">+</span></div>';
+          });
+        });
+      }
+
+      // Custom token
+      html += '<div style="font-size:10px;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:1px;">Custom</div>';
+      html += '<div style="display:flex;gap:4px;"><input type="text" class="form-input" id="bmCustomName" placeholder="Name" style="flex:1;padding:6px 8px;font-size:11px;">' +
+        '<button class="bm-tool" onclick="var n=document.getElementById(\'bmCustomName\').value.trim();if(n){addTokenToMap(n,\'custom\',\'#888888\',1);document.getElementById(\'bmCustomName\').value=\'\';}">+</button></div>';
+
+      document.getElementById('bmTokenPanel').innerHTML = html;
+    }
+
+    function renderBmPlacedTokens() {
+      var html = '';
+      if (bm.tokens.length === 0) {
+        html = '<div style="font-size:11px;color:var(--text-muted);padding:8px;">No tokens on map</div>';
+      } else {
+        bm.tokens.forEach(function(t, idx) {
+          html += '<div class="bm-placed-row">' +
+            '<span style="color:' + t.color + ';">&#9679;</span> ' + escapeHtml(t.name) +
+            ' <button class="bm-placed-remove" onclick="removeTokenFromMapByIdx(' + idx + ')">×</button></div>';
+        });
+      }
+      var el = document.getElementById('bmPlacedTokens');
+      if (el) el.innerHTML = html;
+    }
+
+    // Save/Load battlemap state
+    function saveBattlemapState() {
+      var campaign = getCampaign(currentCampaignId);
+      if (!campaign) return;
+      campaign.battlemap = {
+        tokens: bm.tokens,
+        drawings: bm.drawings,
+        shapes: bm.shapes,
+        fog: bm.fog,
+        gridSize: bm.gridSize
+      };
+      saveCampaigns();
+    }
+
+    function loadBattlemapState() {
+      var campaign = getCampaign(currentCampaignId);
+      if (!campaign || !campaign.battlemap) {
+        bm.tokens = []; bm.drawings = []; bm.shapes = []; bm.fog = {};
+        return;
+      }
+      var d = campaign.battlemap;
+      bm.tokens = d.tokens || [];
+      bm.drawings = d.drawings || [];
+      bm.shapes = d.shapes || [];
+      bm.fog = d.fog || {};
+      if (d.gridSize) bm.gridSize = d.gridSize;
+    }
+
+    // Resize handler
+    window.addEventListener('resize', function() {
+      if (bm.canvas) resizeBmCanvas();
+    });
 
     // ═══════════════════════════════
     // UTILITY
