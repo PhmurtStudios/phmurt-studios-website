@@ -359,47 +359,61 @@
     }
 
     .learn-dice-roller {
-      perspective: 1000px;
-      width: 80px;
-      height: 80px;
+      width: 120px;
+      height: 138px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .learn-dice {
       width: 100%;
       height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       cursor: pointer;
       user-select: none;
+      position: relative;
+      transition: transform 0.15s ease;
     }
 
-    .learn-dice.rolling {
-      animation: diceRoll 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    .learn-dice:hover { transform: scale(1.05); }
+    .learn-dice:active { transform: scale(0.95); }
+
+    .learn-dice.rolling .d20-body {
+      animation: d20Shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
     }
 
-    @keyframes diceRoll {
-      0% { transform: rotateX(0deg) rotateY(0deg); }
-      25% { transform: rotateX(720deg) rotateY(0deg); }
-      50% { transform: rotateX(720deg) rotateY(720deg); }
-      75% { transform: rotateX(1080deg) rotateY(720deg); }
-      100% { transform: rotateX(1080deg) rotateY(1080deg); }
+    .learn-dice.rolling .d20-number {
+      animation: d20Pulse 0.6s ease;
     }
 
-    .learn-dice-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    @keyframes d20Shake {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      15%  { transform: translate(-6px, 4px) rotate(-8deg); }
+      30%  { transform: translate(5px, -3px) rotate(6deg); }
+      45%  { transform: translate(-4px, -5px) rotate(-4deg); }
+      60%  { transform: translate(6px, 3px) rotate(7deg); }
+      75%  { transform: translate(-3px, 2px) rotate(-3deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    @keyframes d20Pulse {
+      0%   { opacity: 0; transform: scale(0.5); }
+      60%  { opacity: 0; transform: scale(0.5); }
+      80%  { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .d20-body { transition: transform 0.1s ease; }
+    .d20-outline { fill: none; stroke: var(--crimson); stroke-width: 2; }
+    .d20-inner-lines { fill: none; stroke: var(--crimson-border); stroke-width: 1; opacity: 0.5; }
+    .d20-fill { fill: var(--bg-mid); }
+    .d20-number {
       font-family: 'Cinzel', serif;
       font-size: 36px;
       font-weight: 700;
-      color: var(--crimson);
-      background: var(--bg-mid);
-      border: 2px solid var(--crimson-border);
-      box-sizing: border-box;
+      fill: var(--crimson);
+      text-anchor: middle;
+      dominant-baseline: central;
     }
 
     .learn-dice-result {
@@ -917,7 +931,7 @@
     }
   </style>
 </head>
-<body data-nav-active="Learn" data-footer-copy="Roll Well. Play Weird.">
+<body data-nav-active="Players" data-footer-copy="Roll Well. Play Weird.">
   <div id="ps-site-shell"></div>
   <div id="ps-page-breadcrumb"></div>
 
@@ -1007,12 +1021,23 @@
         <div class="learn-dice-container">
           <div class="learn-dice-roller">
             <div class="learn-dice" id="diceRoller">
-              <div class="learn-dice-face" style="transform: rotateY(0deg);">20</div>
-              <div class="learn-dice-face" style="transform: rotateY(180deg);">1</div>
-              <div class="learn-dice-face" style="transform: rotateX(90deg);">11</div>
-              <div class="learn-dice-face" style="transform: rotateX(-90deg);">10</div>
-              <div class="learn-dice-face" style="transform: rotateZ(90deg);">15</div>
-              <div class="learn-dice-face" style="transform: rotateZ(-90deg);">6</div>
+              <svg viewBox="0 0 120 138" xmlns="http://www.w3.org/2000/svg">
+                <g class="d20-body">
+                  <!-- d20 icosahedron outline -->
+                  <polygon class="d20-fill" points="60,4 114,38 114,100 60,134 6,100 6,38" />
+                  <polygon class="d20-outline" points="60,4 114,38 114,100 60,134 6,100 6,38" />
+                  <!-- inner triangle lines for d20 faceted look -->
+                  <line class="d20-inner-lines" x1="60" y1="4" x2="60" y2="134" />
+                  <line class="d20-inner-lines" x1="6" y1="38" x2="114" y2="100" />
+                  <line class="d20-inner-lines" x1="114" y1="38" x2="6" y2="100" />
+                  <line class="d20-inner-lines" x1="60" y1="4" x2="6" y2="100" />
+                  <line class="d20-inner-lines" x1="60" y1="4" x2="114" y2="100" />
+                  <line class="d20-inner-lines" x1="60" y1="134" x2="6" y2="38" />
+                  <line class="d20-inner-lines" x1="60" y1="134" x2="114" y2="38" />
+                </g>
+                <!-- number display -->
+                <text class="d20-number" x="60" y="69" id="d20Text">20</text>
+              </svg>
             </div>
           </div>
           <div class="learn-dice-result" id="diceResult">Click the die to roll</div>
@@ -1495,15 +1520,28 @@
         result.textContent = 'Rolling...';
 
         const roll = Math.floor(Math.random() * 20) + 1;
+        const d20Text = document.getElementById('d20Text');
+
+        // Rapidly flash random numbers during roll
+        let flashCount = 0;
+        const flashInterval = setInterval(() => {
+          if (d20Text) d20Text.textContent = Math.floor(Math.random() * 20) + 1;
+          flashCount++;
+          if (flashCount > 8) clearInterval(flashInterval);
+        }, 60);
 
         setTimeout(() => {
+          clearInterval(flashInterval);
+          if (d20Text) d20Text.textContent = roll;
           roller.classList.remove('rolling');
           result.classList.remove('rolling');
 
           const dc = 12;
           const success = roll >= dc;
-          const message = `You rolled a ${roll}!`;
-          const outcome = success ? `Beats DC ${dc} — Success! ✓` : `Fails DC ${dc} — Try again.`;
+          const nat20 = roll === 20;
+          const nat1 = roll === 1;
+          const message = nat20 ? 'Natural 20!' : nat1 ? 'Natural 1...' : `You rolled a ${roll}!`;
+          const outcome = nat20 ? 'Critical Success! The dice gods smile upon you.' : nat1 ? 'Critical Fail! The dice gods are cruel.' : success ? `Beats DC ${dc} — Success!` : `Fails DC ${dc} — Try again.`;
 
           result.innerHTML = `<strong>${message}</strong><br>${outcome}`;
         }, 600);

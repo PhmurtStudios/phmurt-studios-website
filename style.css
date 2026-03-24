@@ -106,6 +106,44 @@ a{text-decoration:none;color:inherit;}
 .ps-nav-links a:hover{color:var(--text);}
 .ps-nav-links a:hover::after,.ps-nav-links a.active::after{transform:scaleX(1);}
 .ps-nav-links a.active{color:var(--text);}
+
+/* ── NAV DROPDOWNS ── */
+.ps-nav-dropdown{position:relative;display:flex;align-items:center;}
+.ps-nav-dropdown-btn{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--text-muted);
+  text-transform:uppercase;background:none;border:none;cursor:pointer;padding:0;
+  position:relative;display:flex;align-items:center;gap:4px;
+}
+.ps-nav-dropdown-btn::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--crimson);transform:scaleX(0);transition:transform .2s;}
+.ps-nav-dropdown-btn:hover{color:var(--text);}
+.ps-nav-dropdown-btn:hover::after,.ps-nav-dropdown-btn.active::after{transform:scaleX(1);}
+.ps-nav-dropdown-btn.active{color:var(--text);}
+.ps-nav-caret{font-size:8px;opacity:0.5;transition:transform .2s;}
+.ps-nav-dropdown:hover .ps-nav-caret{transform:rotate(180deg);}
+.ps-dropdown-panel{
+  display:none;position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);
+  background:var(--bg-card);border:1px solid var(--border);min-width:200px;
+  padding:8px 0;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.3);
+}
+.ps-dropdown-panel::before{
+  content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%) rotate(45deg);
+  width:10px;height:10px;background:var(--bg-card);border-left:1px solid var(--border);border-top:1px solid var(--border);
+}
+.ps-nav-dropdown:hover .ps-dropdown-panel{display:block;}
+.ps-dropdown-link{
+  display:block;padding:10px 20px;font-family:'Cinzel',serif;font-size:10px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);
+  text-decoration:none;white-space:nowrap;transition:all .15s;
+}
+.ps-dropdown-link:hover{color:var(--text);background:var(--bg-mid);padding-left:24px;}
+.ps-dropdown-link::after{display:none !important;}
+
+/* ── MOBILE GROUP LABELS ── */
+.ps-mobile-group-label{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--crimson);padding:16px 0 6px;margin:0;opacity:0.7;
+}
+
 .ps-nav-action{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--crimson);text-transform:uppercase;border:1px solid var(--crimson-border);padding:6px 14px;}
 .ps-nav-action:hover{color:var(--text);background:var(--crimson-soft);}
 

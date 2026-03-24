@@ -361,6 +361,47 @@
       color: var(--text);
     }
 
+    .gen-result-subheading {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--crimson);
+      margin: 16px 0 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .gen-severity-minor {
+      color: var(--text-dim);
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: rgba(192, 57, 43, 0.1);
+    }
+
+    .gen-severity-moderate {
+      color: var(--crimson);
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: rgba(192, 57, 43, 0.2);
+    }
+
+    .gen-severity-major {
+      color: var(--crimson);
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: rgba(192, 57, 43, 0.35);
+      font-weight: 500;
+    }
+
+    .gen-severity-catastrophic {
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: var(--crimson);
+      font-weight: 700;
+    }
+
     /* ── ACTION BUTTONS ── */
     .gen-result-actions {
       display: flex;
@@ -499,7 +540,7 @@
     }
   </style>
 </head>
-<body data-nav-active="Generators" data-footer-copy="Roll Well. Play Weird.">
+<body data-nav-active="DM Tools" data-footer-copy="Roll Well. Play Weird.">
   <div id="ps-site-shell"></div>
   <div id="ps-page-breadcrumb"></div>
 
@@ -1000,7 +1041,118 @@
       pocketItems: ['A crumpled love letter', 'A lucky coin', 'A small portrait', 'A key with no lock', 'A dried flower', 'A torn map', 'A stone with strange markings', 'A lock of hair', 'A dice set', 'A broken locket', 'A mysterious note', 'A wax seal', 'A twig shaped like a wand', 'A piece of jewelry', 'A token or charm', 'A stub of chalk', 'A piece of rope', 'A broken quill', 'A copper ring', 'A stone figurine', 'A small book', 'A recipe written in code', 'A sketch of a face', 'A token from someone else', 'A curse written on parchment', 'A picture of a place', 'A deed or contract', 'A strange metal object', 'A vial of ash', 'A lock of someone else\'s hair', 'A gambling debt', 'A family heirloom', 'A wanted poster', 'A spy\'s codebook', 'A child\'s toy', 'A religious relic', 'A love poem', 'A curse charm', 'A ticket or pass', 'A prophecy written in ancient script'],
       graffiti: ['Here lies my heart', 'Beware the watchers', 'The end is nigh', 'X marks the spot', 'Gold lies below', 'The king is dead', 'Join us', 'Help me', 'The old ways return', 'See the signs', 'Caution: trap ahead', 'A fool was here', 'Love is blind', 'Time is running out', 'The curse begins', 'Find the relic', 'They\'re watching', 'This way to safety', 'We were here', 'Forever cursed', 'Truth lies in darkness', 'Beware false prophets', 'The ritual failed', 'He never left', 'She is alive', 'The treasure moves', 'Old magic awakens', 'The door opens at midnight', 'In blood we rise', 'The king\'s secret'],
       sounds: ['A distant howl', 'Dripping water', 'Eerie wind', 'Scraping metal', 'Creaking wood', 'Whispered voices', 'Chanting', 'Screaming', 'Laughter echoing', 'Bells tolling', 'Thunder rumbling', 'A heartbeat', 'Heavy breathing', 'Footsteps in darkness', 'Chains rattling', 'A bell ringing once', 'Singing voice', 'Breaking glass', 'A sword being drawn', 'Soft weeping', 'Insects buzzing', 'A baby crying', 'Claws scratching', 'An explosion', 'A growl', 'Galloping hooves', 'A scream cut short', 'Rustling leaves', 'A door slamming', 'Whispering secrets'],
-      bookTitles: ['The Necronomicon', 'A Treatise on Dragons', 'How to Befriend a Tarrasque', 'The History of Kings', 'Forbidden Summoning', 'Love in the Time of Plague', 'The Wanderer\'s Guide', 'Secrets of the Ancients', 'A Cook\'s Journal', 'The Art of War', 'Meditations on Power', 'Recipes for Immortality', 'The Thief\'s Handbook', 'A Lover\'s Lament', 'The Merchant\'s Ledger', 'Tales of the Road', 'The Wizard\'s Grimoire', 'A Sailor\'s Log', 'The Poet\'s Collection', 'A Criminal\'s Confession']
+      bookTitles: ['The Necronomicon', 'A Treatise on Dragons', 'How to Befriend a Tarrasque', 'The History of Kings', 'Forbidden Summoning', 'Love in the Time of Plague', 'The Wanderer\'s Guide', 'Secrets of the Ancients', 'A Cook\'s Journal', 'The Art of War', 'Meditations on Power', 'Recipes for Immortality', 'The Thief\'s Handbook', 'A Lover\'s Lament', 'The Merchant\'s Ledger', 'Tales of the Road', 'The Wizard\'s Grimoire', 'A Sailor\'s Log', 'The Poet\'s Collection', 'A Criminal\'s Confession'],
+
+      motivations: ['Revenge for a fallen loved one', 'Seeking redemption for past sins', 'Accumulating wealth and power', 'Protecting those they love', 'Pursuing a lost love', 'Discovering ancient knowledge', 'Proving themselves worthy', 'Escaping their past', 'Establishing a legacy', 'Preventing a prophecy', 'Helping the downtrodden', 'Searching for immortality', 'Serving a higher power', 'Exploring the unknown', 'Uncovering the truth', 'Building a new life', 'Maintaining their freedom', 'Pursuing justice', 'Gathering allies', 'Safeguarding a secret'],
+
+      mannerisms: ['Constantly fidgets with a ring', 'Always faces the nearest doorway', 'Examines items obsessively', 'Avoids direct eye contact', 'Gestures wildly when speaking', 'Speaks with hands in pockets', 'Paces back and forth', 'Chews on something constantly', 'Adjusts their clothing frequently', 'Taps fingers rhythmically', 'Scratches at a scar', 'Cracks their knuckles', 'Cleaning fingernails with a blade', 'Staring into the distance', 'Humming while lost in thought', 'Never stops moving their feet', 'Touches the pommel of their weapon', 'Drinks from a flask regularly', 'Touches their head/hair', 'Checks their surroundings constantly'],
+
+      dialogue: ['You look like trouble. I like that.', 'I\'ve seen things that would turn your hair white.', 'Let\'s not talk about the past.', 'I owe someone a debt. Perhaps you can help.', 'This place brings back memories. Not good ones.', 'I\'m not who I used to be.', 'What brings you to these parts?', 'Something tells me we\'ll meet again.', 'Don\'t go down that road. Trust me.', 'I\'ve been waiting for someone like you.', 'You remind me of someone. Someone dangerous.', 'The night holds many secrets.', 'Fate brought us together. Or curse.', 'I\'m looking for someone. Have you seen them?', 'Things are about to get complicated.', 'You should be careful who you trust.', 'That wound still bothers me on cold mornings.', 'I hope you\'re better with a blade than you look.', 'There\'s a storm coming. Can you feel it?', 'We should talk. Not here though.'],
+
+      alignments: ['Lawful Good', 'Neutral Good', 'Chaotic Good', 'Lawful Neutral', 'Neutral', 'Chaotic Neutral', 'Lawful Evil', 'Neutral Evil', 'Chaotic Evil'],
+
+      ageRanges: ['Young (16-25)', 'Adult (26-40)', 'Middle-aged (41-60)', 'Elderly (61+)', 'Ancient (100+)'],
+
+      npcRelationships: ['Friendly and welcoming', 'Neutral and cautious', 'Suspicious and distant', 'Hostile and violent', 'Curious but wary'],
+
+      potionNames: ['Elixir of Verdant Might', 'Cloudwhisper Brew', 'Dragon\'s Breath Essence', 'Moonlit Cognition', 'Runescribe\'s Draught', 'Frostbane Nectar', 'Luminous Vigor', 'Silverbark Tincture', 'Shadowstep Serum', 'Goldleaf Vitality'],
+
+      potionTastes: ['Bitter and metallic', 'Sickeningly sweet', 'Like morning dew', 'Spicy and warming', 'Cold and invigorating', 'Sour and tangy', 'Creamy and smooth', 'Numbing on the tongue', 'Fruity and pleasant', 'Earthy and herbal', 'Like copper and ash', 'Floral and delicate', 'Sharp and astringent', 'Rich and honey-like'],
+
+      potionSmells: ['Sulfurous and acrid', 'Sweet like flowers', 'Musky and thick', 'Sharp and fresh', 'Rotten and putrid', 'Metallic and strange', 'Perfumed and exotic', 'Like burning wood', 'Faintly magical', 'Rank and unpleasant', 'Intoxicating', 'Neutral', 'Minty and cool', 'Smoky and deep'],
+
+      potionEffects: [
+        '+2 to Strength for 1 hour', '+2 to Dexterity for 1 hour', '+2 to Constitution for 1 hour', '+2 to Intelligence for 1 hour', '+2 to Wisdom for 1 hour', '+2 to Charisma for 1 hour',
+        'Heal 1d8 HP immediately', 'Heal 2d8 HP immediately', 'Heal 3d8 HP immediately', 'Cure all diseases', 'Remove poison in bloodstream', 'Restore one ability score to normal',
+        'Invisible for 10 minutes', 'Darkvision for 4 hours', 'Walk silently for 1 hour', 'Speak with animals for 1 hour', 'Understand all languages for 1 hour', 'Read any text for 1 hour',
+        'Advantage on next attack roll', 'Disadvantage on next enemy attack against you', 'Resist damage type for 1 hour', 'Immune to fire for 1 hour', 'Immune to cold for 1 hour', 'Immune to lightning for 1 hour',
+        'Extra attack on next turn', 'Fly at 40 feet per round for 10 minutes', 'Underwater breathing for 24 hours', 'Teleport up to 100 feet', 'Water walking for 1 hour', 'Wall climbing for 1 hour',
+        'Breathe fire like a dragon', 'Cast Magic Missile at will for 1 hour', 'Summon phantom weapon for 1 hour', 'Empower next spell you cast (no cost)', 'Double proficiency bonus for 1 hour', 'Advantage on all saving throws for 1 hour'
+      ],
+
+      potionSideEffects: ['Skin turns blue for 1d6 hours', 'Hair grows 6 inches overnight', 'Can only speak in rhyme for 10 minutes', 'Hiccup sparks of magic', 'Temporary giggling fits', 'Teeth turn silver', 'Eyes glow softly', 'Voice becomes very deep', 'Taste is reversed (bitter/sweet)', 'Left hand turns green', 'Floating for 1 inch above ground', 'Speak backwards for 5 minutes', 'Temporary extreme thirst', 'Burp small clouds of smoke', 'Temporary amnesia (30 min)', 'Temporary paralysis in legs (1 min)', 'Sneeze sparkles of color', 'Temporary lisp', 'Temporary inability to lie', 'Ticklish for next hour'],
+
+      potionContainers: ['Crystalline vial', 'Leather pouch with stopper', 'Silver flask', 'Ceramic jug', 'Glass bottle with wax seal', 'Wooden canteen', 'Brass vial', 'Bone container', 'Cloth-wrapped bottle', 'Metal canister'],
+
+      potionRarities: ['Common', 'Uncommon', 'Rare', 'Very Rare', 'Legendary'],
+
+      tavernMenuItems: ['Roasted chicken with vegetables', 'Beef stew with crusty bread', 'Grilled fish with lemon', 'Venison pie', 'Bread and cheese board', 'Mutton chops', 'Root vegetable soup', 'Roasted rabbit', 'Pork ribs', 'Fresh baked bread', 'Butter and jam', 'Smoked sausage', 'Pickled eggs', 'Sweetened pastries', 'Honeyed ham'],
+
+      tavernPatronDescriptions: ['A hooded figure in the corner', 'A rowdy group of miners', 'A well-dressed merchant', 'A cloaked stranger with scars', 'An old woman nursing ale', 'A group of adventurers boasting', 'A quiet scholar reading', 'A pair of thieves playing cards', 'A noble and their bodyguard', 'A bard tuning an instrument'],
+
+      dungeonNames: ['Tomb of the Forgotten King', 'The Shattered Spire', 'Caverns of Echoing Screams', 'The Abyssal Halls', 'Fortress of Eternal Night', 'The Sunken Temple', 'Drakemere Keep', 'The Obsidian Descent', 'Crypt of the Wraiths', 'The Shadowveil Sanctum'],
+
+      entranceDesc: ['A crumbling stone archway', 'A heavy iron door', 'A dark cave mouth', 'Wooden gates bound with chains', 'A carved statue guarding the way', 'A suspicious hole in the earth', 'An ornate portal', 'A barred entrance with warning marks', 'A narrow crevasse', 'A flooded cavern entrance'],
+
+      connections: ['narrow passage', 'grand hallway', 'steep stairs', 'rope bridge', 'secret door', 'collapsed wall opening', 'underground stream', 'sliding trapdoor', 'wizard\'s teleportation circle', 'natural chimney'],
+
+      environmentalHazards: ['Toxic gas vents', 'Unstable floor sections', 'Dripping acid from ceiling', 'Lava flows', 'Deep chasms', 'Extreme cold', 'Complete darkness', 'Psychic energy that damages minds', 'Cursed ground', 'Flooded chambers', 'Electrical storms', 'Crushing ceiling', 'Quicksand', 'Radiation or magical corruption'],
+
+      dungeonLore: ['Built by an ancient civilization millennia ago', 'Lair of a forgotten god', 'Prison for a powerful demon', 'Tomb constructed for an immortal king', 'Created by a mad wizard as an experiment', 'Natural caverns that were inhabited centuries ago', 'Sealed during a great war', 'Cursed after a tragic event', 'Built to protect a sacred relic', 'Created as a hideout for outcasts'],
+
+      encounterSetups: ['The party rounds a bend and discovers...', 'Emerging from the mist, the party finds...', 'A sudden movement catches your attention...', 'The ground beneath your feet trembles as...', 'A bloodcurdling scream echoes nearby...', 'The smell of battle fills the air...', 'A shadow moves against the wall...', 'A low growl warns of danger ahead...', 'The party stumbles upon...', 'An explosion rocks the ground as...'],
+
+      terrainFeatures: ['Dense trees providing partial cover', 'Large boulders for hiding behind', 'A small river for crossing', 'Rocky uneven ground (difficult terrain)', 'Elevated platform', 'Swampy ground (difficult terrain)', 'Thick fog (half sight)', 'Narrow canyon walls', 'Thick underbrush', 'Collapsed building with rubble'],
+
+      tacticalNotes: ['Enemies have the higher ground advantage', 'Use the terrain to separate enemies', 'Enemies may flee if badly wounded', 'Watch for ambushes from flank', 'Some enemies can cast spells', 'Enemies are disciplined and coordinated', 'The leader is worth 500 XP alone', 'Enemies scatter if leader falls', 'This is primarily a war band, not a horde', 'Morale is fragile if leader is taken out'],
+
+      complications: ['A hostage is discovered in the area', 'Reinforcements arrive mid-battle', 'Terrain begins to collapse', 'An innocent bystander gets involved', 'A new faction arrives (ally or enemy)', 'The battlefield becomes more hazardous', 'An enemy retreats but leaves a threat', 'Environmental hazard activates', 'A magical effect complicates tactics', 'An escape route closes off'],
+
+      alternativeResolutions: ['The enemies can be intimidated into leaving', 'A deal or parlay is possible', 'The enemy leader can be reasoned with', 'A bribe might work', 'The enemies are bound to a code of honor', 'A spectacle or distraction could disperse them', 'They might be convinced to join the party', 'They could be given conflicting orders', 'An illusion could convince them to retreat', 'A powerful show of force makes them flee'],
+
+      treasureContainers: ['Locked ornate chest', 'Dragon\'s hoard pile', 'Hidden compartment in wall', 'Buried underground', 'Inside a collapsed statue', 'Hanging from ceiling in a net', 'Sealed in magical container', 'Within the corpse of a monster', 'Hidden behind loose stones', 'Submerged in water'],
+
+      curses: ['Cursed to sleep for 1 hour after touching', 'Item grows increasingly heavy', 'Wielder takes 1d4 psychic damage per day', 'Item is bound to wielder (cannot be removed)', 'Cursed to tell the truth always', 'Attracts nearby monsters', 'Causes nightmares', 'Drains 1 health point per hour', 'Cannot be used for good deeds', 'Brings terrible luck to wielder'],
+
+      magicItemDescriptions: {
+        'Sword of Sharpness': 'Never dulls, cuts through most materials. +1 to attack and damage rolls.',
+        'Cloak of Elvenkind': 'Wearer gains advantage on stealth checks. Grants natural camouflage in forests.',
+        'Ring of Protection': '+1 to AC and saving throws.',
+        'Amulet of Health': 'Wearer\'s maximum HP cannot be reduced below 10 HP.',
+        'Boots of Speed': 'Walking speed increased by 10 feet. Can dash as bonus action 3x daily.',
+        'Bag of Holding': 'Holds up to 500 pounds. Weighs nothing. Interdimensional.',
+        'Wand of Fireballs': 'Cast Fireball spell 7 times per day. Spell save DC 15.',
+        'Staff of the Magi': 'Can cast most spells. Requires attunement. Extremely powerful.',
+        'Cloak of Invisibility': 'Wearer becomes invisible. Never wears out.',
+        'Ring of Invisibility': 'Wearer becomes invisible. Cursed - cannot be removed.',
+        'Belt of Giant Strength': 'Grants Strength score of 19. While wearing.',
+        'Helm of Telepathy': 'Can communicate telepathically with creatures you know.',
+        'Deck of Many Things': 'Draw cards for wild magical effects. Extremely dangerous.',
+        'Portable Hole': 'Extradimensional space. Can hold many items.',
+        'Robe of the Archmagi': '+1 to spell attack rolls. Grants mage armor.',
+        'Ring of Three Wishes': 'Can cast Wish spell 3 times. Extremely rare.',
+        'Dagger of Venom': 'On hit, target must make poison save or take 1d4 poison damage.',
+        'Boots of Levitation': 'Can cast levitate on self at will.',
+        'Helm of Brilliance': 'Grants multiple magical abilities and protections.',
+        'Wand of Lightning Bolts': 'Cast lightning bolt spell up to 5 times per day.'
+      },
+
+      plotHookLocations: ['In a remote village', 'At a grand tavern in the capital', 'In the depths of a dungeon', 'On a merchant caravan', 'In a wealthy nobleman\'s estate', 'Within a monastery', 'At a crossroads inn', 'In a bustling port city', 'In a hidden camp', 'Within a magical tower'],
+
+      timePressures: ['Must complete within 3 days', 'Only 1 week before the window closes', 'Already 3 days past the deadline', 'Time is running out before a celestial alignment', 'Must finish before a full moon', 'Need to act before winter arrives', 'Must return by end of month', 'Window is only 24 hours', 'Race against another faction', 'Deadline is flexible but rewards are better if fast'],
+
+      twists: ['The employer is actually the villain', 'A party member has a secret connection', 'The quest goal is not what it seems', 'An ally betrays the party midway', 'A hidden love interest complicates matters', 'The real enemy is someone unexpected', 'The reward is cursed or dangerous', 'The quest creates more problems than it solves', 'A higher power is manipulating events', 'The party is being set up as scapegoats'],
+
+      stakes: ['If you fail, innocents die', 'The kingdom could fall to war', 'A loved one will be lost forever', 'Dark magic will spread unchecked', 'An ancient evil will awaken', 'A plague will consume the land', 'A powerful enemy gains dominance', 'A sacred site will be destroyed', 'Countless refugees will have no home', 'Reality itself might be threatened'],
+
+      rewardAlternatives: ['Magic item of great power', 'Land grant and title', 'Access to a powerful contact', 'Membership in secret society', 'Magical artifact or relic', 'Blessing from a deity', 'Ancient knowledge or spellbook', 'Gold and gems (large sum)', 'Favor from local nobility', 'Control of strategic location'],
+
+      keyNPCs: ['An old friend with hidden motives', 'A mysterious cloaked figure', 'The actual rightful heir', 'A powerful wizard', 'A rogue information broker', 'A noble with secrets', 'A scholar of forgotten lore', 'A war veteran', 'A criminal with honor', 'A priestess with visions'],
+
+      gameplayEffects: ['Disadvantage on ranged attacks in heavy wind', 'Difficult terrain in snow (half movement)', 'Visibility reduced in fog (disadvantage to perception)', 'Slippery ground (half movement)', 'Extreme heat causes exhaustion', 'Extreme cold causes exhaustion', 'Flying creatures struggle in wind', 'Fire spreads quickly in dry conditions', 'Visibility perfect in clear skies', 'Travel pace reduced by 50%'],
+
+      weatherDescriptions: ['A bitter wind cuts through your cloak', 'The sky is a brilliant blue', 'Clouds roll in with ominous intent', 'Rain falls in heavy sheets', 'Snow swirls around your ankles', 'The heat is absolutely oppressive', 'A strange calm settles over the land', 'Lightning illuminates the darkness', 'Fog creeps along the ground', 'Dust devils dance across the terrain'],
+
+      moonPhases: ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'],
+
+      timeOfDay: ['Dawn (5-6 AM)', 'Morning (7-11 AM)', 'Noon (12 PM)', 'Afternoon (1-4 PM)', 'Dusk (5-6 PM)', 'Evening (7-9 PM)', 'Night (10 PM-4 AM)', 'Midnight'],
+
+      wildMagicSeverities: [
+        { severity: 'minor', effect: 'Small cosmetic change' },
+        { severity: 'moderate', effect: 'Temporary mechanical effect' },
+        { severity: 'major', effect: 'Significant game impact' },
+        { severity: 'catastrophic', effect: 'Campaign-altering consequence' }
+      ]
     };
 
     // Utility functions
@@ -1077,12 +1229,53 @@
         secret: random(DATA.secrets),
         voice: random(DATA.voices),
         quirk: random(DATA.quirks),
+        ageRange: random(DATA.ageRanges),
+        alignment: random(DATA.alignments),
+        motivation: random(DATA.motivations),
+        relationship: random(DATA.npcRelationships),
+        mannerism: random(DATA.mannerisms),
+        dialogue: random(DATA.dialogue),
       };
+
+      // Generate ability score emphasis
+      const abilityScores = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
+      const highAbility = random(abilityScores);
+      const lowAbility = random(abilityScores.filter(a => a !== highAbility));
+      const statSuggestion = `High ${highAbility}, Low ${lowAbility}`;
+
+      // Generate 2-sentence backstory hook
+      const backstories = [
+        `${npc.name} was once a respected member of their community, but a terrible mistake forced them into hiding. They carry the weight of their guilt every day.`,
+        `Rumors suggest ${npc.name} came from nobility, but fell from grace under mysterious circumstances. They now live a secret life.`,
+        `${npc.name} witnessed something they should not have seen, and now they're being hunted by powerful forces. They trust very few people.`,
+        `Once ${npc.name} was part of an organization they now despise, and they've spent years trying to redeem themselves. The past still haunts them.`,
+        `${npc.name} is searching for someone or something important, but their true purpose remains hidden. Few know what drives them.`,
+        `${npc.name} has a hidden talent or ability they keep secret from most people. It could change everything if discovered.`,
+        `Years ago, ${npc.name} made a deal with someone or something. The debt remains unpaid.`,
+        `${npc.name} is the last survivor of something tragic, and they carry survivor's guilt. They search for purpose in their remaining years.`,
+      ];
+      const backstory = random(backstories);
 
       const html = `
         <div class="gen-npc-card gen-result">
           <div class="gen-npc-name">${npc.name}</div>
           <div class="gen-npc-class">${npc.race} ${npc.occupation} • ${npc.gender}</div>
+
+          <div class="gen-result-subheading">Vital Stats</div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Age Range</div>
+            <div class="gen-npc-stat-value">${npc.ageRange}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Alignment</div>
+            <div class="gen-npc-stat-value">${npc.alignment}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Ability Emphasis</div>
+            <div class="gen-npc-stat-value">${statSuggestion}</div>
+          </div>
+
+          <div class="gen-result-subheading">Appearance & Personality</div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Appearance</div>
             <div class="gen-npc-stat-value">${npc.appearance}</div>
@@ -1092,6 +1285,12 @@
             <div class="gen-npc-stat-value">${npc.personality}</div>
           </div>
           <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Mannerism</div>
+            <div class="gen-npc-stat-value">${npc.mannerism}</div>
+          </div>
+
+          <div class="gen-result-subheading">Character</div>
+          <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Voice</div>
             <div class="gen-npc-stat-value">${npc.voice}</div>
           </div>
@@ -1100,11 +1299,30 @@
             <div class="gen-npc-stat-value">${npc.quirk}</div>
           </div>
           <div class="gen-npc-stat">
-            <div class="gen-npc-stat-label">Secret</div>
+            <div class="gen-npc-stat-label">Motivation</div>
+            <div class="gen-npc-stat-value">${npc.motivation}</div>
+          </div>
+
+          <div class="gen-result-subheading">Relations & Intrigue</div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Party Relationship</div>
+            <div class="gen-npc-stat-value">${npc.relationship}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Opening Line</div>
+            <div class="gen-npc-stat-value"><em>"${npc.dialogue}"</em></div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Backstory Hook</div>
+            <div class="gen-npc-stat-value">${backstory}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Dark Secret</div>
             <div class="gen-npc-stat-value">${npc.secret}</div>
           </div>
+
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('${npc.name}, the ${npc.race} ${npc.occupation}. ${npc.appearance}. ${npc.personality}. Secret: ${npc.secret}')">Copy</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('${npc.name} - ${npc.race} ${npc.occupation} (${npc.alignment}). ${npc.appearance}. ${npc.personality}. Secret: ${npc.secret}')">Copy</button>
             <button class="gen-result-btn" onclick="pinToNotes('NPC', '${npc.name}')">Pin</button>
           </div>
         </div>
@@ -1155,6 +1373,9 @@
       const selectedType = type === 'any' ? random(types) : type;
 
       const tavernName = random(DATA.tavernAdjectives) + ' ' + random(DATA.tavernNouns);
+      const priceLevels = ['Cheap', 'Moderate', 'Expensive', 'Extravagant'];
+      const priceLevel = random(priceLevels);
+
       const tavern = {
         name: tavernName,
         type: selectedType.charAt(0).toUpperCase() + selectedType.slice(1),
@@ -1162,6 +1383,10 @@
         drink: random(DATA.tavernDrinks),
         feature: random(DATA.tavernFeatures),
         rumor: random(DATA.tavernRumors),
+        priceLevel: priceLevel,
+        patrons: randomInt(8, 35),
+        entertainment: random(['Live bard performance', 'Tavern games and gambling', 'Dance floor', 'Storytelling circle', 'Poetry readings', 'Card game tournament', 'Wrestling matches', 'Nothing special tonight']),
+        danger: random(['Pickpockets work the crowd', 'Tension between two rival factions', 'A wanted criminal is here', 'Secret meeting in back room', 'Magical danger brewing', 'Peaceful, seems safe']),
       };
 
       // Generate barkeep
@@ -1170,6 +1395,18 @@
         name: random(namePool),
         race: randomInt(1, 2) === 1 ? 'Human' : 'Dwarf',
         quirk: random(DATA.quirks),
+        appearance: random(DATA.physicalDesc),
+        personality: random(DATA.personality),
+      };
+
+      // Generate menu items
+      const menuItems = randomNth(3, DATA.tavernMenuItems);
+
+      // Generate notable patron
+      const patronName = random([DATA.npcNames.common, DATA.npcNames.elvish]);
+      const notablePatron = {
+        name: patronName,
+        description: random(DATA.tavernPatronDescriptions),
       };
 
       const html = `
@@ -1179,31 +1416,70 @@
             <div class="gen-result-value">${tavern.name}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Type</div>
-            <div class="gen-result-value">${tavern.type}</div>
+            <div class="gen-result-label">Type & Price Level</div>
+            <div class="gen-result-value">${tavern.type} (${tavern.priceLevel})</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Atmosphere</div>
             <div class="gen-result-value">${tavern.atmosphere}</div>
           </div>
+
+          <div class="gen-result-subheading">What's Available</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Signature Drink</div>
             <div class="gen-result-value">${tavern.drink}</div>
           </div>
           <div class="gen-result-item">
+            <div class="gen-result-label">Food Menu</div>
+            <div class="gen-result-value">${menuItems.join(', ')}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Number of Patrons</div>
+            <div class="gen-result-value">${tavern.patrons} people present</div>
+          </div>
+
+          <div class="gen-result-subheading">The Experience</div>
+          <div class="gen-result-item">
             <div class="gen-result-label">Notable Feature</div>
             <div class="gen-result-value">${tavern.feature}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Current Rumor</div>
-            <div class="gen-result-value">${tavern.rumor}</div>
+            <div class="gen-result-label">Entertainment Tonight</div>
+            <div class="gen-result-value">${tavern.entertainment}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Barkeep</div>
-            <div class="gen-result-value">${barkeep.name}, the ${barkeep.race}. ${barkeep.quirk}</div>
+            <div class="gen-result-label">Notable Patron</div>
+            <div class="gen-result-value">${notablePatron.name} - ${notablePatron.description}</div>
           </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Complication or Danger</div>
+            <div class="gen-result-value">${tavern.danger}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Current Rumor</div>
+            <div class="gen-result-value">"${tavern.rumor}"</div>
+          </div>
+
+          <div class="gen-result-subheading">The Barkeep</div>
+          <div class="gen-result-item">
+            <div class="gen-npc-stat-label">Name & Race</div>
+            <div class="gen-npc-stat-value">${barkeep.name}, the ${barkeep.race}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-npc-stat-label">Appearance</div>
+            <div class="gen-npc-stat-value">${barkeep.appearance}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-npc-stat-label">Personality</div>
+            <div class="gen-npc-stat-value">${barkeep.personality}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-npc-stat-label">Notable Quirk</div>
+            <div class="gen-npc-stat-value">${barkeep.quirk}</div>
+          </div>
+
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('${tavern.name} - A ${tavern.type.toLowerCase()}. Drink: ${tavern.drink}. Barkeep: ${barkeep.name}')">Copy</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('${tavern.name} - ${tavern.type}. Barkeep: ${barkeep.name}. ${tavern.priceLevel} prices.')">Copy</button>
             <button class="gen-result-btn" onclick="pinToNotes('Tavern', '${tavern.name}')">Pin</button>
           </div>
         </div>
@@ -1217,28 +1493,62 @@
       const types = ['tomb', 'cave', 'temple', 'lair', 'mine', 'fortress', 'sewer'];
       const selectedType = type === 'any' ? random(types) : type;
 
+      const dungeonName = random(DATA.dungeonNames);
       const theme = random(DATA.dungeonThemes);
+      const entrance = random(DATA.entranceDesc);
       const rooms = randomNth(randomInt(3, 5), DATA.dungeonRooms);
       const mainTrap = random(DATA.trapTypes);
       const mainPuzzle = random(DATA.puzzles);
       const monsters = randomNth(randomInt(2, 4), DATA.monsters);
+      const hazard = random(DATA.environmentalHazards);
+      const lore = random(DATA.dungeonLore);
+      const estimatedLevel = randomInt(1, 20);
+
+      // Generate room connections
+      const connections = [];
+      for (let i = 0; i < rooms.length - 1; i++) {
+        connections.push(`Room ${i + 1} connects to Room ${i + 2} via ${random(DATA.connections)}`);
+      }
+
+      // Generate boss
+      const bossMonsters = DATA.monsters.filter(m => m.cr >= 5);
+      const boss = random(bossMonsters);
+      const bossLoot = randomNth(randomInt(2, 4), DATA.magicItems);
 
       let html = `
         <div class="gen-result">
           <div class="gen-result-item">
-            <div class="gen-result-label">Dungeon Type</div>
-            <div class="gen-result-value">${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</div>
+            <div class="gen-result-label">Dungeon Name</div>
+            <div class="gen-result-value">${dungeonName}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Theme</div>
-            <div class="gen-result-value">${theme}</div>
+            <div class="gen-result-label">Type & Theme</div>
+            <div class="gen-result-value">${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} - ${theme}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Rooms</div>
+            <div class="gen-result-label">Estimated Party Level</div>
+            <div class="gen-result-value">${estimatedLevel}</div>
+          </div>
+
+          <div class="gen-result-subheading">Entrance & Layout</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Entrance Description</div>
+            <div class="gen-result-value">${entrance}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Rooms (${rooms.length})</div>
             <div class="gen-result-value">
-              ${rooms.map((r, i) => `<div>${i + 1}. ${r}</div>`).join('')}
+              ${rooms.map((r, i) => `<div><strong>Room ${i + 1}:</strong> ${r}</div>`).join('')}
             </div>
           </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Room Connections</div>
+            <div class="gen-result-value">
+              ${connections.map(c => `<div>${c}</div>`).join('')}
+            </div>
+          </div>
+
+          <div class="gen-result-subheading">Challenges & Obstacles</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Main Trap</div>
             <div class="gen-result-value">${mainTrap}</div>
@@ -1248,14 +1558,35 @@
             <div class="gen-result-value">${mainPuzzle}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Encounters</div>
+            <div class="gen-result-label">Environmental Hazard</div>
+            <div class="gen-result-value">${hazard}</div>
+          </div>
+
+          <div class="gen-result-subheading">Encounters</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Standard Encounters</div>
             <div class="gen-result-value">
               ${monsters.map(m => `<div>${m.name} (CR ${m.cr})</div>`).join('')}
             </div>
           </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Boss Encounter</div>
+            <div class="gen-result-value"><strong>${boss.name}</strong> (CR ${boss.cr})</div>
+          </div>
+
+          <div class="gen-result-subheading">Rewards & Lore</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Boss Loot</div>
+            <div class="gen-result-value">${bossLoot.join(', ')}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Dungeon Lore/History</div>
+            <div class="gen-result-value">${lore}</div>
+          </div>
+
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('Dungeon: ${selectedType}. Theme: ${theme}. Trap: ${mainTrap}.')">Copy</button>
-            <button class="gen-result-btn" onclick="pinToNotes('Dungeon', '${selectedType}')">Pin</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('${dungeonName} - ${selectedType}. Boss: ${boss.name}. Theme: ${theme}.')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Dungeon', '${dungeonName}')">Pin</button>
           </div>
         </div>
       `;
@@ -1275,28 +1606,61 @@
       const monsters = randomNth(randomInt(2, 5), DATA.monsters.filter(m => Math.abs(m.cr - level) <= 3));
       const totalCR = monsters.reduce((sum, m) => sum + m.cr, 0);
 
+      const setup = random(DATA.encounterSetups);
+      const terrain = random(DATA.terrainFeatures);
+      const tactics = random(DATA.tacticalNotes);
+      const complication = random(DATA.complications);
+      const alternative = random(DATA.alternativeResolutions);
+
       const html = `
         <div class="gen-result">
           <div class="gen-result-item">
-            <div class="gen-result-label">Environment</div>
+            <div class="gen-result-label">Encounter Setup</div>
+            <div class="gen-result-value">${setup} ${monsters.map(m => m.name).join(', ')}</div>
+          </div>
+
+          <div class="gen-result-subheading">Environment & Terrain</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Location</div>
             <div class="gen-result-value">${selectedEnv.charAt(0).toUpperCase() + selectedEnv.slice(1)}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Difficulty</div>
-            <div class="gen-result-value">${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</div>
+            <div class="gen-result-label">Terrain Features</div>
+            <div class="gen-result-value">${terrain}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Enemies</div>
+            <div class="gen-result-label">Difficulty Rating</div>
+            <div class="gen-result-value">${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} (Party Level ${level})</div>
+          </div>
+
+          <div class="gen-result-subheading">Combat Statistics</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Enemies Present</div>
             <div class="gen-result-value">
               ${monsters.map(m => `<div>${m.name} (CR ${m.cr})</div>`).join('')}
             </div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Estimated XP</div>
-            <div class="gen-result-value">${(totalCR * 100).toFixed(0)} XP total</div>
+            <div class="gen-result-label">Total Encounter XP</div>
+            <div class="gen-result-value">${(totalCR * 100).toFixed(0)} XP (before adjustments)</div>
           </div>
+
+          <div class="gen-result-subheading">Tactical Guidance for DM</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Tactical Notes</div>
+            <div class="gen-result-value">${tactics}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Possible Complication</div>
+            <div class="gen-result-value">${complication}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Alternative Resolution</div>
+            <div class="gen-result-value">${alternative}</div>
+          </div>
+
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('Encounter in ${selectedEnv}. ${difficulty} difficulty.')">Copy</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('Encounter in ${selectedEnv}. ${difficulty} difficulty. ${monsters.map(m => m.name).join(', ')}')">Copy</button>
             <button class="gen-result-btn" onclick="pinToNotes('Encounter', selectedEnv)">Pin</button>
           </div>
         </div>
@@ -1310,6 +1674,7 @@
       const cr = document.getElementById('treasureCR').value;
 
       let treasure = {};
+      let totalGPValue = 0;
 
       if (type === 'coins' || type === 'individual' || type === 'hoard') {
         const cpMultiplier = cr === '0-4' ? randomInt(5, 15) : cr === '5-10' ? randomInt(30, 60) : cr === '11-16' ? randomInt(100, 200) : randomInt(500, 1000);
@@ -1317,19 +1682,26 @@
         treasure.sp = cpMultiplier * 50;
         treasure.gp = cpMultiplier * 25;
         treasure.pp = cpMultiplier;
+        totalGPValue += (treasure.cp * 0.01) + (treasure.sp * 0.1) + treasure.gp + (treasure.pp * 10);
       }
 
       if (type === 'gems' || type === 'hoard') {
         treasure.gems = randomNth(randomInt(1, 4), DATA.gems);
+        treasure.gems.forEach(() => totalGPValue += randomInt(50, 500));
       }
 
       if (type === 'art' || type === 'hoard') {
         treasure.art = randomNth(randomInt(1, 3), DATA.artObjects);
+        treasure.art.forEach(() => totalGPValue += randomInt(25, 2500));
       }
 
       if (type === 'magic' || type === 'hoard') {
         treasure.magic = randomNth(randomInt(1, 3), DATA.magicItems);
       }
+
+      const container = random(DATA.treasureContainers);
+      const isCursed = randomInt(1, 10) === 1;
+      const curse = isCursed ? random(DATA.curses) : null;
 
       let html = '<div class="gen-result">';
 
@@ -1345,8 +1717,10 @@
       if (treasure.gems) {
         html += `
           <div class="gen-result-item">
-            <div class="gen-result-label">Gems</div>
-            <div class="gen-result-value">${treasure.gems.join(', ')}</div>
+            <div class="gen-result-label">Gemstones</div>
+            <div class="gen-result-value">
+              ${treasure.gems.map(g => `<div>${g} (Est. ${randomInt(50, 500)} GP)</div>`).join('')}
+            </div>
           </div>
         `;
       }
@@ -1355,7 +1729,9 @@
         html += `
           <div class="gen-result-item">
             <div class="gen-result-label">Art Objects</div>
-            <div class="gen-result-value">${treasure.art.join(', ')}</div>
+            <div class="gen-result-value">
+              ${treasure.art.map(a => `<div>${a} (Est. ${randomInt(25, 2500)} GP)</div>`).join('')}
+            </div>
           </div>
         `;
       }
@@ -1364,14 +1740,39 @@
         html += `
           <div class="gen-result-item">
             <div class="gen-result-label">Magic Items</div>
-            <div class="gen-result-value">${treasure.magic.join(', ')}</div>
+            <div class="gen-result-value">
+              ${treasure.magic.map(m => {
+                const desc = DATA.magicItemDescriptions[m] || 'A magical item of mysterious power.';
+                return \`<div><strong>\${m}</strong><br><em>\${desc}</em></div>\`;
+              }).join('')}
+            </div>
           </div>
         `;
       }
 
       html += `
+        <div class="gen-result-item">
+          <div class="gen-result-label">Container/Location</div>
+          <div class="gen-result-value">${container}</div>
+        </div>
+      `;
+
+      if (isCursed) {
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">CURSE WARNING</div>
+            <div class="gen-result-value"><strong>Cursed item detected!</strong><br>${curse}</div>
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="gen-result-item">
+          <div class="gen-result-label">Estimated Total Value</div>
+          <div class="gen-result-value">${totalGPValue.toFixed(0)} GP</div>
+        </div>
         <div class="gen-result-actions">
-          <button class="gen-result-btn" onclick="copyToClipboard('Treasure: ${treasure.gp} GP worth')">Copy</button>
+          <button class="gen-result-btn" onclick="copyToClipboard('Treasure worth ~${totalGPValue.toFixed(0)} GP. Container: ${container}')">Copy</button>
           <button class="gen-result-btn" onclick="pinToNotes('Treasure', 'Hoard')">Pin</button>
         </div>
       </div>
@@ -1387,29 +1788,69 @@
 
       const hook = random(DATA.plotHooks.filter(h => h.genre === selectedGenre || genre === 'any'));
       const patron = random(['A mysterious stranger', 'A local noble', 'A merchant guild', 'A religious order', 'A crime lord', 'A government official', 'A desperate peasant', 'A wizard', 'A former adventurer', 'An ancient spirit']);
-      const reward = randomInt(100, 1000) + ' gold pieces';
+      const location = random(DATA.plotHookLocations);
+      const timePressure = random(DATA.timePressures);
+      const twist = random(DATA.twists);
+      const stakes = random(DATA.stakes);
+      const npcs = randomNth(randomInt(2, 3), DATA.keyNPCs);
+      const rewardBase = randomInt(100, 1000);
+      const rewardAlternative = random(DATA.rewardAlternatives);
 
       const html = `
         <div class="gen-result">
+          <div class="gen-result-subheading">The Quest</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Adventure Type</div>
             <div class="gen-result-value">${selectedGenre.charAt(0).toUpperCase() + selectedGenre.slice(1)}</div>
-          </div>
-          <div class="gen-result-item">
-            <div class="gen-result-label">Patron</div>
-            <div class="gen-result-value">${patron}</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Hook</div>
             <div class="gen-result-value">${hook.hook}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Reward</div>
-            <div class="gen-result-value">${reward}</div>
+            <div class="gen-result-label">Patron/Quest-Giver</div>
+            <div class="gen-result-value">${patron}</div>
           </div>
+
+          <div class="gen-result-subheading">Quest Details</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Quest Location</div>
+            <div class="gen-result-value">${location}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Time Pressure</div>
+            <div class="gen-result-value">${timePressure}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Key NPCs Involved</div>
+            <div class="gen-result-value">
+              ${npcs.map(n => `<div>• ${n}</div>`).join('')}
+            </div>
+          </div>
+
+          <div class="gen-result-subheading">The Challenge</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Hidden Twist</div>
+            <div class="gen-result-value">${twist}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">What's at Stake</div>
+            <div class="gen-result-value">${stakes}</div>
+          </div>
+
+          <div class="gen-result-subheading">Rewards</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Gold Reward</div>
+            <div class="gen-result-value">${rewardBase} gold pieces</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Alternative Reward</div>
+            <div class="gen-result-value">${rewardAlternative}</div>
+          </div>
+
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('${hook.hook} - Reward: ${reward}')">Copy</button>
-            <button class="gen-result-btn" onclick="pinToNotes('Hook', 'Adventure')">Pin</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('${selectedGenre}: ${hook.hook} | ${patron} | Reward: ${rewardBase} GP')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Hook', selectedGenre)">Pin</button>
           </div>
         </div>
       `;
@@ -1459,39 +1900,96 @@
         season: selectedSeason,
         temperature: temps[selectedClimate][selectedSeason],
         condition: random(conditions),
-        wind: randomInt(0, 40) + ' mph',
-        visibility: randomInt(10, 100) + ' feet',
+        wind: randomInt(0, 40),
+        visibility: randomInt(10, 100),
         event: randomInt(1, 5) === 1 ? random(events) : 'None',
+        timeOfDay: random(DATA.timeOfDay),
+        moonPhase: random(DATA.moonPhases),
+        precipitation: randomInt(0, 3) + ' inches',
       };
+
+      // Determine gameplay effects based on condition
+      let gameplayEffect = '';
+      if (weather.condition.includes('Heavy rain') || weather.condition.includes('Thunderstorm')) {
+        gameplayEffect = 'Disadvantage on ranged attacks. Difficult terrain. Reduced visibility.';
+      } else if (weather.condition.includes('Snow')) {
+        gameplayEffect = 'Difficult terrain. Disadvantage on Perception checks. Half movement speed.';
+      } else if (weather.condition.includes('Fog')) {
+        gameplayEffect = 'Heavy obscurement. 15-foot visibility. Disadvantage on Perception.';
+      } else if (weather.condition.includes('Wind') && weather.wind > 20) {
+        gameplayEffect = 'Disadvantage on ranged attacks. Flying difficult.';
+      } else {
+        gameplayEffect = 'No special effects. Normal travel pace.';
+      }
+
+      // Travel pace impact
+      let travelPace = 'Normal (24 miles/day on foot)';
+      if (weather.condition.includes('Snow') || weather.condition.includes('Sleet')) {
+        travelPace = 'Slow (12 miles/day) - Difficult terrain and cold';
+      } else if (weather.condition.includes('Heavy rain')) {
+        travelPace = 'Slow (18 miles/day) - Muddy roads';
+      } else if (weather.condition.includes('Clear') || weather.condition.includes('calm')) {
+        travelPace = 'Fast (27 miles/day) - Ideal conditions';
+      }
 
       const html = `
         <div class="gen-result">
+          <div class="gen-result-subheading">Environment</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Climate & Season</div>
-            <div class="gen-result-value">${weather.climate} - ${weather.season}</div>
+            <div class="gen-result-value">${selectedClimate.charAt(0).toUpperCase() + selectedClimate.slice(1)} - ${selectedSeason.charAt(0).toUpperCase() + selectedSeason.slice(1)}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Time of Day</div>
+            <div class="gen-result-value">${weather.timeOfDay}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Moon Phase</div>
+            <div class="gen-result-value">${weather.moonPhase}</div>
+          </div>
+
+          <div class="gen-result-subheading">Conditions</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Weather Condition</div>
+            <div class="gen-result-value">${weather.condition}</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Temperature</div>
             <div class="gen-result-value">${weather.temperature}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Condition</div>
-            <div class="gen-result-value">${weather.condition}</div>
-          </div>
-          <div class="gen-result-item">
-            <div class="gen-result-label">Wind</div>
-            <div class="gen-result-value">${weather.wind}</div>
+            <div class="gen-result-label">Wind Speed</div>
+            <div class="gen-result-value">${weather.wind} mph</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Visibility</div>
-            <div class="gen-result-value">${weather.visibility}</div>
+            <div class="gen-result-value">${weather.visibility} feet</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Precipitation</div>
+            <div class="gen-result-value">${weather.precipitation}</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Special Event</div>
             <div class="gen-result-value">${weather.event}</div>
           </div>
+
+          <div class="gen-result-subheading">Gameplay Impact</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Mechanical Effects</div>
+            <div class="gen-result-value">${gameplayEffect}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Travel Pace Impact</div>
+            <div class="gen-result-value">${travelPace}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Atmospheric Description</div>
+            <div class="gen-result-value"><em>"${random(DATA.weatherDescriptions)}"</em></div>
+          </div>
+
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('${weather.condition}, ${weather.temperature}, wind ${weather.wind}')">Copy</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('${weather.condition}, ${weather.temperature}, wind ${weather.wind} mph')">Copy</button>
             <button class="gen-result-btn" onclick="pinToNotes('Weather', 'Forecast')">Pin</button>
           </div>
         </div>
@@ -1504,6 +2002,33 @@
       const roll = randomInt(1, 100);
       const effect = DATA.wildmagic[roll - 1] || random(DATA.wildmagic);
 
+      // Determine severity
+      let severity = 'minor';
+      if (roll >= 75) severity = 'catastrophic';
+      else if (roll >= 50) severity = 'major';
+      else if (roll >= 25) severity = 'moderate';
+
+      // Determine if beneficial, neutral, or harmful
+      let nature = 'neutral';
+      if (roll % 3 === 0) nature = 'beneficial';
+      else if (roll % 2 === 0) nature = 'harmful';
+
+      // Generate duration and save DC if needed
+      const durations = ['Instantaneous', '1 minute', '10 minutes', '1 hour', '1d4 hours', '1d6 hours', 'Until dispelled'];
+      const duration = random(durations);
+      const saveDC = randomInt(12, 18);
+
+      // DM tip based on severity
+      let dmTip = '';
+      switch(severity) {
+        case 'minor': dmTip = 'This is mostly harmless and fun. Play up the cosmetic effects.'; break;
+        case 'moderate': dmTip = 'Balance this effect - it affects combat or exploration. Be fair to all players.'; break;
+        case 'major': dmTip = 'This significantly impacts the encounter or scene. Make it memorable and dramatic.'; break;
+        case 'catastrophic': dmTip = 'This is game-changing. Roleplay it heavily and let it reshape the situation.'; break;
+      }
+
+      const severityClass = 'gen-severity-' + severity;
+
       const html = `
         <div class="gen-result">
           <div class="gen-result-item">
@@ -1511,11 +2036,28 @@
             <div class="gen-result-value">${roll}</div>
           </div>
           <div class="gen-result-item">
+            <div class="gen-result-label">Severity</div>
+            <div class="gen-result-value"><span class="${severityClass}">${severity.toUpperCase()}</span></div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Effect Nature</div>
+            <div class="gen-result-value">${nature.charAt(0).toUpperCase() + nature.slice(1)}</div>
+          </div>
+          <div class="gen-result-item">
             <div class="gen-result-label">Effect</div>
             <div class="gen-result-value">${effect}</div>
           </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Duration</div>
+            <div class="gen-result-value">${duration}</div>
+          </div>
+          ${nature !== 'beneficial' ? \`<div class="gen-result-item"><div class="gen-result-label">Save DC (if applicable)</div><div class="gen-result-value">DC \${saveDC}</div></div>\` : ''}
+          <div class="gen-result-item">
+            <div class="gen-result-label">DM Tip</div>
+            <div class="gen-result-value"><em>${dmTip}</em></div>
+          </div>
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('Wild Magic Surge (${roll}): ${effect}')">Copy</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('Wild Magic (\${roll}): \${effect} (\${severity}, \${duration})')">Copy</button>
           </div>
         </div>
       `;
@@ -1541,39 +2083,83 @@
     }
 
     function generatePotion() {
-      const colors = ['crimson', 'silver', 'golden', 'emerald', 'sapphire', 'violet', 'obsidian', 'pearlescent'];
-      const effects = ['grants a sense of euphoria', 'causes hallucinations', 'grants temporary strength', 'heals wounds', 'grants invisibility for 1 minute', 'grants the ability to speak with animals', 'grants resistance to fire', 'grants the ability to fly for 10 minutes'];
-      const duration = randomInt(1, 10) + ' hours';
-      const side = randomInt(1, 3) === 1 ? 'Slight tingling in extremities' : 'None';
+      const colors = ['crimson', 'silver', 'golden', 'emerald', 'sapphire', 'violet', 'obsidian', 'pearlescent', 'midnight blue', 'forest green', 'blood red', 'pale white'];
+      const rarity = random(DATA.potionRarities);
+      const effect = random(DATA.potionEffects);
+      const taste = random(DATA.potionTastes);
+      const smell = random(DATA.potionSmells);
+      const sideEffect = random(DATA.potionSideEffects);
+      const container = random(DATA.potionContainers);
+      const color = random(colors);
 
-      const potion = {
-        color: random(colors),
-        effect: random(effects),
-        duration: duration,
-        sideEffect: side,
+      // Determine duration based on effect type
+      let duration = '';
+      if (effect.includes('1 hour')) duration = '1 hour';
+      else if (effect.includes('24 hours')) duration = '24 hours';
+      else if (effect.includes('10 minutes')) duration = '10 minutes';
+      else if (effect.includes('1 minute')) duration = '1 minute';
+      else duration = randomInt(1, 4) + ' hours';
+
+      // Determine value based on rarity
+      const rarityValue = {
+        'Common': randomInt(25, 75),
+        'Uncommon': randomInt(75, 300),
+        'Rare': randomInt(300, 1000),
+        'Very Rare': randomInt(1000, 5000),
+        'Legendary': randomInt(5000, 25000)
       };
+      const value = rarityValue[rarity] || 50;
+
+      const potionName = random(DATA.potionNames);
 
       const html = `
         <div class="gen-result">
           <div class="gen-result-item">
+            <div class="gen-result-label">Potion Name</div>
+            <div class="gen-result-value"><strong>${potionName}</strong></div>
+          </div>
+
+          <div class="gen-result-subheading">Physical Description</div>
+          <div class="gen-result-item">
             <div class="gen-result-label">Appearance</div>
-            <div class="gen-result-value">${potion.color.charAt(0).toUpperCase() + potion.color.slice(1)} liquid</div>
+            <div class="gen-result-value">${color.charAt(0).toUpperCase() + color.slice(1)} liquid in a ${container}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Effect</div>
-            <div class="gen-result-value">${potion.effect}</div>
+            <div class="gen-result-label">Taste</div>
+            <div class="gen-result-value">${taste}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Smell</div>
+            <div class="gen-result-value">${smell}</div>
+          </div>
+
+          <div class="gen-result-subheading">Magical Properties</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Rarity</div>
+            <div class="gen-result-value">${rarity}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Mechanical Effect</div>
+            <div class="gen-result-value">${effect}</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Duration</div>
-            <div class="gen-result-value">${potion.duration}</div>
+            <div class="gen-result-value">${duration}</div>
           </div>
+
+          <div class="gen-result-subheading">Side Effects & Value</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Side Effect</div>
-            <div class="gen-result-value">${potion.sideEffect}</div>
+            <div class="gen-result-value">${sideEffect}</div>
           </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Estimated Value</div>
+            <div class="gen-result-value">${value} GP</div>
+          </div>
+
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('Potion: ${potion.effect} for ${potion.duration}')">Copy</button>
-            <button class="gen-result-btn" onclick="pinToNotes('Potion', 'Brew')">Pin</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('${potionName} (${rarity}): ${effect} for ${duration}. ${sideEffect}')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Potion', '${potionName}')">Pin</button>
           </div>
         </div>
       `;
@@ -1583,21 +2169,23 @@
 
     function generateMultiplePotions(count) {
       let html = '';
-      const colors = ['crimson', 'silver', 'golden', 'emerald', 'sapphire', 'violet', 'obsidian', 'pearlescent'];
-      const effects = ['grants a sense of euphoria', 'causes hallucinations', 'grants temporary strength', 'heals wounds', 'grants invisibility', 'speaks with animals', 'grants fire resistance', 'grants flight'];
+      const colors = ['crimson', 'silver', 'golden', 'emerald', 'sapphire', 'violet', 'obsidian', 'pearlescent', 'midnight blue', 'forest green', 'blood red'];
 
       for (let i = 0; i < count; i++) {
         const color = random(colors);
-        const effect = random(effects);
-        html += `
+        const effect = random(DATA.potionEffects);
+        const rarity = random(DATA.potionRarities);
+        const name = random(DATA.potionNames);
+
+        html += \`
           <div class="gen-result-item">
-            <div class="gen-result-label">Potion ${i + 1}</div>
-            <div class="gen-result-value">${color.charAt(0).toUpperCase() + color.slice(1)} vial - ${effect}</div>
+            <div class="gen-result-label">Potion \${i + 1}</div>
+            <div class="gen-result-value"><strong>\${name}</strong> (\${rarity})<br>\${color.charAt(0).toUpperCase() + color.slice(1)} liquid - \${effect}</div>
           </div>
-        `;
+        \`;
       }
 
-      document.getElementById('potionOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+      document.getElementById('potionOutput').innerHTML = \`<div class="gen-result">\${html}</div>\`;
     }
 
     function generateFlavor() {
@@ -1608,84 +2196,115 @@
       let html = '<div class="gen-result">';
 
       if (selectedType === 'pocket') {
+        const items = randomNth(3, DATA.pocketItems);
         html += `
           <div class="gen-result-item">
-            <div class="gen-result-label">Item in Pocket</div>
-            <div class="gen-result-value">${random(DATA.pocketItems)}</div>
+            <div class="gen-result-label">Items in Pocket (3)</div>
+            <div class="gen-result-value">
+              ${items.map(i => `<div>• ${i}</div>`).join('')}
+            </div>
           </div>
         `;
       } else if (selectedType === 'graffiti') {
+        const markings = randomNth(3, DATA.graffiti);
         html += `
           <div class="gen-result-item">
-            <div class="gen-result-label">Graffiti on Wall</div>
-            <div class="gen-result-value">"${random(DATA.graffiti)}"</div>
+            <div class="gen-result-label">Graffiti & Inscriptions (3)</div>
+            <div class="gen-result-value">
+              ${markings.map(g => \`<div>"<em>\${g}</em>" - written by \${random(['a vagrant', 'a madman', 'an adventurer', 'a thief', 'a rebel'])}</div>\`).join('')}
+            </div>
           </div>
         `;
       } else if (selectedType === 'sound') {
-        html += `
+        const sounds = randomNth(3, DATA.sounds);
+        html += \`
           <div class="gen-result-item">
-            <div class="gen-result-label">Ambient Sound</div>
-            <div class="gen-result-value">${random(DATA.sounds)}</div>
+            <div class="gen-result-label">Ambient Sounds (3)</div>
+            <div class="gen-result-value">
+              \${sounds.map(s => \`<div>• \${s} (comes from \${random(['nearby', 'above', 'below', 'in the distance', 'right behind you'])})</div>\`).join('')}
+            </div>
           </div>
-        `;
+        \`;
       } else if (selectedType === 'books') {
         const books = randomNth(3, DATA.bookTitles);
-        html += `
+        html += \`
           <div class="gen-result-item">
-            <div class="gen-result-label">Books on Shelf</div>
-            <div class="gen-result-value">${books.map(b => `"${b}"`).join('<br>')}</div>
+            <div class="gen-result-label">Books on Shelf (3)</div>
+            <div class="gen-result-value">
+              \${books.map(b => \`<div>• "<strong>\${b}</strong>" (Subject: \${random(['History', 'Magic', 'Herbs', 'Poetry', 'Adventure', 'Forbidden Knowledge'])})</div>\`).join('')}
+            </div>
           </div>
-        `;
+        \`;
       } else if (selectedType === 'poster') {
-        const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish]);
-        const crime = random(['Murder', 'Theft', 'Espionage', 'Fraud', 'Treason', 'Witchcraft']);
-        html += `
+        const posters = randomNth(3, ['', '', '']); // Generate 3 posters
+        const crimes = ['Murder', 'Theft', 'Espionage', 'Fraud', 'Treason', 'Witchcraft', 'Kidnapping', 'Arson'];
+        html += \`
           <div class="gen-result-item">
-            <div class="gen-result-label">Wanted Poster</div>
-            <div class="gen-result-value">Wanted for ${crime}: ${random(namePool)}<br>Reward: ${randomInt(100, 5000)} GP</div>
+            <div class="gen-result-label">Wanted Posters (3)</div>
+            <div class="gen-result-value">
+              \${posters.map((_, i) => {
+                const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish]);
+                const crime = random(crimes);
+                const reward = randomInt(100, 5000);
+                const location = random(['Last seen heading north', 'Spotted near the docks', 'Escaped from the castle', 'Believed to be hiding in the forest']);
+                return \`<div><strong>Poster \${i+1}:</strong> \${random(namePool)} - Wanted for \${crime}. Reward: \${reward} GP. \${location}</div>\`;
+              }).join('')}
+            </div>
           </div>
-        `;
+        \`;
       } else if (selectedType === 'shop') {
-        const shops = ['Weapons', 'Potions', 'Magic Items', 'General Store', 'Books', 'Armor'];
+        const shops = ['Weapons & Armor', 'Potions & Alchemy', 'Magic Items', 'General Supplies', 'Books & Scrolls', 'Clothing & Goods'];
         const shop = random(shops);
-        const items = randomNth(5, DATA.magicItems);
-        html += `
+        const items = randomNth(3, DATA.magicItems);
+        html += \`
           <div class="gen-result-item">
-            <div class="gen-result-label">${shop} Shop Inventory</div>
-            <div class="gen-result-value">${items.join('<br>')}</div>
+            <div class="gen-result-label">\${shop} Shop Inventory (3 items)</div>
+            <div class="gen-result-value">
+              \${items.map(item => {
+                const price = randomInt(25, 5000);
+                return \`<div>• <strong>\${item}</strong> - \${price} GP</div>\`;
+              }).join('')}
+            </div>
           </div>
-        `;
+        \`;
       }
 
-      html += `
+      html += \`
         <div class="gen-result-actions">
           <button class="gen-result-btn" onclick="copyToClipboard('Generated flavor detail')">Copy</button>
         </div>
       </div>
-      `;
+      \`;
 
       document.getElementById('flavorOutput').innerHTML = html;
     }
 
     function generateMultipleFlavor(count) {
-      const types = ['pocket', 'graffiti', 'sound', 'books', 'poster'];
+      const types = ['pocket', 'graffiti', 'sound', 'books', 'poster', 'shop'];
       let html = '';
 
       for (let i = 0; i < count; i++) {
         const type = random(types);
         if (type === 'pocket') {
-          html += `<div class="gen-result-item"><div class="gen-result-label">Detail ${i + 1}</div><div class="gen-result-value">${random(DATA.pocketItems)}</div></div>`;
+          html += \`<div class="gen-result-item"><div class="gen-result-label">Pocket Item \${i + 1}</div><div class="gen-result-value">\${random(DATA.pocketItems)}</div></div>\`;
         } else if (type === 'graffiti') {
-          html += `<div class="gen-result-item"><div class="gen-result-label">Graffiti</div><div class="gen-result-value">"${random(DATA.graffiti)}"</div></div>`;
+          html += \`<div class="gen-result-item"><div class="gen-result-label">Graffiti \${i + 1}</div><div class="gen-result-value">"\${random(DATA.graffiti)}" - \${random(['faded', 'fresh', 'ominous', 'hopeful'])}</div></div>\`;
         } else if (type === 'sound') {
-          html += `<div class="gen-result-item"><div class="gen-result-label">Sound</div><div class="gen-result-value">${random(DATA.sounds)}</div></div>`;
+          html += \`<div class="gen-result-item"><div class="gen-result-label">Sound \${i + 1}</div><div class="gen-result-value">\${random(DATA.sounds)}</div></div>\`;
         } else if (type === 'books') {
-          const books = randomNth(2, DATA.bookTitles);
-          html += `<div class="gen-result-item"><div class="gen-result-label">Books</div><div class="gen-result-value">${books.join(', ')}</div></div>`;
+          const book = random(DATA.bookTitles);
+          html += \`<div class="gen-result-item"><div class="gen-result-label">Book \${i + 1}</div><div class="gen-result-value"><strong>\${book}</strong></div></div>\`;
+        } else if (type === 'poster') {
+          const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish]);
+          const crime = random(['Murder', 'Theft', 'Espionage', 'Fraud', 'Treason']);
+          html += \`<div class="gen-result-item"><div class="gen-result-label">Wanted \${i + 1}</div><div class="gen-result-value">\${random(namePool)} for \${crime}. Reward: \${randomInt(100, 5000)} GP</div></div>\`;
+        } else if (type === 'shop') {
+          const item = random(DATA.magicItems);
+          html += \`<div class="gen-result-item"><div class="gen-result-label">Shop Item \${i + 1}</div><div class="gen-result-value">\${item} - \${randomInt(50, 2000)} GP</div></div>\`;
         }
       }
 
-      document.getElementById('flavorOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+      document.getElementById('flavorOutput').innerHTML = \`<div class="gen-result">\${html}</div>\`;
     }
 
     function pinToNotes(type, name) {

@@ -1,6 +1,26 @@
 (function () {
   const SHELL = {
     nav: [
+      { href: 'index.html', label: 'Home' },
+      { label: 'Content', children: [
+        { href: 'grimoire.html', label: 'Grimoire' },
+        { href: 'compendium.html', label: 'Compendium' }
+      ]},
+      { label: 'Players', children: [
+        { href: 'learn.html', label: 'Learn to Play' },
+        { href: 'gallery.html', label: 'Character Gallery' },
+        { href: 'character-builder.html', label: 'Character Builder' },
+        { href: 'character-sheets.html', label: 'Character Sheets' }
+      ]},
+      { label: 'DM Tools', children: [
+        { href: 'generators.html', label: 'Random Generators' },
+        { href: 'campaigns.html', label: 'Campaign Manager' }
+      ]},
+      { href: 'about.html', label: 'About' },
+      { href: 'my-characters.html', label: 'My Characters' }
+    ],
+    // flat list for mobile menu and backwards compat
+    flatNav: [
       ['index.html', 'Home'],
       ['grimoire.html', 'Grimoire'],
       ['compendium.html', 'Compendium'],
@@ -96,25 +116,27 @@
     return path.split('/').pop();
   }
 
+  // Map page filenames to which top-level nav label should be active
+  // For dropdown parents, use the dropdown label so the parent highlights
   function activeNavFor(pageName, explicit) {
     if (explicit) return explicit;
     const map = {
       'index.html': 'Home',
-      'grimoire.html': 'Grimoire',
-      'compendium.html': 'Compendium',
-      'character-builder.html': 'Builder',
-      'character-builder-35.html': 'Builder',
-      'character-sheets.html': 'Sheets',
-      'sheet-dnd5e.html': 'Sheets',
-      'learn.html': 'Learn',
-      'gallery.html': 'Gallery',
-      'generators.html': 'Generators',
-      'campaigns.html': 'Campaigns',
+      'grimoire.html': 'Content',
+      'compendium.html': 'Content',
+      'soup-savant.html': 'Content',
+      'legendary.html': 'Content',
+      'learn.html': 'Players',
+      'gallery.html': 'Players',
+      'character-builder.html': 'Players',
+      'character-builder-35.html': 'Players',
+      'character-sheets.html': 'Players',
+      'sheet-dnd5e.html': 'Players',
+      'generators.html': 'DM Tools',
+      'campaigns.html': 'DM Tools',
       'about.html': 'About',
       'my-characters.html': 'My Characters',
-      'reset-password.html': null,
-      'soup-savant.html': 'Grimoire',
-      'legendary.html': 'Grimoire'
+      'reset-password.html': null
     };
     return map[pageName] ?? null;
   }
@@ -142,13 +164,35 @@
   }
 
   function navMarkup(activeLabel) {
-    const links = SHELL.nav.map(([href, label]) =>
-      `<a href="${href}"${label === activeLabel ? ' class="active"' : ''}>${label}</a>`
-    ).join('');
+    // Desktop nav with dropdown support
+    const links = SHELL.nav.map(item => {
+      if (item.children) {
+        const isActive = item.label === activeLabel;
+        const childLinks = item.children.map(c =>
+          `<a href="${c.href}" class="ps-dropdown-link">${c.label}</a>`
+        ).join('');
+        return `<div class="ps-nav-dropdown${isActive ? ' active' : ''}">
+          <button class="ps-nav-dropdown-btn${isActive ? ' active' : ''}" type="button">${item.label} <span class="ps-nav-caret">▾</span></button>
+          <div class="ps-dropdown-panel">${childLinks}</div>
+        </div>`;
+      }
+      return `<a href="${item.href}"${item.label === activeLabel ? ' class="active"' : ''}>${item.label}</a>`;
+    }).join('');
 
-    const mobileLinks = SHELL.nav.map(([href, label], index) =>
-      `${index ? '<div class="ps-mobile-divider"></div>' : ''}<a href="${href}"${label === activeLabel ? ' class="active"' : ''}>${label}</a>`
-    ).join('');
+    // Mobile nav uses flat list with group headers
+    let mobileLinks = '';
+    SHELL.nav.forEach((item, index) => {
+      if (item.children) {
+        mobileLinks += `<div class="ps-mobile-group-label">${item.label}</div>`;
+        item.children.forEach(c => {
+          mobileLinks += `<a href="${c.href}">${c.label}</a>`;
+        });
+        mobileLinks += '<div class="ps-mobile-divider"></div>';
+      } else {
+        if (index > 0) mobileLinks += '<div class="ps-mobile-divider"></div>';
+        mobileLinks += `<a href="${item.href}"${item.label === activeLabel ? ' class="active"' : ''}>${item.label}</a>`;
+      }
+    });
 
     return `
       <nav class="ps-nav" role="navigation" aria-label="Main navigation">
@@ -313,6 +357,24 @@
     });
   }
 
+  function setupNavDropdowns() {
+    // Touch/click support for dropdown menus (hover works on desktop)
+    document.querySelectorAll('.ps-nav-dropdown-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const parent = this.closest('.ps-nav-dropdown');
+        const panel = parent.querySelector('.ps-dropdown-panel');
+        const isOpen = panel.style.display === 'block';
+        // Close all
+        document.querySelectorAll('.ps-dropdown-panel').forEach(p => p.style.display = '');
+        if (!isOpen) panel.style.display = 'block';
+      });
+    });
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.ps-dropdown-panel').forEach(p => p.style.display = '');
+    });
+  }
+
   function setupPageTransitions() {
     document.querySelectorAll('a[href]').forEach((a) => {
       if (a.dataset.noTransition === 'true') return;
@@ -370,6 +432,7 @@
     ensureShell();
     wireAuthButton();
     setupMobileNav();
+    setupNavDropdowns();
     setupPageTransitions();
     setupReveal();
     setupAuthDropdownClose();
