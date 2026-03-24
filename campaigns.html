@@ -1038,6 +1038,538 @@
         ownerName: currentUser.name,
         players: [{ id: currentUser.id, name: currentUser.name, email: currentUser.email, role: 'dm', joinedAt: new Date().toISOString(), characterId: null }],
         party: [],
+        encounters: [],
+        notes: [],
+        initiative: { combatants: [], currentTurn: 0, round: 1, active: false },
+        battlemap: {},
+        settings: {}
+      };
+      // Save to registry
+      var reg = loadAllCampaignsFromRegistry();
+      reg[campaign.id] = campaign;
+      saveRegistry(reg);
+      // Add to user's campaign list
+      var ids = getMyCampaignIds();
+      ids.push(campaign.id);
+      saveMyCampaignIds(ids);
+      // Reload and render
+      loadCampaigns();
+      renderCampaignList();
+      closeModal('createCampaignModal');
+      // Open the new campaign
+      openCampaign(campaign.id);
+    }
+
+    // ═══════════════════════════════
+    // TAB SWITCHING
+    // ═══════════════════════════════
+    function switchTab(tabName, btn) {
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.campaign-tab').forEach(function(t) { t.classList.remove('active'); });
+      var panel = document.getElementById(tabName + 'Tab');
+      if (panel) panel.classList.add('active');
+      if (btn) btn.classList.add('active');
+      if (tabName === 'battlemap') { setTimeout(function() { initBattlemap(); }, 50); }
+    }
+
+    // ═══════════════════════════════
+    // CAMPAIGN NAVIGATION
+    // ═══════════════════════════════
+    function backToCampaignList() {
+      document.getElementById('campaignList').classList.add('active');
+      document.getElementById('campaignDetail').style.display = 'none';
+      window._activeCampaignId = null;
+    }
+
+    function openCampaign(id) {
+      var c = getCampaign(id);
+      if (!c) return;
+      window._activeCampaignId = id;
+      document.getElementById('campaignList').classList.remove('active');
+      document.getElementById('campaignDetail').style.display = 'block';
+      document.getElementById('detailName').textContent = c.name;
+      document.getElementById('detailSystem').textContent = c.system || '5E';
+      document.getElementById('detailDesc').textContent = c.description || '';
+      document.getElementById('partySizeText').textContent = (c.party || []).length;
+      document.getElementById('encounterCountText').textContent = (c.encounters || []).length;
+      document.getElementById('sessionCountText').textContent = (c.notes || []).length;
+      renderPartyTab(c);
+      renderEncountersTab(c);
+      renderNotesTab(c);
+      renderPlayersTab(c);
+      renderInviteSection(c);
+      switchTab('party', document.querySelector('.campaign-tab'));
+    }
+
+    // ═══════════════════════════════
+    // RENDER CAMPAIGN LIST
+    // ═══════════════════════════════
+    function renderCampaignList() {
+      var grid = document.getElementById('campaignGrid');
+      var campaigns = window._campaigns || [];
+      if (!campaigns.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-text">No campaigns yet. Create your first adventure!</div></div>';
+        return;
+      }
+      grid.innerHTML = campaigns.map(function(c) {
+        return '<div class="campaign-card" onclick="openCampaign(\'' + c.id + '\')">' +
+          '<div class="campaign-card-header">' +
+            '<span class="campaign-card-system">' + (c.system || '5E') + '</span>' +
+            '<button class="campaign-card-delete" onclick="event.stopPropagation();deleteCampaign(\'' + c.id + '\')" title="Delete campaign">&times;</button>' +
+          '</div>' +
+          '<div class="campaign-card-title">' + escapeHtml(c.name) + '</div>' +
+          '<div class="campaign-card-desc">' + escapeHtml(c.description || 'No description') + '</div>' +
+          '<div class="campaign-card-meta">' +
+            '<span>' + (c.party || []).length + ' party members</span>' +
+            '<span>' + (c.encounters || []).length + ' encounters</span>' +
+            '<span>' + (c.notes || []).length + ' sessions</span>' +
+          '</div>' +
+          '<div class="campaign-card-players">DM: ' + escapeHtml(c.ownerName || 'Unknown') + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function deleteCampaign(id) {
+      if (!confirm('Delete this campaign? This cannot be undone.')) return;
+      window._campaigns = (window._campaigns || []).filter(function(c) { return c.id !== id; });
+      saveCampaigns();
+      var reg = loadAllCampaignsFromRegistry();
+      delete reg[id];
+      saveRegistry(reg);
+      renderCampaignList();
+    }
+
+    // ═══════════════════════════════
+    // JOIN / INVITE
+    // ═══════════════════════════════
+    function toggleJoinBanner() {
+      var banner = document.getElementById('joinBanner');
+      if (banner) banner.style.display = banner.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function joinCampaign() {
+      var user = requireAuth();
+      if (!user) return;
+      var codeInput = document.getElementById('joinCode');
+      if (!codeInput) return;
+      var code = codeInput.value.trim().toUpperCase();
+      if (!code) { if (window.psToast) psToast('Enter an invite code'); return; }
+      var reg = loadAllCampaignsFromRegistry();
+      var found = null;
+      for (var key in reg) {
+        if (reg[key].inviteCode === code) { found = reg[key]; break; }
+      }
+      if (!found) { if (window.psToast) psToast('Campaign not found. Check the invite code.'); return; }
+      if (!found.players) found.players = [];
+      var alreadyIn = found.players.some(function(p) { return p.id === user.id; });
+      if (!alreadyIn) {
+        found.players.push({ id: user.id, name: user.name, email: user.email, role: 'player', joinedAt: new Date().toISOString(), characterId: null });
+        reg[found.id] = found;
+        saveRegistry(reg);
+      }
+      var ids = getMyCampaignIds();
+      if (ids.indexOf(found.id) < 0) { ids.push(found.id); saveMyCampaignIds(ids); }
+      loadCampaigns();
+      renderCampaignList();
+      toggleJoinBanner();
+      codeInput.value = '';
+      if (window.psToast) psToast('Joined: ' + found.name);
+    }
+
+    function copyInviteCode() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      navigator.clipboard.writeText(c.inviteCode).then(function() {
+        if (window.psToast) psToast('Invite code copied!');
+      });
+    }
+
+    function regenerateInviteCode() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      c.inviteCode = generateInviteCode();
+      saveCampaigns();
+      var reg = loadAllCampaignsFromRegistry();
+      if (reg[c.id]) { reg[c.id].inviteCode = c.inviteCode; saveRegistry(reg); }
+      if (window.psToast) psToast('New invite code: ' + c.inviteCode);
+      openCampaign(c.id);
+    }
+
+    // ═══════════════════════════════
+    // MODALS
+    // ═══════════════════════════════
+    function openAddPartyModal() {
+      var user = requireAuth();
+      if (!user) return;
+      openModal('addPartyModal');
+    }
+
+    function openAddNoteModal() {
+      var user = requireAuth();
+      if (!user) return;
+      var c = getCampaign(window._activeCampaignId);
+      document.getElementById('noteTitle').value = 'Session ' + ((c && c.notes ? c.notes.length : 0) + 1);
+      document.getElementById('noteContent').value = '';
+      openModal('addNoteModal');
+    }
+
+    function openEncounterBuilderModal() {
+      var user = requireAuth();
+      if (!user) return;
+      renderMonsterList();
+      openModal('encounterBuilderModal');
+    }
+
+    function openInitiativeModal() {
+      renderInitiativeTracker();
+      openModal('initiativeModal');
+    }
+
+    // ═══════════════════════════════
+    // PARTY MANAGEMENT
+    // ═══════════════════════════════
+    function addPartyMember(event) {
+      if (event) event.preventDefault();
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      if (!c.party) c.party = [];
+      var member = {
+        id: Date.now().toString(),
+        name: document.getElementById('partyMemberName').value,
+        race: document.getElementById('partyMemberRace').value,
+        class: document.getElementById('partyMemberClass').value,
+        level: parseInt(document.getElementById('partyMemberLevel').value) || 1,
+        hp: parseInt(document.getElementById('partyMemberHP').value) || 10,
+        maxHp: parseInt(document.getElementById('partyMemberHP').value) || 10,
+        ac: parseInt(document.getElementById('partyMemberAC').value) || 10,
+        initiative: 0,
+        notes: ''
+      };
+      c.party.push(member);
+      saveCampaigns();
+      closeModal('addPartyModal');
+      openCampaign(c.id);
+    }
+
+    function removePartyMember(memberId) {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      c.party = (c.party || []).filter(function(m) { return m.id !== memberId; });
+      saveCampaigns();
+      openCampaign(c.id);
+    }
+
+    // ═══════════════════════════════
+    // RENDER TABS
+    // ═══════════════════════════════
+    function renderPartyTab(c) {
+      var container = document.getElementById('partyTab');
+      if (!container) return;
+      var members = c.party || [];
+      var html = '<div class="section-header"><div class="section-title">Party Members (' + members.length + ')</div><button class="section-add-btn" onclick="openAddPartyModal()">+ Add Member</button></div>';
+      if (!members.length) {
+        html += '<div class="empty-state"><div class="empty-state-text">No party members yet. Add your first adventurer!</div></div>';
+      } else {
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px;background:var(--crimson-border);border:1px solid var(--crimson-border);">';
+        members.forEach(function(m) {
+          html += '<div style="background:var(--bg-card);padding:20px;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:start;">' +
+              '<div><div style="font-size:16px;color:var(--text);margin-bottom:4px;">' + escapeHtml(m.name) + '</div>' +
+              '<div style="font-size:12px;color:var(--crimson);">' + escapeHtml(m.race || '') + ' ' + escapeHtml(m.class || '') + ' (Level ' + m.level + ')</div></div>' +
+              '<button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;" onclick="removePartyMember(\'' + m.id + '\')">&times;</button>' +
+            '</div>' +
+            '<div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--text-dim);">' +
+              '<span>HP: ' + m.hp + '/' + m.maxHp + '</span><span>AC: ' + m.ac + '</span>' +
+            '</div>' +
+          '</div>';
+        });
+        html += '</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function renderEncountersTab(c) {
+      var container = document.getElementById('encountersTab');
+      if (!container) return;
+      var encounters = c.encounters || [];
+      var html = '<div class="section-header"><div class="section-title">Encounters (' + encounters.length + ')</div><button class="section-add-btn" onclick="openEncounterBuilderModal()">+ Build Encounter</button></div>';
+      if (!encounters.length) {
+        html += '<div class="empty-state"><div class="empty-state-text">No encounters yet. Build your first encounter!</div></div>';
+      } else {
+        encounters.forEach(function(enc, idx) {
+          html += '<div style="background:var(--bg-card);border:1px solid var(--crimson-border);padding:20px;margin-bottom:8px;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+              '<div><strong style="color:var(--text);">' + escapeHtml(enc.name || 'Encounter ' + (idx+1)) + '</strong>' +
+              '<span style="font-size:12px;color:var(--text-dim);margin-left:12px;">' + (enc.monsters || []).length + ' creatures, CR ' + (enc.totalCR || '?') + '</span></div>' +
+              '<button style="background:none;border:none;color:var(--text-muted);cursor:pointer;" onclick="removeEncounter(' + idx + ')">&times;</button>' +
+            '</div>' +
+            '<div style="margin-top:8px;font-size:13px;color:var(--text-dim);">' + (enc.monsters || []).map(function(m){ return m.name; }).join(', ') + '</div>' +
+          '</div>';
+        });
+      }
+      container.innerHTML = html;
+    }
+
+    function renderNotesTab(c) {
+      var container = document.getElementById('notesTab');
+      if (!container) return;
+      var notes = c.notes || [];
+      var html = '<div class="section-header"><div class="section-title">Session Notes (' + notes.length + ')</div><button class="section-add-btn" onclick="openAddNoteModal()">+ Add Session Note</button></div>';
+      if (!notes.length) {
+        html += '<div class="empty-state"><div class="empty-state-text">No session notes yet. Record your first session!</div></div>';
+      } else {
+        notes.slice().reverse().forEach(function(note) {
+          html += '<div style="background:var(--bg-card);border:1px solid var(--crimson-border);padding:20px;margin-bottom:8px;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:start;">' +
+              '<div><strong style="color:var(--text);">' + escapeHtml(note.title || 'Untitled') + '</strong>' +
+              '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + new Date(note.date).toLocaleDateString() + '</div></div>' +
+              '<button style="background:none;border:none;color:var(--text-muted);cursor:pointer;" onclick="removeNote(\'' + note.id + '\')">&times;</button>' +
+            '</div>' +
+            '<div style="margin-top:12px;font-size:14px;color:var(--text-dim);line-height:1.7;white-space:pre-wrap;">' + escapeHtml(note.content || '') + '</div>' +
+          '</div>';
+        });
+      }
+      container.innerHTML = html;
+    }
+
+    function renderPlayersTab(c) {
+      var container = document.getElementById('playersTab');
+      if (!container) return;
+      var players = c.players || [];
+      var html = '<div class="section-header"><div class="section-title">Players (' + players.length + ')</div></div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1px;background:var(--crimson-border);border:1px solid var(--crimson-border);">';
+      players.forEach(function(p) {
+        html += '<div style="background:var(--bg-card);padding:20px;">' +
+          '<div style="font-size:15px;color:var(--text);">' + escapeHtml(p.name) + '</div>' +
+          '<div style="font-size:11px;color:var(--crimson);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">' + (p.role || 'player') + '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Joined ' + new Date(p.joinedAt).toLocaleDateString() + '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function renderInviteSection(c) {
+      var el = document.getElementById('inviteCodeDisplay');
+      if (el) el.textContent = c.inviteCode || 'N/A';
+    }
+
+    // ═══════════════════════════════
+    // SESSION NOTES
+    // ═══════════════════════════════
+    function saveNote(event) {
+      if (event) event.preventDefault();
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      if (!c.notes) c.notes = [];
+      c.notes.push({
+        id: Date.now().toString(),
+        title: document.getElementById('noteTitle').value,
+        content: document.getElementById('noteContent').value,
+        date: new Date().toISOString()
+      });
+      saveCampaigns();
+      closeModal('addNoteModal');
+      openCampaign(c.id);
+    }
+
+    function removeNote(noteId) {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      c.notes = (c.notes || []).filter(function(n) { return n.id !== noteId; });
+      saveCampaigns();
+      openCampaign(c.id);
+    }
+
+    // ═══════════════════════════════
+    // ENCOUNTERS
+    // ═══════════════════════════════
+    function saveEncounter() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      if (!c.encounters) c.encounters = [];
+      var nameEl = document.getElementById('encounterName');
+      var name = nameEl ? nameEl.value : 'Encounter ' + (c.encounters.length + 1);
+      var selectedMonsters = window._selectedEncounterMonsters || [];
+      var totalCR = selectedMonsters.reduce(function(sum, m) { return sum + (m.cr || 0); }, 0);
+      c.encounters.push({
+        id: Date.now().toString(),
+        name: name,
+        monsters: selectedMonsters,
+        totalCR: totalCR,
+        createdAt: new Date().toISOString()
+      });
+      window._selectedEncounterMonsters = [];
+      saveCampaigns();
+      closeModal('encounterBuilderModal');
+      openCampaign(c.id);
+    }
+
+    function removeEncounter(idx) {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      c.encounters.splice(idx, 1);
+      saveCampaigns();
+      openCampaign(c.id);
+    }
+
+    // ═══════════════════════════════
+    // MONSTER LIST (encounter builder)
+    // ═══════════════════════════════
+    var _monsterPage = 0;
+    var _monstersPerPage = 20;
+    window._selectedEncounterMonsters = [];
+
+    function renderMonsterList() {
+      _monsterPage = 0;
+      window._selectedEncounterMonsters = [];
+      var container = document.getElementById('monsterListContainer');
+      if (!container) return;
+      loadMoreMonstersInto(container, true);
+    }
+
+    function loadMoreMonsters() {
+      var container = document.getElementById('monsterListContainer');
+      if (container) loadMoreMonstersInto(container, false);
+    }
+
+    function loadMoreMonstersInto(container, reset) {
+      var monsters = (typeof MONSTER_DATA !== 'undefined') ? MONSTER_DATA : [];
+      if (!monsters.length) {
+        monsters = [
+          {name:'Goblin',cr:0.25,type:'humanoid',size:'Small',hp:7,ac:15},
+          {name:'Orc',cr:0.5,type:'humanoid',size:'Medium',hp:15,ac:13},
+          {name:'Ogre',cr:2,type:'giant',size:'Large',hp:59,ac:11},
+          {name:'Troll',cr:5,type:'giant',size:'Large',hp:84,ac:15},
+          {name:'Young Dragon',cr:10,type:'dragon',size:'Large',hp:178,ac:18},
+          {name:'Adult Dragon',cr:17,type:'dragon',size:'Huge',hp:256,ac:19},
+          {name:'Ancient Dragon',cr:24,type:'dragon',size:'Gargantuan',hp:546,ac:22}
+        ];
+      }
+      var start = reset ? 0 : _monsterPage * _monstersPerPage;
+      var end = start + _monstersPerPage;
+      var slice = monsters.slice(start, end);
+      _monsterPage = Math.floor(end / _monstersPerPage);
+      var html = reset ? '' : container.innerHTML.replace(/<button[^>]*>Load More[^<]*<\/button>/g, '');
+      slice.forEach(function(m) {
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px;">' +
+          '<div><span style="color:var(--text);">' + escapeHtml(m.name) + '</span> <span style="color:var(--text-muted);font-size:11px;">CR ' + m.cr + '</span></div>' +
+          '<button style="background:var(--crimson);color:#f5f0e8;border:none;padding:4px 10px;font-size:11px;cursor:pointer;border-radius:2px;" onclick="addMonsterToEncounter(\'' + escapeHtml(m.name).replace(/'/g, "\\'") + '\',' + m.cr + ')">Add</button>' +
+        '</div>';
+      });
+      if (end < monsters.length) {
+        html += '<button style="width:100%;padding:10px;background:var(--bg-hover);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;margin-top:8px;" onclick="loadMoreMonsters()">Load More Monsters</button>';
+      }
+      container.innerHTML = html;
+    }
+
+    function addMonsterToEncounter(name, cr) {
+      window._selectedEncounterMonsters.push({ name: name, cr: cr });
+      var counter = document.getElementById('selectedMonsterCount');
+      if (counter) counter.textContent = window._selectedEncounterMonsters.length + ' selected';
+      if (window.psToast) psToast('Added ' + name);
+    }
+
+    // ═══════════════════════════════
+    // INITIATIVE TRACKER
+    // ═══════════════════════════════
+    function renderInitiativeTracker() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      if (!c.initiative) c.initiative = { combatants: [], currentTurn: 0, round: 1, active: false };
+      var init = c.initiative;
+      var container = document.getElementById('initiativeContent');
+      if (!container) return;
+      var html = '<div style="margin-bottom:16px;display:flex;gap:12px;align-items:center;">' +
+        '<span style="font-size:14px;color:var(--text);">Round ' + init.round + '</span>' +
+        '<button class="form-button" onclick="addPartyToInitiative()" style="font-size:10px;padding:8px 14px;">Add Party</button>' +
+        '<button class="form-button" onclick="resetInitiative()" style="font-size:10px;padding:8px 14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);">Reset</button>' +
+      '</div>';
+      if (!init.combatants.length) {
+        html += '<div class="empty-state"><div class="empty-state-text">No combatants. Add party members or monsters to begin.</div></div>';
+      } else {
+        init.combatants.sort(function(a, b) { return b.initiative - a.initiative; });
+        init.combatants.forEach(function(cb, idx) {
+          var isActive = idx === init.currentTurn;
+          html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:' + (isActive ? 'var(--crimson-soft)' : 'var(--bg-card)') + ';border:1px solid ' + (isActive ? 'var(--crimson)' : 'var(--crimson-border)') + ';margin-bottom:4px;">' +
+            '<div style="width:30px;text-align:center;font-size:18px;font-weight:bold;color:' + (isActive ? 'var(--crimson)' : 'var(--text-muted)') + ';">' + cb.initiative + '</div>' +
+            '<div style="flex:1;"><div style="color:var(--text);font-size:14px;">' + escapeHtml(cb.name) + '</div>' +
+            '<div style="font-size:11px;color:var(--text-dim);">HP: ' + cb.hp + '/' + cb.maxHp + ' | AC: ' + cb.ac + '</div></div>' +
+            '<button style="background:none;border:none;color:var(--text-muted);cursor:pointer;" onclick="removeFromInitiative(' + idx + ')">&times;</button>' +
+          '</div>';
+        });
+      }
+      html += '<div style="display:flex;gap:8px;margin-top:16px;">' +
+        '<button class="form-button" onclick="previousTurn()" style="flex:1;font-size:10px;">Previous</button>' +
+        '<button class="form-button" onclick="nextTurn()" style="flex:1;font-size:10px;">Next Turn</button>' +
+      '</div>';
+      container.innerHTML = html;
+    }
+
+    function addPartyToInitiative() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      if (!c.initiative) c.initiative = { combatants: [], currentTurn: 0, round: 1, active: false };
+      (c.party || []).forEach(function(m) {
+        var already = c.initiative.combatants.some(function(cb) { return cb.id === m.id; });
+        if (!already) {
+          c.initiative.combatants.push({
+            id: m.id, name: m.name, initiative: Math.floor(Math.random() * 20) + 1,
+            hp: m.hp || 10, maxHp: m.maxHp || 10, ac: m.ac || 10, type: 'player'
+          });
+        }
+      });
+      saveCampaigns();
+      renderInitiativeTracker();
+    }
+
+    function nextTurn() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c || !c.initiative) return;
+      c.initiative.currentTurn++;
+      if (c.initiative.currentTurn >= c.initiative.combatants.length) {
+        c.initiative.currentTurn = 0;
+        c.initiative.round++;
+      }
+      saveCampaigns();
+      renderInitiativeTracker();
+    }
+
+    function previousTurn() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c || !c.initiative) return;
+      c.initiative.currentTurn--;
+      if (c.initiative.currentTurn < 0) {
+        c.initiative.currentTurn = Math.max(0, c.initiative.combatants.length - 1);
+        c.initiative.round = Math.max(1, c.initiative.round - 1);
+      }
+      saveCampaigns();
+      renderInitiativeTracker();
+    }
+
+    function resetInitiative() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      c.initiative = { combatants: [], currentTurn: 0, round: 1, active: false };
+      saveCampaigns();
+      renderInitiativeTracker();
+    }
+
+    function removeFromInitiative(idx) {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c || !c.initiative) return;
+      c.initiative.combatants.splice(idx, 1);
+      if (c.initiative.currentTurn >= c.initiative.combatants.length) c.initiative.currentTurn = 0;
+      saveCampaigns();
+      renderInitiativeTracker();
+    }
+
+    // ═══════════════════════════════
+    // FILTER TAGS
+    // ═══════════════════════════════
+    function buildTypeFilterTags() {
+      // Campaign type filter — no-op for simple local sites
+    }
 
     // ═══════════════════════════════
     // BATTLEMAP SYSTEM (ENHANCED)
