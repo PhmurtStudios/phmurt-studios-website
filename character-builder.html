@@ -510,52 +510,11 @@
 
 </style>
 </head>
-<body>
+<body data-nav-active="Players" data-footer-copy="Roll Well. Play Weird.">
 
-  <a href="#main-content" class="ps-skip-nav">Skip to content</a>
-  <nav class="ps-nav" role="navigation" aria-label="Main navigation">
-        <div class="ps-nav-links">
-      <a href="index.html">Home</a>
-      <a href="grimoire.html">Grimoire</a>
-      <a href="compendium.html">Compendium</a>
-      <a href="character-builder.html" class="active">Builder</a>
-      <a href="character-sheets.html">Sheets</a>
-      <a href="campaigns.html">Campaigns</a>
-      <a href="about.html">About</a>
-      <a href="my-characters.html">My Characters</a>
-    </div>
-    <div class="ps-nav-right">
-      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
-      <div class="nav-auth-wrap">
-        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
-        <div id="nav-user-dropdown"></div>
-      </div>
-      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
+  <div id="ps-site-shell"></div>
+  <div id="ps-page-breadcrumb"></div>
 
-  <div class="ps-mobile-menu" id="mobileMenu">
-    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
-    <a href="index.html">Home</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="grimoire.html">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="compendium.html">Compendium</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-builder.html" class="active">Builder</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html">My Characters</a>
-  
-    </div>
-
-  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
-    <a href="index.html">Home</a><span class="sep">◆</span>
-    <span class="current">Character Builder</span>
-  </nav>
 
   <div class="edition-label">✦ Select Edition ✦</div>
   <div class="edition-toggle">
@@ -9361,12 +9320,8 @@ function init35() {
   })();
   </script>
 
-  <footer class="ps-footer" style="margin-top:0;">
-    <div class="ps-footer-logo">
-      <img src="logo.png" alt="Phmurt Studios" />
-      <span class="ps-footer-name">Phmurt Studios</span>
-    </div>
-    <div class="ps-footer-copy">Roll Well. Play Weird.</div>
-  </footer>
+  <div id="ps-site-footer"></div>
+
+  <script src="phmurt-shell.js"></script>
 </body>
 </html>

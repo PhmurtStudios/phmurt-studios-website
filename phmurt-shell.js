@@ -358,20 +358,52 @@
   }
 
   function setupNavDropdowns() {
-    // Touch/click support for dropdown menus (hover works on desktop)
-    document.querySelectorAll('.ps-nav-dropdown-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const parent = this.closest('.ps-nav-dropdown');
-        const panel = parent.querySelector('.ps-dropdown-panel');
-        const isOpen = panel.style.display === 'block';
-        // Close all
-        document.querySelectorAll('.ps-dropdown-panel').forEach(p => p.style.display = '');
-        if (!isOpen) panel.style.display = 'block';
+    var closeTimer = null;
+
+    document.querySelectorAll('.ps-nav-dropdown').forEach(function(dd) {
+      // Mouse enter — open immediately, cancel any pending close
+      dd.addEventListener('mouseenter', function() {
+        if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+        // Close all others first
+        document.querySelectorAll('.ps-nav-dropdown.open').forEach(function(other) {
+          if (other !== dd) other.classList.remove('open');
+        });
+        dd.classList.add('open');
       });
+
+      // Mouse leave — close after short delay so user can move to panel
+      dd.addEventListener('mouseleave', function() {
+        var ref = dd;
+        closeTimer = setTimeout(function() {
+          ref.classList.remove('open');
+          closeTimer = null;
+        }, 200);
+      });
+
+      // Click toggle for touch devices
+      var btn = dd.querySelector('.ps-nav-dropdown-btn');
+      if (btn) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var wasOpen = dd.classList.contains('open');
+          document.querySelectorAll('.ps-nav-dropdown.open').forEach(function(d) { d.classList.remove('open'); });
+          if (!wasOpen) dd.classList.add('open');
+        });
+      }
     });
-    document.addEventListener('click', function() {
-      document.querySelectorAll('.ps-dropdown-panel').forEach(p => p.style.display = '');
+
+    // Click outside closes all
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.ps-nav-dropdown')) {
+        document.querySelectorAll('.ps-nav-dropdown.open').forEach(function(d) { d.classList.remove('open'); });
+      }
+    });
+
+    // Escape closes all
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.ps-nav-dropdown.open').forEach(function(d) { d.classList.remove('open'); });
+      }
     });
   }
 

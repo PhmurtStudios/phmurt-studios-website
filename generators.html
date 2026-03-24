@@ -1182,8 +1182,10 @@
       document.querySelectorAll('.gen-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.gen-nav-item').forEach(n => n.classList.remove('active'));
 
-      document.querySelector(`[data-gen="${genName}"]`).classList.add('active');
-      document.querySelector(`[data-gen="${genName}"].gen-nav-item`).classList.add('active');
+      var panel = document.querySelector(`.gen-panel[data-gen="${genName}"]`);
+      var navBtn = document.querySelector(`.gen-nav-item[data-gen="${genName}"]`);
+      if (panel) panel.classList.add('active');
+      if (navBtn) navBtn.classList.add('active');
 
       window.location.hash = '#' + genName;
     }
@@ -1603,8 +1605,11 @@
       const environments = ['forest', 'mountain', 'dungeon', 'urban', 'desert', 'arctic', 'swamp', 'underdark', 'coastal', 'grassland'];
       const selectedEnv = env === 'any' ? random(environments) : env;
 
-      const monsters = randomNth(randomInt(2, 5), DATA.monsters.filter(m => Math.abs(m.cr - level) <= 3));
-      const totalCR = monsters.reduce((sum, m) => sum + m.cr, 0);
+      var filteredMonsters = DATA.monsters.filter(m => Math.abs(m.cr - level) <= 3);
+      if (!filteredMonsters.length) filteredMonsters = DATA.monsters.filter(m => m.cr <= Math.max(level, 1));
+      if (!filteredMonsters.length) filteredMonsters = DATA.monsters;
+      const monsters = randomNth(randomInt(2, 5), filteredMonsters);
+      const totalCR = monsters.reduce((sum, m) => sum + (m.cr || 0), 0);
 
       const setup = random(DATA.encounterSetups);
       const terrain = random(DATA.terrainFeatures);
@@ -1743,7 +1748,7 @@
             <div class="gen-result-value">
               ${treasure.magic.map(m => {
                 const desc = DATA.magicItemDescriptions[m] || 'A magical item of mysterious power.';
-                return \`<div><strong>\${m}</strong><br><em>\${desc}</em></div>\`;
+                return `<div><strong>${m}</strong><br><em>${desc}</em></div>`;
               }).join('')}
             </div>
           </div>
@@ -1786,7 +1791,9 @@
       const genres = ['mystery', 'heist', 'rescue', 'escort', 'exploration', 'political', 'supernatural', 'war'];
       const selectedGenre = genre === 'any' ? random(genres) : genre;
 
-      const hook = random(DATA.plotHooks.filter(h => h.genre === selectedGenre || genre === 'any'));
+      var filteredHooks = DATA.plotHooks.filter(h => h.genre === selectedGenre || genre === 'any');
+      if (!filteredHooks.length) filteredHooks = DATA.plotHooks;
+      const hook = random(filteredHooks);
       const patron = random(['A mysterious stranger', 'A local noble', 'A merchant guild', 'A religious order', 'A crime lord', 'A government official', 'A desperate peasant', 'A wizard', 'A former adventurer', 'An ancient spirit']);
       const location = random(DATA.plotHookLocations);
       const timePressure = random(DATA.timePressures);
@@ -1898,7 +1905,7 @@
       const weather = {
         climate: selectedClimate,
         season: selectedSeason,
-        temperature: temps[selectedClimate][selectedSeason],
+        temperature: (temps[selectedClimate] && temps[selectedClimate][selectedSeason]) || '50-70F',
         condition: random(conditions),
         wind: randomInt(0, 40),
         visibility: randomInt(10, 100),
@@ -2051,13 +2058,13 @@
             <div class="gen-result-label">Duration</div>
             <div class="gen-result-value">${duration}</div>
           </div>
-          ${nature !== 'beneficial' ? \`<div class="gen-result-item"><div class="gen-result-label">Save DC (if applicable)</div><div class="gen-result-value">DC \${saveDC}</div></div>\` : ''}
+          ${nature !== 'beneficial' ? `<div class="gen-result-item"><div class="gen-result-label">Save DC (if applicable)</div><div class="gen-result-value">DC ${saveDC}</div></div>` : ''}
           <div class="gen-result-item">
             <div class="gen-result-label">DM Tip</div>
             <div class="gen-result-value"><em>${dmTip}</em></div>
           </div>
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('Wild Magic (\${roll}): \${effect} (\${severity}, \${duration})')">Copy</button>
+            <button class="gen-result-btn" onclick="copyToClipboard('Wild Magic (${roll}): ${effect} (${severity}, ${duration})')">Copy</button>
           </div>
         </div>
       `;
@@ -2177,15 +2184,15 @@
         const rarity = random(DATA.potionRarities);
         const name = random(DATA.potionNames);
 
-        html += \`
+        html += `
           <div class="gen-result-item">
-            <div class="gen-result-label">Potion \${i + 1}</div>
-            <div class="gen-result-value"><strong>\${name}</strong> (\${rarity})<br>\${color.charAt(0).toUpperCase() + color.slice(1)} liquid - \${effect}</div>
+            <div class="gen-result-label">Potion ${i + 1}</div>
+            <div class="gen-result-value"><strong>${name}</strong> (${rarity})<br>${color.charAt(0).toUpperCase() + color.slice(1)} liquid - ${effect}</div>
           </div>
-        \`;
+        `;
       }
 
-      document.getElementById('potionOutput').innerHTML = \`<div class="gen-result">\${html}</div>\`;
+      document.getElementById('potionOutput').innerHTML = `<div class="gen-result">${html}</div>`;
     }
 
     function generateFlavor() {
@@ -2211,70 +2218,70 @@
           <div class="gen-result-item">
             <div class="gen-result-label">Graffiti & Inscriptions (3)</div>
             <div class="gen-result-value">
-              ${markings.map(g => \`<div>"<em>\${g}</em>" - written by \${random(['a vagrant', 'a madman', 'an adventurer', 'a thief', 'a rebel'])}</div>\`).join('')}
+              ${markings.map(g => `<div>"<em>${g}</em>" - written by ${random(['a vagrant', 'a madman', 'an adventurer', 'a thief', 'a rebel'])}</div>`).join('')}
             </div>
           </div>
         `;
       } else if (selectedType === 'sound') {
         const sounds = randomNth(3, DATA.sounds);
-        html += \`
+        html += `
           <div class="gen-result-item">
             <div class="gen-result-label">Ambient Sounds (3)</div>
             <div class="gen-result-value">
-              \${sounds.map(s => \`<div>• \${s} (comes from \${random(['nearby', 'above', 'below', 'in the distance', 'right behind you'])})</div>\`).join('')}
+              ${sounds.map(s => `<div>• ${s} (comes from ${random(['nearby', 'above', 'below', 'in the distance', 'right behind you'])})</div>`).join('')}
             </div>
           </div>
-        \`;
+        `;
       } else if (selectedType === 'books') {
         const books = randomNth(3, DATA.bookTitles);
-        html += \`
+        html += `
           <div class="gen-result-item">
             <div class="gen-result-label">Books on Shelf (3)</div>
             <div class="gen-result-value">
-              \${books.map(b => \`<div>• "<strong>\${b}</strong>" (Subject: \${random(['History', 'Magic', 'Herbs', 'Poetry', 'Adventure', 'Forbidden Knowledge'])})</div>\`).join('')}
+              ${books.map(b => `<div>• "<strong>${b}</strong>" (Subject: ${random(['History', 'Magic', 'Herbs', 'Poetry', 'Adventure', 'Forbidden Knowledge'])})</div>`).join('')}
             </div>
           </div>
-        \`;
+        `;
       } else if (selectedType === 'poster') {
         const posters = randomNth(3, ['', '', '']); // Generate 3 posters
         const crimes = ['Murder', 'Theft', 'Espionage', 'Fraud', 'Treason', 'Witchcraft', 'Kidnapping', 'Arson'];
-        html += \`
+        html += `
           <div class="gen-result-item">
             <div class="gen-result-label">Wanted Posters (3)</div>
             <div class="gen-result-value">
-              \${posters.map((_, i) => {
+              ${posters.map((_, i) => {
                 const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish]);
                 const crime = random(crimes);
                 const reward = randomInt(100, 5000);
                 const location = random(['Last seen heading north', 'Spotted near the docks', 'Escaped from the castle', 'Believed to be hiding in the forest']);
-                return \`<div><strong>Poster \${i+1}:</strong> \${random(namePool)} - Wanted for \${crime}. Reward: \${reward} GP. \${location}</div>\`;
+                return `<div><strong>Poster ${i+1}:</strong> ${random(namePool)} - Wanted for ${crime}. Reward: ${reward} GP. ${location}</div>`;
               }).join('')}
             </div>
           </div>
-        \`;
+        `;
       } else if (selectedType === 'shop') {
         const shops = ['Weapons & Armor', 'Potions & Alchemy', 'Magic Items', 'General Supplies', 'Books & Scrolls', 'Clothing & Goods'];
         const shop = random(shops);
         const items = randomNth(3, DATA.magicItems);
-        html += \`
+        html += `
           <div class="gen-result-item">
-            <div class="gen-result-label">\${shop} Shop Inventory (3 items)</div>
+            <div class="gen-result-label">${shop} Shop Inventory (3 items)</div>
             <div class="gen-result-value">
-              \${items.map(item => {
+              ${items.map(item => {
                 const price = randomInt(25, 5000);
-                return \`<div>• <strong>\${item}</strong> - \${price} GP</div>\`;
+                return `<div>• <strong>${item}</strong> - ${price} GP</div>`;
               }).join('')}
             </div>
           </div>
-        \`;
+        `;
       }
 
-      html += \`
+      html += `
         <div class="gen-result-actions">
           <button class="gen-result-btn" onclick="copyToClipboard('Generated flavor detail')">Copy</button>
         </div>
       </div>
-      \`;
+      `;
 
       document.getElementById('flavorOutput').innerHTML = html;
     }
@@ -2286,25 +2293,25 @@
       for (let i = 0; i < count; i++) {
         const type = random(types);
         if (type === 'pocket') {
-          html += \`<div class="gen-result-item"><div class="gen-result-label">Pocket Item \${i + 1}</div><div class="gen-result-value">\${random(DATA.pocketItems)}</div></div>\`;
+          html += `<div class="gen-result-item"><div class="gen-result-label">Pocket Item ${i + 1}</div><div class="gen-result-value">${random(DATA.pocketItems)}</div></div>`;
         } else if (type === 'graffiti') {
-          html += \`<div class="gen-result-item"><div class="gen-result-label">Graffiti \${i + 1}</div><div class="gen-result-value">"\${random(DATA.graffiti)}" - \${random(['faded', 'fresh', 'ominous', 'hopeful'])}</div></div>\`;
+          html += `<div class="gen-result-item"><div class="gen-result-label">Graffiti ${i + 1}</div><div class="gen-result-value">"${random(DATA.graffiti)}" - ${random(['faded', 'fresh', 'ominous', 'hopeful'])}</div></div>`;
         } else if (type === 'sound') {
-          html += \`<div class="gen-result-item"><div class="gen-result-label">Sound \${i + 1}</div><div class="gen-result-value">\${random(DATA.sounds)}</div></div>\`;
+          html += `<div class="gen-result-item"><div class="gen-result-label">Sound ${i + 1}</div><div class="gen-result-value">${random(DATA.sounds)}</div></div>`;
         } else if (type === 'books') {
           const book = random(DATA.bookTitles);
-          html += \`<div class="gen-result-item"><div class="gen-result-label">Book \${i + 1}</div><div class="gen-result-value"><strong>\${book}</strong></div></div>\`;
+          html += `<div class="gen-result-item"><div class="gen-result-label">Book ${i + 1}</div><div class="gen-result-value"><strong>${book}</strong></div></div>`;
         } else if (type === 'poster') {
           const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish]);
           const crime = random(['Murder', 'Theft', 'Espionage', 'Fraud', 'Treason']);
-          html += \`<div class="gen-result-item"><div class="gen-result-label">Wanted \${i + 1}</div><div class="gen-result-value">\${random(namePool)} for \${crime}. Reward: \${randomInt(100, 5000)} GP</div></div>\`;
+          html += `<div class="gen-result-item"><div class="gen-result-label">Wanted ${i + 1}</div><div class="gen-result-value">${random(namePool)} for ${crime}. Reward: ${randomInt(100, 5000)} GP</div></div>`;
         } else if (type === 'shop') {
           const item = random(DATA.magicItems);
-          html += \`<div class="gen-result-item"><div class="gen-result-label">Shop Item \${i + 1}</div><div class="gen-result-value">\${item} - \${randomInt(50, 2000)} GP</div></div>\`;
+          html += `<div class="gen-result-item"><div class="gen-result-label">Shop Item ${i + 1}</div><div class="gen-result-value">${item} - ${randomInt(50, 2000)} GP</div></div>`;
         }
       }
 
-      document.getElementById('flavorOutput').innerHTML = \`<div class="gen-result">\${html}</div>\`;
+      document.getElementById('flavorOutput').innerHTML = `<div class="gen-result">${html}</div>`;
     }
 
     function pinToNotes(type, name) {

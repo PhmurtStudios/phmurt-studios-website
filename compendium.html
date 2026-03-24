@@ -697,55 +697,10 @@
     }
   </style>
 </head>
-<body>
+<body data-nav-active="Content" data-footer-copy="Roll Well. Play Weird.">
 
-  <a href="#main-content" class="ps-skip-nav">Skip to content</a>
-  <nav class="ps-nav" role="navigation" aria-label="Main navigation">
-        <div class="ps-nav-links">
-      <a href="index.html">Home</a>
-      <a href="grimoire.html">Grimoire</a>
-      <a href="compendium.html" class="active">Compendium</a>
-      <a href="character-builder.html">Builder</a>
-      <a href="character-sheets.html">Sheets</a>
-      <a href="campaigns.html">Campaigns</a>
-      <a href="about.html">About</a>
-      <a href="my-characters.html">My Characters</a>
-    </div>
-    <div class="ps-nav-right">
-      <button class="ps-theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
-      <div class="nav-auth-wrap">
-        <button id="nav-auth-btn" onclick="PhmurtDB.openAuth()">Sign In</button>
-        <div id="nav-user-dropdown"></div>
-      </div>
-      <button class="ps-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
-
-  <div class="ps-mobile-menu" id="mobileMenu">
-    <button class="ps-mobile-close" id="mobileClose">✕ Close</button>
-    <a href="index.html">Home</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="grimoire.html">Grimoire</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="compendium.html" class="active">Compendium</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-builder.html">Builder</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="character-sheets.html">Sheets</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="campaigns.html">Campaigns</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="about.html">About</a>
-    <div class="ps-mobile-divider"></div>
-    <a href="my-characters.html">My Characters</a>
-
-    </div>
-
-  <nav class="ps-breadcrumb" aria-label="Breadcrumb">
-    <a href="index.html">Home</a>
-    <span class="sep">&#9670;</span>
-    <span class="current">Compendium</span>
-  </nav>
+  <div id="ps-site-shell"></div>
+  <div id="ps-page-breadcrumb"></div>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">The Workshop</div>
@@ -851,14 +806,9 @@
     Game mechanics based on the <em>Systems Reference Document 5.1</em> (SRD 5.1), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--text-faint);">CC BY 4.0</a>.
     D&amp;D and related marks are trademarks of Wizards of the Coast LLC.
   </div>
-  <footer class="ps-footer">
-    <div class="ps-footer-logo">
-      <img src="logo.png" alt="Phmurt Studios" />
-      <span class="ps-footer-name">Phmurt Studios</span>
-    </div>
-    <div class="ps-footer-copy">Roll Well. Play Weird.</div>
-  </footer>
+  <div id="ps-site-footer"></div>
 
+  <script src="phmurt-shell.js"></script>
   <script>
     // ── HTML Escape Utility ──────────────────────────────────────────────────
     // Escapes all HTML special characters to prevent XSS attacks
