@@ -538,6 +538,89 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* ── CANVAS GENERATORS ── */
+    .gen-canvas-container {
+      background: var(--bg-mid);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: auto;
+    }
+
+    .gen-canvas-container canvas {
+      max-width: 100%;
+      height: auto;
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 2px;
+    }
+
+    .gen-canvas-legend {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: var(--text);
+      display: grid;
+      gap: 8px;
+    }
+
+    .gen-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gen-legend-swatch {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid;
+      border-radius: 2px;
+    }
+
+    .gen-map-scale {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .gen-terrain-legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 16px;
+      margin-bottom: 24px;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .gen-terrain-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gen-terrain-swatch {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body data-nav-active="DM Tools" data-footer-copy="Roll Well. Play Weird.">
@@ -574,6 +657,7 @@
         <label class="gen-category-label">Places</label>
         <button class="gen-nav-item" data-gen="tavern">Tavern / Inn</button>
         <button class="gen-nav-item" data-gen="dungeon">Dungeon</button>
+        <button class="gen-nav-item" data-gen="worldmap">World Map</button>
       </div>
 
       <div class="gen-category">
@@ -612,6 +696,7 @@
           <div class="gen-button-group">
             <button class="gen-button primary" onclick="generateNPC()">Generate NPC</button>
             <button class="gen-button" onclick="generateMultipleNPC(5)">Generate 5</button>
+            <button class="gen-button" onclick="generateMerchant()">Generate Merchant</button>
           </div>
         </div>
 
@@ -676,6 +761,28 @@
           </div>
           <div class="gen-button-group">
             <button class="gen-button primary" onclick="generateDungeon()">Generate Dungeon</button>
+          </div>
+        </div>
+
+        <div class="gen-canvas-container" id="dungeonMapContainer" style="display: none;">
+          <canvas id="dungeonMapCanvas" width="700" height="500"></canvas>
+        </div>
+
+        <div class="gen-canvas-legend" id="dungeonMapLegend" style="display: none;">
+          <div class="gen-legend-item">
+            <span class="gen-legend-swatch" style="background: #4ade80; border-color: #4ade80;"></span>
+            <span>Entrance</span>
+          </div>
+          <div class="gen-legend-item">
+            <span class="gen-legend-swatch" style="background: var(--bg-mid); border-color: #888;"></span>
+            <span>Regular Room</span>
+          </div>
+          <div class="gen-legend-item">
+            <span class="gen-legend-swatch" style="background: var(--bg-mid); border-color: var(--crimson);"></span>
+            <span>Boss Room</span>
+          </div>
+          <div class="gen-legend-item">
+            <span style="font-size: 14px;">⚠ = Trap | ? = Puzzle</span>
           </div>
         </div>
 
@@ -829,6 +936,7 @@
           </div>
           <div class="gen-button-group">
             <button class="gen-button primary" onclick="generateWeather()">Generate Weather</button>
+            <button class="gen-button" onclick="generate5DayForecast()">5-Day Forecast</button>
           </div>
         </div>
 
@@ -887,6 +995,7 @@
               <option value="books">Book Titles on a Shelf</option>
               <option value="poster">Wanted Poster Name</option>
               <option value="shop">Shop Inventory</option>
+              <option value="name">Random Character Name</option>
             </select>
           </div>
           <div class="gen-button-group">
@@ -897,6 +1006,90 @@
 
         <div class="gen-output" id="flavorOutput">
           <div class="gen-output-empty">Click Generate to create a detail</div>
+        </div>
+      </div>
+
+      <!-- WORLD MAP GENERATOR -->
+      <div class="gen-panel" data-gen="worldmap">
+        <h1 class="gen-title">World Map Generator</h1>
+        <p class="gen-description">Generate a procedural fantasy world map with terrain, cities, rivers, and landmarks.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Map Size</label>
+            <select class="gen-control-input" id="mapSize">
+              <option value="small">Small (compact world)</option>
+              <option value="medium" selected>Medium (standard)</option>
+              <option value="large">Large (vast continent)</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Terrain Type</label>
+            <select class="gen-control-input" id="terrainType">
+              <option value="archipelago">Archipelago (many islands)</option>
+              <option value="continental" selected>Continental (one large landmass)</option>
+              <option value="pangaea">Pangaea (super continent)</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Name Style</label>
+            <select class="gen-control-input" id="nameStyle">
+              <option value="fantasy" selected>Fantasy</option>
+              <option value="norse">Norse</option>
+              <option value="celtic">Celtic</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateWorldMap()">Generate Map</button>
+            <button class="gen-button" onclick="generateWorldMap()">Regenerate</button>
+            <button class="gen-button" onclick="downloadWorldMap()">Download Map</button>
+          </div>
+        </div>
+
+        <div class="gen-canvas-container" id="worldMapContainer" style="display: none;">
+          <canvas id="worldMapCanvas" width="800" height="600"></canvas>
+        </div>
+
+        <div class="gen-terrain-legend" id="worldMapLegend" style="display: none;">
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #001a4d;"></span>
+            <span>Deep Water</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #0047ab;"></span>
+            <span>Shallow Water</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #d4a574;"></span>
+            <span>Beach</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #4ade80;"></span>
+            <span>Plains</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #16a34a;"></span>
+            <span>Forest</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #8b6f47;"></span>
+            <span>Hills</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #888888;"></span>
+            <span>Mountains</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #e8e8e8;"></span>
+            <span>Snow Peaks</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span style="color: var(--crimson); font-weight: bold;">● = City | ≈ = River</span>
+          </div>
+        </div>
+
+        <div class="gen-output" id="worldMapOutput">
+          <div class="gen-output-empty">Click Generate to create a world map</div>
         </div>
       </div>
 
@@ -921,7 +1114,7 @@
         exotic: ['Amaranthus', 'Beaumont', 'Cornelius', 'Damascius', 'Evangeline', 'Fortunatus', 'Gregarious', 'Harmonious', 'Infinitus', 'Jubilant', 'Kaleidescope', 'Luminous', 'Magnificent', 'Nebulous', 'Opulent', 'Perpetual', 'Querulous', 'Resplendent', 'Serendipitous', 'Transcendent']
       },
       races: ['Human', 'Elf', 'Dwarf', 'Halfling', 'Dragonborn', 'Gnome', 'Half-Elf', 'Half-Orc', 'Tiefling', 'Goliath'],
-      genders: ['Male', 'Female', 'Non-binary'],
+      genders: ['Male', 'Female'],
       occupations: ['Innkeeper', 'Blacksmith', 'Bard', 'Cleric', 'Paladin', 'Ranger', 'Rogue', 'Wizard', 'Sorcerer', 'Druid', 'Barbarian', 'Monk', 'Fighter', 'Scholar', 'Merchant', 'Guard', 'Constable', 'Mayor', 'Noble', 'Peasant', 'Farmer', 'Miller', 'Baker', 'Butcher', 'Leatherworker', 'Woodworker', 'Mason', 'Carpenter', 'Thatcher', 'Weaver', 'Dyer', 'Glassblower', 'Jeweler', 'Alchemist', 'Apothecary', 'Healer', 'Herbalist', 'Midwife', 'Gravedigger', 'Executioner', 'Torturer', 'Assassin', 'Smuggler', 'Pirate', 'Sailor', 'Fisherman', 'Hunter', 'Trapper', 'Mapmaker', 'Cartographer', 'Scribe', 'Clerk', 'Archivist', 'Librarian', 'Minstrel', 'Actor', 'Acrobat', 'Juggler', 'Dancer', 'Gladiator', 'Knight', 'Squire', 'Page', 'Servant', 'Slave', 'Beggar', 'Vagrant', 'Hermit', 'Hermetic', 'Mystic', 'Oracle', 'Priest', 'Nun', 'Monk', 'Abbott', 'Bishop', 'Pope', 'Prostitute', 'Courtesan', 'Courtesan', 'Entertainer', 'Storyteller', 'Poet', 'Painter', 'Sculptor', 'Musician', 'Composer', 'Conductor', 'Teacher', 'Tutor', 'Professor', 'Astrologer', 'Astronomer', 'Physician', 'Surgeon', 'Dentist', 'Barber', 'Perfumer'],
       personality: ['Adventurous', 'Cautious', 'Charming', 'Cynical', 'Devious', 'Earnest', 'Flamboyant', 'Grim', 'Helpful', 'Indifferent', 'Jovial', 'Keen', 'Lazy', 'Mischievous', 'Nervous', 'Obsequious', 'Paranoid', 'Quick-tempered', 'Rational', 'Sarcastic', 'Thoughtful', 'Unyielding', 'Vivacious', 'Wary', 'Xenophobic', 'Youthful', 'Zealous', 'Altruistic', 'Bitter', 'Condescending', 'Deceptive', 'Eccentric', 'Fraudulent', 'Gregarious', 'Harsh', 'Idealistic', 'Jealous', 'Kindhearted', 'Lustful', 'Melancholic', 'Naive', 'Obnoxious', 'Pessimistic', 'Querulous', 'Resilient', 'Stoic', 'Untrustworthy', 'Vain', 'Whimsical'],
       physicalDesc: ['Scarred face', 'Missing an eye', 'Tattooed arms', 'Hunched back', 'Towering height', 'Extremely short', 'One-handed', 'Hook hand', 'Peg leg', 'Bulging muscles', 'Gaunt and skeletal', 'Rotund belly', 'Beautiful features', 'Ugly mug', 'Sharp cheekbones', 'Crooked nose', 'Silver-tongued', 'Missing teeth', 'Gold teeth', 'Rotten teeth', 'Beautiful smile', 'Piercing eyes', 'Clouded eyes', 'Milky eyes', 'Bloodshot eyes', 'Wild hair', 'Bald head', 'Long beard', 'Clean-shaven', 'Weathered skin', 'Youthful face', 'Wrinkled face', 'Fresh burn scars', 'Old whip marks', 'Battle-worn armor', 'Fine silks', 'Ragged clothes', 'Immaculate appearance', 'Filthy and grimy', 'Smells of alcohol', 'Smells of flowers', 'Smells of smoke', 'Smells of blood', 'Distinctive accent', 'Cultured voice', 'Rough voice', 'Soft voice', 'Booming voice', 'Whispered voice'],
@@ -1152,7 +1345,31 @@
         { severity: 'moderate', effect: 'Temporary mechanical effect' },
         { severity: 'major', effect: 'Significant game impact' },
         { severity: 'catastrophic', effect: 'Campaign-altering consequence' }
-      ]
+      ],
+
+      worldMapCities: {
+        fantasy: ['Valdris', 'Shadowmere', 'Goldwood', 'Stormhaven', 'Ashholm', 'Silverthorne', 'Ironpeak', 'Crystalwood', 'Dragonscale', 'Mistfall', 'Moonhaven', 'Sunridge', 'Blackthorn', 'Whitestone', 'Darkhollow'],
+        norse: ['Heimdalstad', 'Njordheim', 'Lokifjord', 'Thorstad', 'Freyashavn', 'Odinholm', 'Ragnarstad', 'Midgardwick', 'Asgardholm', 'Yggdrasilheim'],
+        celtic: ['Dun Soilse', 'Rath Glas', 'Teamhair', 'Tir na Nog', 'Caer Llion', 'Avallon', 'Emain Macha', 'Tara', 'Cruachan', 'Durrow']
+      },
+
+      worldMapMountainRanges: {
+        fantasy: ['The Spine of the World', 'Dragonteeth Mountains', 'Shattered Peaks', 'The Sentinel Range', 'Crystal Ridge', 'Obsidian Crown'],
+        norse: ['Jotunheim Range', 'Bifrost Ridge', 'Ymir\'s Teeth', 'Asgard Peak'],
+        celtic: ['The Fomorian Peaks', 'Dagda\'s Crown', 'Banba\'s Spine', 'Tuatha Ridge']
+      },
+
+      worldMapForests: {
+        fantasy: ['The Darkwood', 'Silverwood Forest', 'Thorngrove', 'The Whispering Vale', 'Deepwood', 'The Faerie Forest'],
+        norse: ['Mirkwood', 'Yggdrasil Forest', 'Fenrir\'s Wild', 'Loki\'s Tangle'],
+        celtic: ['The Caledonian Wild', 'Danu\'s Deep', 'The Enchanted Wood', 'Sidhe Forest']
+      },
+
+      worldMapSeas: {
+        fantasy: ['The Sapphire Sea', 'The Ashen Deep', 'The Crimson Tide', 'The Eternal Ocean', 'The Shattered Strait'],
+        norse: ['The Whale Road', 'Jormungandr\'s Sea', 'The Frost Ocean', 'The North Sea'],
+        celtic: ['The Morwenna Sea', 'Manannán\'s Domain', 'The Blessed Strait', 'The Mystic Ocean']
+      }
     };
 
     // Utility functions
@@ -1221,6 +1438,8 @@
 
     function generateNPC() {
       const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish, DATA.npcNames.dwarvish, DATA.npcNames.orcish, DATA.npcNames.halfling, DATA.npcNames.gnomish, DATA.npcNames.infernal, DATA.npcNames.exotic]);
+      const ageRange = random(DATA.ageRanges);
+      const age = getActualAge(ageRange);
       const npc = {
         name: random(namePool),
         race: random(DATA.races),
@@ -1231,7 +1450,8 @@
         secret: random(DATA.secrets),
         voice: random(DATA.voices),
         quirk: random(DATA.quirks),
-        ageRange: random(DATA.ageRanges),
+        ageRange: ageRange,
+        age: age,
         alignment: random(DATA.alignments),
         motivation: random(DATA.motivations),
         relationship: random(DATA.npcRelationships),
@@ -1265,8 +1485,8 @@
 
           <div class="gen-result-subheading">Vital Stats</div>
           <div class="gen-npc-stat">
-            <div class="gen-npc-stat-label">Age Range</div>
-            <div class="gen-npc-stat-value">${npc.ageRange}</div>
+            <div class="gen-npc-stat-label">Age</div>
+            <div class="gen-npc-stat-value">${npc.age} years old</div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Alignment</div>
@@ -1369,6 +1589,77 @@
       document.getElementById('npcOutput').innerHTML = html;
     }
 
+    function getActualAge(ageRange) {
+      if (ageRange.includes('16-25')) return randomInt(16, 25);
+      if (ageRange.includes('26-40')) return randomInt(26, 40);
+      if (ageRange.includes('41-60')) return randomInt(41, 60);
+      if (ageRange.includes('61')) return randomInt(61, 85);
+      if (ageRange.includes('100')) return randomInt(100, 300);
+      return randomInt(18, 50);
+    }
+
+    function generateMerchant() {
+      const merchantOccupations = ['Merchant', 'Trader', 'Shopkeeper', 'Peddler', 'Vendor', 'Black Market Dealer'];
+      const namePool = random([DATA.npcNames.common, DATA.npcNames.elvish, DATA.npcNames.dwarvish, DATA.npcNames.halfling, DATA.npcNames.gnome, DATA.npcNames.exotic]);
+      const ageRange = random(DATA.ageRanges);
+      const age = getActualAge(ageRange);
+
+      const merchant = {
+        name: random(namePool),
+        race: random(DATA.races),
+        gender: random(DATA.genders),
+        occupation: random(merchantOccupations),
+        personality: random(DATA.personality),
+        appearance: random(DATA.physicalDesc),
+        voice: random(DATA.voices),
+        quirk: random(DATA.quirks),
+        age: age,
+        alignment: random(DATA.alignments),
+      };
+
+      // Generate shop inventory
+      const inventoryItems = randomNth(randomInt(4, 8), DATA.magicItems.concat(DATA.potions).concat(DATA.artObjects));
+      const inventory = inventoryItems.map((item, i) => `<div>• ${item} - ${randomInt(50, 2000)} GP</div>`).join('');
+
+      const html = `
+        <div class="gen-npc-card gen-result">
+          <div class="gen-npc-name">${merchant.name}</div>
+          <div class="gen-npc-class">${merchant.race} ${merchant.occupation} • ${merchant.gender}</div>
+
+          <div class="gen-result-subheading">Merchant Details</div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Age</div>
+            <div class="gen-npc-stat-value">${merchant.age} years old</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Personality</div>
+            <div class="gen-npc-stat-value">${merchant.personality}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Appearance</div>
+            <div class="gen-npc-stat-value">${merchant.appearance}</div>
+          </div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Voice</div>
+            <div class="gen-npc-stat-value">${merchant.voice}</div>
+          </div>
+
+          <div class="gen-result-subheading">Shop Inventory</div>
+          <div class="gen-npc-stat">
+            <div class="gen-npc-stat-label">Available Goods</div>
+            <div class="gen-npc-stat-value">${inventory}</div>
+          </div>
+
+          <div class="gen-result-actions">
+            <button class="gen-result-btn" onclick="copyToClipboard('Merchant ${merchant.name} - ${merchant.occupation}')">Copy</button>
+            <button class="gen-result-btn" onclick="pinToNotes('Merchant', '${merchant.name}')">Pin</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('npcOutput').innerHTML = html;
+    }
+
     function generateTavern() {
       const type = document.getElementById('tavernType').value;
       const types = ['tavern', 'inn', 'brewery', 'wine', 'roadside'];
@@ -1411,6 +1702,23 @@
         description: random(DATA.tavernPatronDescriptions),
       };
 
+      // Generate room rates if it's an inn
+      const roomRates = selectedType === 'inn' ? {
+        cheap: `${randomInt(5, 10)} GP per night`,
+        moderate: `${randomInt(15, 25)} GP per night`,
+        expensive: `${randomInt(35, 50)} GP per night`,
+      }[priceLevel.toLowerCase()] : null;
+
+      // Generate regulars (2-3 NPCs who are always there)
+      const regulars = [];
+      for (let i = 0; i < randomInt(2, 3); i++) {
+        const regularName = random([DATA.npcNames.common, DATA.npcNames.dwarvish, DATA.npcNames.halfling]);
+        regulars.push({
+          name: regularName,
+          desc: random(DATA.tavernPatronDescriptions),
+        });
+      }
+
       const html = `
         <div class="gen-result">
           <div class="gen-result-item">
@@ -1439,6 +1747,10 @@
             <div class="gen-result-label">Number of Patrons</div>
             <div class="gen-result-value">${tavern.patrons} people present</div>
           </div>
+          ${roomRates ? `<div class="gen-result-item">
+            <div class="gen-result-label">Room Rate (per night)</div>
+            <div class="gen-result-value">${roomRates}</div>
+          </div>` : ''}
 
           <div class="gen-result-subheading">The Experience</div>
           <div class="gen-result-item">
@@ -1461,6 +1773,12 @@
             <div class="gen-result-label">Current Rumor</div>
             <div class="gen-result-value">"${tavern.rumor}"</div>
           </div>
+
+          <div class="gen-result-subheading">The Regulars</div>
+          ${regulars.map(r => `<div class="gen-result-item">
+            <div class="gen-result-label">${r.name}</div>
+            <div class="gen-result-value">${r.desc}</div>
+          </div>`).join('')}
 
           <div class="gen-result-subheading">The Barkeep</div>
           <div class="gen-result-item">
@@ -1594,6 +1912,89 @@
       `;
 
       document.getElementById('dungeonOutput').innerHTML = html;
+
+      // Draw the dungeon map
+      drawDungeonMap(rooms, boss);
+    }
+
+    function drawDungeonMap(rooms, boss) {
+      const canvas = document.getElementById('dungeonMapCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Set colors based on theme
+      const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-mid').trim();
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+      const crimson = getComputedStyle(document.documentElement).getPropertyValue('--crimson').trim();
+
+      // Generate room layout in a grid with randomness
+      const roomData = [];
+      const cols = Math.ceil(Math.sqrt(rooms.length));
+      const cellWidth = canvas.width / cols;
+      const cellHeight = canvas.height / Math.ceil(rooms.length / cols);
+
+      rooms.forEach((room, idx) => {
+        const col = idx % cols;
+        const row = Math.floor(idx / cols);
+        const x = col * cellWidth + 20 + Math.random() * 20;
+        const y = row * cellHeight + 20 + Math.random() * 20;
+        const w = 60 + Math.random() * 40;
+        const h = 40 + Math.random() * 30;
+
+        roomData.push({ name: room, x, y, w, h, idx });
+      });
+
+      // Draw corridors first
+      for (let i = 0; i < roomData.length - 1; i++) {
+        const r1 = roomData[i];
+        const r2 = roomData[i + 1];
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(r1.x + r1.w / 2, r1.y + r1.h / 2);
+        ctx.lineTo(r2.x + r2.w / 2, r2.y + r2.h / 2);
+        ctx.stroke();
+      }
+
+      // Draw rooms
+      roomData.forEach((room) => {
+        const isBossRoom = room.idx === roomData.length - 1;
+        const isEntrance = room.idx === 0;
+
+        // Room background
+        ctx.fillStyle = bgColor || '#2a2a2a';
+        ctx.fillRect(room.x, room.y, room.w, room.h);
+
+        // Room border
+        ctx.lineWidth = 2;
+        if (isEntrance) {
+          ctx.strokeStyle = '#4ade80';
+        } else if (isBossRoom) {
+          ctx.strokeStyle = crimson || '#c0392b';
+        } else {
+          ctx.strokeStyle = '#888';
+        }
+        ctx.strokeRect(room.x, room.y, room.w, room.h);
+
+        // Room number
+        ctx.fillStyle = crimson || '#c0392b';
+        ctx.font = 'bold 12px Arial';
+        ctx.fillText(`R${room.idx + 1}`, room.x + 4, room.y + 14);
+
+        // Add icons for features
+        let icons = '';
+        if (Math.random() > 0.6) icons += '⚠';
+        if (Math.random() > 0.5) icons += ' ?';
+        if (icons) {
+          ctx.fillStyle = '#daa520';
+          ctx.font = '10px Arial';
+          ctx.fillText(icons, room.x + 4, room.y + room.h - 4);
+        }
+      });
+
+      // Show legend and map
+      document.getElementById('dungeonMapContainer').style.display = 'flex';
+      document.getElementById('dungeonMapLegend').style.display = 'block';
     }
 
     function generateEncounter() {
@@ -1616,6 +2017,15 @@
       const tactics = random(DATA.tacticalNotes);
       const complication = random(DATA.complications);
       const alternative = random(DATA.alternativeResolutions);
+
+      // Calculate XP per party member
+      const totalXP = totalCR * 100;
+      const xpPerMember = Math.floor(totalXP / size);
+
+      // Generate loot on defeat
+      const lootCoins = randomInt(10 * size, 100 * size);
+      const hasMagicItem = Math.random() > 0.7;
+      const magicItem = hasMagicItem ? random(DATA.magicItems) : null;
 
       const html = `
         <div class="gen-result">
@@ -1647,8 +2057,22 @@
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Total Encounter XP</div>
-            <div class="gen-result-value">${(totalCR * 100).toFixed(0)} XP (before adjustments)</div>
+            <div class="gen-result-value">${totalXP.toFixed(0)} XP (before adjustments)</div>
           </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">XP per Party Member</div>
+            <div class="gen-result-value">${xpPerMember} XP each</div>
+          </div>
+
+          <div class="gen-result-subheading">Loot on Defeat</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Coins</div>
+            <div class="gen-result-value">${lootCoins} GP in various denominations</div>
+          </div>
+          ${magicItem ? `<div class="gen-result-item">
+            <div class="gen-result-label">Magic Item</div>
+            <div class="gen-result-value">${magicItem}</div>
+          </div>` : '<div class="gen-result-item"><div class="gen-result-label">Magic Item</div><div class="gen-result-value">None</div></div>'}
 
           <div class="gen-result-subheading">Tactical Guidance for DM</div>
           <div class="gen-result-item">
@@ -1764,9 +2188,9 @@
 
       if (isCursed) {
         html += `
-          <div class="gen-result-item">
-            <div class="gen-result-label">CURSE WARNING</div>
-            <div class="gen-result-value"><strong>Cursed item detected!</strong><br>${curse}</div>
+          <div class="gen-result-item" style="background: rgba(192, 57, 43, 0.25); padding: 12px; border-left: 4px solid var(--crimson); border-radius: 2px;">
+            <div class="gen-result-label" style="color: var(--crimson);">⚠ CURSE WARNING</div>
+            <div class="gen-result-value"><strong style="color: var(--crimson);">Cursed item detected!</strong><br>${curse}</div>
           </div>
         `;
       }
@@ -1803,12 +2227,46 @@
       const rewardBase = randomInt(100, 1000);
       const rewardAlternative = random(DATA.rewardAlternatives);
 
+      // Suggested level range based on genre
+      const levelRanges = {
+        mystery: '3-8',
+        heist: '5-12',
+        rescue: '2-7',
+        escort: '3-9',
+        exploration: '4-10',
+        political: '5-11',
+        supernatural: '6-13',
+        war: '7-15'
+      };
+      const suggestedLevel = levelRanges[selectedGenre] || '5-10';
+
+      // Estimated duration
+      const durations = {
+        mystery: '2-3 sessions',
+        heist: '3-5 sessions',
+        rescue: '1-2 sessions',
+        escort: '2-4 sessions',
+        exploration: '3-6 sessions',
+        political: '4-8 sessions',
+        supernatural: '3-7 sessions',
+        war: 'Full arc (many sessions)'
+      };
+      const estimatedDuration = durations[selectedGenre] || '2-4 sessions';
+
       const html = `
         <div class="gen-result">
           <div class="gen-result-subheading">The Quest</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Adventure Type</div>
             <div class="gen-result-value">${selectedGenre.charAt(0).toUpperCase() + selectedGenre.slice(1)}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Suggested Level Range</div>
+            <div class="gen-result-value">Levels ${suggestedLevel}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Estimated Duration</div>
+            <div class="gen-result-value">${estimatedDuration}</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Hook</div>
@@ -1902,12 +2360,16 @@
       const conditions = ['Clear skies', 'Partly cloudy', 'Overcast', 'Light rain', 'Heavy rain', 'Thunderstorm', 'Fog', 'Snow', 'Sleet', 'Hail', 'Windy', 'Still and calm'];
       const events = ['Aurora', 'Meteor shower', 'Magical storm', 'Rainbow', 'Unusual cloud formations', 'Eclipse', 'Earthquake', 'Volcanic ash', 'Unusual animals seen', 'Magical phenomenon'];
 
+      const windMph = randomInt(0, 40);
+      const windDescription = windMph === 0 ? 'Calm' : windMph <= 5 ? 'Light breeze' : windMph <= 15 ? 'Breezy' : windMph <= 25 ? 'Strong winds' : 'Gale';
+
       const weather = {
         climate: selectedClimate,
         season: selectedSeason,
         temperature: (temps[selectedClimate] && temps[selectedClimate][selectedSeason]) || '50-70F',
         condition: random(conditions),
-        wind: randomInt(0, 40),
+        wind: windMph,
+        windDescription: windDescription,
         visibility: randomInt(10, 100),
         event: randomInt(1, 5) === 1 ? random(events) : 'None',
         timeOfDay: random(DATA.timeOfDay),
@@ -1965,8 +2427,8 @@
             <div class="gen-result-value">${weather.temperature}</div>
           </div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Wind Speed</div>
-            <div class="gen-result-value">${weather.wind} mph</div>
+            <div class="gen-result-label">Wind</div>
+            <div class="gen-result-value">${weather.windDescription} (${weather.wind} mph)</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Visibility</div>
@@ -2002,6 +2464,48 @@
         </div>
       `;
 
+      document.getElementById('weatherOutput').innerHTML = html;
+    }
+
+    function generate5DayForecast() {
+      const climate = document.getElementById('climate').value;
+      const season = document.getElementById('season').value;
+      const climates = ['tropical', 'temperate', 'arctic', 'desert', 'coastal'];
+      const seasons = ['spring', 'summer', 'fall', 'winter'];
+
+      const selectedClimate = climate === 'any' ? random(climates) : climate;
+      const selectedSeason = season === 'any' ? random(seasons) : season;
+
+      const temps = {
+        tropical: { spring: '75-85F', summer: '85-95F', fall: '75-85F', winter: '70-80F' },
+        temperate: { spring: '50-65F', summer: '70-85F', fall: '50-65F', winter: '30-45F' },
+        arctic: { spring: '-10-0F', summer: '20-35F', fall: '-10-0F', winter: '-30--10F' },
+        desert: { spring: '65-80F', summer: '95-110F', fall: '65-80F', winter: '40-55F' },
+        coastal: { spring: '55-70F', summer: '75-85F', fall: '55-70F', winter: '45-60F' }
+      };
+
+      const conditions = ['Clear skies', 'Partly cloudy', 'Overcast', 'Light rain', 'Heavy rain', 'Thunderstorm', 'Fog', 'Snow', 'Sleet', 'Hail', 'Windy', 'Still and calm'];
+
+      let html = '<div class="gen-result">';
+      html += '<div class="gen-result-label">5-Day Weather Forecast</div><div class="gen-result-value">' + selectedClimate.charAt(0).toUpperCase() + selectedClimate.slice(1) + ' (' + selectedSeason.charAt(0).toUpperCase() + selectedSeason.slice(1) + ')</div>';
+
+      const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+      for (let i = 0; i < 5; i++) {
+        const windMph = randomInt(0, 40);
+        const windDescription = windMph === 0 ? 'Calm' : windMph <= 5 ? 'Light breeze' : windMph <= 15 ? 'Breezy' : windMph <= 25 ? 'Strong winds' : 'Gale';
+        const condition = random(conditions);
+        const tempBase = temps[selectedClimate][selectedSeason];
+
+        html += `<div class="gen-result-item" style="border-left: 3px solid var(--crimson); padding-left: 12px;">
+          <div class="gen-result-label">${days[i]}</div>
+          <div class="gen-result-value">
+            ${condition}<br>
+            Temp: ${tempBase} | Wind: ${windDescription} (${windMph} mph)
+          </div>
+        </div>`;
+      }
+
+      html += '</div>';
       document.getElementById('weatherOutput').innerHTML = html;
     }
 
@@ -2117,6 +2621,20 @@
       };
       const value = rarityValue[rarity] || 50;
 
+      // Determine brewing DC based on rarity
+      const brewingDC = {
+        'Common': randomInt(8, 12),
+        'Uncommon': randomInt(12, 16),
+        'Rare': randomInt(16, 20),
+        'Very Rare': randomInt(20, 25),
+        'Legendary': randomInt(25, 30)
+      };
+      const brewDC = brewingDC[rarity] || 12;
+
+      // Generate ingredients (2-3 fantasy ingredients)
+      const ingredients = ['Dragon scale powder', 'Moonflower petals', 'Pixie dust', 'Aged cave mushroom', 'Phoenix feather ash', 'Starlight essence', 'Shadow silk', 'Basilisk venom', 'Angel wing fragments', 'Crystallized tears', 'Shattered moonstone', 'Raven feathers', 'Mandrake root', 'Fey nectar', 'Unicorn horn dust', 'Wyvern blood', 'Cursed thorns', 'Holy water blessed thrice', 'Primordial frost', 'Spirit of the forest'];
+      const selectedIngredients = randomNth(randomInt(2, 3), ingredients);
+
       const potionName = random(DATA.potionNames);
 
       const html = `
@@ -2152,6 +2670,16 @@
           <div class="gen-result-item">
             <div class="gen-result-label">Duration</div>
             <div class="gen-result-value">${duration}</div>
+          </div>
+
+          <div class="gen-result-subheading">Crafting & Value</div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Brewing DC</div>
+            <div class="gen-result-value">DC ${brewDC}</div>
+          </div>
+          <div class="gen-result-item">
+            <div class="gen-result-label">Required Ingredients</div>
+            <div class="gen-result-value">${selectedIngredients.join(', ')}</div>
           </div>
 
           <div class="gen-result-subheading">Side Effects & Value</div>
@@ -2197,7 +2725,7 @@
 
     function generateFlavor() {
       const type = document.getElementById('flavorType').value;
-      const types = ['pocket', 'graffiti', 'sound', 'books', 'poster', 'shop'];
+      const types = ['pocket', 'graffiti', 'sound', 'books', 'poster', 'shop', 'name'];
       const selectedType = type === 'any' ? random(types) : type;
 
       let html = '<div class="gen-result">';
@@ -2274,6 +2802,30 @@
             </div>
           </div>
         `;
+      } else if (selectedType === 'name') {
+        const races = ['Human', 'Elf', 'Dwarf', 'Halfling', 'Dragonborn', 'Gnome', 'Half-Elf', 'Half-Orc', 'Tiefling', 'Goliath'];
+        const raceNamePools = {
+          'Human': DATA.npcNames.common,
+          'Elf': DATA.npcNames.elvish,
+          'Dwarf': DATA.npcNames.dwarvish,
+          'Halfling': DATA.npcNames.halfling,
+          'Dragonborn': DATA.npcNames.common,
+          'Gnome': DATA.npcNames.gnomish,
+          'Half-Elf': random([DATA.npcNames.common, DATA.npcNames.elvish]),
+          'Half-Orc': random([DATA.npcNames.common, DATA.npcNames.orcish]),
+          'Tiefling': random([DATA.npcNames.common, DATA.npcNames.infernal]),
+          'Goliath': DATA.npcNames.common
+        };
+        const selectedRace = random(races);
+        const names = randomNth(3, raceNamePools[selectedRace]);
+        html += `
+          <div class="gen-result-item">
+            <div class="gen-result-label">${selectedRace} Character Names (3)</div>
+            <div class="gen-result-value">
+              ${names.map(n => `<div>• ${n}</div>`).join('')}
+            </div>
+          </div>
+        `;
       }
 
       html += `
@@ -2316,6 +2868,236 @@
 
     function pinToNotes(type, name) {
       psToast(`${type} "${name}" pinned to notes!`, 2000);
+    }
+
+    // World Map Generator
+    let worldMapData = null;
+
+    function generateWorldMap() {
+      const size = document.getElementById('mapSize').value;
+      const terrainType = document.getElementById('terrainType').value;
+      const nameStyle = document.getElementById('nameStyle').value;
+
+      const canvas = document.getElementById('worldMapCanvas');
+      const ctx = canvas.getContext('2d');
+
+      // Grid parameters based on size
+      const gridSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
+      const cellSize = size === 'small' ? canvas.width / 50 : size === 'medium' ? canvas.width / 80 : canvas.width / 100;
+
+      // Create heightmap
+      const heightmap = generateHeightmap(gridSize);
+
+      // Determine terrain type distribution
+      const waterLevel = terrainType === 'archipelago' ? 0.5 : 0.35;
+      const mountainLevel = terrainType === 'pangaea' ? 0.65 : 0.55;
+
+      // Clear canvas
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#1a1a1a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Generate and draw terrain
+      worldMapData = {
+        cities: [],
+        rivers: [],
+        features: {
+          mountains: [],
+          forests: [],
+          seas: []
+        }
+      };
+
+      // Draw terrain cells
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          const height = heightmap[y][x];
+          const screenX = (x / gridSize) * canvas.width;
+          const screenY = (y / gridSize) * canvas.height;
+          const w = canvas.width / gridSize;
+          const h = canvas.height / gridSize;
+
+          ctx.fillStyle = getTerrainColor(height, waterLevel, mountainLevel);
+          ctx.fillRect(screenX, screenY, w, h);
+        }
+      }
+
+      // Place cities (4-8)
+      const numCities = randomInt(4, 8);
+      const cityNames = DATA.worldMapCities[nameStyle] || DATA.worldMapCities.fantasy;
+      const selectedCities = randomNth(numCities, cityNames);
+
+      selectedCities.forEach((city) => {
+        let placed = false;
+        while (!placed) {
+          const x = randomInt(0, gridSize - 1);
+          const y = randomInt(0, gridSize - 1);
+          const height = heightmap[y][x];
+          // Place on coastlines or rivers (between water and land)
+          if (height > waterLevel - 0.05 && height < waterLevel + 0.15) {
+            const screenX = (x / gridSize) * canvas.width + 5;
+            const screenY = (y / gridSize) * canvas.height + 5;
+            ctx.fillStyle = '#c0392b';
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, 4, 0, Math.PI * 2);
+            ctx.fill();
+            worldMapData.cities.push({ name: city, x: screenX, y: screenY });
+            placed = true;
+          }
+        }
+      });
+
+      // Add mountain ranges, forests, and seas as labels
+      const mountainRanges = DATA.worldMapMountainRanges[nameStyle] || DATA.worldMapMountainRanges.fantasy;
+      const forests = DATA.worldMapForests[nameStyle] || DATA.worldMapForests.fantasy;
+      const seas = DATA.worldMapSeas[nameStyle] || DATA.worldMapSeas.fantasy;
+
+      worldMapData.features.mountains = randomNth(randomInt(1, 3), mountainRanges);
+      worldMapData.features.forests = randomNth(randomInt(1, 3), forests);
+      worldMapData.features.seas = randomNth(randomInt(1, 2), seas);
+
+      // Draw compass rose
+      drawCompassRose(ctx, canvas.width - 40, 40);
+
+      // Draw scale bar
+      drawScaleBar(ctx, 20, canvas.height - 30);
+
+      // Show canvas and legend
+      document.getElementById('worldMapContainer').style.display = 'flex';
+      document.getElementById('worldMapLegend').style.display = 'grid';
+
+      // Generate info panel
+      generateWorldMapInfo();
+    }
+
+    function generateHeightmap(size) {
+      const map = [];
+      for (let y = 0; y < size; y++) {
+        map[y] = [];
+        for (let x = 0; x < size; x++) {
+          map[y][x] = Math.random();
+        }
+      }
+
+      // Simple smoothing pass
+      for (let pass = 0; pass < 2; pass++) {
+        const smoothed = [];
+        for (let y = 0; y < size; y++) {
+          smoothed[y] = [];
+          for (let x = 0; x < size; x++) {
+            let sum = 0, count = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                const ny = y + dy, nx = x + dx;
+                if (ny >= 0 && ny < size && nx >= 0 && nx < size) {
+                  sum += map[ny][nx];
+                  count++;
+                }
+              }
+            }
+            smoothed[y][x] = sum / count;
+          }
+        }
+        map = smoothed;
+      }
+      return map;
+    }
+
+    function getTerrainColor(height, waterLevel, mountainLevel) {
+      if (height < waterLevel - 0.1) return '#001a4d'; // Deep water
+      if (height < waterLevel) return '#0047ab'; // Shallow water
+      if (height < waterLevel + 0.05) return '#d4a574'; // Beach
+      if (height < 0.45) return '#4ade80'; // Plains
+      if (height < 0.55) return '#16a34a'; // Forest
+      if (height < mountainLevel) return '#8b6f47'; // Hills
+      if (height < 0.85) return '#888888'; // Mountains
+      return '#e8e8e8'; // Snow peaks
+    }
+
+    function drawCompassRose(ctx, x, y) {
+      const size = 20;
+      ctx.strokeStyle = '#888';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y - size);
+      ctx.lineTo(x, y + size);
+      ctx.moveTo(x - size, y);
+      ctx.lineTo(x + size, y);
+      ctx.stroke();
+
+      ctx.fillStyle = '#c0392b';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('N', x, y - size - 5);
+    }
+
+    function drawScaleBar(ctx, x, y) {
+      const barWidth = 60;
+      ctx.strokeStyle = '#888';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#888';
+      ctx.fillRect(x, y, barWidth, 2);
+      ctx.fillRect(x, y - 3, 2, 6);
+      ctx.fillRect(x + barWidth, y - 3, 2, 6);
+
+      ctx.fillStyle = '#888';
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('100 miles', x + barWidth / 2, y + 15);
+    }
+
+    function generateWorldMapInfo() {
+      let html = '<div class="gen-result">';
+
+      if (worldMapData && worldMapData.cities.length > 0) {
+        html += '<div class="gen-result-item">';
+        html += '<div class="gen-result-label">Major Cities</div>';
+        html += '<div class="gen-result-value">';
+        worldMapData.cities.forEach((city) => {
+          html += `<div>${city.name}</div>`;
+        });
+        html += '</div></div>';
+      }
+
+      if (worldMapData && worldMapData.features.mountains.length > 0) {
+        html += '<div class="gen-result-item">';
+        html += '<div class="gen-result-label">Mountain Ranges</div>';
+        html += '<div class="gen-result-value">';
+        worldMapData.features.mountains.forEach((m) => {
+          html += `<div>${m}</div>`;
+        });
+        html += '</div></div>';
+      }
+
+      if (worldMapData && worldMapData.features.forests.length > 0) {
+        html += '<div class="gen-result-item">';
+        html += '<div class="gen-result-label">Great Forests</div>';
+        html += '<div class="gen-result-value">';
+        worldMapData.features.forests.forEach((f) => {
+          html += `<div>${f}</div>`;
+        });
+        html += '</div></div>';
+      }
+
+      if (worldMapData && worldMapData.features.seas.length > 0) {
+        html += '<div class="gen-result-item">';
+        html += '<div class="gen-result-label">Seas & Oceans</div>';
+        html += '<div class="gen-result-value">';
+        worldMapData.features.seas.forEach((s) => {
+          html += `<div>${s}</div>`;
+        });
+        html += '</div></div>';
+      }
+
+      html += '</div>';
+      document.getElementById('worldMapOutput').innerHTML = html;
+    }
+
+    function downloadWorldMap() {
+      const canvas = document.getElementById('worldMapCanvas');
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'world-map.png';
+      link.click();
     }
   </script>
 </body>
