@@ -402,6 +402,10 @@
       font-weight: 700;
     }
 
+    /* ── NARRATIVE TEXT ── */
+    .gen-narrative{background:rgba(139,115,85,.12);border-left:4px solid var(--crimson);padding:16px 20px;margin:0 0 20px 0;border-radius:0 6px 6px 0;font-family:'Spectral',serif;font-style:italic;font-size:1.05rem;line-height:1.7;color:var(--text-muted,#b8a88a);}
+    .gen-narrative strong{color:var(--crimson);font-style:normal;}
+
     /* ── ACTION BUTTONS ── */
     .gen-result-actions {
       display: flex;
@@ -765,7 +769,7 @@
         </div>
 
         <div class="gen-canvas-container" id="dungeonMapContainer" style="display: none;">
-          <canvas id="dungeonMapCanvas" width="700" height="500"></canvas>
+          <canvas id="dungeonMapCanvas" width="900" height="650"></canvas>
         </div>
 
         <div class="gen-canvas-legend" id="dungeonMapLegend" style="display: none;">
@@ -1047,7 +1051,7 @@
         </div>
 
         <div class="gen-canvas-container" id="worldMapContainer" style="display: none;">
-          <canvas id="worldMapCanvas" width="800" height="600"></canvas>
+          <canvas id="worldMapCanvas" width="1000" height="750"></canvas>
         </div>
 
         <div class="gen-terrain-legend" id="worldMapLegend" style="display: none;">
@@ -1129,8 +1133,8 @@
       tavernRumors: ['A dragon was seen flying north three days ago', 'The king\'s daughter has gone missing', 'A cult is gathering recruits in the shadows', 'Someone found a map to an ancient tomb', 'The bandits on the road are getting bolder', 'A plague is spreading in the southern villages', 'Necromancers were spotted in the forest', 'A legendary sword was found in the old ruins', 'A merchant\'s caravan disappeared without a trace', 'The local lord\'s son challenges all to single combat', 'A demon escaped from its binding ritual', 'Someone claims to have seen a god', 'The harvest will fail this year', 'A theif stole the crown jewels', 'An army is marching from the east', 'A wizard opened a portal to another world', 'The mayor is secretly a shape-shifter', 'Vampires have awakened in the crypt', 'A prophecy foretold the end of the world', 'A time-traveler arrived from the future'],
       dungeonRooms: ['Grand Entrance Hall with towering columns', 'Treasure Vault filled with glittering gold', 'Chamber of Ancient Statues watching silently', 'Flooded Cavern with underground lake', 'Library of Forbidden Knowledge', 'Throne Room with skeleton king', 'Torture Chamber with instruments of pain', 'Garden of Petrified Victims', 'Alchemy Lab bubbling with strange potions', 'Ritual Chamber with summoning circle', 'Barracks for the Undead', 'Dining Hall with long stone tables', 'Prison Cells with broken chains', 'Armory stocked with ancient weapons', 'Bedroom of the Dungeon Master', 'Observatory with star maps', 'Forge still burning with magical flames', 'Crypt with many sarcophagi', 'Throne Room of the Dark Lord', 'Maze of stone corridors'],
       dungeonThemes: ['Ancient tomb of a long-dead king', 'Temple to a forgotten dark god', 'Lair of a fearsome dragon', 'Underground hideout of a thieves\' guild', 'Haunted castle of a cursed noble', 'Crystalline cavern of gems and ice', 'Volcanic lair of fire elementals', 'Eldritch dimension of horrors', 'Lost city of an ancient civilization', 'Corrupted nature sanctuary'],
-      trapTypes: ['Pit Trap', 'Poison Dart Trap', 'Ceiling Collapse', 'Blade Trap', 'Fire Trap', 'Ice Trap', 'Lightning Trap', 'Acid Spray', 'Petrification Trap', 'Paralysis Trap', 'Sleep Gas', 'Teleportation Trap', 'Curse Trap', 'Explosive Rune', 'Gelatinous Cube', 'Swinging Blades', 'Arrow Shower', 'Guillotine Blade', 'Spiked Floors', 'Pressure Plate'],
-      puzzles: ['Arrange statues in correct order', 'Solve a riddle to unlock the door', 'Match the symbols on the wall', 'Activate stones in specific sequence', 'Move heavy blocks to reveal path', 'Find the hidden switch', 'Solve a mathematical puzzle', 'Decipher ancient runes', 'Complete a missing mosaic pattern', 'Answer questions posed by a guardian', 'Press tiles that spell a word', 'Balance weights on a scale', 'Open locks with music', 'Navigate a magical illusion maze', 'Extinguish flames in correct order', 'Combine ingredients for a potion', 'Reflect light with mirrors', 'Rotate rings to align patterns', 'Translate ancient languages', 'Sacrifice items to proceed'],
+      trapTypes: ['Pressure-plate pit trap (DC 13 Dex save, 2d6 falling damage, 20 ft deep with iron spikes at the bottom)', 'Poison dart launchers hidden in wall carvings (DC 14 Dex save, 1d4 piercing + 2d6 poison damage)', 'Weakened ceiling rigged to collapse when support column is disturbed (DC 15 Dex save, 4d6 bludgeoning)', 'Spinning blade trap triggered by tripwire (DC 14 Dex save, 3d6 slashing damage, blades retract after 1 round)', 'Glyph of Warding on floor tiles emitting a cone of fire (DC 15 Dex save, 5d8 fire damage)', 'Frost rune that freezes the floor in a 20ft radius (DC 13 Con save or restrained for 1 minute)', 'Lightning rod trap arcing between two metal pillars (DC 14 Dex save, 4d6 lightning damage)', 'Acid spray from dragon-head statues when pressure plate is triggered (DC 13 Dex save, 3d6 acid)', 'Medusa statue whose eyes flash with petrification magic (DC 15 Con save or restrained, turning to stone on failed second save)', 'Sleep gas released from broken vials when door is opened (DC 14 Con save or fall unconscious for 1 minute)', 'Teleportation circle disguised as decorative mosaic — sends victim to a sealed cell elsewhere (DC 16 Wis save to resist)', 'Arcane rune of cursed aging — ages the triggerer 1d10 years (DC 15 Con save to halve)', 'Swinging pendulum blades in a narrow corridor (DC 14 Dex save per 5ft of movement, 2d8 slashing)', 'Arrow barrage from hidden wall slits triggered by floor tile (DC 13 Dex save, 2d6 piercing damage)', 'Guillotine blade drops from ceiling at doorway (DC 15 Dex save, 4d10 slashing damage)', 'Spiked floor tiles that spring upward (DC 13 Dex save, 2d6 piercing + difficult terrain)', 'Magnetic trap that pulls metal armor and weapons toward walls (DC 14 Str save or disarmed)', 'Illusory floor concealing a 30ft pit (DC 16 Investigation to detect, 3d6 falling damage)', 'Rolling boulder triggered by removing an item from a pedestal (DC 15 Dex save, 6d6 bludgeoning)', 'Necrotic energy trap — black tendrils lash out from a cursed altar (DC 14 Con save, 3d8 necrotic)'],
+      puzzles: ['Five statues of warriors face different directions — arrange them all to face the central altar to unlock the door', 'A stone sphinx asks: "I have cities but no houses, forests but no trees, and water but no fish. What am I?" (Answer: A map)', 'Three rows of glowing runes on the wall — match each symbol to its mirror image on the opposite wall', 'A sequence of colored crystals must be activated in rainbow order (red, orange, yellow, green, blue, indigo, violet)', 'Two massive stone blocks must be pushed onto pressure plates simultaneously to reveal a hidden passage', 'A lever is hidden behind a painting that depicts this very room — find the discrepancy to locate it', 'Three scales hold different weights — balance all three simultaneously using only the objects found in this room', 'Ancient dwarven runes spell out a password when translated — the answer is carved on the ceiling in Common', 'A mosaic on the floor is missing seven tiles — the missing pieces are scattered throughout earlier rooms', 'A stone guardian asks three questions about the dungeon\'s history, which can be learned from journals found earlier', 'Floor tiles spell the name of the dungeon\'s creator — step on the wrong letter and the tile drops away', 'An alchemical puzzle requiring three specific reagents to be mixed in the correct order to neutralize a barrier', 'A magical organ plays a haunting melody — reproduce it using the chimes hanging from the ceiling', 'A hall of magical illusions conceals the real door among dozens of false ones (DC 15 Investigation)', 'Five eternal flames must be extinguished in the correct order — the clue is hidden in a nearby poem', 'Ingredient-based puzzle: combine the potion ingredients found in the dungeon to dissolve a crystalline wall', 'A system of polished bronze mirrors must redirect a beam of sunlight from the entrance to a gem in the final room', 'Three concentric stone rings carved with celestial patterns must be rotated to align the constellations', 'A tablet written in three languages provides fragments of the password — requires all three to be translated', 'An altar demands a sacrifice of something precious to the bearer — the correct offering is sentimental, not monetary'],
       monsters: [
         { name: 'Goblin', cr: 0.125 },
         { name: 'Kobold', cr: 0.125 },
@@ -1178,6 +1182,16 @@
         { genre: 'war', hook: 'An army approaches the kingdom. The party must prepare the defenses and gather allies.' },
         { genre: 'mystery', hook: 'A series of mysterious deaths has plagued the city. The pattern suggests dark magic.' },
         { genre: 'heist', hook: 'A thief has stolen something priceless. The patron wants it back by any means.' },
+        { genre: 'mystery', hook: 'Bodies have been found drained of blood near the old district. The city watch thinks it is a serial killer, but the bite marks suggest something else entirely.' },
+        { genre: 'heist', hook: 'A corrupt noble keeps a ledger of every bribe and illegal deal in the city. Stealing it would topple an empire of corruption — but the manor is a fortress.' },
+        { genre: 'rescue', hook: 'A group of miners broke through into an underground cavern and have not been heard from since. Their families are desperate for someone to go after them.' },
+        { genre: 'escort', hook: 'A pregnant queen must be escorted to a temple of healing across hostile territory before her child is born under the wrong stars.' },
+        { genre: 'exploration', hook: 'A mountain that was not there yesterday has appeared on the horizon. No maps show it, no records mention it, and strange lights flash at its summit.' },
+        { genre: 'political', hook: 'Two noble houses are on the brink of civil war over a marriage alliance gone wrong. Both sides want you as their champion.' },
+        { genre: 'supernatural', hook: 'Every night at midnight, the dead walk through the town square reenacting their final moments. They cannot be harmed and vanish at dawn. Last night, one of them spoke.' },
+        { genre: 'war', hook: 'The front line has collapsed and a fortified town is about to be overrun. Thousands of civilians need to be evacuated in three days or they will be lost.' },
+        { genre: 'mystery', hook: 'A painting in the museum has changed overnight — the figure in the portrait is now facing a different direction, and is holding a real knife that was not there before.' },
+        { genre: 'heist', hook: 'Deep in the vault of a dragon is a single item the party desperately needs. The dragon cannot be killed. But it can be outsmarted.' },
       ],
       wildmagic: [
         'Your skin turns a bright blue. It fades after 1d10 minutes.',
@@ -1271,11 +1285,11 @@
 
       tavernMenuItems: ['Roasted chicken with vegetables', 'Beef stew with crusty bread', 'Grilled fish with lemon', 'Venison pie', 'Bread and cheese board', 'Mutton chops', 'Root vegetable soup', 'Roasted rabbit', 'Pork ribs', 'Fresh baked bread', 'Butter and jam', 'Smoked sausage', 'Pickled eggs', 'Sweetened pastries', 'Honeyed ham'],
 
-      tavernPatronDescriptions: ['A hooded figure in the corner', 'A rowdy group of miners', 'A well-dressed merchant', 'A cloaked stranger with scars', 'An old woman nursing ale', 'A group of adventurers boasting', 'A quiet scholar reading', 'A pair of thieves playing cards', 'A noble and their bodyguard', 'A bard tuning an instrument'],
+      tavernPatronDescriptions: ['A hooded figure hunched in the corner, nursing a single drink for hours while watching the room with sharp, darting eyes', 'A boisterous group of miners, covered in dust and celebrating a successful haul with round after round of ale', 'A well-dressed merchant checking and rechecking a heavy coin purse, clearly anxious about something', 'A scarred half-orc sitting alone, methodically sharpening a blade with a whetstone and ignoring everyone', 'An elderly woman in threadbare robes whispering to herself and occasionally gesturing at empty chairs', 'A trio of adventurers comparing battle scars and loudly one-upping each other with increasingly unlikely tales', 'A quiet, bespectacled scholar surrounded by open books and frantically scribbling notes by candlelight', 'Two cloaked figures playing cards in low voices — one keeps glancing at the door', 'A minor noble accompanied by a massive bodyguard, both clearly out of their element in this establishment', 'A bard in the corner tuning a battered lute, humming a melody that sounds hauntingly familiar', 'A dwarf arm-wrestling anyone who will accept the challenge — and winning every time', 'A young woman in travel-stained clothes, studying a tattered map and marking locations with charcoal', 'A priest of an unknown order, drinking alone and staring into the fire with a haunted expression', 'A gnome tinkerer surrounded by tiny mechanical devices, one of which keeps trying to walk off the table', 'A pair of off-duty guards sharing a meal and complaining about their captain in hushed tones'],
 
       dungeonNames: ['Tomb of the Forgotten King', 'The Shattered Spire', 'Caverns of Echoing Screams', 'The Abyssal Halls', 'Fortress of Eternal Night', 'The Sunken Temple', 'Drakemere Keep', 'The Obsidian Descent', 'Crypt of the Wraiths', 'The Shadowveil Sanctum'],
 
-      entranceDesc: ['A crumbling stone archway', 'A heavy iron door', 'A dark cave mouth', 'Wooden gates bound with chains', 'A carved statue guarding the way', 'A suspicious hole in the earth', 'An ornate portal', 'A barred entrance with warning marks', 'A narrow crevasse', 'A flooded cavern entrance'],
+      entranceDesc: ['A crumbling stone archway carved with warnings in a dead language, half-buried by centuries of landslides', 'A massive iron door scored with claw marks from the inside, its lock rusted but recently broken', 'A yawning cave mouth framed by twisted tree roots, exhaling a cold draft that smells of wet stone and something older', 'A pair of wooden gates bound with corroded chains, one gate hanging from a single hinge and creaking in the wind', 'A carved stone face with its mouth agape — the entrance is through its open maw, teeth worn smooth by countless hands', 'A suspicious sinkhole in the forest floor, timber supports visible below suggesting deliberate construction', 'An ornate portal of white marble etched with protective wards, most of which have been deliberately scratched away', 'A barred entrance flanked by headless statues, warning symbols painted in faded red ochre on every surface', 'A narrow crevasse in the cliff face, barely wide enough for one person, with chisel marks suggesting it was widened by hand', 'A waterfall concealing a stone passage behind it — the rocks leading to it are worn smooth from frequent passage', 'A trapdoor hidden beneath flagstones in a ruined chapel, its iron ring cold to the touch', 'A grand staircase descending into darkness, each step engraved with the names of those who never returned', 'A collapsed wall in an abandoned building revealing tunnels behind, with fresh bootprints in the dust', 'A magical portal shimmering between two ancient standing stones, its surface rippling like disturbed water', 'A spiral staircase carved into the trunk of a colossal dead tree, descending into the root system below'],
 
       connections: ['narrow passage', 'grand hallway', 'steep stairs', 'rope bridge', 'secret door', 'collapsed wall opening', 'underground stream', 'sliding trapdoor', 'wizard\'s teleportation circle', 'natural chimney'],
 
@@ -1283,7 +1297,7 @@
 
       dungeonLore: ['Built by an ancient civilization millennia ago', 'Lair of a forgotten god', 'Prison for a powerful demon', 'Tomb constructed for an immortal king', 'Created by a mad wizard as an experiment', 'Natural caverns that were inhabited centuries ago', 'Sealed during a great war', 'Cursed after a tragic event', 'Built to protect a sacred relic', 'Created as a hideout for outcasts'],
 
-      encounterSetups: ['The party rounds a bend and discovers...', 'Emerging from the mist, the party finds...', 'A sudden movement catches your attention...', 'The ground beneath your feet trembles as...', 'A bloodcurdling scream echoes nearby...', 'The smell of battle fills the air...', 'A shadow moves against the wall...', 'A low growl warns of danger ahead...', 'The party stumbles upon...', 'An explosion rocks the ground as...'],
+      encounterSetups: ['The party rounds a bend in the trail and finds the road blocked by', 'As you emerge from the treeline into a moonlit clearing, shapes detach from the shadows —', 'A twig snaps behind you. You spin around to see', 'The ground trembles and splits apart as something massive erupts from below —', 'A blood-curdling scream shatters the silence, and as you rush toward it you find', 'The stench of decay hits you before you see them — shambling forward through the mist come', 'Perched atop the ridge overlooking your path, silhouetted against the sky, you spot', 'You hear the twang of a bowstring a split-second before an arrow buries itself at your feet. From the rocks above:', 'You stumble into what appears to be a recent battlefield. But the victors are still here —', 'The door bursts open and pouring through the breach come', 'What you took for standing stones begin to move, and you realize you have wandered into the territory of', 'A hunting horn blasts three times. Answering howls echo from every direction as you are surrounded by', 'The water ahead churns and froths as something rises from the depths —', 'Campfire light flickers ahead. As you creep closer, you see the camp belongs to', 'A child runs toward you screaming for help. Behind them, gaining ground rapidly, come'],
 
       terrainFeatures: ['Dense trees providing partial cover', 'Large boulders for hiding behind', 'A small river for crossing', 'Rocky uneven ground (difficult terrain)', 'Elevated platform', 'Swampy ground (difficult terrain)', 'Thick fog (half sight)', 'Narrow canyon walls', 'Thick underbrush', 'Collapsed building with rubble'],
 
@@ -1480,6 +1494,7 @@
 
       const html = `
         <div class="gen-npc-card gen-result">
+          <div class="gen-narrative">A ${npc.ageRange.toLowerCase()} ${npc.race.toLowerCase()} stands before you, ${npc.appearance.toLowerCase()}. ${npc.gender === 'Male' ? 'He' : 'She'} carries ${npc.gender === 'Male' ? 'himself' : 'herself'} with ${npc.personality.toLowerCase().includes('confident') || npc.personality.toLowerCase().includes('proud') ? 'an air of quiet authority' : npc.personality.toLowerCase().includes('nervous') || npc.personality.toLowerCase().includes('shy') ? 'a wary, guarded posture' : 'a steady, watchful demeanor'}. As a ${npc.occupation.toLowerCase()}, ${npc.name} has clearly seen ${npc.age > 50 ? 'many long years of' : 'enough of'} the world to have stories worth telling.</div>
           <div class="gen-npc-name">${npc.name}</div>
           <div class="gen-npc-class">${npc.race} ${npc.occupation} • ${npc.gender}</div>
 
@@ -1721,6 +1736,7 @@
 
       const html = `
         <div class="gen-result">
+          <div class="gen-narrative">You push open the weathered door of <strong>${tavern.name}</strong> and ${tavern.atmosphere.toLowerCase().includes('lively') || tavern.atmosphere.toLowerCase().includes('rowdy') ? 'a wall of noise and warmth washes over you. Laughter and clinking tankards fill the air' : tavern.atmosphere.toLowerCase().includes('quiet') || tavern.atmosphere.toLowerCase().includes('dim') ? 'a hush falls as curious eyes turn your way. The air is thick with pipe smoke and whispered conversations' : 'the smell of roasting meat and spiced ale greets you immediately. The hearth crackles in the corner as patrons nurse their drinks'}. ${tavern.patrons > 20 ? 'The place is packed — every table occupied, with standing room only near the bar.' : tavern.patrons > 10 ? 'A decent crowd fills the common room, most tables claimed but a few spots remain.' : 'Only a handful of souls occupy the room, leaving plenty of empty seats.'} Behind the bar, ${barkeep.name} the ${barkeep.race.toLowerCase()} ${barkeep.quirk.toLowerCase().includes('laugh') ? 'lets out a booming laugh' : 'polishes a glass with practiced ease'}, eyeing you with ${barkeep.personality.toLowerCase().includes('friendly') || barkeep.personality.toLowerCase().includes('warm') ? 'a welcoming nod' : 'a measuring gaze'}.</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Tavern Name</div>
             <div class="gen-result-value">${tavern.name}</div>
@@ -1837,6 +1853,7 @@
 
       let html = `
         <div class="gen-result">
+          <div class="gen-narrative">The entrance to <strong>${dungeonName}</strong> looms before you — ${entrance.toLowerCase()}. A chill draft carries the scent of ${selectedType === 'tomb' ? 'ancient dust and decay' : selectedType === 'cave' ? 'damp stone and fungus' : selectedType === 'temple' ? 'incense long faded and cold stone' : selectedType === 'lair' ? 'animal musk and something far worse' : selectedType === 'mine' ? 'iron and stale air' : selectedType === 'fortress' ? 'rust and old blood' : 'sewage and rot'} from somewhere deep within. ${theme}. This place has not been kind to those who came before you.</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Dungeon Name</div>
             <div class="gen-result-value">${dungeonName}</div>
@@ -1920,81 +1937,252 @@
     function drawDungeonMap(rooms, boss) {
       const canvas = document.getElementById('dungeonMapCanvas');
       const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Set colors based on theme
-      const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-mid').trim();
-      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
-      const crimson = getComputedStyle(document.documentElement).getPropertyValue('--crimson').trim();
+      const parchmentBg = '#1a1711';
+      const textColor = (typeof getComputedStyle !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--text').trim() : '') || '#e8dcc0';
+      const crimson = (typeof getComputedStyle !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--crimson').trim() : '') || '#c0392b';
 
-      // Generate room layout in a grid with randomness
-      const roomData = [];
-      const cols = Math.ceil(Math.sqrt(rooms.length));
-      const cellWidth = canvas.width / cols;
-      const cellHeight = canvas.height / Math.ceil(rooms.length / cols);
+      // Parchment background
+      ctx.fillStyle = parchmentBg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      rooms.forEach((room, idx) => {
-        const col = idx % cols;
-        const row = Math.floor(idx / cols);
-        const x = col * cellWidth + 20 + Math.random() * 20;
-        const y = row * cellHeight + 20 + Math.random() * 20;
-        const w = 60 + Math.random() * 40;
-        const h = 40 + Math.random() * 30;
+      // Border
+      ctx.strokeStyle = '#8b7355';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
 
-        roomData.push({ name: room, x, y, w, h, idx });
-      });
+      // Title
+      ctx.fillStyle = crimson;
+      ctx.font = 'bold 28px Cinzel, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(boss || 'Dungeon Map', canvas.width / 2, 35);
 
-      // Draw corridors first
-      for (let i = 0; i < roomData.length - 1; i++) {
-        const r1 = roomData[i];
-        const r2 = roomData[i + 1];
-        ctx.strokeStyle = '#999';
-        ctx.lineWidth = 3;
+      // Grid background (subtle)
+      ctx.strokeStyle = 'rgba(139, 115, 85, 0.1)';
+      ctx.lineWidth = 0.5;
+      const gridSpacing = 25;
+      for (let x = 0; x < canvas.width; x += gridSpacing) {
         ctx.beginPath();
-        ctx.moveTo(r1.x + r1.w / 2, r1.y + r1.h / 2);
-        ctx.lineTo(r2.x + r2.w / 2, r2.y + r2.h / 2);
+        ctx.moveTo(x, 60);
+        ctx.lineTo(x, canvas.height - 40);
+        ctx.stroke();
+      }
+      for (let y = 60; y < canvas.height - 40; y += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
         ctx.stroke();
       }
 
-      // Draw rooms
-      roomData.forEach((room) => {
-        const isBossRoom = room.idx === roomData.length - 1;
-        const isEntrance = room.idx === 0;
+      // Generate BSP-based room layout
+      const margin = 60;
+      const usableArea = {
+        x: margin,
+        y: margin,
+        w: canvas.width - margin * 2,
+        h: canvas.height - margin - 40
+      };
 
-        // Room background
-        ctx.fillStyle = bgColor || '#2a2a2a';
-        ctx.fillRect(room.x, room.y, room.w, room.h);
+      const roomData = generateRoomLayoutBSP(rooms, usableArea, 3);
+
+      // Draw corridors (L-shaped)
+      ctx.strokeStyle = '#5a4a3a';
+      ctx.lineWidth = 10;
+      for (let i = 0; i < roomData.length - 1; i++) {
+        const r1 = roomData[i];
+        const r2 = roomData[i + 1];
+        const x1 = r1.x + r1.w / 2;
+        const y1 = r1.y + r1.h / 2;
+        const x2 = r2.x + r2.w / 2;
+        const y2 = r2.y + r2.h / 2;
+
+        // L-shaped corridor
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+
+        // Door markers at junctions
+        ctx.strokeStyle = '#3a2a1a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x2 - 3, y1 - 3);
+        ctx.lineTo(x2 + 3, y1 + 3);
+        ctx.stroke();
+      }
+
+      // Draw rooms with features
+      roomData.forEach((room, idx) => {
+        const isBossRoom = idx === roomData.length - 1;
+        const isEntrance = idx === 0;
+
+        // Room glow effect
+        if (isEntrance) {
+          ctx.fillStyle = 'rgba(74, 222, 128, 0.15)';
+          ctx.shadowColor = 'rgba(74, 222, 128, 0.4)';
+          ctx.shadowBlur = 20;
+        } else if (isBossRoom) {
+          ctx.fillStyle = 'rgba(192, 57, 43, 0.15)';
+          ctx.shadowColor = 'rgba(192, 57, 43, 0.5)';
+          ctx.shadowBlur = 25;
+        }
+        ctx.fillRect(room.x - 5, room.y - 5, room.w + 10, room.h + 10);
+
+        // Room background with gradient
+        const gradient = ctx.createLinearGradient(room.x, room.y, room.x, room.y + room.h);
+        gradient.addColorStop(0, '#3a3a2a');
+        gradient.addColorStop(0.5, '#2a2a1a');
+        gradient.addColorStop(1, '#1a1a0a');
+        ctx.fillStyle = gradient;
+        ctx.shadowColor = 'transparent';
+
+        // Rounded corners
+        roundRect(ctx, room.x, room.y, room.w, room.h, 8);
+        ctx.fill();
 
         // Room border
         ctx.lineWidth = 2;
         if (isEntrance) {
           ctx.strokeStyle = '#4ade80';
         } else if (isBossRoom) {
-          ctx.strokeStyle = crimson || '#c0392b';
+          ctx.strokeStyle = crimson;
+          ctx.lineWidth = 3;
         } else {
-          ctx.strokeStyle = '#888';
+          ctx.strokeStyle = '#7a6a5a';
         }
-        ctx.strokeRect(room.x, room.y, room.w, room.h);
+        roundRect(ctx, room.x, room.y, room.w, room.h, 8);
+        ctx.stroke();
 
-        // Room number
-        ctx.fillStyle = crimson || '#c0392b';
+        // Stone/dungeon texture (subtle dots)
+        ctx.fillStyle = 'rgba(139, 115, 85, 0.05)';
+        for (let i = 0; i < (room.w * room.h) / 800; i++) {
+          const px = room.x + Math.random() * room.w;
+          const py = room.y + Math.random() * room.h;
+          ctx.fillRect(px, py, 1, 1);
+        }
+
+        // Room number in circle
+        ctx.fillStyle = crimson;
+        ctx.beginPath();
+        ctx.arc(room.x + 12, room.y + 12, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#e8dcc0';
         ctx.font = 'bold 12px Arial';
-        ctx.fillText(`R${room.idx + 1}`, room.x + 4, room.y + 14);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(idx + 1, room.x + 12, room.y + 12);
 
-        // Add icons for features
-        let icons = '';
-        if (Math.random() > 0.6) icons += '⚠';
-        if (Math.random() > 0.5) icons += ' ?';
-        if (icons) {
+        // Room name
+        ctx.fillStyle = textColor;
+        ctx.font = '12px Cinzel, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        const nameY = room.y + 35;
+        const maxWidth = room.w - 8;
+        const words = room.name.split(' ');
+        let line = '';
+        let lineY = nameY;
+        words.forEach((word) => {
+          const testLine = line + (line ? ' ' : '') + word;
+          if (ctx.measureText(testLine).width > maxWidth) {
+            ctx.fillText(line, room.x + room.w / 2, lineY);
+            line = word;
+            lineY += 14;
+          } else {
+            line = testLine;
+          }
+        });
+        if (line) ctx.fillText(line, room.x + room.w / 2, lineY);
+
+        // Treasure chest in random rooms
+        if (Math.random() > 0.7 && !isBossRoom) {
           ctx.fillStyle = '#daa520';
-          ctx.font = '10px Arial';
-          ctx.fillText(icons, room.x + 4, room.y + room.h - 4);
+          ctx.fillRect(room.x + room.w - 15, room.y + room.h - 15, 10, 8);
+          ctx.strokeStyle = '#b8860b';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(room.x + room.w - 15, room.y + room.h - 15, 10, 8);
+        }
+
+        // Skulls in boss room
+        if (isBossRoom) {
+          drawSkull(ctx, room.x + 20, room.y + room.h - 20, 6);
+          drawSkull(ctx, room.x + room.w - 20, room.y + room.h - 20, 6);
         }
       });
+
+      // Compass rose in corner
+      drawCompassRose(ctx, canvas.width - 50, canvas.height - 50);
+
+      // Scale indicator
+      ctx.fillStyle = textColor;
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText('5 ft per square', 70, canvas.height - 20);
+      ctx.fillRect(70, canvas.height - 10, 40, 2);
 
       // Show legend and map
       document.getElementById('dungeonMapContainer').style.display = 'flex';
       document.getElementById('dungeonMapLegend').style.display = 'block';
+    }
+
+    function generateRoomLayoutBSP(rooms, area, depth) {
+      if (rooms.length === 0) return [];
+      if (rooms.length === 1) {
+        const w = Math.max(120, Math.min(180, area.w));
+        const h = Math.max(80, Math.min(140, area.h));
+        return [{ name: rooms[0], x: area.x + (area.w - w) / 2, y: area.y + (area.h - h) / 2, w, h }];
+      }
+
+      if (depth === 0 || area.w < 120 || area.h < 100) {
+        return rooms.map((name, idx) => {
+          const w = 60 + Math.random() * 80;
+          const h = 50 + Math.random() * 70;
+          const x = area.x + Math.random() * (area.w - w);
+          const y = area.y + Math.random() * (area.h - h);
+          return { name, x, y, w, h };
+        });
+      }
+
+      const split = Math.random() > 0.5;
+      const pos = split ? area.h * (0.4 + Math.random() * 0.2) : area.w * (0.4 + Math.random() * 0.2);
+
+      const mid = Math.floor(rooms.length / 2);
+      let left, right;
+
+      if (split) {
+        left = generateRoomLayoutBSP(rooms.slice(0, mid), { x: area.x, y: area.y, w: area.w, h: pos }, depth - 1);
+        right = generateRoomLayoutBSP(rooms.slice(mid), { x: area.x, y: area.y + pos, w: area.w, h: area.h - pos }, depth - 1);
+      } else {
+        left = generateRoomLayoutBSP(rooms.slice(0, mid), { x: area.x, y: area.y, w: pos, h: area.h }, depth - 1);
+        right = generateRoomLayoutBSP(rooms.slice(mid), { x: area.x + pos, y: area.y, w: area.w - pos, h: area.h }, depth - 1);
+      }
+
+      return [...left, ...right];
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+    }
+
+    function drawSkull(ctx, x, y, size) {
+      ctx.fillStyle = '#d0d0d0';
+      ctx.beginPath();
+      ctx.arc(x, y - size / 2, size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillRect(x - size / 3, y + size / 2, size / 3, size / 3);
+      ctx.fillRect(x + size / 6, y + size / 2, size / 3, size / 3);
     }
 
     function generateEncounter() {
@@ -2029,6 +2217,7 @@
 
       const html = `
         <div class="gen-result">
+          <div class="gen-narrative">${setup} ${terrain.toLowerCase().includes('dense') || terrain.toLowerCase().includes('thick') ? 'The terrain offers plenty of cover but limits your movement.' : terrain.toLowerCase().includes('open') || terrain.toLowerCase().includes('flat') ? 'The open ground offers nowhere to hide — this will be a straight fight.' : 'The ground here is treacherous, demanding careful footing.'} ${monsters.length > 3 ? 'You are outnumbered.' : monsters.length > 1 ? 'Multiple threats emerge.' : 'A lone figure blocks your path.'} Roll for initiative.</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Encounter Setup</div>
             <div class="gen-result-value">${setup} ${monsters.map(m => m.name).join(', ')}</div>
@@ -2133,6 +2322,7 @@
       const curse = isCursed ? random(DATA.curses) : null;
 
       let html = '<div class="gen-result">';
+      html += `<div class="gen-narrative">You find ${container.toLowerCase()} ${isCursed ? 'that radiates a faint, unsettling aura — something about it feels wrong' : 'gleaming in the dim light, undisturbed for what could be ages'}. ${treasure.magic ? 'A faint magical hum emanates from within, promising powerful artifacts.' : treasure.gems ? 'Light catches on something brilliant inside — precious stones, catching every flicker of torchlight.' : 'The weight alone tells you this haul is substantial.'} The total value of this find is estimated at <strong>${totalGPValue.toFixed(0)} gold pieces</strong>.</div>`;
 
       if (treasure.cp) {
         html += `
@@ -2255,6 +2445,7 @@
 
       const html = `
         <div class="gen-result">
+          <div class="gen-narrative">${patron} approaches your party with urgency written across their face. "${hook.hook}" The stakes couldn't be higher — ${stakes.toLowerCase()}. You have ${timePressure.toLowerCase()} to act before the window closes. Something tells you this quest will take you to ${location.toLowerCase()}, and not everyone will come back unchanged.</div>
           <div class="gen-result-subheading">The Quest</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Adventure Type</div>
@@ -2403,6 +2594,7 @@
 
       const html = `
         <div class="gen-result">
+          <div class="gen-narrative">The ${weather.timeOfDay.toLowerCase()} ${selectedSeason} air settles around you — ${weather.condition.toLowerCase().includes('clear') ? 'the sky stretches endlessly above, brilliant and unbroken' : weather.condition.toLowerCase().includes('rain') ? 'rain drums steadily against your cloaks, turning the ground to mud' : weather.condition.toLowerCase().includes('snow') ? 'snowflakes drift silently from a leaden sky, muffling all sound' : weather.condition.toLowerCase().includes('fog') ? 'a thick fog rolls in, swallowing the landscape until you can barely see twenty paces ahead' : weather.condition.toLowerCase().includes('thunder') ? 'thunder cracks overhead as lightning splits the darkened sky' : 'the weather is unpredictable, shifting between calm and menacing in moments'}. The wind ${weather.wind > 20 ? 'howls fiercely, tearing at your clothing and making conversation difficult' : weather.wind > 10 ? 'gusts intermittently, carrying the scent of the surrounding land' : 'is barely a whisper, leaving the air still and heavy'}.</div>
           <div class="gen-result-subheading">Environment</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Climate & Season</div>
@@ -2542,6 +2734,7 @@
 
       const html = `
         <div class="gen-result">
+          <div class="gen-narrative">The Weave shudders and twists as raw magical energy surges uncontrolled. ${severity === 'catastrophic' ? 'Reality itself seems to crack — the air tastes of copper and ozone as something <strong>catastrophic</strong> unfolds.' : severity === 'major' ? 'A brilliant flash of arcane light erupts outward. Something significant has changed.' : severity === 'moderate' ? 'Sparks of wild magic crackle through the air, reshaping the moment.' : 'A brief shimmer of unstable magic dances across your skin before fading.'}</div>
           <div class="gen-result-item">
             <div class="gen-result-label">d100 Roll</div>
             <div class="gen-result-value">${roll}</div>
@@ -2639,6 +2832,7 @@
 
       const html = `
         <div class="gen-result">
+          <div class="gen-narrative">You hold up a ${container.toLowerCase()} containing a ${color} liquid that ${smell.toLowerCase().includes('sweet') ? 'smells faintly of honey and wildflowers' : smell.toLowerCase().includes('acrid') || smell.toLowerCase().includes('bitter') ? 'stings your nostrils with a sharp, chemical bite' : 'carries an unusual and unidentifiable scent'}. Tiny ${color === 'golden' || color === 'silver' ? 'motes of light' : color === 'obsidian' || color === 'midnight blue' ? 'dark particles' : 'bubbles'} swirl within the liquid, as if alive. This is <strong>${potionName}</strong> — a ${rarity.toLowerCase()} brew that any alchemist would recognize.</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Potion Name</div>
             <div class="gen-result-value"><strong>${potionName}</strong></div>
@@ -2729,6 +2923,16 @@
       const selectedType = type === 'any' ? random(types) : type;
 
       let html = '<div class="gen-result">';
+      const flavorNarratives = {
+        pocket: 'You rifle through the pockets and pouches of your find, turning up an odd assortment of personal effects that tell a story all their own.',
+        graffiti: 'Scrawled on the wall in hasty strokes, the graffiti catches your eye — someone left a message here, and it was meant to be found.',
+        sound: 'You pause and listen. Beneath the silence, something stirs — a sound drifts through the air, faint but unmistakable.',
+        books: 'Among the dust and debris, a tome catches your eye. Its cover is worn but the title is still legible.',
+        poster: 'A notice is pinned to the board, its edges curling from the weather. The ink is still fresh enough to read.',
+        shop: 'A small establishment catches your eye, its sign swinging gently in the breeze. The proprietor watches from the doorway.',
+        name: 'A name surfaces — one you have heard whispered in taverns and market squares, always with a mixture of reverence and fear.'
+      };
+      html += `<div class="gen-narrative">${flavorNarratives[selectedType] || 'Something catches your attention — a small detail that adds color to the world around you.'}</div>`;
 
       if (selectedType === 'pocket') {
         const items = randomNth(3, DATA.pocketItems);
@@ -2881,9 +3085,26 @@
       const canvas = document.getElementById('worldMapCanvas');
       const ctx = canvas.getContext('2d');
 
+      // Map background - parchment
+      ctx.fillStyle = '#2a2419';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Border
+      ctx.strokeStyle = '#8b7355';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(3, 3, canvas.width - 6, canvas.height - 6);
+
+      // Title/cartouche
+      const continentNames = DATA.worldMapContinents || ['Aethermoor', 'Valorath', 'Terranus', 'Eldorax'];
+      const mapTitle = random(continentNames);
+      ctx.fillStyle = '#c0392b';
+      ctx.font = 'bold 32px Cinzel, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(mapTitle, canvas.width / 2, 45);
+
       // Grid parameters based on size
-      const gridSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
-      const cellSize = size === 'small' ? canvas.width / 50 : size === 'medium' ? canvas.width / 80 : canvas.width / 100;
+      const gridSize = size === 'small' ? 33 : size === 'medium' ? 65 : 129;
+      const margin = 60;
 
       // Create heightmap
       const heightmap = generateHeightmap(gridSize);
@@ -2892,14 +3113,134 @@
       const waterLevel = terrainType === 'archipelago' ? 0.5 : 0.35;
       const mountainLevel = terrainType === 'pangaea' ? 0.65 : 0.55;
 
-      // Clear canvas
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#1a1a1a';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Find highest points for river generation
+      let peaks = [];
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          if (heightmap[y][x] > mountainLevel) {
+            peaks.push({ x, y, h: heightmap[y][x] });
+          }
+        }
+      }
+      peaks.sort((a, b) => b.h - a.h);
+      peaks = peaks.slice(0, 4); // Use top 4 peaks for rivers
 
-      // Generate and draw terrain
+      // Draw terrain cells with subtle variation and details
+      const mapStartX = margin;
+      const mapStartY = margin;
+      const mapWidth = canvas.width - margin * 2;
+      const mapHeight = canvas.height - margin - 40;
+
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          const height = heightmap[y][x];
+          const screenX = mapStartX + (x / gridSize) * mapWidth;
+          const screenY = mapStartY + (y / gridSize) * mapHeight;
+          const w = mapWidth / gridSize;
+          const h = mapHeight / gridSize;
+
+          ctx.fillStyle = getTerrainColorDetailed(height, waterLevel, mountainLevel);
+          ctx.fillRect(screenX, screenY, w, h);
+
+          // Add +/- variation
+          ctx.fillStyle = `rgba(255, 255, 255, ${(Math.random() - 0.5) * 0.03})`;
+          ctx.fillRect(screenX, screenY, w, h);
+
+          // Terrain features
+          if (height > mountainLevel) {
+            // Mountain triangles
+            drawMountain(ctx, screenX + w / 2, screenY + h / 2, w * 0.4);
+          } else if (height > 0.45 && height < 0.55) {
+            // Forest circles
+            if (Math.random() > 0.6) {
+              ctx.fillStyle = 'rgba(0, 100, 0, 0.6)';
+              ctx.beginPath();
+              ctx.arc(screenX + w / 2, screenY + h / 2, w * 0.3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          } else if (height < waterLevel) {
+            // Water waves
+            if (Math.random() > 0.7) {
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(screenX + w * 0.2, screenY + h / 2);
+              ctx.quadraticCurveTo(screenX + w * 0.5, screenY + h * 0.3, screenX + w * 0.8, screenY + h / 2);
+              ctx.stroke();
+            }
+          } else if (height < waterLevel + 0.05) {
+            // Beach dots
+            if (Math.random() > 0.5) {
+              ctx.fillStyle = 'rgba(255, 255, 200, 0.4)';
+              ctx.fillRect(screenX + Math.random() * w, screenY + Math.random() * h, 2, 2);
+            }
+          }
+        }
+      }
+
+      // Draw coastlines
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          const height = heightmap[y][x];
+          const isWater = height < waterLevel;
+          let neighborWater = false;
+
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              if (dx !== 0 || dy !== 0) {
+                const ny = y + dy, nx = x + dx;
+                if (ny >= 0 && ny < gridSize && nx >= 0 && nx < gridSize) {
+                  if ((heightmap[ny][nx] < waterLevel) !== isWater) {
+                    neighborWater = true;
+                  }
+                }
+              }
+            }
+          }
+
+          if (neighborWater) {
+            const screenX = mapStartX + (x / gridSize) * mapWidth;
+            const screenY = mapStartY + (y / gridSize) * mapHeight;
+            const w = mapWidth / gridSize;
+            const h = mapHeight / gridSize;
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(screenX, screenY, w, h);
+          }
+        }
+      }
+
+      // Generate rivers from peaks
+      const rivers = [];
+      peaks.forEach((peak) => {
+        const river = traceRiver(heightmap, peak.x, peak.y, gridSize, waterLevel);
+        if (river.length > 3) {
+          rivers.push(river);
+        }
+      });
+
+      // Draw rivers
+      ctx.strokeStyle = '#0047ab';
+      ctx.lineWidth = 2;
+      rivers.forEach((river) => {
+        ctx.beginPath();
+        for (let i = 0; i < river.length; i++) {
+          const screenX = mapStartX + (river[i].x / gridSize) * mapWidth;
+          const screenY = mapStartY + (river[i].y / gridSize) * mapHeight;
+          if (i === 0) ctx.moveTo(screenX, screenY);
+          else ctx.lineTo(screenX, screenY);
+        }
+        ctx.stroke();
+      });
+
+      // Place cities
+      const numCities = randomInt(4, 8);
+      const cityNames = DATA.worldMapCities[nameStyle] || DATA.worldMapCities.fantasy;
+      const selectedCities = randomNth(numCities, cityNames);
+
       worldMapData = {
         cities: [],
-        rivers: [],
+        rivers: rivers,
         features: {
           mountains: [],
           forests: [],
@@ -2907,46 +3248,35 @@
         }
       };
 
-      // Draw terrain cells
-      for (let y = 0; y < gridSize; y++) {
-        for (let x = 0; x < gridSize; x++) {
-          const height = heightmap[y][x];
-          const screenX = (x / gridSize) * canvas.width;
-          const screenY = (y / gridSize) * canvas.height;
-          const w = canvas.width / gridSize;
-          const h = canvas.height / gridSize;
-
-          ctx.fillStyle = getTerrainColor(height, waterLevel, mountainLevel);
-          ctx.fillRect(screenX, screenY, w, h);
-        }
-      }
-
-      // Place cities (4-8)
-      const numCities = randomInt(4, 8);
-      const cityNames = DATA.worldMapCities[nameStyle] || DATA.worldMapCities.fantasy;
-      const selectedCities = randomNth(numCities, cityNames);
-
       selectedCities.forEach((city) => {
         let placed = false;
-        while (!placed) {
+        let attempts = 0;
+        while (!placed && attempts < 50) {
           const x = randomInt(0, gridSize - 1);
           const y = randomInt(0, gridSize - 1);
           const height = heightmap[y][x];
-          // Place on coastlines or rivers (between water and land)
-          if (height > waterLevel - 0.05 && height < waterLevel + 0.15) {
-            const screenX = (x / gridSize) * canvas.width + 5;
-            const screenY = (y / gridSize) * canvas.height + 5;
-            ctx.fillStyle = '#c0392b';
-            ctx.beginPath();
-            ctx.arc(screenX, screenY, 4, 0, Math.PI * 2);
-            ctx.fill();
+          // Place on coastlines, river mouths, or good land
+          if ((height > waterLevel - 0.05 && height < waterLevel + 0.15) || (height > 0.35 && height < 0.5)) {
+            const screenX = mapStartX + (x / gridSize) * mapWidth;
+            const screenY = mapStartY + (y / gridSize) * mapHeight;
+
+            // Draw city castle icon
+            drawCityIcon(ctx, screenX, screenY, 6);
+
+            // City label
+            ctx.fillStyle = '#d4a574';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(city, screenX + 12, screenY + 4);
+
             worldMapData.cities.push({ name: city, x: screenX, y: screenY });
             placed = true;
           }
+          attempts++;
         }
       });
 
-      // Add mountain ranges, forests, and seas as labels
+      // Add feature names
       const mountainRanges = DATA.worldMapMountainRanges[nameStyle] || DATA.worldMapMountainRanges.fantasy;
       const forests = DATA.worldMapForests[nameStyle] || DATA.worldMapForests.fantasy;
       const seas = DATA.worldMapSeas[nameStyle] || DATA.worldMapSeas.fantasy;
@@ -2955,11 +3285,43 @@
       worldMapData.features.forests = randomNth(randomInt(1, 3), forests);
       worldMapData.features.seas = randomNth(randomInt(1, 2), seas);
 
+      // Draw mountain range labels
+      worldMapData.features.mountains.forEach((mName) => {
+        const x = randomInt(mapStartX + 100, mapStartX + mapWidth - 100);
+        const y = randomInt(mapStartY + 100, mapStartY + mapHeight - 200);
+        ctx.fillStyle = '#888';
+        ctx.font = 'italic 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(mName, x, y);
+      });
+
+      // Draw forest labels
+      worldMapData.features.forests.forEach((fName) => {
+        const x = randomInt(mapStartX + 100, mapStartX + mapWidth - 100);
+        const y = randomInt(mapStartY + 200, mapStartY + mapHeight - 100);
+        ctx.fillStyle = '#228b22';
+        ctx.font = 'italic 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(fName, x, y);
+      });
+
+      // Draw sea labels
+      worldMapData.features.seas.forEach((sName) => {
+        const x = randomInt(mapStartX + 50, mapStartX + mapWidth - 50);
+        const y = randomInt(mapStartY + 50, mapStartY + mapHeight - 50);
+        ctx.fillStyle = 'italic 11px Arial';
+        ctx.globalAlpha = 0.6;
+        ctx.fillStyle = '#0047ab';
+        ctx.textAlign = 'center';
+        ctx.fillText(sName, x, y);
+        ctx.globalAlpha = 1.0;
+      });
+
       // Draw compass rose
-      drawCompassRose(ctx, canvas.width - 40, 40);
+      drawCompassRoseDetailed(ctx, canvas.width - 60, mapStartY + 30);
 
       // Draw scale bar
-      drawScaleBar(ctx, 20, canvas.height - 30);
+      drawScaleBarDetailed(ctx, mapStartX + 20, canvas.height - 35);
 
       // Show canvas and legend
       document.getElementById('worldMapContainer').style.display = 'flex';
@@ -2970,7 +3332,7 @@
     }
 
     function generateHeightmap(size) {
-      const map = [];
+      let map = [];
       for (let y = 0; y < size; y++) {
         map[y] = [];
         for (let x = 0; x < size; x++) {
@@ -2978,8 +3340,38 @@
         }
       }
 
-      // Simple smoothing pass
-      for (let pass = 0; pass < 2; pass++) {
+      // Diamond-square algorithm
+      let stepSize = size - 1;
+      let scale = 1.0;
+      while (stepSize > 1) {
+        const halfStep = stepSize / 2;
+
+        // Diamond step
+        for (let y = 0; y < size - 1; y += stepSize) {
+          for (let x = 0; x < size - 1; x += stepSize) {
+            const avg = (map[y][x] + map[y][x + stepSize] + map[y + stepSize][x] + map[y + stepSize][x + stepSize]) / 4;
+            map[y + halfStep][x + halfStep] = avg + (Math.random() - 0.5) * scale;
+          }
+        }
+
+        // Square step
+        for (let y = 0; y < size; y += halfStep) {
+          for (let x = (y + halfStep) % stepSize; x < size; x += stepSize) {
+            let sum = 0, count = 0;
+            if (y - halfStep >= 0) { sum += map[y - halfStep][x]; count++; }
+            if (x + halfStep < size) { sum += map[y][x + halfStep]; count++; }
+            if (y + halfStep < size) { sum += map[y + halfStep][x]; count++; }
+            if (x - halfStep >= 0) { sum += map[y][x - halfStep]; count++; }
+            map[y][x] = sum / count + (Math.random() - 0.5) * scale;
+          }
+        }
+
+        stepSize = halfStep;
+        scale *= 0.5;
+      }
+
+      // Additional smoothing passes for continuity
+      for (let pass = 0; pass < 6; pass++) {
         const smoothed = [];
         for (let y = 0; y < size; y++) {
           smoothed[y] = [];
@@ -2999,6 +3391,19 @@
         }
         map = smoothed;
       }
+
+      // Apply edge falloff for continental effect
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const dx = x / size - 0.5;
+          const dy = y / size - 0.5;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const falloff = Math.max(0, 1 - (dist / 0.5) * 1.5);
+          map[y][x] = map[y][x] * 0.6 + falloff * 0.4;
+          map[y][x] = Math.max(0, Math.min(1, map[y][x]));
+        }
+      }
+
       return map;
     }
 
@@ -3011,6 +3416,83 @@
       if (height < mountainLevel) return '#8b6f47'; // Hills
       if (height < 0.85) return '#888888'; // Mountains
       return '#e8e8e8'; // Snow peaks
+    }
+
+    function getTerrainColorDetailed(height, waterLevel, mountainLevel) {
+      if (height < waterLevel - 0.1) return '#000033'; // Deep water
+      if (height < waterLevel - 0.05) return '#000a66'; // Dark water
+      if (height < waterLevel) return '#0033cc'; // Water
+      if (height < waterLevel + 0.02) return '#ccaa66'; // Light beach
+      if (height < waterLevel + 0.05) return '#b39966'; // Beach
+      if (height < 0.4) return '#66bb66'; // Light grass
+      if (height < 0.45) return '#4ade80'; // Plains
+      if (height < 0.5) return '#2d8f2d'; // Dark grass
+      if (height < 0.55) return '#1a5c1a'; // Forest
+      if (height < mountainLevel - 0.05) return '#996633'; // Brown hills
+      if (height < mountainLevel) return '#8b7355'; // Dark hills
+      if (height < 0.75) return '#888888'; // Mountains
+      if (height < 0.85) return '#999999'; // Higher mountains
+      return '#eeeeee'; // Snow peaks
+    }
+
+    function drawMountain(ctx, x, y, size) {
+      ctx.fillStyle = '#666666';
+      ctx.beginPath();
+      ctx.moveTo(x, y - size);
+      ctx.lineTo(x - size, y + size);
+      ctx.lineTo(x + size, y + size);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawCityIcon(ctx, x, y, size) {
+      ctx.fillStyle = '#8b4513';
+      ctx.fillRect(x - size, y - size, size * 2, size * 2);
+      ctx.strokeStyle = '#654321';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x - size, y - size, size * 2, size * 2);
+      // Castle flag
+      ctx.fillStyle = '#c0392b';
+      ctx.beginPath();
+      ctx.moveTo(x + size, y - size);
+      ctx.lineTo(x + size + 3, y - size - 3);
+      ctx.lineTo(x + size, y - size - 6);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function traceRiver(heightmap, startX, startY, size, waterLevel) {
+      const river = [{ x: startX, y: startY }];
+      let x = startX, y = startY;
+      let steps = 0;
+      const maxSteps = size * 2;
+
+      while (steps < maxSteps && heightmap[y][x] > waterLevel) {
+        let minHeight = heightmap[y][x];
+        let nextX = x, nextY = y;
+
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const ny = y + dy, nx = x + dx;
+            if (ny >= 0 && ny < size && nx >= 0 && nx < size) {
+              if (heightmap[ny][nx] < minHeight) {
+                minHeight = heightmap[ny][nx];
+                nextX = nx;
+                nextY = ny;
+              }
+            }
+          }
+        }
+
+        if (nextX === x && nextY === y) break;
+
+        x = nextX;
+        y = nextY;
+        river.push({ x, y });
+        steps++;
+      }
+
+      return river;
     }
 
     function drawCompassRose(ctx, x, y) {
@@ -3030,6 +3512,41 @@
       ctx.fillText('N', x, y - size - 5);
     }
 
+    function drawCompassRoseDetailed(ctx, x, y) {
+      const size = 25;
+
+      // Draw star points
+      ctx.fillStyle = '#c0392b';
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI / 4);
+        const pointDist = i % 2 === 0 ? size : size * 0.6;
+        const px = x + Math.cos(angle) * pointDist;
+        const py = y + Math.sin(angle) * pointDist;
+
+        if (i === 0) ctx.beginPath();
+        else if (i % 2 === 0) ctx.lineTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      // Cardinal directions
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('N', x, y - size - 8);
+      ctx.fillText('S', x, y + size + 8);
+      ctx.fillText('E', x + size + 8, y);
+      ctx.fillText('W', x - size - 8, y);
+
+      // Circle border
+      ctx.strokeStyle = '#8b7355';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, size + 10, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
     function drawScaleBar(ctx, x, y) {
       const barWidth = 60;
       ctx.strokeStyle = '#888';
@@ -3043,6 +3560,37 @@
       ctx.font = '10px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('100 miles', x + barWidth / 2, y + 15);
+    }
+
+    function drawScaleBarDetailed(ctx, x, y) {
+      const segmentWidth = 15;
+      const segments = 4;
+      const totalWidth = segmentWidth * segments;
+
+      // Alternating black/white segments
+      for (let i = 0; i < segments; i++) {
+        ctx.fillStyle = i % 2 === 0 ? '#000000' : '#ffffff';
+        ctx.fillRect(x + i * segmentWidth, y, segmentWidth, 6);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + i * segmentWidth, y, segmentWidth, 6);
+      }
+
+      // End markers
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 4);
+      ctx.lineTo(x, y + 10);
+      ctx.moveTo(x + totalWidth, y - 4);
+      ctx.lineTo(x + totalWidth, y + 10);
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = '#d4a574';
+      ctx.font = '9px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('50 miles', x + totalWidth / 2, y + 20);
     }
 
     function generateWorldMapInfo() {
