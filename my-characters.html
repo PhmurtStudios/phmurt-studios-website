@@ -3,129 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
   <title>My Characters · Phmurt Studios</title>
-  <meta name="description" content="Your saved D&D characters — Phmurt Studios." />
+  <meta name="description" content="View and manage your saved characters on Phmurt Studios." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
-  <script src="builder-data.js"></script>
 </head>
 <body data-nav-active="My Characters" data-footer-copy="Roll Well. Play Weird." data-breadcrumb="Home|index.html;My Characters">
-
   <div id="ps-site-shell"></div>
-
   <div id="ps-page-breadcrumb"></div>
 
   <div class="ps-page-hero">
     <div class="ps-page-eyebrow">Your Roster</div>
     <div class="ps-page-title">My Characters</div>
-    <div class="ps-page-subtitle" id="pageSubtitle">Your saved adventurers</div>
+    <div class="ps-page-subtitle">All your saved adventurers in one place</div>
   </div>
 
-  <div class="ps-divider">
-    <div class="ps-div-line"></div>
-    <div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div>
-    <div class="ps-div-line r"></div>
+  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
+
+  <div class="ps-content reveal" id="my-characters-content" style="max-width:800px;margin:40px auto;padding:0 24px;">
+
+    <!-- Signed-out state -->
+    <div id="mc-signed-out" style="text-align:center;padding:60px 0;">
+      <p style="font-family:Spectral;font-size:18px;color:var(--text-dim);margin-bottom:32px;">Sign in to view and manage your saved characters.</p>
+      <button class="ps-btn ps-btn-primary" onclick="window.PhmurtDB && window.PhmurtDB.openAuth()">Sign In</button>
+    </div>
+
+    <!-- Signed-in state -->
+    <div id="mc-signed-in" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
+        <h2 style="font-family:Cinzel;color:var(--text-primary);font-size:20px;margin:0;">Your Characters</h2>
+        <a href="character-builder.html" class="ps-btn ps-btn-primary" style="font-size:14px;">+ New Character</a>
+      </div>
+      <div id="mc-character-list"></div>
+    </div>
+
   </div>
 
-  <div id="charsContainer" style="padding:0;min-height:200px;"></div>
+  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
+
+  <div class="fantasy-section-end">◆   ◆   ◆</div>
 
   <div id="ps-site-footer"></div>
 
   <script>
-  // Called by phmurt-auth.js when auth state changes
-  window.onAuthChange = function() { loadPage(); };
+    function renderCharacters() {
+      const session = window.PhmurtDB ? window.PhmurtDB.getSession() : null;
+      const signedOut = document.getElementById('mc-signed-out');
+      const signedIn = document.getElementById('mc-signed-in');
+      const list = document.getElementById('mc-character-list');
 
-  async function loadPage() {
-    var session   = PhmurtDB.getSession();
-    var container = document.getElementById('charsContainer');
-    var subtitle  = document.getElementById('pageSubtitle');
-    if (!container) return;
+      if (!session) {
+        signedOut.style.display = 'block';
+        signedIn.style.display = 'none';
+        return;
+      }
 
-    if (!session) {
-      if (subtitle) subtitle.textContent = 'Sign in to view your characters';
-      container.innerHTML =
-        '<div class="ps-logged-out-msg">' +
-          '<div style="font-size:48px;opacity:.2;margin-bottom:24px;">⚔</div>' +
-          '<div style="font-family:\'Cinzel\',serif;font-size:11px;letter-spacing:5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;">No Account Found</div>' +
-          '<p style="font-size:16px;color:var(--text-dim);margin-bottom:28px;">Sign in or create a free account to save and load your characters.</p>' +
-          '<button class="ps-cta" onclick="PhmurtDB.openAuth()">Sign In / Create Account</button>' +
-        '</div>';
-      return;
+      signedOut.style.display = 'none';
+      signedIn.style.display = 'block';
+
+      // Load characters from localStorage keyed by user id
+      const storageKey = 'phmurt_characters_' + session.id;
+      const chars = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+      if (!chars.length) {
+        list.innerHTML = '<div style="text-align:center;padding:48px 0;font-family:Spectral;font-style:italic;color:var(--text-dim);">No characters yet. <a href="character-builder.html" style="color:var(--crimson);">Create your first one →</a></div>';
+        return;
+      }
+
+      list.innerHTML = chars.map((c, i) => `
+        <div class="ps-sheet-card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div class="ps-sheet-title" style="margin-bottom:4px;">${c.name || 'Unnamed Character'}</div>
+            <div class="ps-sheet-system">${c.race || ''} ${c.class || ''} ${c.level ? '· Level ' + c.level : ''}</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <a href="character-builder.html?load=${i}" class="ps-btn ps-btn-primary" style="font-size:13px;">Edit</a>
+            <button onclick="deleteCharacter(${i})" style="font-size:13px;padding:6px 14px;border:1px solid var(--border);background:transparent;color:var(--text-dim);border-radius:4px;cursor:pointer;">Delete</button>
+          </div>
+        </div>
+      `).join('');
     }
 
-    if (subtitle) subtitle.textContent = 'Welcome back, ' + session.name;
-    container.innerHTML = '<div style="padding:60px 56px;font-style:italic;color:var(--text-faint);text-align:center;">Loading your characters...</div>';
+    window.deleteCharacter = function(index) {
+      const session = window.PhmurtDB ? window.PhmurtDB.getSession() : null;
+      if (!session) return;
+      const storageKey = 'phmurt_characters_' + session.id;
+      const chars = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      chars.splice(index, 1);
+      localStorage.setItem(storageKey, JSON.stringify(chars));
+      renderCharacters();
+      if (window.psToast) window.psToast('Character deleted.');
+    };
 
-    var chars = [];
-    try {
-      var result = await PhmurtDB.loadCharacters();
-      if (Array.isArray(result)) chars = result;
-    } catch (err) {
-      console.error('loadCharacters error:', err);
-    }
-
-    var DND = (typeof DND_DATA !== 'undefined') ? DND_DATA : null;
-    var html = '<div class="ps-section-header"><div class="ps-section-title">Saved Characters</div></div><div class="ps-chars-grid">';
-
-    html += '<div class="ps-new-char-card" onclick="window.location.href=\'character-builder.html\'">' +
-              '<div class="ps-new-char-icon">+</div>' +
-              '<div class="ps-new-char-label">Create New Character</div>' +
-            '</div>';
-
-    if (chars.length === 0) {
-      html += '<div class="ps-char-card" style="min-height:160px;display:flex;align-items:center;justify-content:center;">' +
-                '<div style="font-size:13px;color:var(--text-faint);font-style:italic;text-align:center;">No characters yet.<br>Build your first one!</div>' +
-              '</div>';
-    } else {
-      chars.forEach(function(char) {
-        var raceKey  = char.data && char.data.race ? char.data.race : null;
-        var clsKey   = char.data && char.data.cls  ? char.data.cls  : null;
-        var raceName = raceKey && DND && DND.races  && DND.races[raceKey]   ? DND.races[raceKey].name   : (raceKey  || '—');
-        var clsName  = clsKey  && DND && DND.classes && DND.classes[clsKey] ? DND.classes[clsKey].name  : (clsKey   || '—');
-        var updated  = char.updated ? new Date(char.updated).toLocaleDateString() : '—';
-        var safeName = (char.name || 'Unnamed').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-        var safeId   = (char.id   || '').replace(/'/g,"\\'");
-
-        html += '<div class="ps-char-card">' +
-                  '<div class="ps-char-card-name">'  + (char.name || 'Unnamed Adventurer') + '</div>' +
-                  '<div class="ps-char-card-sub">'   + raceName + ' ' + clsName + ' · Level ' + (char.level || 1) + '</div>' +
-                  '<div class="ps-char-card-date">Last saved ' + updated + '</div>' +
-                  '<div class="ps-char-card-actions">' +
-                    '<button class="ps-char-card-btn primary" onclick="loadCharacter(\'' + safeId + '\')">Load ↗</button>' +
-                    '<button class="ps-char-card-btn danger"  onclick="deleteChar(\'' + safeId + '\',\'' + safeName + '\')">Delete</button>' +
-                  '</div>' +
-                '</div>';
-      });
-    }
-
-    html += '</div>';
-    container.innerHTML = html;
-  }
-
-  function loadCharacter(id) {
-    localStorage.setItem('phmurt_load_char_id', id);
-    window.location.href = 'character-builder.html';
-  }
-
-  async function deleteChar(id, name) {
-    if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
-    try { await PhmurtDB.deleteCharacter(id); } catch(e) { console.error(e); }
-    loadPage();
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    loadPage();
-  });
+    document.addEventListener('DOMContentLoaded', function() {
+      renderCharacters();
+      window.addEventListener('phmurt-auth-change', renderCharacters);
+    });
   </script>
-
   <script src="phmurt-shell.js"></script>
 </body>
 </html>

@@ -17,7 +17,8 @@
         { href: 'campaigns.html', label: 'Campaign Manager' }
       ]},
       { href: 'about.html', label: 'About' },
-      { href: 'my-characters.html', label: 'My Characters' }
+      { href: 'my-characters.html', label: 'My Characters' },
+      { href: 'admin.html', label: 'Admin' }
     ],
     // flat list for mobile menu and backwards compat
     flatNav: [
@@ -31,7 +32,8 @@
       ['character-sheets.html', 'Sheets'],
       ['campaigns.html', 'Campaigns'],
       ['about.html', 'About'],
-      ['my-characters.html', 'My Characters']
+      ['my-characters.html', 'My Characters'],
+      ['admin.html', 'Admin']
     ],
     footerName: 'Phmurt Studios',
     footerCopy: 'Roll Well. Play Weird.'
@@ -242,7 +244,7 @@
   }
 
   function syncThemeButton() {
-    const saved = localStorage.getItem('ps-theme') || 'light';
+    const saved = localStorage.getItem('phmurt_theme') || 'dark';
     const btn = document.getElementById('themeToggle');
     if (btn) btn.textContent = (saved === 'light' ? '☀' : '☽');
   }
