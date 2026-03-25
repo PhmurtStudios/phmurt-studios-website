@@ -29,9 +29,8 @@
         { href: 'campaigns.html', label: 'Campaign Manager' }
       ]},
       { href: 'about.html', label: 'About' },
-      { href: 'my-characters.html', label: 'My Characters' },
-      // Admin link — only injected into the nav when the user is an admin
-      ...(_shellIsAdmin() ? [{ href: 'admin.html', label: 'Admin' }] : [])
+      { href: 'my-characters.html', label: 'My Characters' }
+      // Admin link is injected dynamically by updateAuthNav()
     ],
     // flat list for mobile menu and backwards compat
     flatNav: [
@@ -45,8 +44,8 @@
       ['character-sheets.html', 'Sheets'],
       ['campaigns.html', 'Campaigns'],
       ['about.html', 'About'],
-      ['my-characters.html', 'My Characters'],
-      ...(_shellIsAdmin() ? [['admin.html', 'Admin']] : [])
+      ['my-characters.html', 'My Characters']
+      // Admin link is injected dynamically by updateAuthNav()
     ],
     footerName: 'Phmurt Studios',
     footerCopy: 'Roll Well. Play Weird.'
@@ -211,7 +210,7 @@
 
     return `
       <nav class="ps-nav" role="navigation" aria-label="Main navigation">
-        <div class="ps-nav-links">${links}</div>
+        <div class="ps-nav-links">${links}<a href="admin.html" id="nav-admin-link" style="display:none">Admin</a></div>
         <div class="ps-nav-right">
           <button class="ps-theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" onclick="toggleTheme()">☽</button>
           <div class="nav-auth-wrap">
@@ -225,6 +224,7 @@
       <div class="ps-mobile-menu" id="mobileMenu" aria-hidden="true">
         <button class="ps-mobile-close" id="mobileClose" type="button">✕ Close</button>
         ${mobileLinks}
+        <a href="admin.html" id="mobile-admin-link" style="display:none">Admin</a>
       </div>
     `;
   }
@@ -333,10 +333,75 @@
     }, { passive: true });
   }
 
+  function _getAuthSession() {
+    try { return JSON.parse(localStorage.getItem('phmurt_auth_session') || 'null'); }
+    catch(e) { return null; }
+  }
+
+  function updateAuthNav() {
+    var btn = document.getElementById('nav-auth-btn');
+    var dd  = document.getElementById('nav-user-dropdown');
+    if (!btn) return;
+
+    var session = _getAuthSession();
+
+    var isAdmin = !!(session && (session.isAdmin === true ||
+      SHELL_ADMIN_EMAILS.indexOf((session.email || '').trim().toLowerCase()) !== -1));
+
+    // ── Show/hide Admin nav links (desktop + mobile) ────────────
+    var adminLink       = document.getElementById('nav-admin-link');
+    var mobileAdminLink = document.getElementById('mobile-admin-link');
+    if (adminLink)       adminLink.style.display       = isAdmin ? '' : 'none';
+    if (mobileAdminLink) mobileAdminLink.style.display = isAdmin ? '' : 'none';
+
+    if (session && session.userId) {
+      // ── Signed in ──────────────────────────────────────────────
+      var display = (session.displayName || session.name || session.email || 'Account').trim();
+      btn.textContent = display.length > 16
+        ? display.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2)
+        : display;
+      btn.title = display;
+      btn.setAttribute('data-signed-in', '1');
+      btn.style.borderColor = 'var(--crimson-border)';
+      btn.style.color       = 'var(--text)';
+
+      if (dd) {
+        dd.innerHTML =
+          '<div style="font-family:Spectral,serif;font-size:12px;color:var(--text-muted);padding:9px 14px 8px;border-bottom:1px solid var(--border-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">' + display + '</div>' +
+          '<a href="my-characters.html">My Characters</a>' +
+          '<button id="nav-signout-btn">Sign Out</button>';
+
+        var soBtn = document.getElementById('nav-signout-btn');
+        if (soBtn) {
+          soBtn.addEventListener('click', function() {
+            localStorage.removeItem('phmurt_auth_session');
+            window.dispatchEvent(new Event('phmurt-auth-change'));
+            dd.classList.remove('open');
+            if (typeof window.psToast === 'function') window.psToast('Signed out.');
+          });
+        }
+      }
+    } else {
+      // ── Signed out ─────────────────────────────────────────────
+      btn.textContent = 'Sign In';
+      btn.title = '';
+      btn.removeAttribute('data-signed-in');
+      btn.style.borderColor = '';
+      btn.style.color       = '';
+      if (dd) { dd.innerHTML = ''; dd.classList.remove('open'); }
+    }
+  }
+
   function wireAuthButton() {
     const btn = document.getElementById('nav-auth-btn');
     if (!btn) return;
     btn.addEventListener('click', function () {
+      if (btn.getAttribute('data-signed-in')) {
+        // Toggle user dropdown
+        var dd = document.getElementById('nav-user-dropdown');
+        if (dd) dd.classList.toggle('open');
+        return;
+      }
       if (window.PhmurtDB && typeof window.PhmurtDB.openAuth === 'function') {
         window.PhmurtDB.openAuth();
         return;
@@ -477,12 +542,14 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     ensureShell();
+    updateAuthNav();
     wireAuthButton();
     setupMobileNav();
     setupNavDropdowns();
     setupPageTransitions();
     setupReveal();
     setupAuthDropdownClose();
+    window.addEventListener('phmurt-auth-change', updateAuthNav);
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(function() {});
