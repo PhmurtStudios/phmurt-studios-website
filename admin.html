@@ -13,23 +13,198 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="theme.js"></script>
 <script>
-/* ── Admin Guard ─────────────────────────────────────────────────────────
-   Runs immediately — before any content renders.
-   Reads the auth session from localStorage and redirects non-admins.
+/* ── Admin Guard v2 ──────────────────────────────────────────────────────
+   Two-factor admin check:
+     1. Email must be in ADMIN_EMAILS
+     2. Must upload the correct key image (verified via perceptual dHash)
    ─────────────────────────────────────────────────────────────────────── */
 (function() {
   var ADMIN_EMAILS = ['dreverad18@gmail.com'];
-  try {
-    var raw = localStorage.getItem('phmurt_auth_session');
-    var session = raw ? JSON.parse(raw) : null;
-    var email = session && session.email ? session.email.trim().toLowerCase() : '';
-    var isAdmin = session && (session.isAdmin === true || ADMIN_EMAILS.indexOf(email) !== -1);
-    if (!isAdmin) {
-      window.location.replace('index.html');
-    }
-  } catch(e) {
-    window.location.replace('index.html');
+
+  // ── Perceptual hash of the key image ────────────────────────────────
+  // Set to 'SETUP' until you've run the one-time setup below.
+  // After setup, paste your hash here and redeploy.
+  var EXPECTED_HASH = 'SETUP';
+
+  // Session flag so you only need to verify once per browser session
+  var SESSION_KEY = 'phmurt_admin_img_ok';
+
+  // ── Step 1: Email check (runs immediately, before anything renders) ──
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem('phmurt_auth_session') || 'null'); }
+    catch(e) { return null; }
   }
+  var session = getSession();
+  var email = session ? (session.email || '').trim().toLowerCase() : '';
+  var isAdminEmail = ADMIN_EMAILS.indexOf(email) !== -1 || !!(session && session.isAdmin);
+  if (!isAdminEmail) { window.location.replace('index.html'); return; }
+
+  // ── Step 2: Already image-verified this session? Skip prompt ────────
+  if (sessionStorage.getItem(SESSION_KEY) === 'true') return;
+
+  // ── Step 3: Hide page until image verified ───────────────────────────
+  document.documentElement.style.visibility = 'hidden';
+
+  // ── dHash: 9×8 difference hash → 64-bit binary string ──────────────
+  function computeDHash(imgEl) {
+    var W = 9, H = 8;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(imgEl, 0, 0, W, H);
+    var px = ctx.getImageData(0, 0, W, H).data;
+    var hash = '';
+    for (var r = 0; r < H; r++) {
+      for (var c = 0; c < W - 1; c++) {
+        var i1 = (r * W + c) * 4;
+        var i2 = (r * W + c + 1) * 4;
+        var g1 = 0.299 * px[i1] + 0.587 * px[i1+1] + 0.114 * px[i1+2];
+        var g2 = 0.299 * px[i2] + 0.587 * px[i2+1] + 0.114 * px[i2+2];
+        hash += g1 > g2 ? '1' : '0';
+      }
+    }
+    return hash;
+  }
+
+  // Hamming distance — allow a small tolerance for compression differences
+  function hammingDist(a, b) {
+    var dist = 0;
+    for (var i = 0; i < a.length; i++) { if (a[i] !== b[i]) dist++; }
+    return dist;
+  }
+
+  // ── Show the image challenge overlay ────────────────────────────────
+  function showChallenge() {
+    document.documentElement.style.visibility = 'visible';
+
+    var overlay = document.createElement('div');
+    overlay.id = 'admin-img-gate';
+    overlay.style.cssText = [
+      'position:fixed;inset:0;z-index:99999',
+      'background:#0c0a0a',
+      'display:flex;flex-direction:column;align-items:center;justify-content:center',
+      'font-family:Cinzel,serif;color:#f5ede0;padding:32px;text-align:center'
+    ].join(';');
+
+    var isSetup = EXPECTED_HASH === 'SETUP';
+
+    overlay.innerHTML = [
+      '<div style="max-width:440px;width:100%;">',
+        '<div style="font-size:11px;letter-spacing:3px;color:#8c7d6e;text-transform:uppercase;margin-bottom:16px;">',
+          isSetup ? 'First-Time Setup' : 'Admin Verification — Step 2 of 2',
+        '</div>',
+        '<h2 style="font-size:22px;font-weight:400;letter-spacing:1px;margin-bottom:12px;color:#c0392b;">',
+          isSetup ? 'Register Your Key Image' : 'Upload Your Key Image',
+        '</h2>',
+        '<p style="font-family:Spectral,serif;font-size:15px;color:#8c7d6e;line-height:1.6;margin-bottom:32px;">',
+          isSetup
+            ? 'No key image is registered yet. Upload it now to generate and lock in your hash.'
+            : 'You know what to upload.',
+        '</p>',
+
+        '<label id="admin-img-label" style="',
+          'display:flex;flex-direction:column;align-items:center;gap:12px;',
+          'border:1px dashed rgba(192,57,43,0.4);border-radius:6px;padding:32px 24px;',
+          'cursor:pointer;transition:border-color .2s;',
+        '">',
+          '<span style="font-size:32px;">🔑</span>',
+          '<span style="font-size:13px;color:#8c7d6e;font-family:Spectral,serif;">Click to select image</span>',
+          '<input type="file" id="admin-img-input" accept="image/*" style="display:none;" />',
+        '</label>',
+
+        '<div id="admin-img-status" style="',
+          'margin-top:20px;min-height:40px;font-family:Spectral,serif;',
+          'font-size:14px;line-height:1.5;',
+        '"></div>',
+
+        isSetup ? [
+          '<div id="admin-hash-output" style="display:none;margin-top:16px;">',
+            '<p style="font-size:12px;color:#8c7d6e;margin-bottom:8px;font-family:Spectral,serif;">',
+              'Copy this hash into <code>EXPECTED_HASH</code> in admin.html, then redeploy:',
+            '</p>',
+            '<code id="admin-hash-value" style="',
+              'display:block;background:#111010;border:1px solid rgba(255,255,255,0.09);',
+              'border-radius:4px;padding:10px;font-size:11px;word-break:break-all;',
+              'color:#c0392b;cursor:pointer;',
+            '" title="Click to copy"></code>',
+            '<p style="font-size:11px;color:#574843;margin-top:8px;font-family:Spectral,serif;">',
+              'Click the hash to copy it.',
+            '</p>',
+          '</div>'
+        ].join('') : '',
+
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(overlay);
+
+    var input = document.getElementById('admin-img-input');
+    var status = document.getElementById('admin-img-status');
+    var label  = document.getElementById('admin-img-label');
+
+    label.addEventListener('dragover', function(e) { e.preventDefault(); label.style.borderColor = '#c0392b'; });
+    label.addEventListener('dragleave', function() { label.style.borderColor = 'rgba(192,57,43,0.4)'; });
+    label.addEventListener('drop', function(e) {
+      e.preventDefault();
+      label.style.borderColor = 'rgba(192,57,43,0.4)';
+      var f = e.dataTransfer.files[0];
+      if (f) processFile(f);
+    });
+
+    input.addEventListener('change', function() {
+      if (input.files[0]) processFile(input.files[0]);
+    });
+
+    function processFile(file) {
+      if (!file.type.startsWith('image/')) {
+        setStatus('That doesn\'t look like an image file.', '#c0392b'); return;
+      }
+      setStatus('Analyzing…', '#8c7d6e');
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var hash = computeDHash(img);
+
+          if (isSetup) {
+            // Setup mode: display the hash for the developer to copy
+            var out = document.getElementById('admin-hash-output');
+            var val = document.getElementById('admin-hash-value');
+            val.textContent = hash;
+            out.style.display = 'block';
+            val.addEventListener('click', function() {
+              navigator.clipboard.writeText(hash).then(function() {
+                val.textContent = '✓ Copied!';
+                setTimeout(function() { val.textContent = hash; }, 2000);
+              });
+            });
+            setStatus('Hash generated. Copy it into your code and redeploy.', '#27ae60');
+          } else {
+            // Verification mode: compare hashes (allow ≤6 bits of tolerance)
+            var dist = hammingDist(hash, EXPECTED_HASH);
+            if (dist <= 6) {
+              setStatus('✓ Verified. Welcome back.', '#27ae60');
+              sessionStorage.setItem(SESSION_KEY, 'true');
+              setTimeout(function() { overlay.remove(); }, 800);
+            } else {
+              setStatus('✗ That\'s not the right image. Try again.', '#c0392b');
+              input.value = '';
+            }
+          }
+        };
+        img.onerror = function() { setStatus('Could not load image.', '#c0392b'); };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setStatus(msg, color) {
+      status.textContent = msg;
+      status.style.color = color || '#f5ede0';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', showChallenge);
 })();
 </script>
 <style>
