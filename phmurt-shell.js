@@ -1,4 +1,16 @@
 (function () {
+  // ── Admin email list (must match phmurt-auth.js) ──────────────────────
+  var SHELL_ADMIN_EMAILS = ['dreverad18@gmail.com'];
+  function _shellIsAdmin() {
+    try {
+      var raw = localStorage.getItem('phmurt_auth_session');
+      var s = raw ? JSON.parse(raw) : null;
+      if (!s) return false;
+      var email = (s.email || '').trim().toLowerCase();
+      return s.isAdmin === true || SHELL_ADMIN_EMAILS.indexOf(email) !== -1;
+    } catch(e) { return false; }
+  }
+
   const SHELL = {
     nav: [
       { href: 'index.html', label: 'Home' },
@@ -18,7 +30,8 @@
       ]},
       { href: 'about.html', label: 'About' },
       { href: 'my-characters.html', label: 'My Characters' },
-      { href: 'admin.html', label: 'Admin' }
+      // Admin link — only injected into the nav when the user is an admin
+      ...(_shellIsAdmin() ? [{ href: 'admin.html', label: 'Admin' }] : [])
     ],
     // flat list for mobile menu and backwards compat
     flatNav: [
@@ -33,7 +46,7 @@
       ['campaigns.html', 'Campaigns'],
       ['about.html', 'About'],
       ['my-characters.html', 'My Characters'],
-      ['admin.html', 'Admin']
+      ...(_shellIsAdmin() ? [['admin.html', 'Admin']] : [])
     ],
     footerName: 'Phmurt Studios',
     footerCopy: 'Roll Well. Play Weird.'

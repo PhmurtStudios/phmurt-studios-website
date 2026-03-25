@@ -12,6 +12,26 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="theme.js"></script>
+<script>
+/* ── Admin Guard ─────────────────────────────────────────────────────────
+   Runs immediately — before any content renders.
+   Reads the auth session from localStorage and redirects non-admins.
+   ─────────────────────────────────────────────────────────────────────── */
+(function() {
+  var ADMIN_EMAILS = ['dreverad18@gmail.com'];
+  try {
+    var raw = localStorage.getItem('phmurt_auth_session');
+    var session = raw ? JSON.parse(raw) : null;
+    var email = session && session.email ? session.email.trim().toLowerCase() : '';
+    var isAdmin = session && (session.isAdmin === true || ADMIN_EMAILS.indexOf(email) !== -1);
+    if (!isAdmin) {
+      window.location.replace('index.html');
+    }
+  } catch(e) {
+    window.location.replace('index.html');
+  }
+})();
+</script>
 <style>
 /* ═══════════════════════════════
    ADMIN DASHBOARD STYLES

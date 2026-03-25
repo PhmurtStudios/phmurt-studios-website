@@ -10,6 +10,13 @@ var PhmurtDB = (function() {
   var AUTH_KEY = 'phmurt_auth_session';
   var _listeners = [];
 
+  // ── Admin access list ──────────────────────────────────────────────────
+  // Add email addresses here to grant admin access.
+  // Emails are lowercased before comparison.
+  var ADMIN_EMAILS = [
+    'dreverad18@gmail.com'
+  ];
+
   function _getStored() {
     try {
       var raw = localStorage.getItem(AUTH_KEY);
@@ -44,11 +51,13 @@ var PhmurtDB = (function() {
 
     /* ─── Sign Up (local) ─── */
     signUp: function(name, email) {
+      var normalEmail = (email || '').trim().toLowerCase();
       var session = {
         userId: _uid(),
         name: name || 'Adventurer',
-        email: email || '',
+        email: normalEmail,
         displayName: name || 'Adventurer',
+        isAdmin: ADMIN_EMAILS.indexOf(normalEmail) !== -1,
         createdAt: new Date().toISOString()
       };
       _setStored(session);
@@ -57,11 +66,21 @@ var PhmurtDB = (function() {
 
     /* ─── Sign In (local — just restores or creates) ─── */
     signIn: function(name, email) {
+      var normalEmail = (email || '').trim().toLowerCase();
       var existing = _getStored();
-      if (existing && existing.email === email) {
+      if (existing && existing.email === normalEmail) {
+        // Refresh isAdmin in case the list changed
+        existing.isAdmin = ADMIN_EMAILS.indexOf(normalEmail) !== -1;
+        _setStored(existing);
         return existing;
       }
       return PhmurtDB.signUp(name, email);
+    },
+
+    /* ─── Check if current user is an admin ─── */
+    isAdmin: function() {
+      var session = _getStored();
+      return !!(session && session.isAdmin === true);
     },
 
     /* ─── Sign Out ─── */
