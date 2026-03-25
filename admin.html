@@ -13,198 +13,338 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="theme.js"></script>
 <script>
-/* ── Admin Guard v2 ──────────────────────────────────────────────────────
-   Two-factor admin check:
-     1. Email must be in ADMIN_EMAILS
-     2. Must upload the correct key image (verified via perceptual dHash)
-   ─────────────────────────────────────────────────────────────────────── */
-(function() {
-  var ADMIN_EMAILS = ['dreverad18@gmail.com'];
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN GATE  —  Self-contained two-factor access control
+   ═══════════════════════════════════════════════════════════════════
+   Stage 1 — Key image upload (shown to everyone, no prior sign-in needed)
+   Stage 2 — Admin account sign-in (shown after image passes)
 
-  // ── Perceptual hash of the key image ────────────────────────────────
-  // Set to 'SETUP' until you've run the one-time setup below.
-  // After setup, paste your hash here and redeploy.
-  var EXPECTED_HASH = 'SETUP';
+   FIRST-TIME SETUP:
+     EXPECTED_HASH is 'SETUP'. Upload the image → the computed hash
+     is displayed. Copy it, replace 'SETUP' below, push and redeploy.
+     After that, every visitor must upload the exact same image.
+   ═══════════════════════════════════════════════════════════════════ */
+(function () {
 
-  // Session flag so you only need to verify once per browser session
-  var SESSION_KEY = 'phmurt_admin_img_ok';
+  /* ── Config ──────────────────────────────────────────────────────── */
+  var ADMIN_EMAILS  = ['dreverad18@gmail.com'];
+  var EXPECTED_HASH = 'SETUP'; // ← replace with your hash after first run
+  var IMG_OK_KEY    = 'phmurt_admin_img_ok'; // sessionStorage flag
 
-  // ── Step 1: Email check (runs immediately, before anything renders) ──
-  function getSession() {
-    try { return JSON.parse(localStorage.getItem('phmurt_auth_session') || 'null'); }
-    catch(e) { return null; }
-  }
-  var session = getSession();
-  var email = session ? (session.email || '').trim().toLowerCase() : '';
-  var isAdminEmail = ADMIN_EMAILS.indexOf(email) !== -1 || !!(session && session.isAdmin);
-  if (!isAdminEmail) { window.location.replace('index.html'); return; }
-
-  // ── Step 2: Already image-verified this session? Skip prompt ────────
-  if (sessionStorage.getItem(SESSION_KEY) === 'true') return;
-
-  // ── Step 3: Hide page until image verified ───────────────────────────
+  /* ── Hide page immediately so nothing flashes ───────────────────── */
   document.documentElement.style.visibility = 'hidden';
 
-  // ── dHash: 9×8 difference hash → 64-bit binary string ──────────────
+  /* ── Helpers: storage ───────────────────────────────────────────── */
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem('phmurt_auth_session') || 'null'); }
+    catch (e) { return null; }
+  }
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem('phmurt_users_db') || '{}'); }
+    catch (e) { return {}; }
+  }
+  function isAdminSession(s) {
+    if (!s) return false;
+    var e = (s.email || '').trim().toLowerCase();
+    return s.isAdmin === true || ADMIN_EMAILS.indexOf(e) !== -1;
+  }
+
+  /* ── Helpers: password hashing (same as phmurt-auth.js) ─────────── */
+  function hashPassword(password, email) {
+    var str = password + ':' + email.toLowerCase();
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
+      .then(function (buf) {
+        return Array.from(new Uint8Array(buf))
+          .map(function (b) { return b.toString(16).padStart(2, '0'); })
+          .join('');
+      });
+  }
+  function setSession(user) {
+    var s = { userId: user.userId, name: user.name, email: user.email,
+              displayName: user.name,
+              isAdmin: ADMIN_EMAILS.indexOf(user.email) !== -1 };
+    localStorage.setItem('phmurt_auth_session', JSON.stringify(s));
+    try { window.dispatchEvent(new Event('phmurt-auth-change')); } catch(e) {}
+    return s;
+  }
+
+  /* ── Helpers: perceptual dHash ──────────────────────────────────── */
   function computeDHash(imgEl) {
     var W = 9, H = 8;
-    var canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
-    var ctx = canvas.getContext('2d');
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var ctx = cv.getContext('2d');
     ctx.drawImage(imgEl, 0, 0, W, H);
     var px = ctx.getImageData(0, 0, W, H).data;
     var hash = '';
     for (var r = 0; r < H; r++) {
       for (var c = 0; c < W - 1; c++) {
-        var i1 = (r * W + c) * 4;
-        var i2 = (r * W + c + 1) * 4;
-        var g1 = 0.299 * px[i1] + 0.587 * px[i1+1] + 0.114 * px[i1+2];
-        var g2 = 0.299 * px[i2] + 0.587 * px[i2+1] + 0.114 * px[i2+2];
+        var i1 = (r * W + c) * 4, i2 = i1 + 4;
+        var g1 = 0.299*px[i1]   + 0.587*px[i1+1] + 0.114*px[i1+2];
+        var g2 = 0.299*px[i2]   + 0.587*px[i2+1] + 0.114*px[i2+2];
         hash += g1 > g2 ? '1' : '0';
       }
     }
     return hash;
   }
-
-  // Hamming distance — allow a small tolerance for compression differences
   function hammingDist(a, b) {
-    var dist = 0;
-    for (var i = 0; i < a.length; i++) { if (a[i] !== b[i]) dist++; }
-    return dist;
+    var d = 0;
+    for (var i = 0; i < a.length; i++) { if (a[i] !== b[i]) d++; }
+    return d;
   }
 
-  // ── Show the image challenge overlay ────────────────────────────────
-  function showChallenge() {
+  /* ── CSS shorthand ──────────────────────────────────────────────── */
+  var C = {
+    label:  'font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#8c7d6e;display:block;margin-bottom:6px;',
+    input:  'width:100%;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:#f5ede0;font-family:Spectral,serif;font-size:14px;border-radius:3px;box-sizing:border-box;outline:none;',
+    btn:    'width:100%;padding:12px;background:#c0392b;color:#f5f0e8;border:none;font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;margin-top:8px;',
+    err:    'font-family:Spectral,serif;font-size:13px;color:#c0392b;background:rgba(192,57,43,0.1);border-radius:3px;padding:10px 12px;margin-bottom:14px;display:none;',
+    ok:     'font-family:Spectral,serif;font-size:13px;color:#27ae60;',
+    field:  'margin-bottom:14px;'
+  };
+
+  /* ══════════════════════════════════════════════════════════════════
+     GATE OVERLAY — built once, stages swapped inside it
+  ══════════════════════════════════════════════════════════════════ */
+  function showGate() {
     document.documentElement.style.visibility = 'visible';
 
-    var overlay = document.createElement('div');
-    overlay.id = 'admin-img-gate';
-    overlay.style.cssText = [
-      'position:fixed;inset:0;z-index:99999',
-      'background:#0c0a0a',
-      'display:flex;flex-direction:column;align-items:center;justify-content:center',
-      'font-family:Cinzel,serif;color:#f5ede0;padding:32px;text-align:center'
-    ].join(';');
+    var gate = document.createElement('div');
+    gate.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#0c0a0a;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Cinzel,serif;color:#f5ede0;';
+    document.body.appendChild(gate);
 
-    var isSetup = EXPECTED_HASH === 'SETUP';
+    /* ── STAGE 1: Image upload ──────────────────────────────────────── */
+    function renderImageStage() {
+      var isSetup = EXPECTED_HASH === 'SETUP';
+      gate.innerHTML =
+        '<div style="max-width:460px;width:100%;text-align:center;">' +
+          '<div style="font-size:10px;letter-spacing:3px;color:#574843;text-transform:uppercase;margin-bottom:20px;">' +
+            (isSetup ? 'First-Time Setup' : 'Admin Access — Step 1 of 2') +
+          '</div>' +
+          '<h2 style="font-size:24px;font-weight:400;color:#c0392b;margin:0 0 10px;letter-spacing:1px;">Key Image Required</h2>' +
+          '<p style="font-family:Spectral,serif;font-size:15px;color:#8c7d6e;line-height:1.6;margin:0 0 32px;">' +
+            (isSetup ? 'No key image is set yet. Upload yours now to register it.' : 'Upload the image you were given to proceed.') +
+          '</p>' +
 
-    overlay.innerHTML = [
-      '<div style="max-width:440px;width:100%;">',
-        '<div style="font-size:11px;letter-spacing:3px;color:#8c7d6e;text-transform:uppercase;margin-bottom:16px;">',
-          isSetup ? 'First-Time Setup' : 'Admin Verification — Step 2 of 2',
-        '</div>',
-        '<h2 style="font-size:22px;font-weight:400;letter-spacing:1px;margin-bottom:12px;color:#c0392b;">',
-          isSetup ? 'Register Your Key Image' : 'Upload Your Key Image',
-        '</h2>',
-        '<p style="font-family:Spectral,serif;font-size:15px;color:#8c7d6e;line-height:1.6;margin-bottom:32px;">',
-          isSetup
-            ? 'No key image is registered yet. Upload it now to generate and lock in your hash.'
-            : 'You know what to upload.',
-        '</p>',
+          '<label id="ag-img-label" style="display:flex;flex-direction:column;align-items:center;gap:10px;border:1px dashed rgba(192,57,43,0.35);border-radius:6px;padding:36px 24px;cursor:pointer;transition:border-color .2s;">' +
+            '<span style="font-size:36px;">🖼</span>' +
+            '<span style="font-size:13px;color:#8c7d6e;font-family:Spectral,serif;">Click or drag image here</span>' +
+            '<input type="file" id="ag-img-input" accept="image/*" style="display:none;" />' +
+          '</label>' +
 
-        '<label id="admin-img-label" style="',
-          'display:flex;flex-direction:column;align-items:center;gap:12px;',
-          'border:1px dashed rgba(192,57,43,0.4);border-radius:6px;padding:32px 24px;',
-          'cursor:pointer;transition:border-color .2s;',
-        '">',
-          '<span style="font-size:32px;">🔑</span>',
-          '<span style="font-size:13px;color:#8c7d6e;font-family:Spectral,serif;">Click to select image</span>',
-          '<input type="file" id="admin-img-input" accept="image/*" style="display:none;" />',
-        '</label>',
+          '<div id="ag-img-status" style="margin-top:18px;min-height:36px;font-family:Spectral,serif;font-size:14px;"></div>' +
 
-        '<div id="admin-img-status" style="',
-          'margin-top:20px;min-height:40px;font-family:Spectral,serif;',
-          'font-size:14px;line-height:1.5;',
-        '"></div>',
+          (isSetup ?
+            '<div id="ag-hash-wrap" style="display:none;margin-top:16px;text-align:left;">' +
+              '<p style="font-size:12px;color:#8c7d6e;margin:0 0 8px;font-family:Spectral,serif;">Your hash — paste into <code>EXPECTED_HASH</code> and redeploy:</p>' +
+              '<code id="ag-hash-val" style="display:block;background:#111010;border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:10px;font-size:11px;word-break:break-all;color:#c0392b;cursor:pointer;" title="Click to copy"></code>' +
+              '<button id="ag-hash-continue" style="' + C.btn + 'margin-top:12px;">Continue to Sign In →</button>' +
+            '</div>'
+          : '') +
+        '</div>';
 
-        isSetup ? [
-          '<div id="admin-hash-output" style="display:none;margin-top:16px;">',
-            '<p style="font-size:12px;color:#8c7d6e;margin-bottom:8px;font-family:Spectral,serif;">',
-              'Copy this hash into <code>EXPECTED_HASH</code> in admin.html, then redeploy:',
-            '</p>',
-            '<code id="admin-hash-value" style="',
-              'display:block;background:#111010;border:1px solid rgba(255,255,255,0.09);',
-              'border-radius:4px;padding:10px;font-size:11px;word-break:break-all;',
-              'color:#c0392b;cursor:pointer;',
-            '" title="Click to copy"></code>',
-            '<p style="font-size:11px;color:#574843;margin-top:8px;font-family:Spectral,serif;">',
-              'Click the hash to copy it.',
-            '</p>',
-          '</div>'
-        ].join('') : '',
+      var input  = document.getElementById('ag-img-input');
+      var label  = document.getElementById('ag-img-label');
+      var status = document.getElementById('ag-img-status');
 
-      '</div>'
-    ].join('');
-
-    document.body.appendChild(overlay);
-
-    var input = document.getElementById('admin-img-input');
-    var status = document.getElementById('admin-img-status');
-    var label  = document.getElementById('admin-img-label');
-
-    label.addEventListener('dragover', function(e) { e.preventDefault(); label.style.borderColor = '#c0392b'; });
-    label.addEventListener('dragleave', function() { label.style.borderColor = 'rgba(192,57,43,0.4)'; });
-    label.addEventListener('drop', function(e) {
-      e.preventDefault();
-      label.style.borderColor = 'rgba(192,57,43,0.4)';
-      var f = e.dataTransfer.files[0];
-      if (f) processFile(f);
-    });
-
-    input.addEventListener('change', function() {
-      if (input.files[0]) processFile(input.files[0]);
-    });
-
-    function processFile(file) {
-      if (!file.type.startsWith('image/')) {
-        setStatus('That doesn\'t look like an image file.', '#c0392b'); return;
+      function setStatus(msg, color) {
+        status.textContent = msg;
+        status.style.color = color || '#f5ede0';
       }
-      setStatus('Analyzing…', '#8c7d6e');
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var img = new Image();
-        img.onload = function() {
-          var hash = computeDHash(img);
 
-          if (isSetup) {
-            // Setup mode: display the hash for the developer to copy
-            var out = document.getElementById('admin-hash-output');
-            var val = document.getElementById('admin-hash-value');
-            val.textContent = hash;
-            out.style.display = 'block';
-            val.addEventListener('click', function() {
-              navigator.clipboard.writeText(hash).then(function() {
-                val.textContent = '✓ Copied!';
-                setTimeout(function() { val.textContent = hash; }, 2000);
+      function processImage(file) {
+        if (!file || !file.type.startsWith('image/')) { setStatus('Please upload an image file.', '#c0392b'); return; }
+        setStatus('Analysing…', '#8c7d6e');
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          var img = new Image();
+          img.onload = function () {
+            var hash = computeDHash(img);
+            if (isSetup) {
+              /* Setup mode — display hash, let admin continue */
+              var wrap = document.getElementById('ag-hash-wrap');
+              var val  = document.getElementById('ag-hash-val');
+              val.textContent = hash;
+              wrap.style.display = 'block';
+              label.style.display = 'none';
+              setStatus('Hash computed. Copy it into the code, then redeploy.', '#27ae60');
+              val.addEventListener('click', function () {
+                navigator.clipboard.writeText(hash).then(function () {
+                  val.textContent = '✓ Copied!';
+                  setTimeout(function () { val.textContent = hash; }, 2000);
+                });
               });
-            });
-            setStatus('Hash generated. Copy it into your code and redeploy.', '#27ae60');
-          } else {
-            // Verification mode: compare hashes (allow ≤6 bits of tolerance)
-            var dist = hammingDist(hash, EXPECTED_HASH);
-            if (dist <= 6) {
-              setStatus('✓ Verified. Welcome back.', '#27ae60');
-              sessionStorage.setItem(SESSION_KEY, 'true');
-              setTimeout(function() { overlay.remove(); }, 800);
+              document.getElementById('ag-hash-continue').addEventListener('click', function () {
+                sessionStorage.setItem(IMG_OK_KEY, 'true');
+                renderAuthStage();
+              });
             } else {
-              setStatus('✗ That\'s not the right image. Try again.', '#c0392b');
-              input.value = '';
+              /* Normal mode — verify hash */
+              var dist = hammingDist(hash, EXPECTED_HASH);
+              if (dist <= 6) {
+                setStatus('✓ Image verified.', '#27ae60');
+                sessionStorage.setItem(IMG_OK_KEY, 'true');
+                setTimeout(renderAuthStage, 700);
+              } else {
+                setStatus('✗ Wrong image. Try again.', '#c0392b');
+                input.value = '';
+              }
             }
-          }
+          };
+          img.onerror = function () { setStatus('Could not read image.', '#c0392b'); };
+          img.src = ev.target.result;
         };
-        img.onerror = function() { setStatus('Could not load image.', '#c0392b'); };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      }
+
+      input.addEventListener('change', function () { if (input.files[0]) processImage(input.files[0]); });
+      label.addEventListener('dragover', function (e) { e.preventDefault(); label.style.borderColor = '#c0392b'; });
+      label.addEventListener('dragleave', function () { label.style.borderColor = 'rgba(192,57,43,0.35)'; });
+      label.addEventListener('drop', function (e) {
+        e.preventDefault(); label.style.borderColor = 'rgba(192,57,43,0.35)';
+        if (e.dataTransfer.files[0]) processImage(e.dataTransfer.files[0]);
+      });
     }
 
-    function setStatus(msg, color) {
-      status.textContent = msg;
-      status.style.color = color || '#f5ede0';
+    /* ── STAGE 2: Sign in ────────────────────────────────────────────── */
+    function renderAuthStage() {
+      var mode = 'in'; // 'in' | 'up'
+      gate.innerHTML =
+        '<div style="max-width:400px;width:100%;">' +
+          '<div style="font-size:10px;letter-spacing:3px;color:#574843;text-transform:uppercase;margin-bottom:20px;text-align:center;">Admin Access — Step 2 of 2</div>' +
+          '<h2 style="font-size:22px;font-weight:400;color:#c0392b;margin:0 0 24px;letter-spacing:1px;text-align:center;">Sign In</h2>' +
+
+          /* Tabs */
+          '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.09);margin-bottom:22px;">' +
+            '<button id="ag-tab-in" style="flex:1;padding:9px;background:transparent;border:none;border-bottom:2px solid #c0392b;color:#c0392b;font-family:Cinzel,serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;">Sign In</button>' +
+            '<button id="ag-tab-up" style="flex:1;padding:9px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8c7d6e;font-family:Cinzel,serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;">Create Account</button>' +
+          '</div>' +
+
+          '<div id="ag-err" style="' + C.err + '"></div>' +
+
+          /* Sign-in panel */
+          '<div id="ag-panel-in">' +
+            '<div style="' + C.field + '"><label style="' + C.label + '">Email Address</label><input id="ag-in-email" type="email" autocomplete="email" placeholder="you@example.com" style="' + C.input + '" /></div>' +
+            '<div style="' + C.field + '"><label style="' + C.label + '">Password</label><input id="ag-in-pass" type="password" autocomplete="current-password" placeholder="••••••••" style="' + C.input + '" /></div>' +
+            '<button id="ag-in-submit" style="' + C.btn + '">Sign In</button>' +
+          '</div>' +
+
+          /* Create account panel */
+          '<div id="ag-panel-up" style="display:none;">' +
+            '<div style="' + C.field + '"><label style="' + C.label + '">Display Name</label><input id="ag-up-name" type="text" autocomplete="name" placeholder="Your adventurer name" style="' + C.input + '" /></div>' +
+            '<div style="' + C.field + '"><label style="' + C.label + '">Email Address</label><input id="ag-up-email" type="email" autocomplete="email" placeholder="you@example.com" style="' + C.input + '" /></div>' +
+            '<div style="' + C.field + '"><label style="' + C.label + '">Password</label><input id="ag-up-pass" type="password" autocomplete="new-password" placeholder="Min. 8 characters" style="' + C.input + '" /></div>' +
+            '<div style="' + C.field + '"><label style="' + C.label + '">Confirm Password</label><input id="ag-up-pass2" type="password" autocomplete="new-password" placeholder="Repeat password" style="' + C.input + '" /></div>' +
+            '<button id="ag-up-submit" style="' + C.btn + '">Create Account</button>' +
+          '</div>' +
+
+          '<p style="font-family:Spectral,serif;font-size:12px;color:#574843;text-align:center;margin-top:20px;">Only registered admin accounts can proceed.</p>' +
+        '</div>';
+
+      function showErr(msg) {
+        var el = document.getElementById('ag-err');
+        el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+      }
+      function setLoading(id, on) {
+        var b = document.getElementById(id);
+        if (b) { b.disabled = on; b.style.opacity = on ? '0.6' : '1'; }
+      }
+      function grantAccess() {
+        gate.innerHTML = '<div style="text-align:center;"><div style="font-size:28px;margin-bottom:16px;">✓</div><p style="font-family:Spectral,serif;color:#27ae60;font-size:16px;">Access granted. Welcome.</p></div>';
+        setTimeout(function () { gate.remove(); }, 900);
+      }
+      function afterSignIn(session) {
+        if (!isAdminSession(session)) {
+          showErr('This account does not have admin privileges.');
+          setLoading('ag-in-submit', false);
+          setLoading('ag-up-submit', false);
+          return;
+        }
+        grantAccess();
+      }
+
+      /* Tab switching */
+      document.getElementById('ag-tab-in').addEventListener('click', function () {
+        mode = 'in'; showErr('');
+        document.getElementById('ag-panel-in').style.display = 'block';
+        document.getElementById('ag-panel-up').style.display = 'none';
+        document.getElementById('ag-tab-in').style.cssText += 'color:#c0392b;border-bottom-color:#c0392b;';
+        document.getElementById('ag-tab-up').style.cssText += 'color:#8c7d6e;border-bottom-color:transparent;';
+        document.getElementById('ag-in-email').focus();
+      });
+      document.getElementById('ag-tab-up').addEventListener('click', function () {
+        mode = 'up'; showErr('');
+        document.getElementById('ag-panel-in').style.display = 'none';
+        document.getElementById('ag-panel-up').style.display = 'block';
+        document.getElementById('ag-tab-in').style.cssText += 'color:#8c7d6e;border-bottom-color:transparent;';
+        document.getElementById('ag-tab-up').style.cssText += 'color:#c0392b;border-bottom-color:#c0392b;';
+        document.getElementById('ag-up-name').focus();
+      });
+
+      /* Sign In */
+      document.getElementById('ag-in-submit').addEventListener('click', function () {
+        showErr('');
+        var email = (document.getElementById('ag-in-email').value || '').trim().toLowerCase();
+        var pass  = document.getElementById('ag-in-pass').value;
+        if (!email) { showErr('Email is required.'); return; }
+        if (!pass)  { showErr('Password is required.'); return; }
+        var users = getUsers();
+        var user  = users[email];
+        if (!user) { showErr('No account found with that email.'); return; }
+        setLoading('ag-in-submit', true);
+        hashPassword(pass, email).then(function (hash) {
+          if (hash !== user.passwordHash) { showErr('Incorrect password.'); setLoading('ag-in-submit', false); return; }
+          afterSignIn(setSession(user));
+        }).catch(function () { showErr('Sign in failed. Try again.'); setLoading('ag-in-submit', false); });
+      });
+
+      /* Create Account */
+      document.getElementById('ag-up-submit').addEventListener('click', function () {
+        showErr('');
+        var name  = (document.getElementById('ag-up-name').value  || '').trim();
+        var email = (document.getElementById('ag-up-email').value || '').trim().toLowerCase();
+        var pass  = document.getElementById('ag-up-pass').value;
+        var pass2 = document.getElementById('ag-up-pass2').value;
+        if (!name)           { showErr('Display name is required.'); return; }
+        if (!email)          { showErr('Email is required.'); return; }
+        if (!pass)           { showErr('Password is required.'); return; }
+        if (pass.length < 8) { showErr('Password must be at least 8 characters.'); return; }
+        if (pass !== pass2)  { showErr('Passwords do not match.'); return; }
+        var users = getUsers();
+        if (users[email])    { showErr('An account with that email already exists.'); return; }
+        setLoading('ag-up-submit', true);
+        hashPassword(pass, email).then(function (hash) {
+          var uid = 'user_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2,5);
+          var user = { userId: uid, name: name, email: email, passwordHash: hash, createdAt: new Date().toISOString() };
+          users[email] = user;
+          localStorage.setItem('phmurt_users_db', JSON.stringify(users));
+          afterSignIn(setSession(user));
+        }).catch(function () { showErr('Account creation failed. Try again.'); setLoading('ag-up-submit', false); });
+      });
+
+      /* Enter key */
+      gate.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        if (mode === 'in') document.getElementById('ag-in-submit').click();
+        else               document.getElementById('ag-up-submit').click();
+      });
+
+      setTimeout(function () { var el = document.getElementById('ag-in-email'); if (el) el.focus(); }, 80);
+    }
+
+    /* ── Decide which stage to start on ──────────────────────────────── */
+    if (sessionStorage.getItem(IMG_OK_KEY) === 'true') {
+      /* Image already verified this session — check if also signed in */
+      var s = getSession();
+      if (isAdminSession(s)) { gate.remove(); return; } /* fully authenticated */
+      renderAuthStage();
+    } else {
+      renderImageStage();
     }
   }
 
-  document.addEventListener('DOMContentLoaded', showChallenge);
+  document.addEventListener('DOMContentLoaded', showGate);
+
 })();
 </script>
 <style>
