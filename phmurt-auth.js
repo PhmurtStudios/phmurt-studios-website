@@ -24,7 +24,7 @@
 var PhmurtDB = (function () {
 
   /* ── Config ──────────────────────────────────────────────────────── */
-  var ADMIN_EMAILS = ['dreverad18@gmail.com'];
+  var ADMIN_EMAILS = ['dreverad@icloud.com'];
 
   /* ── State ───────────────────────────────────────────────────────── */
   var _session   = null;
@@ -302,7 +302,7 @@ var PhmurtDB = (function () {
         var builder = existingId ? (snapshot.builderType || '5e') : (snapshot.cls ? '5e' : '35e');
 
         var row = {
-          user_id:      _session.userId,
+          owner_id:     _session.userId,
           name:         name,
           race:         race,
           class:        cls,
@@ -315,7 +315,7 @@ var PhmurtDB = (function () {
         if (existingId && !/^\d+$/.test(existingId)) {
           // Valid UUID — update
           return sb.from('characters').update(row)
-            .eq('id', existingId).eq('user_id', _session.userId)
+            .eq('id', existingId).eq('owner_id', _session.userId)
             .select('id').single()
             .then(function (r) {
               if (r.error) throw r.error;
@@ -370,7 +370,7 @@ var PhmurtDB = (function () {
       var sb = _sb();
       if (sb && !/^\d+$/.test(id)) {
         return sb.from('characters').select('data')
-          .eq('id', id).eq('user_id', _session.userId).maybeSingle()
+          .eq('id', id).eq('owner_id', _session.userId).maybeSingle()
           .then(function (r) { return r.data ? r.data.data : null; })
           .catch(function () { return null; });
       }
@@ -389,7 +389,7 @@ var PhmurtDB = (function () {
       if (sb) {
         return sb.from('characters')
           .select('id, name, race, class, level, builder_type, created_at, updated_at')
-          .eq('user_id', _session.userId)
+          .eq('owner_id', _session.userId)
           .order('updated_at', { ascending: false })
           .then(function (r) { return r.data || []; })
           .catch(function () { return _legacyGetChars(); });
@@ -404,7 +404,7 @@ var PhmurtDB = (function () {
       var sb = _sb();
       if (sb && !/^\d+$/.test(id)) {
         return sb.from('characters').delete()
-          .eq('id', id).eq('user_id', _session.userId)
+          .eq('id', id).eq('owner_id', _session.userId)
           .then(function (r) { return !r.error; })
           .catch(function () { return false; });
       }

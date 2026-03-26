@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Spectral:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<!-- Supabase must load FIRST so phmurtSupabase is defined before anything else -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -27,7 +30,7 @@
 (function () {
 
   /* ── Config ──────────────────────────────────────────────────────── */
-  var ADMIN_EMAILS  = ['dreverad18@gmail.com'];
+  var ADMIN_EMAILS  = ['dreverad@icloud.com'];
   var EXPECTED_HASH = '1100000000000000100000001001110010011100101000000000010000000110'; // ← replace with your hash after first run
   var IMG_OK_KEY    = 'phmurt_admin_img_ok'; // sessionStorage flag
 
@@ -324,20 +327,67 @@
       });
 
       /* Sign In */
+      function tryLocalSignIn(email, pass) {
+        var users = getUsers();
+        var user  = users[email];
+        if (!user) { showErr('No account found with that email.'); setLoading('ag-in-submit', false); return; }
+        hashPassword(pass, email).then(function (hash) {
+          if (hash !== user.passwordHash) { showErr('Incorrect password.'); setLoading('ag-in-submit', false); return; }
+          afterSignIn(setSession(user));
+        }).catch(function () { showErr('Sign in failed. Try again.'); setLoading('ag-in-submit', false); });
+      }
+
       document.getElementById('ag-in-submit').addEventListener('click', function () {
         showErr('');
         var email = (document.getElementById('ag-in-email').value || '').trim().toLowerCase();
         var pass  = document.getElementById('ag-in-pass').value;
         if (!email) { showErr('Email is required.'); return; }
         if (!pass)  { showErr('Password is required.'); return; }
-        var users = getUsers();
-        var user  = users[email];
-        if (!user) { showErr('No account found with that email.'); return; }
         setLoading('ag-in-submit', true);
-        hashPassword(pass, email).then(function (hash) {
-          if (hash !== user.passwordHash) { showErr('Incorrect password.'); setLoading('ag-in-submit', false); return; }
-          afterSignIn(setSession(user));
-        }).catch(function () { showErr('Sign in failed. Try again.'); setLoading('ag-in-submit', false); });
+
+        var sbClient = (typeof phmurtSupabase !== 'undefined') ? phmurtSupabase : null;
+        if (sbClient) {
+          /* Try Supabase auth first */
+          sbClient.auth.signInWithPassword({ email: email, password: pass })
+            .then(function (result) {
+              if (result.error) {
+                /* Supabase failed — fall back to local hash auth */
+                tryLocalSignIn(email, pass);
+                return;
+              }
+              var user = result.data && result.data.user;
+              if (!user) { showErr('Sign in failed. Try again.'); setLoading('ag-in-submit', false); return; }
+              /* Check is_admin flag in profiles, also honour ADMIN_EMAILS */
+              sbClient.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()
+                .then(function (pr) {
+                  var isAdm = (pr.data && pr.data.is_admin) || (ADMIN_EMAILS.indexOf(email) !== -1);
+                  if (!isAdm) {
+                    showErr('This account does not have admin privileges.');
+                    setLoading('ag-in-submit', false);
+                    return;
+                  }
+                  /* Write a compatible session so the rest of the gate recognises it */
+                  var dispName = (user.user_metadata && user.user_metadata.name) || email.split('@')[0];
+                  setSession({ userId: user.id, name: dispName, email: email, isAdmin: true });
+                  grantAccess();
+                })
+                .catch(function () {
+                  /* Profile fetch failed — still grant if email is in ADMIN_EMAILS */
+                  if (ADMIN_EMAILS.indexOf(email) !== -1) {
+                    var dispName = email.split('@')[0];
+                    setSession({ userId: user.id, name: dispName, email: email, isAdmin: true });
+                    grantAccess();
+                  } else {
+                    showErr('Could not verify admin status. Try again.');
+                    setLoading('ag-in-submit', false);
+                  }
+                });
+            })
+            .catch(function () { showErr('Sign in failed. Try again.'); setLoading('ag-in-submit', false); });
+        } else {
+          /* No Supabase — local hash auth only */
+          tryLocalSignIn(email, pass);
+        }
       });
 
       /* Create Account */
@@ -378,8 +428,28 @@
     if (sessionStorage.getItem(IMG_OK_KEY) === 'true') {
       /* Image already verified this session — check if also signed in */
       var s = getSession();
-      if (isAdminSession(s)) { gate.remove(); return; } /* fully authenticated */
-      renderAuthStage();
+      if (isAdminSession(s)) { gate.remove(); return; } /* fully authenticated (local) */
+      /* Also check for a live Supabase session */
+      var sbClient = (typeof phmurtSupabase !== 'undefined') ? phmurtSupabase : null;
+      if (sbClient) {
+        sbClient.auth.getSession().then(function (r) {
+          var sess = r.data && r.data.session;
+          if (sess && sess.user) {
+            var email = (sess.user.email || '').toLowerCase();
+            if (ADMIN_EMAILS.indexOf(email) !== -1) { gate.remove(); return; }
+            sbClient.from('profiles').select('is_admin').eq('id', sess.user.id).maybeSingle()
+              .then(function (pr) {
+                if (pr.data && pr.data.is_admin) { gate.remove(); return; }
+                renderAuthStage();
+              })
+              .catch(function () { renderAuthStage(); });
+          } else {
+            renderAuthStage();
+          }
+        }).catch(function () { renderAuthStage(); });
+      } else {
+        renderAuthStage();
+      }
     } else {
       renderImageStage();
     }
@@ -1229,6 +1299,106 @@ function TrafficPage() {
 // ═══════════════════════════════
 // SETTINGS PAGE
 // ═══════════════════════════════
+// ── Manage Admins card (used inside SettingsPage) ────────────────────────────
+function ManageAdminsCard({ addToast }) {
+  const [admins, setAdmins]     = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [email, setEmail]       = useState('');
+  const [working, setWorking]   = useState(false);
+
+  function fetchAdmins() {
+    if (!sb) { setLoading(false); return; }
+    setLoading(true);
+    sb.from('profiles').select('id, name, email, is_admin')
+      .eq('is_admin', true).order('email')
+      .then(r => { setAdmins(r.data || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }
+  useEffect(() => { fetchAdmins(); }, []);
+
+  async function grantAdmin() {
+    if (!sb) { addToast('Supabase not configured.', 'error'); return; }
+    const addr = email.trim().toLowerCase();
+    if (!addr) { addToast('Enter an email address.', 'error'); return; }
+    setWorking(true);
+    // Look up the user in profiles by email
+    const { data: rows, error } = await sb.from('profiles').select('id, email').eq('email', addr).limit(1);
+    if (error || !rows || rows.length === 0) {
+      addToast('No account found with that email. They must sign up first.', 'error');
+      setWorking(false); return;
+    }
+    const { error: upErr } = await sb.from('profiles').update({ is_admin: true }).eq('id', rows[0].id);
+    if (upErr) { addToast('Failed to grant admin: ' + upErr.message, 'error'); }
+    else       { addToast(addr + ' is now an admin.', 'success'); setEmail(''); fetchAdmins(); }
+    setWorking(false);
+  }
+
+  async function revokeAdmin(user) {
+    if (!sb) return;
+    if (!confirm('Remove admin access from ' + user.email + '?')) return;
+    const { error } = await sb.from('profiles').update({ is_admin: false }).eq('id', user.id);
+    if (error) addToast('Failed to revoke: ' + error.message, 'error');
+    else       { addToast(user.email + ' admin access removed.', 'success'); fetchAdmins(); }
+  }
+
+  return (
+    <div className="card" style={{gridColumn:'1 / -1'}}>
+      <div className="card-header"><h2>Manage Admin Accounts</h2></div>
+      <div className="card-body">
+        {!sb ? (
+          <p style={{fontSize:'13px',color:'var(--text-muted)'}}>Supabase must be configured to manage admins here.</p>
+        ) : (
+          <>
+            {/* Grant form */}
+            <div style={{display:'flex',gap:'10px',marginBottom:'24px',alignItems:'flex-end'}}>
+              <div style={{flex:1}}>
+                <label style={{fontSize:'11px',letterSpacing:'1.5px',textTransform:'uppercase',color:'var(--text-muted)',display:'block',marginBottom:'6px',fontFamily:'Cinzel,serif'}}>Grant Admin by Email</label>
+                <input
+                  type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="user@example.com"
+                  onKeyDown={e => e.key === 'Enter' && grantAdmin()}
+                  style={{width:'100%',padding:'9px 12px',background:'var(--bg-input)',border:'1px solid var(--border)',color:'var(--text)',fontFamily:'Spectral,serif',fontSize:'13px',borderRadius:'3px',outline:'none'}}
+                />
+              </div>
+              <button onClick={grantAdmin} disabled={working || !email.trim()}
+                style={{padding:'9px 20px',background:'var(--crimson)',color:'#f5f0e8',border:'none',fontFamily:'Cinzel,serif',fontSize:'11px',letterSpacing:'1.5px',textTransform:'uppercase',cursor:'pointer',borderRadius:'3px',opacity:(working||!email.trim())?0.5:1,whiteSpace:'nowrap'}}>
+                {working ? 'Granting…' : 'Grant Admin'}
+              </button>
+            </div>
+
+            {/* Admin list */}
+            {loading ? (
+              <p style={{fontSize:'13px',color:'var(--text-muted)'}}>Loading…</p>
+            ) : admins.length === 0 ? (
+              <p style={{fontSize:'13px',color:'var(--text-muted)'}}>No admin accounts found in the database.</p>
+            ) : (
+              <div className="data-table" style={{overflowX:'auto'}}>
+                <table>
+                  <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+                  <tbody>
+                    {admins.map(u => (
+                      <tr key={u.id}>
+                        <td>{u.name || '—'}</td>
+                        <td><code style={{fontSize:'12px'}}>{u.email}</code></td>
+                        <td>
+                          <button onClick={() => revokeAdmin(u)}
+                            style={{padding:'5px 12px',background:'rgba(231,76,60,0.12)',color:'var(--danger)',border:'1px solid rgba(231,76,60,0.2)',fontFamily:'Cinzel,serif',fontSize:'10px',letterSpacing:'1px',cursor:'pointer',borderRadius:'3px'}}>
+                            Revoke
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SettingsPage({ addToast }) {
   const sbConfigured = !!sb;
 
@@ -1271,6 +1441,8 @@ function SettingsPage({ addToast }) {
             ))}
           </div>
         </div>
+
+        <ManageAdminsCard addToast={addToast} />
 
         <div className="card" style={{gridColumn:'1 / -1'}}>
           <div className="card-header"><h2>Database Schema</h2></div>
