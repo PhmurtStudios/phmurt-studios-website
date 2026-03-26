@@ -3,7 +3,7 @@
   var SHELL_ADMIN_EMAILS = ['dreverad18@gmail.com'];
   function _shellIsAdmin() {
     try {
-      var raw = localStorage.getItem('phmurt_auth_session');
+      var raw = localStorage.getItem('phmurt_session');
       var s = raw ? JSON.parse(raw) : null;
       if (!s) return false;
       var email = (s.email || '').trim().toLowerCase();
@@ -334,7 +334,10 @@
   }
 
   function _getAuthSession() {
-    try { return JSON.parse(localStorage.getItem('phmurt_auth_session') || 'null'); }
+    try {
+      if (window.PhmurtDB && typeof window.PhmurtDB.getSession === 'function') return window.PhmurtDB.getSession();
+      return JSON.parse(localStorage.getItem('phmurt_session') || 'null');
+    }
     catch(e) { return null; }
   }
 
@@ -374,7 +377,8 @@
         var soBtn = document.getElementById('nav-signout-btn');
         if (soBtn) {
           soBtn.addEventListener('click', function() {
-            localStorage.removeItem('phmurt_auth_session');
+            if (window.PhmurtDB && typeof window.PhmurtDB.logout === 'function') { window.PhmurtDB.logout(); return; }
+            localStorage.removeItem('phmurt_session');
             window.dispatchEvent(new Event('phmurt-auth-change'));
             dd.classList.remove('open');
             if (typeof window.psToast === 'function') window.psToast('Signed out.');

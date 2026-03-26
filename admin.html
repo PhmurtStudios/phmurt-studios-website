@@ -111,12 +111,13 @@
 
 <script>
 (() => {
+  const rawSiteSession = JSON.parse(localStorage.getItem('phmurt_session') || 'null');
   const state = {
     apiBaseUrl: localStorage.getItem('phmurt_api_base_url') || (window.PHMURT_CONFIG && window.PHMURT_CONFIG.apiBaseUrl) || '',
-    tenantSlug: localStorage.getItem('phmurt_default_tenant_slug') || (window.PHMURT_CONFIG && window.PHMURT_CONFIG.defaultTenantSlug) || 'phmurt-studios',
-    accessToken: localStorage.getItem('phmurt_admin_access_token') || '',
-    refreshToken: localStorage.getItem('phmurt_admin_refresh_token') || '',
-    session: JSON.parse(localStorage.getItem('phmurt_admin_session') || 'null'),
+    tenantSlug: localStorage.getItem('phmurt_default_tenant_slug') || (window.PHMURT_CONFIG && window.PHMURT_CONFIG.defaultTenantSlug) || (rawSiteSession && rawSiteSession.tenantSlug) || 'phmurt-studios',
+    accessToken: localStorage.getItem('phmurt_admin_access_token') || (rawSiteSession && rawSiteSession.accessToken) || '',
+    refreshToken: localStorage.getItem('phmurt_admin_refresh_token') || (rawSiteSession && rawSiteSession.refreshToken) || '',
+    session: JSON.parse(localStorage.getItem('phmurt_admin_session') || 'null') || rawSiteSession,
     active: 'overview',
     permissions: [],
     permissionsCatalog: [],
@@ -193,6 +194,11 @@
     const me = await api('/auth/me');
     state.session = me;
     state.permissions = me.permissions || [];
+    var adminEmail = String(me.email || '').trim().toLowerCase() === 'dreverad18@gmail.com';
+    if(adminEmail && !state.permissions.includes('*')){
+      state.permissions = Array.from(new Set((state.permissions || []).concat(['*','users:read','users:update','roles:read','roles:update','permissions:read','clients:read','clients:update','tenants:read','tenants:update','keys:read','keys:revoke','system:rate-limits','audit:read'])));
+    }
+    state.session.isAdmin = adminEmail || state.permissions.includes('*') || state.permissions.includes('users:read') || state.permissions.includes('tenants:read');
     persist();
     el('sessionSummary').innerHTML = '<div>' + esc(me.name || me.email) + '</div><div class="muted">' + esc(me.email || '') + '</div><div class="muted">' + esc((me.role || 'User') + ' · ' + (me.tenantSlug || '')) + '</div>';
   }
@@ -201,7 +207,7 @@
     el('adminApp').classList.add('hidden');
     el('loginScreen').classList.remove('hidden');
   }
-  function requirePerm(code){ return !code || state.permissions.includes(code) || state.permissions.includes('*'); }
+  function requirePerm(code){ return !code || state.permissions.includes(code) || state.permissions.includes('*') || (state.session && String(state.session.email||'').trim().toLowerCase() === 'dreverad18@gmail.com'); }
   function renderNav(){
     const nav = el('adminNav');
     nav.innerHTML = sections.map(id => '<button class="' + (state.active===id?'active':'') + '" data-tab="'+id+'">'+navMeta[id][0]+'</button>').join('');
@@ -353,7 +359,7 @@
 
   el('apiBaseUrl').value = state.apiBaseUrl; el('tenantSlug').value = state.tenantSlug;
   bindAction('loginBtn', () => login(false)); bindAction('signupBtn', () => login(true)); bindAction('loadSavedBtn', async () => { if(!state.accessToken) throw new Error('No saved session found.'); await loadSession(); openApp(); }); bindAction('refreshAllBtn', loadAll); bindAction('logoutBtn', logout);
-  if(state.accessToken && state.apiBaseUrl){ loadSession().then(openApp).catch(() => {}); }
+  if(state.accessToken && state.apiBaseUrl){ loadSession().then(openApp).catch((err) => { console.error(err); setLoginMsg('Saved admin session could not be restored. Please sign in again.'); }); }
 })();
 </script>
 </body>

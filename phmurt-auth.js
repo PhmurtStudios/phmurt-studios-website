@@ -20,6 +20,7 @@ const PhmurtDB = (function(){
   const USERS_KEY = 'phmurt_users';
   const SESSION_KEY = 'phmurt_session';
   const CHARS_PREFIX = 'phmurt_chars_';
+  const ADMIN_EMAILS = ['dreverad18@gmail.com'];
 
   function apiBase(){ return (typeof PHMURT_CONFIG !== 'undefined' && PHMURT_CONFIG.apiBaseUrl ? String(PHMURT_CONFIG.apiBaseUrl).replace(/\/$/,'') : ''); }
   function defaultTenantSlug(){ return (localStorage.getItem('phmurt_default_tenant_slug') || (typeof PHMURT_CONFIG !== 'undefined' && PHMURT_CONFIG.defaultTenantSlug) || 'phmurt-studios').trim(); }
@@ -72,7 +73,8 @@ async function signup(name, email, password){
   }
   users.push(user);
   lsSet(USERS_KEY, users);
-  const session = {userId:user.id, id:user.id, name:user.name, email:user.email};
+  const session = {userId:user.id, id:user.id, name:user.name, displayName:user.name, email:user.email};
+  session.isAdmin = ADMIN_EMAILS.includes(String(session.email||'').trim().toLowerCase());
   lsSet(SESSION_KEY, session);
   return {user:session};
 }
@@ -85,7 +87,8 @@ async function login(email, password){
   if(base){
     const data = await apiAuth('/auth/login', { tenantSlug: defaultTenantSlug(), email, password });
     if(data && data.error) return data;
-    const session = { userId:data.userId, id:data.userId, name:data.name, email:data.email, accessToken:data.accessToken, refreshToken:data.refreshToken, permissions:data.permissions||[], tenantSlug:defaultTenantSlug() };
+    const session = { userId:data.userId, id:data.userId, name:data.name, displayName:data.name, email:data.email, accessToken:data.accessToken, refreshToken:data.refreshToken, permissions:data.permissions||[], tenantSlug:defaultTenantSlug() };
+    session.isAdmin = ADMIN_EMAILS.includes(String(session.email||'').trim().toLowerCase()) || (session.permissions||[]).includes('*') || (session.permissions||[]).includes('users:read') || (session.permissions||[]).includes('tenants:read');
     lsSet(SESSION_KEY, session);
     return {user:session};
   }
@@ -94,7 +97,8 @@ async function login(email, password){
   if(client){
     const {data,error} = await client.auth.signInWithPassword({email,password});
     if(error) return {error:'Invalid email or password.'};
-    const session = {userId:data.user.id, id:data.user.id, name:data.user.user_metadata?.name||email.split('@')[0], email:data.user.email};
+    const session = {userId:data.user.id, id:data.user.id, name:data.user.user_metadata?.name||email.split('@')[0], displayName:data.user.user_metadata?.name||email.split('@')[0], email:data.user.email};
+  session.isAdmin = ADMIN_EMAILS.includes(String(session.email||'').trim().toLowerCase());
     lsSet(SESSION_KEY, session);
     return {user:session};
   }
@@ -102,7 +106,8 @@ async function login(email, password){
   const users = lsGet(USERS_KEY)||[];
   const user = users.find(u=>u.email===email);
   if(!user||user.pwHash!==hashPw(password)) return {error:'Invalid email or password.'};
-  const session = {userId:user.id, id:user.id, name:user.name, email:user.email};
+  const session = {userId:user.id, id:user.id, name:user.name, displayName:user.name, email:user.email};
+  session.isAdmin = ADMIN_EMAILS.includes(String(session.email||'').trim().toLowerCase());
   lsSet(SESSION_KEY, session);
   return {user:session};
 }
@@ -115,12 +120,18 @@ function logout(){
   localStorage.removeItem(SESSION_KEY);
   const client = sb();
   if(client) client.auth.signOut();
+  window.dispatchEvent(new Event('phmurt-auth-change'));
   window.location.reload();
 }
 
 function getSession(){
   const s = lsGet(SESSION_KEY);
   if(s && s.userId && !s.id) s.id = s.userId;
+  if(s && !s.displayName && s.name) s.displayName = s.name;
+  if(s && typeof s.isAdmin !== 'boolean'){
+    const email = String(s.email||'').trim().toLowerCase();
+    s.isAdmin = ADMIN_EMAILS.includes(email) || !!(Array.isArray(s.permissions) && (s.permissions.includes('*') || s.permissions.includes('users:read') || s.permissions.includes('tenants:read')));
+  }
   return s;
 }
 
@@ -340,7 +351,9 @@ function getSession(){
     setTimeout(()=>{errEl.style.color='';errEl.textContent='';},5000);
   }
 
-  async function doLogin(){
+  function _broadcastAuthChange(){ try{ window.dispatchEvent(new Event('phmurt-auth-change')); }catch(e){} }
+
+async function doLogin(){
     const email=document.getElementById('pam-login-email').value;
     const pw=document.getElementById('pam-login-pw').value;
     const errEl=document.getElementById('pam-login-err');
@@ -350,6 +363,7 @@ function getSession(){
     errEl.textContent='';
     closeAuth();
     updateNavAuth();
+    _broadcastAuthChange();
     if(typeof onAuthChange==='function') onAuthChange(r.user);
   }
 
@@ -364,6 +378,7 @@ function getSession(){
     errEl.textContent='';
     closeAuth();
     updateNavAuth();
+    _broadcastAuthChange();
     if(typeof onAuthChange==='function') onAuthChange(r.user);
   }
 
@@ -375,7 +390,10 @@ function getSession(){
     if(session){
       btn.textContent=session.name.split(' ')[0];
       btn.onclick=()=>dropdown?.classList.toggle('open');
-      if(dropdown){ dropdown.innerHTML=`<a href="my-characters.html">My Characters</a><button onclick="PhmurtDB.logout()">Sign Out</button>`; }
+      if(dropdown){
+        var adminLink = session.isAdmin ? '<a href="admin.html">Admin Panel</a>' : '';
+        dropdown.innerHTML=`<a href="my-characters.html">My Characters</a>${adminLink}<button onclick="PhmurtDB.logout()">Sign Out</button>`;
+      }
     } else {
       btn.textContent='Sign In';
       btn.onclick=()=>PhmurtDB.openAuth();
@@ -385,6 +403,7 @@ function getSession(){
 
   // Init on load
   document.addEventListener('DOMContentLoaded', updateNavAuth);
+  window.addEventListener('phmurt-auth-change', updateNavAuth);
 
 
 async function apiFetch(path, options){
@@ -396,7 +415,7 @@ async function apiFetch(path, options){
   if(!res.ok) throw new Error(data && (data.error||data.message) || 'API request failed.');
   return data;
 }
-function isAdmin(){ const s=getSession(); return !!(s && ((s.permissions||[]).includes('users:read') || (s.permissions||[]).includes('tenants:read'))); }
+function isAdmin(){ const s=getSession(); return !!(s && (s.isAdmin === true || ADMIN_EMAILS.includes(String(s.email||'').trim().toLowerCase()) || (s.permissions||[]).includes('*') || (s.permissions||[]).includes('users:read') || (s.permissions||[]).includes('tenants:read'))); }
 return { signup, login, logout, getSession, isAdmin, apiFetch, saveCharacter, loadCharacters, loadCharacter, deleteCharacter, openAuth, closeAuth, authTab, doLogin, doSignup, doForgotPassword, updateNavAuth };
 
 })();
