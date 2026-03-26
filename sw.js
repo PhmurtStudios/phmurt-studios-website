@@ -1,11 +1,10 @@
-const CACHE_VERSION = 3;
+const CACHE_VERSION = 2;
 const CACHE_NAME = 'phmurt-v' + CACHE_VERSION;
 const PRECACHE_URLS = [
   '/',
   'index.html',
   'style.css',
   'phmurt-shell.js',
-  'phmurt-auth.js',
   'builder-data.js',
   'builder-data-35.js',
   'monster-data.js',
@@ -54,10 +53,6 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   if (url.protocol === 'chrome-extension:') return;
   if (url.origin !== self.location.origin) return;
-
-  // Never cache API or auth JSON endpoints.
-  if (url.pathname.startsWith('/api/')) return;
-  if ((request.headers.get('accept') || '').includes('application/json')) return;
 
   // Network-first for HTML pages (always get fresh content)
   if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {

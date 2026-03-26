@@ -3,7 +3,7 @@
   var SHELL_ADMIN_EMAILS = ['dreverad18@gmail.com'];
   function _shellIsAdmin() {
     try {
-      var raw = localStorage.getItem('phmurt_session') || localStorage.getItem('phmurt_auth_session') || localStorage.getItem('phmurt_admin_session');
+      var raw = localStorage.getItem('phmurt_auth_session');
       var s = raw ? JSON.parse(raw) : null;
       if (!s) return false;
       var email = (s.email || '').trim().toLowerCase();
@@ -334,10 +334,7 @@
   }
 
   function _getAuthSession() {
-    try {
-      if (window.PhmurtDB && typeof window.PhmurtDB.getSession === 'function') return window.PhmurtDB.getSession();
-      return JSON.parse(localStorage.getItem('phmurt_session') || localStorage.getItem('phmurt_auth_session') || localStorage.getItem('phmurt_admin_session') || 'null');
-    }
+    try { return JSON.parse(localStorage.getItem('phmurt_auth_session') || 'null'); }
     catch(e) { return null; }
   }
 
@@ -377,9 +374,7 @@
         var soBtn = document.getElementById('nav-signout-btn');
         if (soBtn) {
           soBtn.addEventListener('click', function() {
-            if (window.PhmurtDB && typeof window.PhmurtDB.signOut === 'function') { window.PhmurtDB.signOut(); return; }
-            if (window.PhmurtDB && typeof window.PhmurtDB.logout === 'function') { window.PhmurtDB.logout(); return; }
-            ['phmurt_session','phmurt_auth_session','phmurt_admin_session'].forEach(function(k){ localStorage.removeItem(k); });
+            localStorage.removeItem('phmurt_auth_session');
             window.dispatchEvent(new Event('phmurt-auth-change'));
             dd.classList.remove('open');
             if (typeof window.psToast === 'function') window.psToast('Signed out.');
