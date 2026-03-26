@@ -3,435 +3,199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
-  <title>D&amp;D 5e Character Sheet · Phmurt Studios</title>
-  <meta name="description" content="Free fillable D&D 5th Edition character sheet. Fill in your browser, print or save as PDF." />
+  <title>D&D 5e Character Sheet — Phmurt Studios</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-  <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="site.webmanifest" />
   <script src="theme.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
-  <style>
-    .cs-wrap { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
-    .cs-sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 32px; }
-    .cs-header { display: grid; grid-template-columns: 1fr auto; gap: 24px; margin-bottom: 32px; }
-    .cs-title-block { display: flex; flex-direction: column; gap: 12px; }
-    .cs-field-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .cs-field { display: flex; flex-direction: column; gap: 4px; }
-    .cs-field label { font-family: Cinzel, serif; font-size: 10px; letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase; }
-    .cs-field input, .cs-field textarea, .cs-field select {
-      background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px;
-      color: var(--text-primary); font-family: Spectral, serif; font-size: 14px;
-      padding: 7px 10px; width: 100%; box-sizing: border-box;
-    }
-    .cs-field textarea { resize: vertical; min-height: 80px; }
-    .cs-section-title { font-family: Cinzel, serif; font-size: 13px; letter-spacing: 0.1em; color: var(--crimson); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 28px 0 16px; }
-    .cs-abilities { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
-    .cs-ability { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 12px 8px; text-align: center; }
-    .cs-ability label { font-family: Cinzel, serif; font-size: 10px; letter-spacing: 0.06em; color: var(--text-dim); display: block; margin-bottom: 6px; }
-    .cs-ability input[type="number"] {
-      width: 100%; text-align: center; font-family: Cinzel, serif; font-size: 22px; font-weight: 700;
-      color: var(--text-primary); background: transparent; border: none; outline: none; padding: 0;
-    }
-    .cs-ability .cs-mod { font-family: Spectral, serif; font-size: 13px; color: var(--text-dim); margin-top: 4px; min-height: 18px; }
-    .cs-saves-skills { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-    .cs-check-list { display: flex; flex-direction: column; gap: 6px; }
-    .cs-check-item { display: flex; align-items: center; gap: 8px; font-family: Spectral, serif; font-size: 14px; color: var(--text-primary); }
-    .cs-check-item input[type="checkbox"] { accent-color: var(--crimson); width: 14px; height: 14px; flex-shrink: 0; }
-    .cs-check-item .cs-prof-val { min-width: 32px; text-align: right; font-size: 13px; color: var(--text-dim); }
-    .cs-combat { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
-    .cs-combat-box { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 12px; text-align: center; }
-    .cs-combat-box label { font-family: Cinzel, serif; font-size: 9px; letter-spacing: 0.07em; color: var(--text-dim); display: block; margin-bottom: 6px; }
-    .cs-combat-box input { width: 100%; text-align: center; font-family: Cinzel, serif; font-size: 20px; font-weight: 700; color: var(--text-primary); background: transparent; border: none; outline: none; }
-    .cs-attack-table { width: 100%; border-collapse: collapse; font-family: Spectral, serif; font-size: 14px; margin-bottom: 8px; }
-    .cs-attack-table th { font-family: Cinzel, serif; font-size: 10px; letter-spacing: 0.07em; color: var(--text-dim); text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
-    .cs-attack-table td { padding: 4px 4px; }
-    .cs-attack-table td input { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: Spectral, serif; font-size: 13px; padding: 5px 8px; box-sizing: border-box; }
-    .cs-spell-level { margin-bottom: 16px; }
-    .cs-spell-level-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .cs-spell-level-header label { font-family: Cinzel, serif; font-size: 11px; letter-spacing: 0.07em; color: var(--text-dim); min-width: 60px; }
-    .cs-slot-boxes { display: flex; gap: 4px; align-items: center; }
-    .cs-slot-box { width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 3px; cursor: pointer; background: transparent; transition: background .15s; }
-    .cs-slot-box.used { background: var(--crimson); }
-    .cs-spells-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
-    .cs-spells-grid input { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: Spectral, serif; font-size: 13px; padding: 5px 8px; width: 100%; box-sizing: border-box; }
-    .cs-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
-    .cs-btn { padding: 10px 24px; font-family: Cinzel, serif; font-size: 13px; letter-spacing: 0.05em; border-radius: 4px; cursor: pointer; border: none; transition: background .15s, color .15s; }
-    .cs-btn-primary { background: var(--crimson); color: #fff; }
-    .cs-btn-primary:hover { background: #a93226; }
-    .cs-btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
-    .cs-btn-secondary:hover { border-color: var(--crimson); color: var(--text-primary); }
-    @media (max-width: 640px) {
-      .cs-abilities { grid-template-columns: repeat(3, 1fr); }
-      .cs-saves-skills { grid-template-columns: 1fr; }
-      .cs-header { grid-template-columns: 1fr; }
-    }
-    @media print {
-      #ps-site-shell, #ps-page-breadcrumb, #ps-site-footer, .cs-actions { display: none !important; }
-      .cs-sheet { border: none; padding: 0; }
-    }
-  </style>
 </head>
-<body data-nav-active="Players" data-footer-copy="Roll Well. Play Weird." data-breadcrumb="Home|index.html;Character Sheets|character-sheets.html;D&amp;D 5e Sheet">
+<body data-nav-active="Sheets" data-footer-copy="Roll Well. Play Weird." data-breadcrumb="Home|index.html;Sheets|character-sheets.html;D&D 5e Sheet">
   <div id="ps-site-shell"></div>
-  <div id="ps-page-breadcrumb"></div>
 
-  <div class="ps-page-hero">
-    <div class="ps-page-eyebrow">D&amp;D 5th Edition</div>
-    <div class="ps-page-title">Character Sheet</div>
-    <div class="ps-page-subtitle">Fill in your browser · Auto-saves locally</div>
+<div id="ps-page-breadcrumb"></div>
+
+  <div class="sheet-wrap">
+
+    <div class="sheet-header">
+      <div class="sheet-title">Dungeons &amp; Dragons 5th Edition</div>
+      <div class="sheet-subtitle">Character Sheet · Phmurt Studios</div>
+    </div>
+
+    <!-- CHARACTER INFO -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Character Information</div>
+      <div class="sheet-grid sheet-grid-3">
+        <div class="sheet-field"><label>Character Name</label><input type="text" placeholder="Aldric Stonemantle" /></div>
+        <div class="sheet-field"><label>Player Name</label><input type="text" /></div>
+        <div class="sheet-field"><label>Campaign</label><input type="text" /></div>
+        <div class="sheet-field"><label>Class &amp; Level</label><input type="text" placeholder="Fighter 5" /></div>
+        <div class="sheet-field"><label>Background</label><input type="text" placeholder="Soldier" /></div>
+        <div class="sheet-field"><label>Race</label><input type="text" placeholder="Human" /></div>
+        <div class="sheet-field"><label>Alignment</label><input type="text" placeholder="Lawful Good" /></div>
+        <div class="sheet-field"><label>Experience Points</label><input type="text" placeholder="0" /></div>
+        <div class="sheet-field"><label>Proficiency Bonus</label><input type="text" placeholder="+2" /></div>
+      </div>
+    </div>
+
+    <!-- ABILITY SCORES -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Ability Scores</div>
+      <div class="sheet-grid sheet-grid-6">
+        <div class="sheet-stat-box"><div class="sheet-stat-name">STR</div><input type="text" placeholder="10" id="str" oninput="updateMod('str','str-mod')"/><div class="sheet-mod" id="str-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">DEX</div><input type="text" placeholder="10" id="dex" oninput="updateMod('dex','dex-mod')"/><div class="sheet-mod" id="dex-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">CON</div><input type="text" placeholder="10" id="con" oninput="updateMod('con','con-mod')"/><div class="sheet-mod" id="con-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">INT</div><input type="text" placeholder="10" id="int" oninput="updateMod('int','int-mod')"/><div class="sheet-mod" id="int-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">WIS</div><input type="text" placeholder="10" id="wis" oninput="updateMod('wis','wis-mod')"/><div class="sheet-mod" id="wis-mod">+0</div></div>
+        <div class="sheet-stat-box"><div class="sheet-stat-name">CHA</div><input type="text" placeholder="10" id="cha" oninput="updateMod('cha','cha-mod')"/><div class="sheet-mod" id="cha-mod">+0</div></div>
+      </div>
+    </div>
+
+    <!-- COMBAT + SAVES -->
+    <div class="sheet-section">
+      <div class="sheet-grid sheet-grid-2">
+        <div>
+          <div class="sheet-section-title">Combat</div>
+          <div class="sheet-hp-row">
+            <div class="sheet-box"><div class="sheet-box-label">Armor Class</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:22px;padding:4px 0;text-align:center;" placeholder="10"/></div>
+            <div class="sheet-box"><div class="sheet-box-label">Initiative</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:22px;padding:4px 0;text-align:center;" placeholder="+0"/></div>
+            <div class="sheet-box"><div class="sheet-box-label">Speed</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:22px;padding:4px 0;text-align:center;" placeholder="30 ft"/></div>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="sheet-hp-row">
+              <div class="sheet-box"><div class="sheet-box-label">Max HP</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:18px;padding:4px 0;text-align:center;" /></div>
+              <div class="sheet-box"><div class="sheet-box-label">Current HP</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:18px;padding:4px 0;text-align:center;" /></div>
+              <div class="sheet-box"><div class="sheet-box-label">Temp HP</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:18px;padding:4px 0;text-align:center;" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <div class="sheet-grid sheet-grid-2">
+              <div class="sheet-box"><div class="sheet-box-label">Hit Dice</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:15px;padding:4px 0;" placeholder="5d10"/></div>
+              <div class="sheet-box"><div class="sheet-box-label">Passive Perception</div><input type="text" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:15px;padding:4px 0;" /></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="sheet-section-title">Saving Throws</div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Strength</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Dexterity</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Constitution</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Intelligence</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Wisdom</label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Charisma</label><input type="text" placeholder="+0"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Skills</div>
+      <div class="sheet-grid sheet-grid-2">
+        <div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Acrobatics <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Dex)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Animal Handling <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Arcana <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Athletics <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Str)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Deception <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Cha)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>History <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Insight <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Intimidation <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Cha)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Investigation <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+        </div>
+        <div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Medicine <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Nature <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Perception <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Performance <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Cha)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Persuasion <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Cha)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Religion <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Int)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Sleight of Hand <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Dex)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Stealth <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Dex)</span></label><input type="text" placeholder="+0"/></div>
+          <div class="sheet-skill-row"><input type="checkbox"/><label>Survival <span style="color:rgba(255,255,255,0.3);font-size:11px;">(Wis)</span></label><input type="text" placeholder="+0"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTACKS -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Attacks &amp; Spellcasting</div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:8px;margin-bottom:8px;">
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;padding:6px 0;">Name</div>
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;padding:6px 0;">Atk Bonus</div>
+        <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;padding:6px 0;">Damage / Type</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 2fr;gap:8px;">
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;" placeholder="Longsword"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;" placeholder="+5"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;" placeholder="1d8+3 / Slashing"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+        <input type="text" style="background:rgba(255,255,255,0.04);border:1px solid rgba(192,57,43,0.2);color:var(--white);font-size:14px;padding:7px 10px;"/>
+      </div>
+    </div>
+
+    <!-- EQUIPMENT + FEATURES -->
+    <div class="sheet-section">
+      <div class="sheet-grid sheet-grid-2">
+        <div class="sheet-field"><label>Equipment &amp; Treasure</label><textarea placeholder="Longsword, Shield, Chain Mail&#10;50 gp, 12 sp&#10;Backpack, Rations (5)..."></textarea></div>
+        <div class="sheet-field"><label>Features, Traits &amp; Abilities</label><textarea placeholder="Second Wind&#10;Action Surge&#10;Extra Attack..."></textarea></div>
+      </div>
+    </div>
+
+    <!-- SPELLCASTING -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Spellcasting</div>
+      <div class="sheet-grid sheet-grid-3" style="margin-bottom:16px;">
+        <div class="sheet-field"><label>Spellcasting Class</label><input type="text" /></div>
+        <div class="sheet-field"><label>Spellcasting Ability</label><input type="text" /></div>
+        <div class="sheet-field"><label>Spell Save DC / Atk Bonus</label><input type="text" /></div>
+      </div>
+      <div class="sheet-grid sheet-grid-2">
+        <div class="sheet-field"><label>Cantrips</label><textarea placeholder="Fire Bolt&#10;Prestidigitation&#10;Mage Hand" style="min-height:100px;"></textarea></div>
+        <div class="sheet-field"><label>Spells (with slot levels)</label><textarea placeholder="1st: Magic Missile, Shield&#10;2nd: Misty Step&#10;3rd: Fireball" style="min-height:100px;"></textarea></div>
+      </div>
+    </div>
+
+    <!-- BACKSTORY -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Character Background</div>
+      <div class="sheet-grid sheet-grid-2" style="margin-bottom:16px;">
+        <div class="sheet-field"><label>Personality Traits</label><textarea placeholder="I judge people by their actions..."></textarea></div>
+        <div class="sheet-field"><label>Ideals</label><textarea placeholder="Greater Good. It is each person's responsibility..."></textarea></div>
+        <div class="sheet-field"><label>Bonds</label><textarea placeholder="I fight for those who cannot fight for themselves..."></textarea></div>
+        <div class="sheet-field"><label>Flaws</label><textarea placeholder="I have a weakness for the vices of the city..."></textarea></div>
+      </div>
+      <div class="sheet-field"><label>Backstory &amp; Notes</label><textarea style="min-height:140px;" placeholder="Write your character's history, appearance, and any additional notes here..."></textarea></div>
+    </div>
+
+    <!-- PROFICIENCIES -->
+    <div class="sheet-section">
+      <div class="sheet-field"><label>Proficiencies &amp; Languages</label><textarea placeholder="Armor: All armor, shields&#10;Weapons: Simple weapons, martial weapons&#10;Languages: Common, Elvish..."></textarea></div>
+    </div>
+
+    <button class="sheet-print-btn" onclick="window.print()">Print / Save as PDF</button>
+    <p style="text-align:center;font-size:13px;color:rgba(255,255,255,0.25);font-style:italic;margin-top:16px;margin-bottom:40px;">Fill out the sheet above, then click Print. In the print dialog, choose "Save as PDF" to keep a digital copy.</p>
+
   </div>
-
-  <div class="cs-wrap">
-    <div class="cs-sheet" id="cs-sheet">
-
-      <!-- ── CHARACTER INFO ── -->
-      <div class="cs-section-title">Character Information</div>
-      <div class="cs-field-group">
-        <div class="cs-field" style="grid-column:span 2;"><label>Character Name</label><input type="text" id="cs-name" placeholder="Thalindra Moonshadow" /></div>
-        <div class="cs-field"><label>Class &amp; Level</label><input type="text" id="cs-class" placeholder="Fighter 5" /></div>
-        <div class="cs-field"><label>Background</label><input type="text" id="cs-background" placeholder="Soldier" /></div>
-        <div class="cs-field"><label>Race</label><input type="text" id="cs-race" placeholder="Half-Elf" /></div>
-        <div class="cs-field"><label>Alignment</label><input type="text" id="cs-alignment" placeholder="Neutral Good" /></div>
-        <div class="cs-field"><label>Experience Points</label><input type="number" id="cs-xp" placeholder="6500" /></div>
-        <div class="cs-field"><label>Player Name</label><input type="text" id="cs-player" placeholder="Aaron" /></div>
-      </div>
-
-      <!-- ── ABILITY SCORES ── -->
-      <div class="cs-section-title">Ability Scores</div>
-      <div class="cs-abilities">
-        <div class="cs-ability"><label>STR</label><input type="number" id="cs-str" min="1" max="30" value="10" oninput="updateMod('str')" /><div class="cs-mod" id="cs-str-mod">+0</div></div>
-        <div class="cs-ability"><label>DEX</label><input type="number" id="cs-dex" min="1" max="30" value="10" oninput="updateMod('dex')" /><div class="cs-mod" id="cs-dex-mod">+0</div></div>
-        <div class="cs-ability"><label>CON</label><input type="number" id="cs-con" min="1" max="30" value="10" oninput="updateMod('con')" /><div class="cs-mod" id="cs-con-mod">+0</div></div>
-        <div class="cs-ability"><label>INT</label><input type="number" id="cs-int" min="1" max="30" value="10" oninput="updateMod('int')" /><div class="cs-mod" id="cs-int-mod">+0</div></div>
-        <div class="cs-ability"><label>WIS</label><input type="number" id="cs-wis" min="1" max="30" value="10" oninput="updateMod('wis')" /><div class="cs-mod" id="cs-wis-mod">+0</div></div>
-        <div class="cs-ability"><label>CHA</label><input type="number" id="cs-cha" min="1" max="30" value="10" oninput="updateMod('cha')" /><div class="cs-mod" id="cs-cha-mod">+0</div></div>
-      </div>
-
-      <!-- ── SAVING THROWS & SKILLS ── -->
-      <div class="cs-saves-skills">
-        <div>
-          <div class="cs-section-title">Saving Throws</div>
-          <div class="cs-field" style="margin-bottom:10px;"><label>Proficiency Bonus</label><input type="number" id="cs-prof" value="2" min="2" max="6" /></div>
-          <div class="cs-check-list" id="cs-saves-list"></div>
-        </div>
-        <div>
-          <div class="cs-section-title">Skills</div>
-          <div class="cs-check-list" id="cs-skills-list"></div>
-        </div>
-      </div>
-
-      <!-- ── COMBAT ── -->
-      <div class="cs-section-title">Combat</div>
-      <div class="cs-combat">
-        <div class="cs-combat-box"><label>Armor Class</label><input type="number" id="cs-ac" value="10" /></div>
-        <div class="cs-combat-box"><label>Initiative</label><input type="text" id="cs-init" value="+0" /></div>
-        <div class="cs-combat-box"><label>Speed</label><input type="text" id="cs-speed" value="30 ft" /></div>
-        <div class="cs-combat-box"><label>Max HP</label><input type="number" id="cs-hp-max" value="0" /></div>
-        <div class="cs-combat-box"><label>Current HP</label><input type="number" id="cs-hp-cur" value="0" /></div>
-        <div class="cs-combat-box"><label>Temp HP</label><input type="number" id="cs-hp-tmp" value="0" /></div>
-        <div class="cs-combat-box"><label>Hit Dice</label><input type="text" id="cs-hd" placeholder="5d10" /></div>
-        <div class="cs-combat-box"><label>Passive Perc.</label><input type="number" id="cs-passive" value="10" /></div>
-      </div>
-
-      <!-- Death saves -->
-      <div style="display:flex;gap:32px;margin-bottom:24px;flex-wrap:wrap;">
-        <div><div style="font-family:Cinzel;font-size:11px;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.07em;">DEATH SAVES — SUCCESS</div><div style="display:flex;gap:8px;"><input type="checkbox" /><input type="checkbox" /><input type="checkbox" /></div></div>
-        <div><div style="font-family:Cinzel;font-size:11px;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.07em;">DEATH SAVES — FAILURE</div><div style="display:flex;gap:8px;"><input type="checkbox" /><input type="checkbox" /><input type="checkbox" /></div></div>
-      </div>
-
-      <!-- ── ATTACKS ── -->
-      <div class="cs-section-title">Attacks &amp; Spellcasting</div>
-      <table class="cs-attack-table">
-        <thead><tr><th>Name</th><th>Attack Bonus</th><th>Damage / Type</th></tr></thead>
-        <tbody id="cs-attacks-body"></tbody>
-      </table>
-      <button class="cs-btn cs-btn-secondary" onclick="addAttackRow()" style="margin-top:8px;font-size:12px;padding:6px 16px;">+ Add Attack</button>
-
-      <!-- ── EQUIPMENT ── -->
-      <div class="cs-section-title">Equipment &amp; Treasure</div>
-      <div class="cs-field-group" style="grid-template-columns:repeat(5,1fr);">
-        <div class="cs-field"><label>CP</label><input type="number" id="cs-cp" value="0" /></div>
-        <div class="cs-field"><label>SP</label><input type="number" id="cs-sp" value="0" /></div>
-        <div class="cs-field"><label>EP</label><input type="number" id="cs-ep" value="0" /></div>
-        <div class="cs-field"><label>GP</label><input type="number" id="cs-gp" value="0" /></div>
-        <div class="cs-field"><label>PP</label><input type="number" id="cs-pp" value="0" /></div>
-      </div>
-      <div class="cs-field"><label>Equipment</label><textarea id="cs-equipment" rows="5" placeholder="List your items here..."></textarea></div>
-
-      <!-- ── FEATURES & TRAITS ── -->
-      <div class="cs-section-title">Features &amp; Traits</div>
-      <div class="cs-field-group">
-        <div class="cs-field" style="grid-column:span 2;"><label>Personality Traits</label><textarea id="cs-traits" rows="3"></textarea></div>
-        <div class="cs-field"><label>Ideals</label><textarea id="cs-ideals" rows="3"></textarea></div>
-        <div class="cs-field"><label>Bonds</label><textarea id="cs-bonds" rows="3"></textarea></div>
-        <div class="cs-field" style="grid-column:span 2;"><label>Flaws</label><textarea id="cs-flaws" rows="2"></textarea></div>
-        <div class="cs-field" style="grid-column:span 2;"><label>Features &amp; Class Abilities</label><textarea id="cs-features" rows="6"></textarea></div>
-        <div class="cs-field" style="grid-column:span 2;"><label>Proficiencies &amp; Languages</label><textarea id="cs-profs" rows="4"></textarea></div>
-      </div>
-
-      <!-- ── SPELLS ── -->
-      <div class="cs-section-title">Spellcasting</div>
-      <div class="cs-field-group">
-        <div class="cs-field"><label>Spellcasting Class</label><input type="text" id="cs-spell-class" /></div>
-        <div class="cs-field"><label>Spellcasting Ability</label><input type="text" id="cs-spell-ability" placeholder="INT / WIS / CHA" /></div>
-        <div class="cs-field"><label>Spell Save DC</label><input type="number" id="cs-spell-dc" /></div>
-        <div class="cs-field"><label>Spell Attack Bonus</label><input type="text" id="cs-spell-atk" /></div>
-      </div>
-      <div id="cs-spell-slots"></div>
-
-      <!-- ── BACKSTORY ── -->
-      <div class="cs-section-title">Character Background</div>
-      <div class="cs-field"><label>Backstory</label><textarea id="cs-backstory" rows="6" placeholder="Write your character's history..."></textarea></div>
-      <div class="cs-field" style="margin-top:16px;"><label>Allies &amp; Organizations</label><textarea id="cs-allies" rows="3"></textarea></div>
-      <div class="cs-field" style="margin-top:16px;"><label>Additional Notes</label><textarea id="cs-notes" rows="4"></textarea></div>
-
-      <!-- ── ACTIONS ── -->
-      <div class="cs-actions">
-        <button class="cs-btn cs-btn-primary" onclick="saveSheet()">Save Sheet</button>
-        <button class="cs-btn cs-btn-secondary" onclick="window.print()">Print / Save PDF</button>
-        <button class="cs-btn cs-btn-secondary" onclick="clearSheet()">Clear All</button>
-      </div>
-
-    </div><!-- /cs-sheet -->
-  </div><!-- /cs-wrap -->
 
   <div id="ps-site-footer"></div>
 
   <script>
-    // ── Data ──────────────────────────────────────────────────────────────
-    const SAVES = [
-      { id: 'sav-str', label: 'Strength',     ability: 'str' },
-      { id: 'sav-dex', label: 'Dexterity',    ability: 'dex' },
-      { id: 'sav-con', label: 'Constitution', ability: 'con' },
-      { id: 'sav-int', label: 'Intelligence', ability: 'int' },
-      { id: 'sav-wis', label: 'Wisdom',       ability: 'wis' },
-      { id: 'sav-cha', label: 'Charisma',     ability: 'cha' }
-    ];
-
-    const SKILLS = [
-      { id: 'sk-acrobatics',     label: 'Acrobatics',      ability: 'dex' },
-      { id: 'sk-animal',         label: 'Animal Handling', ability: 'wis' },
-      { id: 'sk-arcana',         label: 'Arcana',          ability: 'int' },
-      { id: 'sk-athletics',      label: 'Athletics',       ability: 'str' },
-      { id: 'sk-deception',      label: 'Deception',       ability: 'cha' },
-      { id: 'sk-history',        label: 'History',         ability: 'int' },
-      { id: 'sk-insight',        label: 'Insight',         ability: 'wis' },
-      { id: 'sk-intimidation',   label: 'Intimidation',    ability: 'cha' },
-      { id: 'sk-investigation',  label: 'Investigation',   ability: 'int' },
-      { id: 'sk-medicine',       label: 'Medicine',        ability: 'wis' },
-      { id: 'sk-nature',         label: 'Nature',          ability: 'int' },
-      { id: 'sk-perception',     label: 'Perception',      ability: 'wis' },
-      { id: 'sk-performance',    label: 'Performance',     ability: 'cha' },
-      { id: 'sk-persuasion',     label: 'Persuasion',      ability: 'cha' },
-      { id: 'sk-religion',       label: 'Religion',        ability: 'int' },
-      { id: 'sk-sleight',        label: 'Sleight of Hand', ability: 'dex' },
-      { id: 'sk-stealth',        label: 'Stealth',         ability: 'dex' },
-      { id: 'sk-survival',       label: 'Survival',        ability: 'wis' }
-    ];
-
-    const SPELL_SLOTS = [
-      { level: 'Cantrips', slots: 0 },
-      { level: '1st',  slots: 4 },
-      { level: '2nd',  slots: 3 },
-      { level: '3rd',  slots: 3 },
-      { level: '4th',  slots: 3 },
-      { level: '5th',  slots: 2 },
-      { level: '6th',  slots: 1 },
-      { level: '7th',  slots: 1 },
-      { level: '8th',  slots: 1 },
-      { level: '9th',  slots: 1 }
-    ];
-
-    // ── Init ─────────────────────────────────────────────────────────────
-    function getMod(score) {
-      return Math.floor((parseInt(score) - 10) / 2);
+    function calcMod(score){ const s=parseInt(score)||10; return Math.floor((s-10)/2); }
+    function updateMod(inputId, modId){
+      const val = document.getElementById(inputId).value;
+      const mod = calcMod(val);
+      document.getElementById(modId).textContent = (mod>=0?'+':'')+mod;
     }
-
-    function fmtMod(m) {
-      return (m >= 0 ? '+' : '') + m;
-    }
-
-    function updateMod(ability) {
-      const score = document.getElementById('cs-' + ability).value;
-      const mod = getMod(score);
-      document.getElementById('cs-' + ability + '-mod').textContent = fmtMod(mod);
-    }
-
-    function buildSaves() {
-      const container = document.getElementById('cs-saves-list');
-      container.innerHTML = SAVES.map(s => `
-        <div class="cs-check-item">
-          <input type="checkbox" id="${s.id}-prof" />
-          <span class="cs-prof-val" id="${s.id}-val">+0</span>
-          <label for="${s.id}-prof">${s.label}</label>
-        </div>
-      `).join('');
-    }
-
-    function buildSkills() {
-      const container = document.getElementById('cs-skills-list');
-      container.innerHTML = SKILLS.map(s => `
-        <div class="cs-check-item">
-          <input type="checkbox" id="${s.id}-prof" />
-          <span class="cs-prof-val" id="${s.id}-val">+0</span>
-          <label for="${s.id}-prof">${s.label} <span style="opacity:.5;font-size:12px;">(${s.ability.toUpperCase()})</span></label>
-        </div>
-      `).join('');
-    }
-
-    function buildSpellSlots() {
-      const container = document.getElementById('cs-spell-slots');
-      container.innerHTML = SPELL_SLOTS.map((row, i) => `
-        <div class="cs-spell-level">
-          <div class="cs-spell-level-header">
-            <label>${row.level}</label>
-            ${row.slots > 0 ? `<div class="cs-slot-boxes">${Array.from({length: row.slots}, (_, j) =>
-              `<div class="cs-slot-box" onclick="this.classList.toggle('used')" title="Slot ${j+1}"></div>`
-            ).join('')}</div>` : ''}
-          </div>
-          <div class="cs-spells-grid" id="spells-${i}">
-            ${Array.from({length: row.slots > 0 ? 6 : 4}, () =>
-              `<input type="text" placeholder="Spell name..." />`
-            ).join('')}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function buildAttackRows(count) {
-      const tbody = document.getElementById('cs-attacks-body');
-      tbody.innerHTML = '';
-      for (let i = 0; i < count; i++) addAttackRow();
-    }
-
-    window.addAttackRow = function() {
-      const tbody = document.getElementById('cs-attacks-body');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td><input type="text" placeholder="Longsword" /></td><td><input type="text" placeholder="+5" style="width:70px;" /></td><td><input type="text" placeholder="1d8+3 slashing" /></td>`;
-      tbody.appendChild(tr);
-    };
-
-    // ── Save / Load ───────────────────────────────────────────────────────
-    const STORAGE_KEY = 'phmurt_sheet_dnd5e';
-
-    function collectSheetData() {
-      const fields = document.querySelectorAll('#cs-sheet input[id], #cs-sheet textarea[id], #cs-sheet select[id]');
-      const data = {};
-      fields.forEach(f => { data[f.id] = f.type === 'checkbox' ? f.checked : f.value; });
-
-      // Attacks
-      const attacks = [];
-      document.querySelectorAll('#cs-attacks-body tr').forEach(tr => {
-        const inputs = tr.querySelectorAll('input');
-        attacks.push([inputs[0].value, inputs[1].value, inputs[2].value]);
-      });
-      data._attacks = attacks;
-
-      // Spells
-      const spells = {};
-      SPELL_SLOTS.forEach((_, i) => {
-        spells[i] = Array.from(document.querySelectorAll(`#spells-${i} input`)).map(inp => inp.value);
-      });
-      data._spells = spells;
-
-      // Slot usage
-      const slots = [];
-      document.querySelectorAll('.cs-slot-box').forEach(box => slots.push(box.classList.contains('used')));
-      data._slots = slots;
-
-      // Saves/skills proficiency checkboxes
-      const profChecks = {};
-      document.querySelectorAll('.cs-check-item input[type="checkbox"]').forEach(cb => {
-        profChecks[cb.id] = cb.checked;
-      });
-      data._profChecks = profChecks;
-
-      return data;
-    }
-
-    function applySheetData(data) {
-      if (!data) return;
-      Object.keys(data).forEach(key => {
-        if (key.startsWith('_')) return;
-        const el = document.getElementById(key);
-        if (!el) return;
-        if (el.type === 'checkbox') el.checked = data[key];
-        else el.value = data[key];
-      });
-
-      // Attacks
-      const tbody = document.getElementById('cs-attacks-body');
-      tbody.innerHTML = '';
-      (data._attacks || []).forEach(atk => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><input type="text" value="${atk[0]||''}" placeholder="Longsword" /></td><td><input type="text" value="${atk[1]||''}" placeholder="+5" style="width:70px;" /></td><td><input type="text" value="${atk[2]||''}" placeholder="1d8+3 slashing" /></td>`;
-        tbody.appendChild(tr);
-      });
-      if (!tbody.rows.length) for (let i = 0; i < 3; i++) addAttackRow();
-
-      // Spells
-      SPELL_SLOTS.forEach((_, i) => {
-        const vals = (data._spells || {})[i] || [];
-        document.querySelectorAll(`#spells-${i} input`).forEach((inp, j) => { inp.value = vals[j] || ''; });
-      });
-
-      // Slot usage
-      const slots = data._slots || [];
-      document.querySelectorAll('.cs-slot-box').forEach((box, i) => {
-        box.classList.toggle('used', !!slots[i]);
-      });
-
-      // Prof checks
-      const profChecks = data._profChecks || {};
-      Object.keys(profChecks).forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.checked = profChecks[id];
-      });
-
-      // Refresh mods
-      ['str','dex','con','int','wis','cha'].forEach(updateMod);
-    }
-
-    window.saveSheet = function() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(collectSheetData()));
-      if (window.psToast) window.psToast('Sheet saved!');
-    };
-
-    window.clearSheet = function() {
-      if (!confirm('Clear all fields? This cannot be undone.')) return;
-      localStorage.removeItem(STORAGE_KEY);
-      location.reload();
-    };
-
-    // Auto-save every 30 seconds
-    setInterval(saveSheet, 30000);
-
-    // ── Boot ─────────────────────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', function() {
-      buildSaves();
-      buildSkills();
-      buildSpellSlots();
-      buildAttackRows(3);
-
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try { applySheetData(JSON.parse(saved)); }
-        catch(e) { console.warn('Could not load saved sheet', e); }
-      } else {
-        ['str','dex','con','int','wis','cha'].forEach(updateMod);
-      }
-    });
   </script>
   <script src="phmurt-shell.js"></script>
 </body>
