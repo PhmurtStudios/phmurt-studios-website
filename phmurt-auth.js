@@ -1,143 +1,317 @@
-/* ═══════════════════════════════
-   PHMURT AUTH – Local Auth System
-   ═══════════════════════════════
-   Provides a simple localStorage-based auth system.
-   Works offline and across all pages on the same domain.
-   When a real backend (Supabase, etc.) is added, this file
-   is replaced — the PhmurtDB API surface stays the same.
-*/
-var PhmurtDB = (function() {
-  var AUTH_KEY = 'phmurt_auth_session';
+/* ═══════════════════════════════════════════════════════════════════
+   PHMURT AUTH  –  Local Auth System  v2
+   ═══════════════════════════════════════════════════════════════════
+   Full sign-up / sign-in with required email + hashed password.
+   Passwords are SHA-256 hashed (email-salted) via Web Crypto API.
+   When a real backend (Supabase / .NET) is wired in, this file is
+   replaced — the public PhmurtDB API surface stays the same.
+   ═══════════════════════════════════════════════════════════════════ */
+var PhmurtDB = (function () {
+
+  /* ── Storage keys ──────────────────────────────────────────────── */
+  var SESSION_KEY = 'phmurt_auth_session';   // active session object
+  var USERS_KEY   = 'phmurt_users_db';       // { email → userRecord }
+
+  /* ── Admin list ────────────────────────────────────────────────── */
+  // Add email addresses here to grant admin access.
+  var ADMIN_EMAILS = [
+    'dreverad18@gmail.com'
+  ];
+
+  /* ── Internal helpers ──────────────────────────────────────────── */
   var _listeners = [];
 
-  function _getStored() {
-    try {
-      var raw = localStorage.getItem(AUTH_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch(e) { return null; }
+  function _getSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
+    catch (e) { return null; }
   }
 
-  function _setStored(data) {
-    if (data) {
-      localStorage.setItem(AUTH_KEY, JSON.stringify(data));
-    } else {
-      localStorage.removeItem(AUTH_KEY);
-    }
+  function _setSession(data) {
+    if (data) localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+    else      localStorage.removeItem(SESSION_KEY);
     _fireChange();
   }
 
+  function _getUsers() {
+    try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  function _saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
   function _fireChange() {
-    _listeners.forEach(function(fn) { try { fn(); } catch(e) {} });
+    _listeners.forEach(function (fn) { try { fn(); } catch (e) {} });
     window.dispatchEvent(new Event('phmurt-auth-change'));
   }
 
-  // Generate a simple unique ID
   function _uid() {
-    return 'user_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+    return 'user_' + Date.now().toString(36) + '_' +
+           Math.random().toString(36).substr(2, 6);
   }
 
+  /* SHA-256(password + ':' + email) → hex string */
+  function _hashPassword(password, email) {
+    var str = password + ':' + email.toLowerCase();
+    var buf = new TextEncoder().encode(str);
+    return crypto.subtle.digest('SHA-256', buf).then(function (hash) {
+      return Array.from(new Uint8Array(hash))
+        .map(function (b) { return b.toString(16).padStart(2, '0'); })
+        .join('');
+    });
+  }
+
+  /* Build a clean session object (never includes passwordHash) */
+  function _makeSession(user) {
+    return {
+      userId:      user.userId,
+      name:        user.name,
+      email:       user.email,
+      displayName: user.name,
+      isAdmin:     ADMIN_EMAILS.indexOf(user.email) !== -1
+    };
+  }
+
+  /* ── Public API ────────────────────────────────────────────────── */
   return {
-    /* ─── Session ─── */
-    getSession: function() {
-      return _getStored();
+
+    getSession: function () { return _getSession(); },
+
+    isAdmin: function () {
+      var s = _getSession();
+      return !!(s && s.isAdmin === true);
     },
 
-    /* ─── Sign Up (local) ─── */
-    signUp: function(name, email) {
-      var session = {
-        userId: _uid(),
-        name: name || 'Adventurer',
-        email: email || '',
-        displayName: name || 'Adventurer',
-        createdAt: new Date().toISOString()
-      };
-      _setStored(session);
-      return session;
-    },
+    /* signUp(name, email, password) → Promise<session> */
+    signUp: function (name, email, password) {
+      var normalEmail = (email || '').trim().toLowerCase();
+      if (!normalEmail) return Promise.reject(new Error('Email is required.'));
+      if (!password)    return Promise.reject(new Error('Password is required.'));
 
-    /* ─── Sign In (local — just restores or creates) ─── */
-    signIn: function(name, email) {
-      var existing = _getStored();
-      if (existing && existing.email === email) {
-        return existing;
+      var users = _getUsers();
+      if (users[normalEmail]) {
+        return Promise.reject(new Error('An account with that email already exists.'));
       }
-      return PhmurtDB.signUp(name, email);
+
+      return _hashPassword(password, normalEmail).then(function (hash) {
+        var user = {
+          userId:       _uid(),
+          name:         (name || 'Adventurer').trim(),
+          email:        normalEmail,
+          passwordHash: hash,
+          createdAt:    new Date().toISOString()
+        };
+        users[normalEmail] = user;
+        _saveUsers(users);
+        var session = _makeSession(user);
+        _setSession(session);
+        return session;
+      });
     },
 
-    /* ─── Sign Out ─── */
-    signOut: function() {
-      _setStored(null);
+    /* signIn(email, password) → Promise<session> */
+    signIn: function (email, password) {
+      var normalEmail = (email || '').trim().toLowerCase();
+      if (!normalEmail) return Promise.reject(new Error('Email is required.'));
+      if (!password)    return Promise.reject(new Error('Password is required.'));
+
+      var users = _getUsers();
+      var user  = users[normalEmail];
+      if (!user) {
+        return Promise.reject(new Error('No account found with that email.'));
+      }
+
+      return _hashPassword(password, normalEmail).then(function (hash) {
+        if (hash !== user.passwordHash) {
+          throw new Error('Incorrect password.');
+        }
+        var session = _makeSession(user);
+        _setSession(session);
+        return session;
+      });
     },
 
-    /* ─── Auth State Change Listener ─── */
-    onAuthStateChange: function(fn) {
+    signOut: function () { _setSession(null); },
+
+    onAuthStateChange: function (fn) {
       if (typeof fn === 'function') _listeners.push(fn);
     },
 
-    /* ─── Open Auth Modal ─── */
-    openAuth: function() {
-      // Look for the auth modal or create one
-      var modal = document.getElementById('phmurtAuthModal');
-      if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'phmurtAuthModal';
-        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:10000;';
-        modal.innerHTML = '<div style="background:var(--bg-card,#1e1e2e);border:1px solid var(--crimson-border,#3a1f1f);padding:40px;max-width:400px;width:90%;border-radius:4px;">' +
-          '<h3 style="font-family:Cinzel,serif;color:var(--text,#e8dcc0);margin:0 0 8px;font-size:20px;">Sign In to Phmurt Studios</h3>' +
-          '<p style="font-size:13px;color:var(--text-dim,#8a7a6a);margin:0 0 24px;">Enter your name to get started. Your data is saved locally in this browser.</p>' +
-          '<div style="margin-bottom:16px;">' +
-            '<label style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;color:var(--text-muted,#6a5a4a);text-transform:uppercase;display:block;margin-bottom:6px;">Your Name</label>' +
-            '<input type="text" id="phmurtAuthName" placeholder="Enter your adventurer name" style="width:100%;padding:10px 12px;background:var(--bg-input,#12121e);border:1px solid var(--border,#2a2a3a);color:var(--text,#e8dcc0);font-family:Spectral,serif;font-size:14px;border-radius:2px;box-sizing:border-box;" />' +
+    /* ── Auth Modal ──────────────────────────────────────────────── */
+    openAuth: function () {
+      if (document.getElementById('phmurtAuthModal')) return;
+
+      /* ── Styles ── */
+      var S = {
+        overlay:  'position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px;',
+        card:     'background:var(--bg-card,#111010);border:1px solid var(--crimson-border,rgba(192,57,43,0.32));padding:40px 36px;max-width:420px;width:100%;border-radius:4px;position:relative;',
+        title:    'font-family:Cinzel,serif;font-size:20px;font-weight:400;color:var(--text,#f5ede0);margin:0 0 6px;letter-spacing:.5px;',
+        sub:      'font-family:Spectral,serif;font-size:13px;color:var(--text-muted,#8c7d6e);margin:0 0 24px;',
+        tabs:     'display:flex;border-bottom:1px solid var(--border,rgba(255,255,255,0.09));margin-bottom:24px;',
+        tab:      'font-family:Cinzel,serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 16px;cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;',
+        tabOn:    'color:var(--crimson,#c0392b);border-bottom-color:var(--crimson,#c0392b);',
+        tabOff:   'color:var(--text-muted,#8c7d6e);border-bottom-color:transparent;',
+        label:    'font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted,#8c7d6e);display:block;margin-bottom:6px;',
+        input:    'width:100%;padding:10px 12px;background:var(--bg-input,rgba(255,255,255,0.04));border:1px solid var(--border,rgba(255,255,255,0.09));color:var(--text,#f5ede0);font-family:Spectral,serif;font-size:14px;border-radius:3px;box-sizing:border-box;outline:none;transition:border-color .15s;',
+        field:    'margin-bottom:16px;',
+        btn:      'width:100%;padding:12px;background:var(--crimson,#c0392b);color:#f5f0e8;border:none;font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;margin-top:8px;transition:background .15s;',
+        err:      'font-family:Spectral,serif;font-size:13px;color:var(--crimson,#c0392b);background:rgba(192,57,43,0.1);border-radius:3px;padding:10px 12px;margin-bottom:16px;display:none;',
+        close:    'position:absolute;top:14px;right:16px;background:transparent;border:none;color:var(--text-muted,#8c7d6e);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;'
+      };
+
+      /* ── Build modal HTML ── */
+      var modal = document.createElement('div');
+      modal.id = 'phmurtAuthModal';
+      modal.style.cssText = S.overlay;
+
+      modal.innerHTML =
+        '<div style="' + S.card + '">' +
+          '<button id="pa-close" style="' + S.close + '" aria-label="Close">✕</button>' +
+          '<h3 style="' + S.title + '">Phmurt Studios</h3>' +
+          '<p style="' + S.sub + '">Sign in to access your account and saved characters.</p>' +
+
+          /* ── Tabs ── */
+          '<div style="' + S.tabs + '">' +
+            '<button id="pa-tab-in"  style="' + S.tab + S.tabOn  + '" data-tab="in">Sign In</button>' +
+            '<button id="pa-tab-up"  style="' + S.tab + S.tabOff + '" data-tab="up">Create Account</button>' +
           '</div>' +
-          '<div style="margin-bottom:24px;">' +
-            '<label style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;color:var(--text-muted,#6a5a4a);text-transform:uppercase;display:block;margin-bottom:6px;">Email (optional)</label>' +
-            '<input type="email" id="phmurtAuthEmail" placeholder="your@email.com" style="width:100%;padding:10px 12px;background:var(--bg-input,#12121e);border:1px solid var(--border,#2a2a3a);color:var(--text,#e8dcc0);font-family:Spectral,serif;font-size:14px;border-radius:2px;box-sizing:border-box;" />' +
+
+          /* ── Error banner ── */
+          '<div id="pa-err" style="' + S.err + '"></div>' +
+
+          /* ── Sign-In fields ── */
+          '<div id="pa-panel-in">' +
+            '<div style="' + S.field + '"><label style="' + S.label + '">Email Address</label>' +
+              '<input id="pa-in-email" type="email" autocomplete="email" placeholder="you@example.com" style="' + S.input + '" /></div>' +
+            '<div style="' + S.field + '"><label style="' + S.label + '">Password</label>' +
+              '<input id="pa-in-pass" type="password" autocomplete="current-password" placeholder="••••••••" style="' + S.input + '" /></div>' +
+            '<button id="pa-in-submit" style="' + S.btn + '">Sign In</button>' +
           '</div>' +
-          '<div style="display:flex;gap:12px;">' +
-            '<button id="phmurtAuthSubmit" style="flex:1;padding:12px;background:var(--crimson,#c0392b);color:#f5f0e8;border:none;font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;">Sign In</button>' +
-            '<button id="phmurtAuthCancel" style="padding:12px 20px;background:transparent;color:var(--text-muted,#6a5a4a);border:1px solid var(--border,#2a2a3a);font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;">Cancel</button>' +
+
+          /* ── Create Account fields ── */
+          '<div id="pa-panel-up" style="display:none;">' +
+            '<div style="' + S.field + '"><label style="' + S.label + '">Display Name</label>' +
+              '<input id="pa-up-name" type="text" autocomplete="name" placeholder="Your adventurer name" style="' + S.input + '" /></div>' +
+            '<div style="' + S.field + '"><label style="' + S.label + '">Email Address</label>' +
+              '<input id="pa-up-email" type="email" autocomplete="email" placeholder="you@example.com" style="' + S.input + '" /></div>' +
+            '<div style="' + S.field + '"><label style="' + S.label + '">Password</label>' +
+              '<input id="pa-up-pass" type="password" autocomplete="new-password" placeholder="Choose a password" style="' + S.input + '" /></div>' +
+            '<div style="' + S.field + '"><label style="' + S.label + '">Confirm Password</label>' +
+              '<input id="pa-up-pass2" type="password" autocomplete="new-password" placeholder="Repeat your password" style="' + S.input + '" /></div>' +
+            '<button id="pa-up-submit" style="' + S.btn + '">Create Account</button>' +
           '</div>' +
+
         '</div>';
-        document.body.appendChild(modal);
 
-        // Wire up events
-        document.getElementById('phmurtAuthSubmit').addEventListener('click', function() {
-          var name = document.getElementById('phmurtAuthName').value.trim();
-          var email = document.getElementById('phmurtAuthEmail').value.trim();
-          if (!name) {
-            document.getElementById('phmurtAuthName').style.borderColor = 'var(--crimson,#c0392b)';
-            return;
-          }
-          PhmurtDB.signIn(name, email);
-          modal.remove();
-        });
+      document.body.appendChild(modal);
 
-        document.getElementById('phmurtAuthCancel').addEventListener('click', function() {
-          modal.remove();
-        });
-
-        modal.addEventListener('click', function(e) {
-          if (e.target === modal) modal.remove();
-        });
-
-        // Focus the name input
-        setTimeout(function() {
-          document.getElementById('phmurtAuthName').focus();
-        }, 100);
-
-        // Enter key submits
-        modal.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter') {
-            document.getElementById('phmurtAuthSubmit').click();
-          }
-        });
+      /* ── Helper: show error ── */
+      function showErr(msg) {
+        var el = document.getElementById('pa-err');
+        el.textContent = msg;
+        el.style.display = msg ? 'block' : 'none';
       }
+
+      function setLoading(btnId, loading) {
+        var btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.disabled = loading;
+        btn.style.opacity = loading ? '0.6' : '1';
+        btn.style.cursor  = loading ? 'wait' : 'pointer';
+      }
+
+      /* ── Tabs ── */
+      function switchTab(tab) {
+        showErr('');
+        var inPanel  = document.getElementById('pa-panel-in');
+        var upPanel  = document.getElementById('pa-panel-up');
+        var inTab    = document.getElementById('pa-tab-in');
+        var upTab    = document.getElementById('pa-tab-up');
+        if (tab === 'in') {
+          inPanel.style.display  = 'block';
+          upPanel.style.display  = 'none';
+          inTab.style.cssText    = S.tab + S.tabOn;
+          upTab.style.cssText    = S.tab + S.tabOff;
+          document.getElementById('pa-in-email').focus();
+        } else {
+          inPanel.style.display  = 'none';
+          upPanel.style.display  = 'block';
+          inTab.style.cssText    = S.tab + S.tabOff;
+          upTab.style.cssText    = S.tab + S.tabOn;
+          document.getElementById('pa-up-name').focus();
+        }
+      }
+
+      document.getElementById('pa-tab-in').addEventListener('click', function () { switchTab('in'); });
+      document.getElementById('pa-tab-up').addEventListener('click', function () { switchTab('up'); });
+
+      /* ── Close ── */
+      function closeModal() { modal.remove(); }
+      document.getElementById('pa-close').addEventListener('click', closeModal);
+      modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+      modal.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+      /* ── Sign In submit ── */
+      document.getElementById('pa-in-submit').addEventListener('click', function () {
+        showErr('');
+        var email = document.getElementById('pa-in-email').value.trim();
+        var pass  = document.getElementById('pa-in-pass').value;
+        if (!email) { showErr('Please enter your email address.'); return; }
+        if (!pass)  { showErr('Please enter your password.'); return; }
+        setLoading('pa-in-submit', true);
+        PhmurtDB.signIn(email, pass)
+          .then(function () { closeModal(); })
+          .catch(function (err) {
+            showErr(err.message || 'Sign in failed. Please try again.');
+            setLoading('pa-in-submit', false);
+          });
+      });
+
+      /* ── Create Account submit ── */
+      document.getElementById('pa-up-submit').addEventListener('click', function () {
+        showErr('');
+        var name  = document.getElementById('pa-up-name').value.trim();
+        var email = document.getElementById('pa-up-email').value.trim();
+        var pass  = document.getElementById('pa-up-pass').value;
+        var pass2 = document.getElementById('pa-up-pass2').value;
+        if (!name)            { showErr('Please enter a display name.'); return; }
+        if (!email)           { showErr('Please enter your email address.'); return; }
+        if (!pass)            { showErr('Please choose a password.'); return; }
+        if (pass.length < 8)  { showErr('Password must be at least 8 characters.'); return; }
+        if (pass !== pass2)   { showErr('Passwords do not match.'); return; }
+        setLoading('pa-up-submit', true);
+        PhmurtDB.signUp(name, email, pass)
+          .then(function () { closeModal(); })
+          .catch(function (err) {
+            showErr(err.message || 'Account creation failed. Please try again.');
+            setLoading('pa-up-submit', false);
+          });
+      });
+
+      /* ── Enter key support ── */
+      modal.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var inPanel = document.getElementById('pa-panel-in');
+        if (inPanel && inPanel.style.display !== 'none') {
+          document.getElementById('pa-in-submit').click();
+        } else {
+          document.getElementById('pa-up-submit').click();
+        }
+      });
+
+      /* ── Focus first field ── */
+      setTimeout(function () {
+        var el = document.getElementById('pa-in-email');
+        if (el) el.focus();
+      }, 80);
     }
   };
+
 })();
 
-// Cross-tab sync: when another tab signs in/out, update this tab
-window.addEventListener('storage', function(e) {
+/* ── Cross-tab sync ──────────────────────────────────────────────── */
+window.addEventListener('storage', function (e) {
   if (e.key === 'phmurt_auth_session') {
     window.dispatchEvent(new Event('phmurt-auth-change'));
   }

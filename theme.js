@@ -4,12 +4,18 @@
 (function() {
   var KEY = 'phmurt_theme';
   var saved = localStorage.getItem(KEY) || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
+  if (saved === 'light') {
+    document.documentElement.classList.add('light-mode');
+  }
 
   window.toggleTheme = function() {
-    var current = document.documentElement.getAttribute('data-theme') || 'dark';
-    var next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem(KEY, next);
+    var isLight = document.documentElement.classList.contains('light-mode');
+    if (isLight) {
+      document.documentElement.classList.remove('light-mode');
+      localStorage.setItem(KEY, 'dark');
+    } else {
+      document.documentElement.classList.add('light-mode');
+      localStorage.setItem(KEY, 'light');
+    }
   };
 })();
