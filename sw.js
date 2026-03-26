@@ -55,6 +55,10 @@ self.addEventListener('fetch', (event) => {
   if (url.protocol === 'chrome-extension:') return;
   if (url.origin !== self.location.origin) return;
 
+  // Never cache API or auth JSON endpoints.
+  if (url.pathname.startsWith('/api/')) return;
+  if ((request.headers.get('accept') || '').includes('application/json')) return;
+
   // Network-first for HTML pages (always get fresh content)
   if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(

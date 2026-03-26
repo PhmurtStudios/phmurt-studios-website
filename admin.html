@@ -1,129 +1,387 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-nav-active="About" data-footer-copy="Roll Well. Play Weird.">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel — Phmurt Studios</title>
-  <meta name="description" content="Phmurt Studios admin dashboard." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <title>Admin Panel · Phmurt Studios</title>
+  <meta name="description" content="Administrative tools for Phmurt Studios." />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Spectral:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-  <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
+  <script src="site-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="phmurt-auth.js"></script>
   <style>
-    .admin-wrap{max-width:1200px;margin:0 auto;padding:0 24px 56px}
-    .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-    .admin-card{background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;border-radius:6px;box-shadow:0 12px 24px rgba(0,0,0,.14)}
-    .admin-title{font-family:Cinzel,serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
-    .admin-value{font-family:Cinzel,serif;font-size:28px;color:var(--text);margin-bottom:8px}
-    .admin-sub{font-size:16px;line-height:1.7;color:var(--text-dim)}
-    .admin-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
-    .admin-btn{padding:11px 16px;border:1px solid var(--crimson-border);background:rgba(192,57,43,.08);color:var(--text);font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:4px}
-    .admin-btn.primary{background:var(--crimson);color:#f5f0e8}
-    .admin-panel{background:var(--bg-card);border:1px solid var(--border);padding:24px;border-radius:6px}
-    .admin-list{display:grid;gap:12px;margin-top:16px}
-    .admin-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;border:1px solid var(--border);border-radius:4px;background:rgba(255,255,255,.02)}
-    .admin-note{font-size:14px;color:var(--text-faint);font-style:italic}
-    .admin-badge{display:inline-block;padding:4px 8px;border:1px solid var(--crimson-border);color:var(--crimson);font-size:10px;letter-spacing:2px;text-transform:uppercase;border-radius:999px;font-family:Cinzel,serif}
-    .admin-locked{max-width:520px;margin:32px auto;background:var(--bg-card);border:1px solid var(--crimson-border);padding:28px;text-align:center;border-radius:6px}
+    .admin-wrap{max-width:1240px;margin:0 auto;padding:0 24px 48px}
+    .admin-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px}
+    .admin-card{background:var(--bg-card);border:1px solid var(--border);padding:22px 22px 20px}
+    .admin-title{font-family:'Cinzel',serif;font-size:24px;letter-spacing:1px;color:var(--text);margin:0 0 8px}
+    .admin-sub{font-size:15px;line-height:1.7;color:var(--text-dim)}
+    .admin-eyebrow{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--crimson);margin-bottom:10px}
+    .admin-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+    .admin-metric{background:var(--bg-card);border:1px solid var(--border);padding:16px 18px}
+    .admin-metric .k{font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+    .admin-metric .v{font-size:28px;color:var(--text)}
+    .admin-toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+    .admin-btn{appearance:none;border:1px solid var(--crimson-border);background:var(--bg-card);color:var(--text);padding:11px 14px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+    .admin-btn.primary{background:var(--crimson);color:#f5f0e8;border-color:var(--crimson)}
+    .admin-note{font-size:14px;line-height:1.7;color:var(--text-dim);font-style:italic}
+    .admin-table{width:100%;border-collapse:collapse;margin-top:14px}
+    .admin-table th,.admin-table td{padding:12px 10px;border-top:1px solid var(--border);text-align:left;font-size:14px;color:var(--text-dim);vertical-align:top}
+    .admin-table th{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
+    .admin-badge{display:inline-block;padding:4px 8px;border:1px solid var(--crimson-border);font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--crimson)}
+    .admin-success,.admin-error{margin-top:12px;padding:10px 12px;font-size:14px}
+    .admin-success{background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.35);color:#4CAF50}
+    .admin-error{background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);color:var(--crimson)}
+    .gate{position:fixed;inset:0;z-index:99999;background:rgba(8,6,7,.96);display:flex;align-items:center;justify-content:center;padding:24px}
+    .gate-box{width:min(520px,100%);background:var(--bg-card);border:1px solid var(--crimson-border);padding:28px}
+    .gate-drop{border:1px dashed var(--crimson-border);padding:24px;text-align:center;cursor:pointer;margin-top:16px}
+    .gate-drop.drag{background:rgba(192,57,43,.06)}
+    .gate-status{min-height:28px;margin-top:12px;font-size:14px;color:var(--text-dim)}
+    .gate-auth-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
+    .gate-auth-grid label{display:block}
+    .gate-auth-grid span{display:block;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+    .gate-auth-grid input{width:100%;padding:11px 12px;background:var(--bg-input);border:1px solid var(--border);color:var(--text);font-family:'Spectral',serif;font-size:15px}
+    .hidden{display:none !important}
+    @media (max-width: 900px){.admin-grid{grid-template-columns:1fr}}
   </style>
 </head>
-<body data-nav-active="Admin" data-footer-copy="Roll Well. Play Weird.">
+<body>
   <div id="ps-site-shell"></div>
   <div id="ps-page-breadcrumb"></div>
 
   <section class="ps-page-hero">
-    <div class="ps-page-eyebrow">Control Room</div>
+    <div class="ps-page-eyebrow">Administration</div>
     <div class="ps-page-title">Phmurt Studios Admin Panel</div>
-    <div class="ps-page-subtitle">Site administration, account oversight, and quick-control tools</div>
+    <div class="ps-page-subtitle">Account control, local data visibility, and admin-only tools</div>
+    <p class="ps-page-intro">This panel now uses the normal site account session, stays signed in across pages, and restores the image-based admin gate as a second step before access is granted.</p>
   </section>
 
-  <div class="admin-wrap">
-    <div id="adminMount"></div>
+  <div class="ps-divider"><div class="ps-div-line"></div><div class="ps-div-ornament"><div class="ps-div-dot"></div><div class="ps-div-gem"></div><div class="ps-div-dot"></div></div><div class="ps-div-line r"></div></div>
+
+  <main id="main-content" class="admin-wrap">
+    <div id="adminFlash"></div>
+    <div class="admin-metrics" id="adminMetrics"></div>
+    <div class="admin-grid" style="margin-top:18px;">
+      <section class="admin-card">
+        <div class="admin-eyebrow">Session</div>
+        <h2 class="admin-title">Current admin session</h2>
+        <div class="admin-sub" id="adminSessionSummary">Checking session…</div>
+        <div class="admin-toolbar">
+          <button class="admin-btn primary" id="adminRefreshBtn">Refresh</button>
+          <button class="admin-btn" id="adminSignOutBtn">Sign Out</button>
+          <button class="admin-btn" id="adminResetImageBtn">Reset Image Gate</button>
+        </div>
+        <div class="admin-note" style="margin-top:14px;">The image password is treated as a second step for this admin page. Your regular account sign-in still controls site-wide authentication.</div>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-eyebrow">System</div>
+        <h2 class="admin-title">Environment</h2>
+        <table class="admin-table">
+          <tbody id="adminEnvironmentTable"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <section class="admin-card" style="margin-top:20px;">
+      <div class="admin-eyebrow">Users</div>
+      <h2 class="admin-title">Local account registry</h2>
+      <div class="admin-sub">These are the browser-side accounts currently known to the site. The seeded admin account is automatically maintained for <strong>dreverad18@gmail.com</strong>.</div>
+      <table class="admin-table" id="adminUsersTable"></table>
+    </section>
+
+    <section class="admin-card" style="margin-top:20px;">
+      <div class="admin-eyebrow">Characters</div>
+      <h2 class="admin-title">Local character storage</h2>
+      <div class="admin-sub">Per-account character counts pulled from the browser cache used by the builders and roster pages.</div>
+      <table class="admin-table" id="adminCharactersTable"></table>
+    </section>
+  </main>
+
+  <div id="adminGate" class="gate hidden" aria-hidden="true">
+    <div class="gate-box">
+      <div id="gateImageStage">
+        <div class="admin-eyebrow">Admin Access · Step 1 of 2</div>
+        <h2 class="admin-title">Key image verification</h2>
+        <div class="admin-sub">Upload the correct image to unlock the second step. The check uses the same perceptual image hash pattern that existed in the earlier admin gate.</div>
+        <label class="gate-drop" id="gateDropZone">
+          <div style="font-size:34px;margin-bottom:8px;">🖼</div>
+          <div>Click or drag the key image here</div>
+          <input type="file" id="gateImageInput" accept="image/*" class="hidden">
+        </label>
+        <div class="gate-status" id="gateImageStatus"></div>
+      </div>
+      <div id="gateAuthStage" class="hidden">
+        <div class="admin-eyebrow">Admin Access · Step 2 of 2</div>
+        <h2 class="admin-title">Admin sign-in</h2>
+        <div class="admin-sub">Sign in with the admin account after the image gate passes. The seeded local admin account is <strong>dreverad18@gmail.com</strong>.</div>
+        <div class="gate-auth-grid">
+          <label><span>Email</span><input type="email" id="gateEmail" value="dreverad18@gmail.com" /></label>
+          <label><span>Password</span><input type="password" id="gatePassword" /></label>
+        </div>
+        <div id="gateAuthStatus" class="gate-status"></div>
+        <div class="admin-toolbar">
+          <button class="admin-btn primary" id="gateLoginBtn">Sign In</button>
+          <button class="admin-btn" id="gateUseCurrentBtn">Use Current Session</button>
+          <button class="admin-btn" id="gateBackBtn">Back</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="ps-site-footer"></div>
-
   <script src="phmurt-shell.js"></script>
   <script>
-    function esc(v){ return String(v == null ? '' : v).replace(/[&<>"]/g, function(ch){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[ch]; }); }
+  (function(){
+    const ADMIN_EMAIL = 'dreverad18@gmail.com';
+    const EXPECTED_HASH = '1100000000000000100000001001110010011100101000000000010000000110';
+    const IMAGE_OK_KEY = 'phmurt_admin_img_ok';
 
-    function getUsers() {
-      try { return JSON.parse(localStorage.getItem('phmurt_users_db') || '{}'); }
-      catch (e) { return {}; }
+    function el(id){ return document.getElementById(id); }
+    function esc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+    function session(){ return window.PhmurtDB ? window.PhmurtDB.getSession() : null; }
+    function isAdmin(){ return !!(window.PhmurtDB && window.PhmurtDB.isAdmin && window.PhmurtDB.isAdmin()); }
+    function setFlash(msg, ok){
+      el('adminFlash').innerHTML = '<div class="' + (ok ? 'admin-success' : 'admin-error') + '">' + esc(msg) + '</div>';
+      setTimeout(() => { if(el('adminFlash')) el('adminFlash').innerHTML = ''; }, 4500);
     }
 
-    function renderAdmin() {
-      var mount = document.getElementById('adminMount');
-      if (!mount) return;
-      var session = window.PhmurtDB && typeof window.PhmurtDB.getSession === 'function' ? window.PhmurtDB.getSession() : null;
-      var isAdmin = !!(window.PhmurtDB && typeof window.PhmurtDB.isAdmin === 'function' ? window.PhmurtDB.isAdmin() : session && session.isAdmin);
+    function computeDHash(imgEl){
+      const W = 9, H = 8;
+      const cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      const ctx = cv.getContext('2d');
+      ctx.drawImage(imgEl, 0, 0, W, H);
+      const px = ctx.getImageData(0, 0, W, H).data;
+      let hash = '';
+      for(let r=0;r<H;r++){
+        for(let c=0;c<W-1;c++){
+          const i1 = (r*W+c)*4, i2 = i1+4;
+          const g1 = 0.299*px[i1] + 0.587*px[i1+1] + 0.114*px[i1+2];
+          const g2 = 0.299*px[i2] + 0.587*px[i2+1] + 0.114*px[i2+2];
+          hash += g1 > g2 ? '1' : '0';
+        }
+      }
+      return hash;
+    }
 
-      if (!session) {
-        mount.innerHTML = '<div class="admin-locked"><div class="admin-title">Authentication Required</div><div class="admin-sub">Sign in with your admin account to access the panel.</div><div class="admin-actions" style="justify-content:center;"><button class="admin-btn primary" onclick="window.PhmurtDB.openAuth()">Sign In</button></div></div>';
+    function hammingDist(a,b){
+      if(!a || !b || a.length !== b.length) return Number.MAX_SAFE_INTEGER;
+      let d = 0;
+      for(let i=0;i<a.length;i++) if(a[i] !== b[i]) d++;
+      return d;
+    }
+
+    function hasImageGate(){ return sessionStorage.getItem(IMAGE_OK_KEY) === 'true'; }
+    function clearImageGate(){ sessionStorage.removeItem(IMAGE_OK_KEY); }
+
+    function showImageStage(){
+      el('gateImageStage').classList.remove('hidden');
+      el('gateAuthStage').classList.add('hidden');
+    }
+
+    function showAuthStage(){
+      el('gateImageStage').classList.add('hidden');
+      el('gateAuthStage').classList.remove('hidden');
+      el('gateEmail').focus();
+    }
+
+    function openGate(){
+      el('adminGate').classList.remove('hidden');
+      el('adminGate').setAttribute('aria-hidden','false');
+      if(hasImageGate()) showAuthStage();
+      else showImageStage();
+    }
+
+    function closeGate(){
+      el('adminGate').classList.add('hidden');
+      el('adminGate').setAttribute('aria-hidden','true');
+    }
+
+    function requireGate(){
+      if(isAdmin() && hasImageGate()){
+        closeGate();
+        renderAdmin();
         return;
       }
+      openGate();
+      renderAdmin();
+    }
 
-      if (!isAdmin) {
-        mount.innerHTML = '<div class="admin-locked"><div class="admin-title">Access Denied</div><div class="admin-sub">The account <strong>' + esc(session.email) + '</strong> is signed in, but it is not marked as an admin account.</div></div>';
-        return;
-      }
-
-      var users = getUsers();
-      var userList = Object.keys(users).sort().map(function(email){
-        var user = users[email] || {};
-        var admin = String(email).toLowerCase() === 'dreverad18@gmail.com';
-        return '<div class="admin-row"><div><div style="font-family:Cinzel,serif;font-size:14px;color:var(--text);">' + esc(user.name || email) + '</div><div style="font-size:14px;color:var(--text-dim);">' + esc(email) + '</div></div><div>' + (admin ? '<span class="admin-badge">Admin</span>' : '<span class="admin-note">Standard</span>') + '</div></div>';
-      }).join('');
-
-      mount.innerHTML =
-        '<div class="admin-grid" style="margin-bottom:18px;">' +
-          '<div class="admin-card"><div class="admin-title">Signed In Account</div><div class="admin-value">' + esc(session.name || session.displayName || 'Admin') + '</div><div class="admin-sub">' + esc(session.email) + '</div></div>' +
-          '<div class="admin-card"><div class="admin-title">Known Accounts</div><div class="admin-value">' + Object.keys(users).length + '</div><div class="admin-sub">Accounts currently stored in this browser profile.</div></div>' +
-          '<div class="admin-card"><div class="admin-title">Admin Status</div><div class="admin-value">Enabled</div><div class="admin-sub">This panel is unlocked for <strong>dreverad18@gmail.com</strong>.</div></div>' +
-        '</div>' +
-        '<div class="admin-panel">' +
-          '<div class="admin-title">Quick Actions</div>' +
-          '<div class="admin-actions">' +
-            '<button class="admin-btn primary" id="forceSeedBtn">Rebuild Admin Account</button>' +
-            '<button class="admin-btn" id="refreshBtn">Refresh Session</button>' +
-            '<button class="admin-btn" id="signOutBtn">Sign Out</button>' +
-          '</div>' +
-          '<div class="admin-list">' + userList + '</div>' +
-        '</div>';
-
-      document.getElementById('forceSeedBtn').addEventListener('click', function(){
-        try {
-          if (window.PhmurtDB && typeof window.PhmurtDB.syncSession === 'function') window.PhmurtDB.syncSession();
-          alert('The admin account record was refreshed.\n\nEmail: dreverad18@gmail.com');
-          renderAdmin();
-        } catch (err) {
-          alert('Could not rebuild the admin account.');
+    function renderMetrics(){
+      const users = window.PhmurtDB ? window.PhmurtDB.getUsersMap() : {};
+      const keys = Object.keys(users);
+      let charTotal = 0;
+      let adminCount = 0;
+      keys.forEach(email => {
+        const u = users[email];
+        if(u && u.isAdmin) adminCount += 1;
+        const uid = u && (u.userId || u.id);
+        if(uid){
+          try {
+            const chars = JSON.parse(localStorage.getItem('phmurt_chars_' + uid) || '[]');
+            charTotal += Array.isArray(chars) ? chars.length : 0;
+          } catch(e){}
         }
       });
+      el('adminMetrics').innerHTML = [
+        ['Known Accounts', keys.length],
+        ['Admin Accounts', adminCount],
+        ['Stored Characters', charTotal],
+        ['API Mode', (window.PHMURT_CONFIG && window.PHMURT_CONFIG.apiBaseUrl) ? 'On' : 'Local']
+      ].map(item => '<div class="admin-metric"><div class="k">' + item[0] + '</div><div class="v">' + esc(item[1]) + '</div></div>').join('');
+    }
 
-      document.getElementById('refreshBtn').addEventListener('click', function(){
-        if (window.PhmurtDB && typeof window.PhmurtDB.syncSession === 'function') window.PhmurtDB.syncSession();
-        window.dispatchEvent(new Event('phmurt-auth-change'));
-        renderAdmin();
-      });
+    function renderEnvironment(){
+      const s = session();
+      const rows = [
+        ['Signed In', s ? 'Yes' : 'No'],
+        ['Admin', isAdmin() ? 'Yes' : 'No'],
+        ['Image Gate', hasImageGate() ? 'Verified' : 'Locked'],
+        ['Primary Session Key', localStorage.getItem('phmurt_session') ? 'phmurt_session' : (localStorage.getItem('phmurt_auth_session') ? 'phmurt_auth_session' : 'None')],
+        ['API Base URL', (window.PHMURT_CONFIG && window.PHMURT_CONFIG.apiBaseUrl) || 'Not configured'],
+        ['Tenant Slug', (s && s.tenantSlug) || localStorage.getItem('phmurt_default_tenant_slug') || 'phmurt-studios']
+      ];
+      el('adminEnvironmentTable').innerHTML = rows.map(row => '<tr><th>' + esc(row[0]) + '</th><td>' + esc(row[1]) + '</td></tr>').join('');
+    }
 
-      document.getElementById('signOutBtn').addEventListener('click', function(){
-        if (window.PhmurtDB && typeof window.PhmurtDB.signOut === 'function') window.PhmurtDB.signOut();
-        renderAdmin();
-      });
+    function renderSessionSummary(){
+      const s = session();
+      if(!s){
+        el('adminSessionSummary').innerHTML = 'No signed-in account is active yet. Complete the gate and sign in with the admin account.';
+        return;
+      }
+      el('adminSessionSummary').innerHTML = '<strong>' + esc(s.displayName || s.name || s.email) + '</strong><br>' +
+        '<span class="admin-badge">' + esc(s.email || '') + '</span>' +
+        ' <span class="admin-badge">' + (isAdmin() ? 'Admin' : 'Standard User') + '</span>' +
+        ' <span class="admin-badge">' + (hasImageGate() ? 'Image Verified' : 'Image Locked') + '</span>';
+    }
+
+    function renderUsers(){
+      const users = window.PhmurtDB ? window.PhmurtDB.getUsersMap() : {};
+      const rows = Object.keys(users).sort().map(email => {
+        const u = users[email] || {};
+        return '<tr>' +
+          '<td>' + esc(u.displayName || u.name || '') + '</td>' +
+          '<td>' + esc(email) + '</td>' +
+          '<td>' + (u.isAdmin ? '<span class="admin-badge">Admin</span>' : '<span class="admin-badge">User</span>') + '</td>' +
+          '<td>' + esc(u.userId || u.id || '') + '</td>' +
+          '<td>' + esc(u.createdAt || '') + '</td>' +
+        '</tr>';
+      }).join('');
+      el('adminUsersTable').innerHTML = '<thead><tr><th>Name</th><th>Email</th><th>Role</th><th>User ID</th><th>Created</th></tr></thead><tbody>' + (rows || '<tr><td colspan="5">No local users found.</td></tr>') + '</tbody>';
+    }
+
+    function renderCharacters(){
+      const users = window.PhmurtDB ? window.PhmurtDB.getUsersMap() : {};
+      const rows = Object.keys(users).sort().map(email => {
+        const u = users[email] || {};
+        const uid = u.userId || u.id;
+        let chars = [];
+        try { chars = JSON.parse(localStorage.getItem('phmurt_chars_' + uid) || '[]'); } catch(e){}
+        return '<tr>' +
+          '<td>' + esc(u.displayName || u.name || email) + '</td>' +
+          '<td>' + esc(Array.isArray(chars) ? chars.length : 0) + '</td>' +
+          '<td>' + esc((Array.isArray(chars) && chars[0] && (chars[0].name || (chars[0].data && chars[0].data.details && chars[0].data.details.name))) || '—') + '</td>' +
+        '</tr>';
+      }).join('');
+      el('adminCharactersTable').innerHTML = '<thead><tr><th>Account</th><th>Characters</th><th>Most Recent</th></tr></thead><tbody>' + (rows || '<tr><td colspan="3">No local character caches found.</td></tr>') + '</tbody>';
+    }
+
+    function renderAdmin(){
+      renderMetrics();
+      renderEnvironment();
+      renderSessionSummary();
+      renderUsers();
+      renderCharacters();
+    }
+
+    function handleImage(file){
+      if(!file || !file.type || file.type.indexOf('image/') !== 0){
+        el('gateImageStatus').textContent = 'Please upload an image file.';
+        return;
+      }
+      el('gateImageStatus').textContent = 'Analyzing image…';
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        const img = new Image();
+        img.onload = function(){
+          const hash = computeDHash(img);
+          const dist = hammingDist(hash, EXPECTED_HASH);
+          if(dist <= 2){
+            sessionStorage.setItem(IMAGE_OK_KEY, 'true');
+            if(window.PhmurtDB){
+              window.PhmurtDB.setImagePasswordHash(ADMIN_EMAIL, EXPECTED_HASH);
+            }
+            el('gateImageStatus').textContent = '✓ Image verified.';
+            setTimeout(showAuthStage, 300);
+          } else {
+            el('gateImageStatus').textContent = '✗ Wrong image. Try again.';
+          }
+        };
+        img.onerror = function(){ el('gateImageStatus').textContent = 'Could not read image.'; };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function gateLogin(){
+      const email = (el('gateEmail').value || '').trim().toLowerCase();
+      const password = el('gatePassword').value || '';
+      if(!email || !password){
+        el('gateAuthStatus').textContent = 'Email and password are required.';
+        return;
+      }
+      el('gateAuthStatus').textContent = 'Signing in…';
+      const result = await window.PhmurtDB.login(email, password);
+      if(result && result.error){
+        el('gateAuthStatus').textContent = result.error;
+        return;
+      }
+      if(!window.PhmurtDB.isAdmin()){
+        el('gateAuthStatus').textContent = 'That account is not an admin account.';
+        return;
+      }
+      closeGate();
+      renderAdmin();
+      setFlash('Admin access granted.', true);
+    }
+
+    function useCurrentSession(){
+      if(!window.PhmurtDB.isAdmin()){
+        el('gateAuthStatus').textContent = 'No admin session is currently active.';
+        return;
+      }
+      closeGate();
+      renderAdmin();
+      setFlash('Admin access granted from the current session.', true);
     }
 
     document.addEventListener('DOMContentLoaded', function(){
-      renderAdmin();
+      const drop = el('gateDropZone');
+      const input = el('gateImageInput');
+      drop.addEventListener('click', function(){ input.click(); });
+      input.addEventListener('change', function(){ if(input.files && input.files[0]) handleImage(input.files[0]); });
+      ['dragenter','dragover'].forEach(evt => drop.addEventListener(evt, function(e){ e.preventDefault(); drop.classList.add('drag'); }));
+      ['dragleave','drop'].forEach(evt => drop.addEventListener(evt, function(e){ e.preventDefault(); drop.classList.remove('drag'); }));
+      drop.addEventListener('drop', function(e){ if(e.dataTransfer.files && e.dataTransfer.files[0]) handleImage(e.dataTransfer.files[0]); });
+      el('gateLoginBtn').addEventListener('click', gateLogin);
+      el('gateUseCurrentBtn').addEventListener('click', useCurrentSession);
+      el('gateBackBtn').addEventListener('click', function(){ clearImageGate(); showImageStage(); el('gateAuthStatus').textContent = ''; });
+      el('adminRefreshBtn').addEventListener('click', function(){ requireGate(); setFlash('Admin panel refreshed.', true); });
+      el('adminSignOutBtn').addEventListener('click', async function(){ await window.PhmurtDB.signOut(); clearImageGate(); requireGate(); setFlash('Signed out.', true); });
+      el('adminResetImageBtn').addEventListener('click', function(){ clearImageGate(); requireGate(); setFlash('Image gate reset for this tab.', true); });
       window.addEventListener('phmurt-auth-change', renderAdmin);
-      window.addEventListener('pageshow', renderAdmin);
+      window.addEventListener('storage', renderAdmin);
+      requireGate();
     });
+  })();
   </script>
 </body>
 </html>

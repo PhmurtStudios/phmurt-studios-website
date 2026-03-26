@@ -3,7 +3,7 @@
   var SHELL_ADMIN_EMAILS = ['dreverad18@gmail.com'];
   function _shellIsAdmin() {
     try {
-      var raw = localStorage.getItem('phmurt_auth_session') || localStorage.getItem('phmurt_session') || localStorage.getItem('phmurt_admin_session');
+      var raw = localStorage.getItem('phmurt_session') || localStorage.getItem('phmurt_auth_session') || localStorage.getItem('phmurt_admin_session');
       var s = raw ? JSON.parse(raw) : null;
       if (!s) return false;
       var email = (s.email || '').trim().toLowerCase();
@@ -335,13 +335,10 @@
 
   function _getAuthSession() {
     try {
-      if (window.PhmurtDB && typeof window.PhmurtDB.getSession === 'function') {
-        var s = window.PhmurtDB.getSession();
-        if (s) return s;
-      }
-      var raw = localStorage.getItem('phmurt_auth_session') || localStorage.getItem('phmurt_session') || localStorage.getItem('phmurt_admin_session');
-      return raw ? JSON.parse(raw) : null;
-    } catch(e) { return null; }
+      if (window.PhmurtDB && typeof window.PhmurtDB.getSession === 'function') return window.PhmurtDB.getSession();
+      return JSON.parse(localStorage.getItem('phmurt_session') || localStorage.getItem('phmurt_auth_session') || localStorage.getItem('phmurt_admin_session') || 'null');
+    }
+    catch(e) { return null; }
   }
 
   function updateAuthNav() {
@@ -380,12 +377,10 @@
         var soBtn = document.getElementById('nav-signout-btn');
         if (soBtn) {
           soBtn.addEventListener('click', function() {
-            if (window.PhmurtDB && typeof window.PhmurtDB.signOut === 'function') {
-              window.PhmurtDB.signOut();
-            } else {
-              ['phmurt_auth_session','phmurt_session','phmurt_admin_session'].forEach(function(key){ localStorage.removeItem(key); });
-              window.dispatchEvent(new Event('phmurt-auth-change'));
-            }
+            if (window.PhmurtDB && typeof window.PhmurtDB.signOut === 'function') { window.PhmurtDB.signOut(); return; }
+            if (window.PhmurtDB && typeof window.PhmurtDB.logout === 'function') { window.PhmurtDB.logout(); return; }
+            ['phmurt_session','phmurt_auth_session','phmurt_admin_session'].forEach(function(k){ localStorage.removeItem(k); });
+            window.dispatchEvent(new Event('phmurt-auth-change'));
             dd.classList.remove('open');
             if (typeof window.psToast === 'function') window.psToast('Signed out.');
           });
@@ -560,7 +555,6 @@
     setupReveal();
     setupAuthDropdownClose();
     window.addEventListener('phmurt-auth-change', updateAuthNav);
-    window.addEventListener('pageshow', updateAuthNav);
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(function() {});
