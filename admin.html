@@ -3,364 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>Admin Panel · Phmurt Studios</title>
+  <title>Admin Panel — Phmurt Studios</title>
+  <meta name="description" content="Phmurt Studios admin dashboard." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="style.css" />
   <script src="theme.js"></script>
-  <script src="site-config.js"></script>
+  <script src="phmurt-auth.js"></script>
   <style>
-    body{margin:0;background:var(--bg);color:var(--text);font-family:'Spectral',serif}
-    .admin-shell{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-    .admin-side{background:var(--bg-nav);border-right:1px solid var(--border);padding:24px;position:sticky;top:0;height:100vh;box-sizing:border-box}
-    .admin-brand{font-family:'Cinzel',serif;font-size:18px;letter-spacing:1px;margin-bottom:8px}
-    .admin-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px}
-    .admin-nav button{display:block;width:100%;text-align:left;padding:11px 12px;margin-bottom:8px;background:transparent;border:1px solid transparent;color:var(--text);border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase}
-    .admin-nav button.active,.admin-nav button:hover{border-color:var(--crimson-border);background:rgba(192,57,43,.08);color:var(--crimson)}
-    .admin-main{padding:28px 32px}
-    .admin-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:22px}
-    .admin-title{font-family:'Cinzel',serif;font-size:28px;margin:0 0 6px}
-    .admin-card{background:var(--bg-card);border:1px solid var(--border);padding:18px;border-radius:4px;margin-bottom:18px}
-    .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
-    .metric{padding:18px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px}
-    .metric .k{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
-    .metric .v{font-size:30px;color:var(--text)}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-    input,select,textarea{background:var(--bg-input,rgba(255,255,255,0.04));border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'Spectral',serif;font-size:15px}
-    textarea{min-height:110px;width:100%;box-sizing:border-box}
-    .btn{background:var(--crimson);color:#f5f0e8;border:none;padding:10px 14px;border-radius:4px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase}
-    .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text)}
-    .btn.danger{background:#7f1d1d}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:left}
-    th{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
-    .tag{display:inline-block;padding:4px 8px;border:1px solid var(--border);border-radius:999px;font-size:12px;margin:2px 6px 2px 0}
-    .hidden{display:none!important}
-    #loginScreen{max-width:540px;margin:60px auto;padding:0 20px}
-    .login-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .muted{color:var(--text-muted)}
-    .error{color:#ef4444;margin-top:10px}
-    .success{color:#22c55e;margin-top:10px}
-    .split{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
-    @media (max-width: 960px){.admin-shell{grid-template-columns:1fr}.admin-side{position:static;height:auto}.split,.login-grid{grid-template-columns:1fr}}
+    .admin-wrap{max-width:1200px;margin:0 auto;padding:0 24px 56px}
+    .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+    .admin-card{background:var(--bg-card);border:1px solid var(--border);padding:22px 20px;border-radius:6px;box-shadow:0 12px 24px rgba(0,0,0,.14)}
+    .admin-title{font-family:Cinzel,serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+    .admin-value{font-family:Cinzel,serif;font-size:28px;color:var(--text);margin-bottom:8px}
+    .admin-sub{font-size:16px;line-height:1.7;color:var(--text-dim)}
+    .admin-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .admin-btn{padding:11px 16px;border:1px solid var(--crimson-border);background:rgba(192,57,43,.08);color:var(--text);font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:4px}
+    .admin-btn.primary{background:var(--crimson);color:#f5f0e8}
+    .admin-panel{background:var(--bg-card);border:1px solid var(--border);padding:24px;border-radius:6px}
+    .admin-list{display:grid;gap:12px;margin-top:16px}
+    .admin-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;border:1px solid var(--border);border-radius:4px;background:rgba(255,255,255,.02)}
+    .admin-note{font-size:14px;color:var(--text-faint);font-style:italic}
+    .admin-badge{display:inline-block;padding:4px 8px;border:1px solid var(--crimson-border);color:var(--crimson);font-size:10px;letter-spacing:2px;text-transform:uppercase;border-radius:999px;font-family:Cinzel,serif}
+    .admin-locked{max-width:520px;margin:32px auto;background:var(--bg-card);border:1px solid var(--crimson-border);padding:28px;text-align:center;border-radius:6px}
   </style>
 </head>
-<body>
-  <div id="loginScreen">
-    <div class="ps-page-hero" style="padding-top:36px;padding-bottom:18px;">
-      <div class="ps-page-eyebrow">Administration</div>
-      <h1 class="admin-title">Phmurt Studios Admin Panel</h1>
-      <div class="ps-page-subtitle">Production-backed dashboard for tenants, users, keys, clients, rate limits, and audit logs</div>
-    </div>
-    <div class="admin-card">
-      <div class="login-grid">
-        <label><div class="muted">API Base URL</div><input id="apiBaseUrl" placeholder="http://localhost:5000/api" /></label>
-        <label><div class="muted">Tenant Slug</div><input id="tenantSlug" placeholder="phmurt-studios" /></label>
-        <label><div class="muted">Email</div><input id="loginEmail" type="email" /></label>
-        <label><div class="muted">Password</div><input id="loginPassword" type="password" /></label>
-      </div>
-      <div class="toolbar" style="margin-top:14px;">
-        <button class="btn" id="loginBtn">Sign In</button>
-        <button class="btn secondary" id="signupBtn">Create Tenant + Admin</button>
-        <button class="btn secondary" id="loadSavedBtn">Use Saved Session</button>
-      </div>
-      <div class="muted">This panel requires a backend API session and admin permissions. The old front-end image gate has been removed because it was only obscurity, not real access control.</div>
-      <div id="loginMsg"></div>
-    </div>
+<body data-nav-active="Admin" data-footer-copy="Roll Well. Play Weird.">
+  <div id="ps-site-shell"></div>
+  <div id="ps-page-breadcrumb"></div>
+
+  <section class="ps-page-hero">
+    <div class="ps-page-eyebrow">Control Room</div>
+    <div class="ps-page-title">Phmurt Studios Admin Panel</div>
+    <div class="ps-page-subtitle">Site administration, account oversight, and quick-control tools</div>
+  </section>
+
+  <div class="admin-wrap">
+    <div id="adminMount"></div>
   </div>
 
-  <div id="adminApp" class="hidden">
-    <div class="admin-shell">
-      <aside class="admin-side">
-        <div class="admin-brand">Phmurt Studios</div>
-        <div class="admin-sub" id="sessionSummary">Admin session</div>
-        <div class="admin-nav" id="adminNav"></div>
-        <div style="margin-top:24px;display:grid;gap:10px;">
-          <button class="btn secondary" id="refreshAllBtn">Refresh</button>
-          <button class="btn secondary" id="logoutBtn">Sign Out</button>
-        </div>
-      </aside>
-      <main class="admin-main">
-        <div class="admin-top">
-          <div>
-            <div class="ps-page-eyebrow">Dashboard</div>
-            <h2 class="admin-title" id="sectionTitle">Overview</h2>
-            <div class="muted" id="sectionSubtitle">Operational visibility and management tools</div>
-          </div>
-          <div class="admin-card" style="min-width:260px;margin:0;">
-            <div class="muted">API</div>
-            <div id="apiStatus">Connected</div>
-          </div>
-        </div>
-        <div id="flash"></div>
-        <section id="overviewSection"></section>
-        <section id="tenantsSection" class="hidden"></section>
-        <section id="usersSection" class="hidden"></section>
-        <section id="rolesSection" class="hidden"></section>
-        <section id="clientsSection" class="hidden"></section>
-        <section id="keysSection" class="hidden"></section>
-        <section id="rateLimitsSection" class="hidden"></section>
-        <section id="auditSection" class="hidden"></section>
-      </main>
-    </div>
-  </div>
+  <div id="ps-site-footer"></div>
 
-<script>
-(() => {
-  const rawSiteSession = JSON.parse(localStorage.getItem('phmurt_session') || 'null');
-  const state = {
-    apiBaseUrl: localStorage.getItem('phmurt_api_base_url') || (window.PHMURT_CONFIG && window.PHMURT_CONFIG.apiBaseUrl) || '',
-    tenantSlug: localStorage.getItem('phmurt_default_tenant_slug') || (window.PHMURT_CONFIG && window.PHMURT_CONFIG.defaultTenantSlug) || (rawSiteSession && rawSiteSession.tenantSlug) || 'phmurt-studios',
-    accessToken: localStorage.getItem('phmurt_admin_access_token') || (rawSiteSession && rawSiteSession.accessToken) || '',
-    refreshToken: localStorage.getItem('phmurt_admin_refresh_token') || (rawSiteSession && rawSiteSession.refreshToken) || '',
-    session: JSON.parse(localStorage.getItem('phmurt_admin_session') || 'null') || rawSiteSession,
-    active: 'overview',
-    permissions: [],
-    permissionsCatalog: [],
-    tenants: [], users: [], roles: [], clients: [], keys: [], rateLimits: [], audit: []
-  };
+  <script src="phmurt-shell.js"></script>
+  <script>
+    function esc(v){ return String(v == null ? '' : v).replace(/[&<>"]/g, function(ch){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[ch]; }); }
 
-  const sections = ['overview','tenants','users','roles','clients','keys','rateLimits','audit'];
-  const navMeta = {
-    overview:['Overview','Operational snapshot for your tenant and admin resources'],
-    tenants:['Tenants','Create, review, suspend, activate, and inspect tenant records'],
-    users:['Users','Manage user accounts, roles, and deactivation'],
-    roles:['Roles & Permissions','Create roles and maintain permission assignments'],
-    clients:['OAuth Clients','Manage confidential/public clients and redirect settings'],
-    keys:['Signing Keys','Review, rotate, and revoke RSA signing keys'],
-    rateLimits:['Rate Limits','Tune rate limit policies for API protection'],
-    audit:['Audit Log','Review security-sensitive and administrative events']
-  };
+    function getUsers() {
+      try { return JSON.parse(localStorage.getItem('phmurt_users_db') || '{}'); }
+      catch (e) { return {}; }
+    }
 
-  function el(id){ return document.getElementById(id); }
-  function esc(v){ return String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
-  function flash(msg, ok=true){ el('flash').innerHTML = '<div class="admin-card ' + (ok?'success':'error') + '">' + esc(msg) + '</div>'; setTimeout(()=>{el('flash').innerHTML='';}, 5000); }
-  function setLoginMsg(msg, ok=false){ el('loginMsg').className = ok ? 'success' : 'error'; el('loginMsg').textContent = msg || ''; }
-  function persist(){
-    localStorage.setItem('phmurt_api_base_url', state.apiBaseUrl || '');
-    localStorage.setItem('phmurt_default_tenant_slug', state.tenantSlug || '');
-    localStorage.setItem('phmurt_admin_access_token', state.accessToken || '');
-    localStorage.setItem('phmurt_admin_refresh_token', state.refreshToken || '');
-    localStorage.setItem('phmurt_admin_session', JSON.stringify(state.session || null));
-  }
-  async function api(path, opts={}){
-    if(!state.apiBaseUrl) throw new Error('Set the API Base URL first.');
-    const headers = Object.assign({'Content-Type':'application/json'}, opts.headers || {});
-    if(state.accessToken) headers.Authorization = 'Bearer ' + state.accessToken;
-    const res = await fetch(state.apiBaseUrl.replace(/\/$/,'') + path, Object.assign({}, opts, {headers}));
-    if(res.status === 401 && state.refreshToken && !opts._retry){
-      const refreshed = await refreshToken();
-      if(refreshed) return api(path, Object.assign({}, opts, {_retry:true}));
-    }
-    if(res.status === 204) return null;
-    const data = await res.json().catch(()=>null);
-    if(!res.ok) throw new Error(data && (data.error || data.message) || ('Request failed: ' + res.status));
-    return data;
-  }
-  async function refreshToken(){
-    if(!state.refreshToken) return false;
-    try {
-      const data = await fetch(state.apiBaseUrl.replace(/\/$/,'') + '/auth/token/refresh', {
-        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ refreshToken: state.refreshToken })
-      }).then(async r => { const j = await r.json().catch(()=>null); if(!r.ok) throw new Error(j && (j.error || j.message) || 'Refresh failed'); return j; });
-      state.accessToken = data.accessToken; state.refreshToken = data.refreshToken; persist();
-      return true;
-    } catch(err){
-      console.error(err); logout(); return false;
-    }
-  }
-  async function login(isSignup=false){
-    state.apiBaseUrl = el('apiBaseUrl').value.trim();
-    state.tenantSlug = el('tenantSlug').value.trim();
-    const email = el('loginEmail').value.trim();
-    const password = el('loginPassword').value;
-    persist();
-    if(!state.apiBaseUrl || !state.tenantSlug || !email || !password){ setLoginMsg('API base URL, tenant slug, email, and password are required.'); return; }
-    const path = isSignup ? '/auth/signup' : '/auth/login';
-    const payload = isSignup ? { tenantSlug: state.tenantSlug, tenantName: 'Phmurt Studios', name: email.split('@')[0], email, password } : { tenantSlug: state.tenantSlug, email, password };
-    try {
-      const data = await api(path, {method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'application/json'}});
-      if(isSignup){ setLoginMsg('Tenant created. Sign in with the same credentials.', true); return; }
-      state.accessToken = data.accessToken; state.refreshToken = data.refreshToken; persist();
-      await loadSession();
-      openApp();
-    } catch(err){ setLoginMsg(err.message || 'Authentication failed.'); }
-  }
-  async function loadSession(){
-    const me = await api('/auth/me');
-    state.session = me;
-    state.permissions = me.permissions || [];
-    var adminEmail = String(me.email || '').trim().toLowerCase() === 'dreverad18@gmail.com';
-    if(adminEmail && !state.permissions.includes('*')){
-      state.permissions = Array.from(new Set((state.permissions || []).concat(['*','users:read','users:update','roles:read','roles:update','permissions:read','clients:read','clients:update','tenants:read','tenants:update','keys:read','keys:revoke','system:rate-limits','audit:read'])));
-    }
-    state.session.isAdmin = adminEmail || state.permissions.includes('*') || state.permissions.includes('users:read') || state.permissions.includes('tenants:read');
-    persist();
-    el('sessionSummary').innerHTML = '<div>' + esc(me.name || me.email) + '</div><div class="muted">' + esc(me.email || '') + '</div><div class="muted">' + esc((me.role || 'User') + ' · ' + (me.tenantSlug || '')) + '</div>';
-  }
-  function logout(){
-    state.accessToken=''; state.refreshToken=''; state.session=null; state.permissions=[]; persist();
-    el('adminApp').classList.add('hidden');
-    el('loginScreen').classList.remove('hidden');
-  }
-  function requirePerm(code){ return !code || state.permissions.includes(code) || state.permissions.includes('*') || (state.session && String(state.session.email||'').trim().toLowerCase() === 'dreverad18@gmail.com'); }
-  function renderNav(){
-    const nav = el('adminNav');
-    nav.innerHTML = sections.map(id => '<button class="' + (state.active===id?'active':'') + '" data-tab="'+id+'">'+navMeta[id][0]+'</button>').join('');
-    nav.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => { state.active = btn.dataset.tab; showSection(); }));
-  }
-  function showSection(){
-    sections.forEach(id => el(id+'Section').classList.add('hidden'));
-    el(state.active+'Section').classList.remove('hidden');
-    renderNav();
-    el('sectionTitle').textContent = navMeta[state.active][0];
-    el('sectionSubtitle').textContent = navMeta[state.active][1];
-  }
-  async function loadAll(){
-    el('apiStatus').textContent = 'Refreshing…';
-    const [tenants, users, roles, permissions, clients, keys, rateLimits, audit] = await Promise.all([
-      requirePerm('tenants:read') ? api('/tenants?page=1&pageSize=100') : Promise.resolve({items:[]}),
-      requirePerm('users:read') ? api('/users?page=1&pageSize=100') : Promise.resolve({items:[]}),
-      api('/roles').catch(()=>[]),
-      api('/permissions').catch(()=>[]),
-      requirePerm('clients:read') ? api('/clients?page=1&pageSize=100') : Promise.resolve({items:[]}),
-      requirePerm('keys:read') ? api('/signingkeys') : Promise.resolve([]),
-      requirePerm('system:rate-limits') ? api('/rate-limits?page=1&pageSize=100') : Promise.resolve({items:[]}),
-      requirePerm('system:audit-log') ? api('/audit?page=1&pageSize=100') : Promise.resolve({items:[]})
-    ]);
-    state.tenants = tenants.items || tenants || [];
-    state.users = users.items || users || [];
-    state.roles = roles.items || roles || [];
-    state.permissionsCatalog = permissions.items || permissions || [];
-    state.clients = clients.items || clients || [];
-    state.keys = keys.items || keys || [];
-    state.rateLimits = rateLimits.items || rateLimits || [];
-    state.audit = audit.items || audit || [];
-    renderOverview(); renderTenants(); renderUsers(); renderRoles(); renderClients(); renderKeys(); renderRateLimits(); renderAudit();
-    el('apiStatus').textContent = 'Connected · ' + state.apiBaseUrl;
-  }
-  function openApp(){
-    el('loginScreen').classList.add('hidden');
-    el('adminApp').classList.remove('hidden');
-    renderNav(); showSection(); loadAll().catch(err => flash(err.message || 'Failed to load admin data.', false));
-  }
-  function renderOverview(){
-    el('overviewSection').innerHTML = '<div class="admin-grid">' + [
-      ['Tenants', state.tenants.length],['Users', state.users.length],['Roles', state.roles.length],['Clients', state.clients.length],['Signing Keys', state.keys.length],['Rate Limits', state.rateLimits.length],['Audit Events', state.audit.length]
-    ].map(([k,v]) => '<div class="metric"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>').join('') + '</div>' +
-    '<div class="split" style="margin-top:18px;"><div class="admin-card"><h3>Current Session</h3><pre style="white-space:pre-wrap;overflow:auto;">'+esc(JSON.stringify(state.session, null, 2))+'</pre></div><div class="admin-card"><h3>Effective Permissions</h3>' + (state.permissions.length ? state.permissions.map(p=>'<span class="tag">'+esc(p)+'</span>').join('') : '<div class="muted">No permissions returned.</div>') + '</div></div>';
-  }
-  function renderTenants(){
-    el('tenantsSection').innerHTML = '<div class="admin-card"><div class="toolbar"><button class="btn" id="createTenantBtn">Create Tenant</button></div>' + table([
-      'Name','Slug','Status','Plan','Actions'
-    ], state.tenants.map(t => [esc(t.name), esc(t.slug), tag(t.status), esc(t.plan || ''),
-      actionBtn('Suspend', 'suspendTenant', t.id, !requirePerm('tenants:suspend')) + actionBtn('Activate', 'activateTenant', t.id, !requirePerm('tenants:update'))
-    ])) + '</div>';
-    bindAction('createTenantBtn', async () => {
-      const name = prompt('Tenant name:'); if(!name) return;
-      const slug = prompt('Tenant slug:', slugify(name)); if(!slug) return;
-      const plan = prompt('Plan:', 'Starter') || 'Starter';
-      await api('/tenants', {method:'POST', body: JSON.stringify({name, slug, plan})}); flash('Tenant created.'); await loadAll();
-    });
-    bindRowActions();
-  }
-  function renderUsers(){
-    el('usersSection').innerHTML = '<div class="admin-card"><div class="toolbar"><button class="btn" id="createUserBtn">Create User</button></div>' + table(['Name','Email','Role','Status','Actions'], state.users.map(u => [
-      esc(u.name), esc(u.email), tag(u.role), tag(u.status),
-      actionBtn('Change Role','changeUserRole',u.id,!requirePerm('users:update')) + actionBtn('Deactivate','deactivateUser',u.id,!requirePerm('users:delete'))
-    ])) + '</div>';
-    bindAction('createUserBtn', async () => {
-      const name = prompt('User name:'); if(!name) return;
-      const email = prompt('User email:'); if(!email) return;
-      const roleName = prompt('Role name (exact, e.g. Admin, Viewer):', 'Viewer') || 'Viewer';
-      const role = state.roles.find(r => r.name.toLowerCase() === roleName.toLowerCase());
-      await api('/users', {method:'POST', body: JSON.stringify({name, email, roleId: role ? role.id : null})}); flash('User created.'); await loadAll();
-    });
-    bindRowActions();
-  }
-  function renderRoles(){
-    el('rolesSection').innerHTML = '<div class="split"><div class="admin-card"><div class="toolbar"><button class="btn" id="createRoleBtn">Create Role</button></div>' + table(['Role','Description','Actions'], state.roles.map(r => [esc(r.name), esc(r.description || ''), actionBtn('Edit Permissions','editRolePerms',r.id,false)])) + '</div>' +
-      '<div class="admin-card"><h3>Permission Catalog</h3>' + (state.permissionsCatalog.length ? state.permissionsCatalog.map(p => '<span class="tag">'+esc(p.code || p.Code || p)+'</span>').join('') : '<div class="muted">No permissions endpoint response yet.</div>') + '</div></div>';
-    bindAction('createRoleBtn', async () => {
-      const name = prompt('Role name:'); if(!name) return;
-      const description = prompt('Description:') || '';
-      await api('/roles', {method:'POST', body: JSON.stringify({name, description})}); flash('Role created.'); await loadAll();
-    });
-    bindRowActions();
-  }
-  function renderClients(){
-    el('clientsSection').innerHTML = '<div class="admin-card"><div class="toolbar"><button class="btn" id="createClientBtn">Create OAuth Client</button></div>' + table(['Name','Client ID','Active','Redirect Uris','Actions'], state.clients.map(c => [esc(c.name), esc(c.clientId), tag(String(c.isActive ?? c.active)), esc(Array.isArray(c.redirectUris)?c.redirectUris.join(', '):c.redirectUris||''), actionBtn('Toggle Active','toggleClient',c.id,!requirePerm('clients:update'))])) + '</div>';
-    bindAction('createClientBtn', async () => {
-      const name = prompt('Client name:'); if(!name) return;
-      const redirectUri = prompt('Redirect URI (blank allowed):', '') || '';
-      const created = await api('/clients', {method:'POST', body: JSON.stringify({name, redirectUri})});
-      flash('Client created. Save this secret now: ' + (created.plainSecret || created.secret || 'returned in API response.'));
-      await loadAll();
-    });
-    bindRowActions();
-  }
-  function renderKeys(){
-    el('keysSection').innerHTML = '<div class="admin-card"><div class="toolbar"><button class="btn" id="rotateKeyBtn">Rotate Key</button></div>' + table(['Key ID','Algorithm','Status','Created','Expires','Actions'], state.keys.map(k => [esc(k.keyId), esc(k.algorithm), tag(k.status), esc(fmt(k.createdAt)), esc(fmt(k.expiresAt)), actionBtn('Revoke','revokeKey',k.id,!requirePerm('keys:revoke'))])) + '</div>';
-    bindAction('rotateKeyBtn', async () => { await api('/signingkeys/rotate', {method:'POST'}); flash('Signing key rotated.'); await loadAll(); });
-    bindRowActions();
-  }
-  function renderRateLimits(){
-    el('rateLimitsSection').innerHTML = '<div class="admin-card"><div class="toolbar"><button class="btn" id="createRateBtn">Create Policy</button></div>' + table(['Name','Endpoint','RPM','RPH','Burst','Active','Actions'], state.rateLimits.map(p => [esc(p.name), esc(p.endpoint), esc(p.requestsPerMinute), esc(p.requestsPerHour), esc(p.burstSize), tag(String(p.isActive)), actionBtn('Delete','deleteRate',p.id,!requirePerm('system:rate-limits'))])) + '</div>';
-    bindAction('createRateBtn', async () => {
-      const name = prompt('Policy name:'); if(!name) return;
-      const endpoint = prompt('Endpoint pattern:', '/api/example/*'); if(!endpoint) return;
-      const rpm = Number(prompt('Requests per minute:', '30') || '30');
-      const rph = Number(prompt('Requests per hour:', '500') || '500');
-      const burstSize = Number(prompt('Burst size:', '10') || '10');
-      await api('/rate-limits', {method:'POST', body: JSON.stringify({name, endpoint, requestsPerMinute:rpm, requestsPerHour:rph, burstSize, isActive:true})});
-      flash('Rate limit policy created.'); await loadAll();
-    });
-    bindRowActions();
-  }
-  function renderAudit(){
-    el('auditSection').innerHTML = '<div class="admin-card">' + table(['Time','Actor','Action','Target','Detail'], state.audit.map(a => [esc(fmt(a.timestamp)), esc(a.actor), esc(a.action), esc(a.target), '<div style="max-width:440px">'+esc(a.detail || '')+'</div>'])) + '</div>';
-  }
-  function table(headers, rows){ return '<div style="overflow:auto"><table><thead><tr>' + headers.map(h => '<th>'+h+'</th>').join('') + '</tr></thead><tbody>' + (rows.length ? rows.map(r => '<tr>' + r.map(c => '<td>'+c+'</td>').join('') + '</tr>').join('') : '<tr><td colspan="'+headers.length+'" class="muted">No data</td></tr>') + '</tbody></table></div>'; }
-  function tag(v){ return '<span class="tag">'+esc(v)+'</span>'; }
-  function actionBtn(label, action, id, disabled){ return '<button class="btn secondary row-action" data-action="'+action+'" data-id="'+id+'" ' + (disabled?'disabled':'') + ' style="margin-right:8px;">'+label+'</button>'; }
-  function bindAction(id, fn){ const node = el(id); if(node) node.addEventListener('click', () => Promise.resolve(fn()).catch(err => flash(err.message || 'Action failed.', false))); }
-  function fmt(v){ return v ? new Date(v).toLocaleString() : '—'; }
-  function slugify(v){ return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
-  async function handleRowAction(action, id){
-    if(action==='suspendTenant') await api('/tenants/'+id+'/suspend', {method:'POST'});
-    if(action==='activateTenant') await api('/tenants/'+id+'/activate', {method:'POST'});
-    if(action==='deactivateUser') await api('/users/'+id+'/deactivate', {method:'POST'});
-    if(action==='changeUserRole'){
-      const roleName = prompt('New role name:'); if(!roleName) return;
-      const role = state.roles.find(r => r.name.toLowerCase() === roleName.toLowerCase()); if(!role) throw new Error('Role not found.');
-      await api('/users/'+id, {method:'PUT', body: JSON.stringify({roleId: role.id})});
-    }
-    if(action==='editRolePerms'){
-      const role = state.roles.find(r => r.id === id); if(!role) return;
-      const existing = await api('/roles/'+id);
-      const current = (existing.permissions || []).map(p => p.code || p.Code).join(', ');
-      const next = prompt('Comma-separated permission codes for '+role.name+':', current); if(next===null) return;
-      const permissionCodes = next.split(',').map(s => s.trim()).filter(Boolean);
-      await api('/roles/'+id+'/permissions', {method:'PUT', body: JSON.stringify({permissionCodes})});
-    }
-    if(action==='toggleClient'){
-      const c = state.clients.find(x => x.id === id); if(!c) return;
-      await api('/clients/'+id, {method:'PUT', body: JSON.stringify({isActive: !(c.isActive ?? c.active), name:c.name, redirectUri:Array.isArray(c.redirectUris)?c.redirectUris[0]:(c.redirectUris||'')})});
-    }
-    if(action==='revokeKey') await api('/signingkeys/'+id+'/revoke', {method:'POST'});
-    if(action==='deleteRate') await api('/rate-limits/'+id, {method:'DELETE'});
-    flash('Action completed.'); await loadAll();
-  }
-  function bindRowActions(){ document.querySelectorAll('.row-action').forEach(btn => btn.addEventListener('click', () => handleRowAction(btn.dataset.action, btn.dataset.id).catch(err => flash(err.message || 'Action failed.', false)))); }
+    function renderAdmin() {
+      var mount = document.getElementById('adminMount');
+      if (!mount) return;
+      var session = window.PhmurtDB && typeof window.PhmurtDB.getSession === 'function' ? window.PhmurtDB.getSession() : null;
+      var isAdmin = !!(window.PhmurtDB && typeof window.PhmurtDB.isAdmin === 'function' ? window.PhmurtDB.isAdmin() : session && session.isAdmin);
 
-  el('apiBaseUrl').value = state.apiBaseUrl; el('tenantSlug').value = state.tenantSlug;
-  bindAction('loginBtn', () => login(false)); bindAction('signupBtn', () => login(true)); bindAction('loadSavedBtn', async () => { if(!state.accessToken) throw new Error('No saved session found.'); await loadSession(); openApp(); }); bindAction('refreshAllBtn', loadAll); bindAction('logoutBtn', logout);
-  if(state.accessToken && state.apiBaseUrl){ loadSession().then(openApp).catch((err) => { console.error(err); setLoginMsg('Saved admin session could not be restored. Please sign in again.'); }); }
-})();
-</script>
+      if (!session) {
+        mount.innerHTML = '<div class="admin-locked"><div class="admin-title">Authentication Required</div><div class="admin-sub">Sign in with your admin account to access the panel.</div><div class="admin-actions" style="justify-content:center;"><button class="admin-btn primary" onclick="window.PhmurtDB.openAuth()">Sign In</button></div></div>';
+        return;
+      }
+
+      if (!isAdmin) {
+        mount.innerHTML = '<div class="admin-locked"><div class="admin-title">Access Denied</div><div class="admin-sub">The account <strong>' + esc(session.email) + '</strong> is signed in, but it is not marked as an admin account.</div></div>';
+        return;
+      }
+
+      var users = getUsers();
+      var userList = Object.keys(users).sort().map(function(email){
+        var user = users[email] || {};
+        var admin = String(email).toLowerCase() === 'dreverad18@gmail.com';
+        return '<div class="admin-row"><div><div style="font-family:Cinzel,serif;font-size:14px;color:var(--text);">' + esc(user.name || email) + '</div><div style="font-size:14px;color:var(--text-dim);">' + esc(email) + '</div></div><div>' + (admin ? '<span class="admin-badge">Admin</span>' : '<span class="admin-note">Standard</span>') + '</div></div>';
+      }).join('');
+
+      mount.innerHTML =
+        '<div class="admin-grid" style="margin-bottom:18px;">' +
+          '<div class="admin-card"><div class="admin-title">Signed In Account</div><div class="admin-value">' + esc(session.name || session.displayName || 'Admin') + '</div><div class="admin-sub">' + esc(session.email) + '</div></div>' +
+          '<div class="admin-card"><div class="admin-title">Known Accounts</div><div class="admin-value">' + Object.keys(users).length + '</div><div class="admin-sub">Accounts currently stored in this browser profile.</div></div>' +
+          '<div class="admin-card"><div class="admin-title">Admin Status</div><div class="admin-value">Enabled</div><div class="admin-sub">This panel is unlocked for <strong>dreverad18@gmail.com</strong>.</div></div>' +
+        '</div>' +
+        '<div class="admin-panel">' +
+          '<div class="admin-title">Quick Actions</div>' +
+          '<div class="admin-actions">' +
+            '<button class="admin-btn primary" id="forceSeedBtn">Rebuild Admin Account</button>' +
+            '<button class="admin-btn" id="refreshBtn">Refresh Session</button>' +
+            '<button class="admin-btn" id="signOutBtn">Sign Out</button>' +
+          '</div>' +
+          '<div class="admin-list">' + userList + '</div>' +
+        '</div>';
+
+      document.getElementById('forceSeedBtn').addEventListener('click', function(){
+        try {
+          if (window.PhmurtDB && typeof window.PhmurtDB.syncSession === 'function') window.PhmurtDB.syncSession();
+          alert('The admin account record was refreshed.\n\nEmail: dreverad18@gmail.com');
+          renderAdmin();
+        } catch (err) {
+          alert('Could not rebuild the admin account.');
+        }
+      });
+
+      document.getElementById('refreshBtn').addEventListener('click', function(){
+        if (window.PhmurtDB && typeof window.PhmurtDB.syncSession === 'function') window.PhmurtDB.syncSession();
+        window.dispatchEvent(new Event('phmurt-auth-change'));
+        renderAdmin();
+      });
+
+      document.getElementById('signOutBtn').addEventListener('click', function(){
+        if (window.PhmurtDB && typeof window.PhmurtDB.signOut === 'function') window.PhmurtDB.signOut();
+        renderAdmin();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      renderAdmin();
+      window.addEventListener('phmurt-auth-change', renderAdmin);
+      window.addEventListener('pageshow', renderAdmin);
+    });
+  </script>
 </body>
 </html>

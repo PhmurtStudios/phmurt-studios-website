@@ -1,10 +1,11 @@
-const CACHE_VERSION = 2;
+const CACHE_VERSION = 3;
 const CACHE_NAME = 'phmurt-v' + CACHE_VERSION;
 const PRECACHE_URLS = [
   '/',
   'index.html',
   'style.css',
   'phmurt-shell.js',
+  'phmurt-auth.js',
   'builder-data.js',
   'builder-data-35.js',
   'monster-data.js',
