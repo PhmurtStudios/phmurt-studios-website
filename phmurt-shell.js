@@ -540,6 +540,25 @@
     }, duration);
   };
 
+  /* ── Page visit tracking ─────────────────────────────────────────────
+     Logs the current page to the Supabase `site_visits` table.
+     Fires after DOMContentLoaded so supabase-config.js has run.
+     Silently skips if Supabase is not configured.                    ── */
+  function trackPageVisit() {
+    try {
+      var sb = (typeof phmurtSupabase !== 'undefined') ? phmurtSupabase : null;
+      if (!sb) return;
+      var page = window.location.pathname.split('/').pop() || 'index.html';
+      var userId = null;
+      try {
+        var raw = localStorage.getItem('phmurt_auth_session');
+        var sess = raw ? JSON.parse(raw) : null;
+        if (sess && sess.userId) userId = sess.userId;
+      } catch(e) {}
+      sb.from('site_visits').insert({ page: page, user_id: userId || null }).then(function() {}).catch(function() {});
+    } catch(e) {}
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     ensureShell();
     updateAuthNav();
@@ -554,5 +573,8 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(function() {});
     }
+
+    // Track this page visit (fire-and-forget)
+    setTimeout(trackPageVisit, 500);
   });
 })();
