@@ -987,7 +987,7 @@ function UsersPage({ addToast }) {
   const { data: users, loading, error, refetch } = useAdminQuery(async (db) => {
     const { data, error } = await db
       .from('profiles')
-      .select('id, name, email, created_at, is_admin, is_banned')
+      .select('id, name, email, created_at, is_admin, is_superuser, is_banned')
       .order('created_at', { ascending: false })
       .limit(500);
     if (error) throw error;
@@ -1003,6 +1003,7 @@ function UsersPage({ addToast }) {
   });
 
   async function toggleBan(user) {
+    if (user.is_superuser) { addToast('Superuser accounts cannot be modified.', 'error'); return; }
     const next = !user.is_banned;
     const { error } = await sb.from('profiles').update({ is_banned: next }).eq('id', user.id);
     if (error) { addToast('Update failed: ' + error.message, 'error'); return; }
@@ -1011,6 +1012,7 @@ function UsersPage({ addToast }) {
   }
 
   async function toggleAdmin(user) {
+    if (user.is_superuser) { addToast('Superuser accounts cannot be modified.', 'error'); return; }
     const next = !user.is_admin;
     const { error } = await sb.from('profiles').update({ is_admin: next }).eq('id', user.id);
     if (error) { addToast('Update failed: ' + error.message, 'error'); return; }
@@ -1018,7 +1020,8 @@ function UsersPage({ addToast }) {
     refetch(); setSelectedUser(null);
   }
 
-  async function deleteUser(id) {
+  async function deleteUser(id, user) {
+    if (user && user.is_superuser) { addToast('Superuser accounts cannot be deleted.', 'error'); return; }
     if (!confirm('Permanently delete this user and all their data? This cannot be undone.')) return;
     const { error } = await sb.from('profiles').delete().eq('id', id);
     if (error) { addToast('Delete failed: ' + error.message, 'error'); return; }
@@ -1063,7 +1066,8 @@ function UsersPage({ addToast }) {
                   <td style={{fontWeight:600,color:'var(--text)'}}>{u.name || '—'}</td>
                   <td className="mono">{u.email}</td>
                   <td>
-                    {u.is_admin  && <span className="badge badge-admin"    style={{marginRight:'4px'}}>Admin</span>}
+                    {u.is_superuser && <span className="badge badge-admin" style={{marginRight:'4px',background:'rgba(192,57,43,0.15)',color:'#c0392b'}}>Superuser</span>}
+                    {u.is_admin && !u.is_superuser && <span className="badge badge-admin" style={{marginRight:'4px'}}>Admin</span>}
                     {u.is_banned ? <span className="badge badge-suspended">Banned</span>
                                  : <span className="badge badge-active">Active</span>}
                   </td>
@@ -1309,7 +1313,7 @@ function ManageAdminsCard({ addToast }) {
   function fetchAdmins() {
     if (!sb) { setLoading(false); return; }
     setLoading(true);
-    sb.from('profiles').select('id, name, email, is_admin')
+    sb.from('profiles').select('id, name, email, is_admin, is_superuser')
       .eq('is_admin', true).order('email')
       .then(r => { setAdmins(r.data || []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -1374,17 +1378,26 @@ function ManageAdminsCard({ addToast }) {
             ) : (
               <div className="data-table" style={{overflowX:'auto'}}>
                 <table>
-                  <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+                  <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead>
                   <tbody>
                     {admins.map(u => (
                       <tr key={u.id}>
                         <td>{u.name || '—'}</td>
                         <td><code style={{fontSize:'12px'}}>{u.email}</code></td>
                         <td>
-                          <button onClick={() => revokeAdmin(u)}
-                            style={{padding:'5px 12px',background:'rgba(231,76,60,0.12)',color:'var(--danger)',border:'1px solid rgba(231,76,60,0.2)',fontFamily:'Cinzel,serif',fontSize:'10px',letterSpacing:'1px',cursor:'pointer',borderRadius:'3px'}}>
-                            Revoke
-                          </button>
+                          {u.is_superuser
+                            ? <span style={{fontSize:'11px',padding:'3px 8px',background:'rgba(192,57,43,0.15)',color:'var(--crimson)',border:'1px solid var(--crimson-border)',borderRadius:'3px'}}>Superuser</span>
+                            : <span style={{fontSize:'11px',padding:'3px 8px',background:'rgba(52,152,219,0.1)',color:'var(--info)',border:'1px solid rgba(52,152,219,0.2)',borderRadius:'3px'}}>Admin</span>
+                          }
+                        </td>
+                        <td>
+                          {u.is_superuser
+                            ? <span style={{fontSize:'11px',color:'var(--text-faint)'}}>Protected</span>
+                            : <button onClick={() => revokeAdmin(u)}
+                                style={{padding:'5px 12px',background:'rgba(231,76,60,0.12)',color:'var(--danger)',border:'1px solid rgba(231,76,60,0.2)',fontFamily:'Cinzel,serif',fontSize:'10px',letterSpacing:'1px',cursor:'pointer',borderRadius:'3px'}}>
+                                Revoke
+                              </button>
+                          }
                         </td>
                       </tr>
                     ))}

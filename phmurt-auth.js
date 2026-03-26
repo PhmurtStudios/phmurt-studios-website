@@ -50,6 +50,7 @@ var PhmurtDB = (function () {
       email:       user.email || '',
       displayName: name,
       isAdmin:     _isAdmin(user.email, profile && profile.is_admin),
+      isSuperuser: !!(profile && profile.is_superuser),
       isBanned:    !!(profile && profile.is_banned)
     };
   }

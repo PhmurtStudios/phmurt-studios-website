@@ -8,8 +8,8 @@
      4. Save and reload — cloud auth and data sync activate automatically.
    ═══════════════════════════════════════════════════════════════════ */
 
-var SUPABASE_URL      = '';   // ← e.g. 'https://abcdefghij.supabase.co'
-var SUPABASE_ANON_KEY = '';   // ← long JWT starting with 'eyJ…'
+var SUPABASE_URL      = 'https://zrfmboqoyrqsyckktgpv.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_Uvg-qACdL7dowGKbkH0dLA_m2R3Vamy';
 
 /* ── Initialise the Supabase client ────────────────────────────────
    Requires the supabase-js CDN <script> to be loaded before this file.
