@@ -625,6 +625,250 @@
       height: 24px;
       border-radius: 2px;
     }
+
+    /* ── 5E STAT BLOCK ── */
+    .statblock {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      padding: 16px;
+      font-family: 'Spectral', serif;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .statblock-header {
+      border-bottom: 2px solid var(--crimson);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .statblock-name {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--crimson);
+      letter-spacing: 1px;
+    }
+
+    .statblock-subheader {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    .statblock-section {
+      margin: 12px 0;
+    }
+
+    .statblock-section-header {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--crimson);
+      padding-bottom: 4px;
+      margin: 12px 0 8px 0;
+    }
+
+    .statblock-divider {
+      border-bottom: 1px solid var(--crimson);
+      margin: 12px 0;
+    }
+
+    .statblock-trait {
+      margin-bottom: 8px;
+    }
+
+    .statblock-trait-name {
+      font-weight: bold;
+      color: var(--crimson);
+      display: inline;
+    }
+
+    .statblock-trait-description {
+      display: inline;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 16px;
+      margin: 8px 0;
+      flex-wrap: wrap;
+    }
+
+    .stat-block {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .stat-block-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .stat-block-value {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    .ability-scores {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .ability-score {
+      text-align: center;
+      background: var(--bg-mid);
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+
+    .ability-score-abbr {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .ability-score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--crimson);
+    }
+
+    .ability-score-mod {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .mode-tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      transition: all 0.2s ease;
+    }
+
+    .mode-tab:hover {
+      color: var(--text);
+      border-bottom-color: var(--crimson-soft);
+    }
+
+    .mode-tab.active {
+      color: var(--crimson);
+      border-bottom-color: var(--crimson);
+    }
+
+    .mode-content {
+      display: none;
+    }
+
+    .mode-content.active {
+      display: block;
+    }
+
+    .dynamic-list {
+      margin: 12px 0;
+    }
+
+    .dynamic-item {
+      background: var(--bg-mid);
+      border: 1px solid var(--border);
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 2px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .dynamic-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dynamic-item-remove {
+      padding: 4px 12px;
+      background: rgba(192, 57, 43, 0.1);
+      border: 1px solid var(--crimson);
+      color: var(--crimson);
+      cursor: pointer;
+      font-size: 11px;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .dynamic-item-remove:hover {
+      background: var(--crimson);
+      color: #f5ede0;
+    }
+
+    .add-item-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(192, 57, 43, 0.1);
+      border: 1px solid var(--crimson-border);
+      color: var(--crimson);
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+      margin-bottom: 12px;
+    }
+
+    .add-item-btn:hover {
+      background: var(--crimson-soft);
+    }
+
+    .copy-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .ability-scores {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .stat-row {
+        flex-direction: column;
+      }
+
+      .stat-block {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body data-nav-active="DM Tools" data-footer-copy="Roll Well. Play Weird.">
@@ -658,16 +902,29 @@
       </div>
 
       <div class="gen-category">
+        <label class="gen-category-label">Maps</label>
+        <button class="gen-nav-item" data-gen="worldmap">World Map</button>
+        <button class="gen-nav-item" data-gen="region-map">Region Map</button>
+        <button class="gen-nav-item" data-gen="city-map">City Map</button>
+        <button class="gen-nav-item" data-gen="village-map">Village Map</button>
+        <button class="gen-nav-item" data-gen="dungeon">Dungeon Map</button>
+        <button class="gen-nav-item" data-gen="building-map">Building Map</button>
+      </div>
+
+      <div class="gen-category">
         <label class="gen-category-label">Places</label>
         <button class="gen-nav-item" data-gen="tavern">Tavern / Inn</button>
-        <button class="gen-nav-item" data-gen="dungeon">Dungeon</button>
-        <button class="gen-nav-item" data-gen="worldmap">World Map</button>
       </div>
 
       <div class="gen-category">
         <label class="gen-category-label">Encounters</label>
         <button class="gen-nav-item" data-gen="encounter">Encounter</button>
         <button class="gen-nav-item" data-gen="treasure">Treasure & Loot</button>
+      </div>
+
+      <div class="gen-category">
+        <label class="gen-category-label">Creatures</label>
+        <button class="gen-nav-item" data-gen="monster-creator">Monster Creator</button>
       </div>
 
       <div class="gen-category">
@@ -746,7 +1003,7 @@
 
       <!-- DUNGEON GENERATOR -->
       <div class="gen-panel" data-gen="dungeon">
-        <h1 class="gen-title">Dungeon Generator</h1>
+        <h1 class="gen-title">Dungeon Map</h1>
         <p class="gen-description">Generate a small 3-5 room dungeon with connections, encounters, and themes.</p>
 
         <div class="gen-controls">
@@ -792,6 +1049,307 @@
 
         <div class="gen-output" id="dungeonOutput">
           <div class="gen-output-empty">Click Generate to create a dungeon</div>
+        </div>
+      </div>
+
+      <!-- REGION MAP GENERATOR -->
+      <div class="gen-panel" data-gen="region-map">
+        <h1 class="gen-title">Region Map Generator</h1>
+        <p class="gen-description">Generate a procedural regional map with terrain, settlements, roads, and points of interest.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Region Size</label>
+            <select class="gen-control-input" id="regionSize">
+              <option value="small">Small (compact region)</option>
+              <option value="medium" selected>Medium (standard)</option>
+              <option value="large">Large (expansive)</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Terrain Type</label>
+            <select class="gen-control-input" id="terrainRegionType">
+              <option value="coastal">Coastal</option>
+              <option value="inland" selected>Inland</option>
+              <option value="island">Island</option>
+              <option value="peninsula">Peninsula</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Climate</label>
+            <select class="gen-control-input" id="regionClimate">
+              <option value="temperate" selected>Temperate</option>
+              <option value="tropical">Tropical</option>
+              <option value="arctic">Arctic</option>
+              <option value="desert">Desert</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Settlement Density</label>
+            <select class="gen-control-input" id="settlementDensity">
+              <option value="sparse">Sparse</option>
+              <option value="moderate" selected>Moderate</option>
+              <option value="dense">Dense</option>
+            </select>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateRegionMap()">Generate Map</button>
+            <button class="gen-button" onclick="downloadRegionMap()">Download PNG</button>
+          </div>
+        </div>
+
+        <div class="gen-canvas-container" id="regionMapContainer" style="display: none;">
+          <canvas id="regionMapCanvas" width="1000" height="800"></canvas>
+        </div>
+
+        <div class="gen-terrain-legend" id="regionMapLegend" style="display: none;">
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #0047ab;"></span>
+            <span>Water</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #d4a574;"></span>
+            <span>Beach</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #4ade80;"></span>
+            <span>Plains</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #16a34a;"></span>
+            <span>Forest</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #8b6f47;"></span>
+            <span>Hills</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #888888;"></span>
+            <span>Mountains</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span style="color: var(--crimson); font-weight: bold;">◯ = Settlement | = = Road | ≈ = River</span>
+          </div>
+        </div>
+
+        <div class="gen-output" id="regionMapOutput">
+          <div class="gen-output-empty">Click Generate to create a region map</div>
+        </div>
+      </div>
+
+      <!-- CITY MAP GENERATOR -->
+      <div class="gen-panel" data-gen="city-map">
+        <h1 class="gen-title">City Map Generator</h1>
+        <p class="gen-description">Generate a procedural city map with streets, districts, walls, gates, and landmarks.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">City Size</label>
+            <select class="gen-control-input" id="citySize">
+              <option value="hamlet">Hamlet</option>
+              <option value="village">Village</option>
+              <option value="town" selected>Town</option>
+              <option value="city">City</option>
+              <option value="metropolis">Metropolis</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Street Layout</label>
+            <select class="gen-control-input" id="cityStyle">
+              <option value="organic" selected>Organic</option>
+              <option value="grid">Grid</option>
+              <option value="radial">Radial</option>
+              <option value="river-town">River Town</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Features</label>
+            <div style="display: grid; gap: 6px;">
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="cityWalls" checked class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Walls</span>
+              </label>
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="cityCastle" checked class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Castle/Citadel</span>
+              </label>
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="cityRiver" class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">River</span>
+              </label>
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="cityDocks" checked class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Docks/Harbor</span>
+              </label>
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="cityMarket" checked class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Market Square</span>
+              </label>
+            </div>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateCityMap()">Generate Map</button>
+            <button class="gen-button" onclick="downloadCityMap()">Download PNG</button>
+          </div>
+        </div>
+
+        <div class="gen-canvas-container" id="cityMapContainer" style="display: none;">
+          <canvas id="cityMapCanvas" width="900" height="900"></canvas>
+        </div>
+
+        <div class="gen-terrain-legend" id="cityMapLegend" style="display: none;">
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #f0f0f0; border: 1px solid #999;"></span>
+            <span>Streets</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #d4a574;"></span>
+            <span>Buildings</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #888;"></span>
+            <span>Walls</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #8b4513;"></span>
+            <span>Castle</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #0047ab;"></span>
+            <span>Water/Harbor</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #22c55e;"></span>
+            <span>Market/Park</span>
+          </div>
+        </div>
+
+        <div class="gen-output" id="cityMapOutput">
+          <div class="gen-output-empty">Click Generate to create a city map</div>
+        </div>
+      </div>
+
+      <!-- VILLAGE MAP GENERATOR -->
+      <div class="gen-panel" data-gen="village-map">
+        <h1 class="gen-title">Village Map Generator</h1>
+        <p class="gen-description">Generate a small village with buildings, fields, roads, and key structures.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Village Type</label>
+            <select class="gen-control-input" id="villageType">
+              <option value="farming" selected>Farming</option>
+              <option value="fishing">Fishing</option>
+              <option value="mining">Mining</option>
+              <option value="logging">Logging</option>
+              <option value="crossroads">Crossroads</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Building Count</label>
+            <input type="range" class="gen-control-input" id="villageBuildings" min="5" max="30" value="15" />
+            <span style="font-size: 12px; color: var(--text-muted);" id="buildingCountDisplay">15 buildings</span>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Features</label>
+            <div style="display: grid; gap: 6px;">
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="villageChurch" class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Church</span>
+              </label>
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="villageTavern" checked class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Tavern</span>
+              </label>
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="villageMill" class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Mill</span>
+              </label>
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="villageBridge" class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Bridge</span>
+              </label>
+              <label style="display: flex; gap: 8px; margin: 0;">
+                <input type="checkbox" id="villageWall" class="gen-control-input" style="width: auto;">
+                <span style="color: var(--text); font-size: 13px;">Palisade</span>
+              </label>
+            </div>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateVillageMap()">Generate Map</button>
+            <button class="gen-button" onclick="downloadVillageMap()">Download PNG</button>
+          </div>
+        </div>
+
+        <div class="gen-canvas-container" id="villageMapContainer" style="display: none;">
+          <canvas id="villageMapCanvas" width="800" height="800"></canvas>
+        </div>
+
+        <div class="gen-terrain-legend" id="villageMapLegend" style="display: none;">
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #8b7355;"></span>
+            <span>Houses</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #d4a574;"></span>
+            <span>Public Buildings</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #4ade80;"></span>
+            <span>Fields</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span class="gen-terrain-swatch" style="background: #888;"></span>
+            <span>Palisade</span>
+          </div>
+          <div class="gen-terrain-item">
+            <span style="color: var(--crimson); font-weight: bold;">W = Well | P = Pond</span>
+          </div>
+        </div>
+
+        <div class="gen-output" id="villageMapOutput">
+          <div class="gen-output-empty">Click Generate to create a village map</div>
+        </div>
+      </div>
+
+      <!-- BUILDING MAP GENERATOR -->
+      <div class="gen-panel" data-gen="building-map">
+        <h1 class="gen-title">Building Map Generator</h1>
+        <p class="gen-description">Generate an interior floor plan for buildings like mansions, temples, taverns, and more.</p>
+
+        <div class="gen-controls">
+          <div class="gen-control-group">
+            <label class="gen-control-label">Building Type</label>
+            <select class="gen-control-input" id="buildingType">
+              <option value="mansion" selected>Mansion</option>
+              <option value="temple">Temple</option>
+              <option value="tavern">Tavern</option>
+              <option value="shop">Shop</option>
+              <option value="wizard-tower">Wizard Tower</option>
+              <option value="guild-hall">Guild Hall</option>
+            </select>
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Number of Floors</label>
+            <input type="number" class="gen-control-input" id="buildingFloors" min="1" max="4" value="2" />
+          </div>
+          <div class="gen-control-group">
+            <label class="gen-control-label">Room Count</label>
+            <input type="range" class="gen-control-input" id="roomCount" min="4" max="20" value="10" />
+            <span style="font-size: 12px; color: var(--text-muted);" id="roomCountDisplay">10 rooms</span>
+          </div>
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateBuildingMap()">Generate Map</button>
+            <button class="gen-button" onclick="downloadBuildingMap()">Download PNG</button>
+          </div>
+        </div>
+
+        <div class="gen-canvas-container" id="buildingMapContainer" style="display: none;">
+          <canvas id="buildingMapCanvas" width="900" height="900"></canvas>
+        </div>
+
+        <div class="gen-output" id="buildingMapOutput">
+          <div class="gen-output-empty">Click Generate to create a building map</div>
         </div>
       </div>
 
@@ -877,6 +1435,318 @@
 
         <div class="gen-output" id="treasureOutput">
           <div class="gen-output-empty">Click Generate to create treasure</div>
+        </div>
+      </div>
+
+      <!-- MONSTER CREATOR GENERATOR -->
+      <div class="gen-panel" data-gen="monster-creator">
+        <h1 class="gen-title">Monster Creator</h1>
+        <p class="gen-description">Create detailed D&D 5e monster stat blocks. Use Quick Generate for instant creatures or Detailed Builder for full customization.</p>
+
+        <div class="mode-tabs">
+          <button class="mode-tab active" onclick="switchMonsterMode('quick')">Quick Generate</button>
+          <button class="mode-tab" onclick="switchMonsterMode('detailed')">Detailed Builder</button>
+        </div>
+
+        <!-- QUICK GENERATE MODE -->
+        <div id="monsterQuickMode" class="mode-content active">
+          <div class="gen-controls">
+            <div class="gen-control-group">
+              <label class="gen-control-label">Creature Concept (Describe what you want)</label>
+              <textarea class="gen-control-input" id="monsterConcept" rows="5" placeholder="e.g., 'A fire-breathing turtle the size of a house that lives in volcanos' or 'An ancient evil wizard surrounded by shadows'"></textarea>
+            </div>
+            <div class="gen-button-group">
+              <button class="gen-button primary" onclick="generateMonsterFromConcept()">Generate from Description</button>
+              <button class="gen-button" onclick="randomizeAllMonster()">Randomize All</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAILED BUILDER MODE -->
+        <div id="monsterDetailedMode" class="mode-content">
+          <div class="gen-controls">
+            <div class="gen-control-group">
+              <label class="gen-control-label">Monster Name</label>
+              <input type="text" class="gen-control-input" id="monsterName" placeholder="Enter monster name or click Randomize" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="gen-control-group">
+                <label class="gen-control-label">Challenge Rating (CR)</label>
+                <select class="gen-control-input" id="monsterCR" onchange="updateMonsterCalculations()">
+                  <option value="0">0</option>
+                  <option value="0.125">1/8</option>
+                  <option value="0.25">1/4</option>
+                  <option value="0.5">1/2</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                  <option value="13">13</option>
+                  <option value="14">14</option>
+                  <option value="15">15</option>
+                  <option value="16">16</option>
+                  <option value="17">17</option>
+                  <option value="18">18</option>
+                  <option value="19">19</option>
+                  <option value="20">20</option>
+                  <option value="21">21</option>
+                  <option value="22">22</option>
+                  <option value="23">23</option>
+                  <option value="24">24</option>
+                  <option value="25">25</option>
+                  <option value="26">26</option>
+                  <option value="27">27</option>
+                  <option value="28">28</option>
+                  <option value="29">29</option>
+                  <option value="30">30</option>
+                </select>
+              </div>
+              <div class="gen-control-group">
+                <label class="gen-control-label">Size</label>
+                <select class="gen-control-input" id="monsterSize">
+                  <option value="Tiny">Tiny</option>
+                  <option value="Small">Small</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="Large">Large</option>
+                  <option value="Huge">Huge</option>
+                  <option value="Gargantuan">Gargantuan</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="gen-control-group">
+                <label class="gen-control-label">Type</label>
+                <select class="gen-control-input" id="monsterType">
+                  <option value="Aberration">Aberration</option>
+                  <option value="Beast" selected>Beast</option>
+                  <option value="Celestial">Celestial</option>
+                  <option value="Construct">Construct</option>
+                  <option value="Dragon">Dragon</option>
+                  <option value="Elemental">Elemental</option>
+                  <option value="Fey">Fey</option>
+                  <option value="Fiend">Fiend</option>
+                  <option value="Giant">Giant</option>
+                  <option value="Humanoid">Humanoid</option>
+                  <option value="Monstrosity">Monstrosity</option>
+                  <option value="Ooze">Ooze</option>
+                  <option value="Plant">Plant</option>
+                  <option value="Undead">Undead</option>
+                </select>
+              </div>
+              <div class="gen-control-group">
+                <label class="gen-control-label">Alignment</label>
+                <select class="gen-control-input" id="monsterAlignment">
+                  <option value="Unaligned">Unaligned</option>
+                  <option value="Lawful Good">Lawful Good</option>
+                  <option value="Neutral Good">Neutral Good</option>
+                  <option value="Chaotic Good">Chaotic Good</option>
+                  <option value="Lawful Neutral">Lawful Neutral</option>
+                  <option value="Neutral" selected>Neutral</option>
+                  <option value="Chaotic Neutral">Chaotic Neutral</option>
+                  <option value="Lawful Evil">Lawful Evil</option>
+                  <option value="Neutral Evil">Neutral Evil</option>
+                  <option value="Chaotic Evil">Chaotic Evil</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="gen-control-group">
+                <label class="gen-control-label">Armor Class</label>
+                <input type="number" class="gen-control-input" id="monsterAC" min="1" max="30" value="14" />
+              </div>
+              <div class="gen-control-group">
+                <label class="gen-control-label">AC Type</label>
+                <input type="text" class="gen-control-input" id="monsterACType" placeholder="e.g., leather armor, natural armor" />
+              </div>
+            </div>
+            <div class="gen-control-group">
+              <label class="gen-control-label">Hit Points</label>
+              <input type="number" class="gen-control-input" id="monsterHP" min="1" value="45" />
+            </div>
+          </div>
+
+          <!-- SPEED SECTION -->
+          <div class="gen-controls">
+            <h3 style="margin-top: 0; font-family: 'Cinzel', serif; font-size: 14px; color: var(--crimson);">Speed</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+              <div class="gen-control-group">
+                <label class="gen-control-label">Walk (ft)</label>
+                <input type="number" class="gen-control-input" id="monsterWalk" min="0" value="30" />
+              </div>
+              <div class="gen-control-group">
+                <label class="gen-control-label">Fly (ft)</label>
+                <input type="number" class="gen-control-input" id="monsterFly" min="0" value="0" />
+              </div>
+              <div class="gen-control-group">
+                <label class="gen-control-label">Swim (ft)</label>
+                <input type="number" class="gen-control-input" id="monsterSwim" min="0" value="0" />
+              </div>
+              <div class="gen-control-group">
+                <label class="gen-control-label">Climb (ft)</label>
+                <input type="number" class="gen-control-input" id="monsterClimb" min="0" value="0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ABILITY SCORES -->
+          <div class="gen-controls">
+            <h3 style="margin-top: 0; font-family: 'Cinzel', serif; font-size: 14px; color: var(--crimson);">Ability Scores</h3>
+            <div class="ability-scores">
+              <div>
+                <div class="gen-control-group">
+                  <label class="gen-control-label">Strength</label>
+                  <input type="number" class="gen-control-input" id="monsterSTR" min="1" max="30" value="15" onchange="updateMonsterMods()" />
+                </div>
+              </div>
+              <div>
+                <div class="gen-control-group">
+                  <label class="gen-control-label">Dexterity</label>
+                  <input type="number" class="gen-control-input" id="monsterDEX" min="1" max="30" value="12" onchange="updateMonsterMods()" />
+                </div>
+              </div>
+              <div>
+                <div class="gen-control-group">
+                  <label class="gen-control-label">Constitution</label>
+                  <input type="number" class="gen-control-input" id="monsterCON" min="1" max="30" value="14" onchange="updateMonsterMods()" />
+                </div>
+              </div>
+              <div>
+                <div class="gen-control-group">
+                  <label class="gen-control-label">Intelligence</label>
+                  <input type="number" class="gen-control-input" id="monsterINT" min="1" max="30" value="10" onchange="updateMonsterMods()" />
+                </div>
+              </div>
+              <div>
+                <div class="gen-control-group">
+                  <label class="gen-control-label">Wisdom</label>
+                  <input type="number" class="gen-control-input" id="monsterWIS" min="1" max="30" value="11" onchange="updateMonsterMods()" />
+                </div>
+              </div>
+              <div>
+                <div class="gen-control-group">
+                  <label class="gen-control-label">Charisma</label>
+                  <input type="number" class="gen-control-input" id="monsterCHA" min="1" max="30" value="10" onchange="updateMonsterMods()" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROFICIENCIES -->
+          <div class="gen-controls">
+            <h3 style="margin-top: 0; font-family: 'Cinzel', serif; font-size: 14px; color: var(--crimson);">Proficiencies & Resistances</h3>
+            <div class="gen-control-group">
+              <label class="gen-control-label">Saving Throws (Select all that apply)</label>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="save" value="STR" /> Strength</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="save" value="DEX" /> Dexterity</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="save" value="CON" /> Constitution</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="save" value="INT" /> Intelligence</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="save" value="WIS" /> Wisdom</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="save" value="CHA" /> Charisma</label>
+              </div>
+            </div>
+            <div class="gen-control-group">
+              <label class="gen-control-label">Skills (Select all that apply)</label>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Acrobatics" /> Acrobatics</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Animal Handling" /> Animal Handling</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Arcana" /> Arcana</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Athletics" /> Athletics</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Deception" /> Deception</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="History" /> History</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Insight" /> Insight</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Intimidation" /> Intimidation</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Investigation" /> Investigation</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Medicine" /> Medicine</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Nature" /> Nature</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Perception" /> Perception</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Performance" /> Performance</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Persuasion" /> Persuasion</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Religion" /> Religion</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Sleight of Hand" /> Sleight of Hand</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Stealth" /> Stealth</label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" name="skill" value="Survival" /> Survival</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- DAMAGE & CONDITION IMMUNITIES -->
+          <div class="gen-controls">
+            <h3 style="margin-top: 0; font-family: 'Cinzel', serif; font-size: 14px; color: var(--crimson);">Immunities & Resistances</h3>
+            <div class="gen-control-group">
+              <label class="gen-control-label">Damage Resistances (comma-separated)</label>
+              <input type="text" class="gen-control-input" id="monsterDamageRes" placeholder="e.g., fire, cold, poison" />
+            </div>
+            <div class="gen-control-group">
+              <label class="gen-control-label">Damage Immunities (comma-separated)</label>
+              <input type="text" class="gen-control-input" id="monsterDamageImm" placeholder="e.g., poison, psychic" />
+            </div>
+            <div class="gen-control-group">
+              <label class="gen-control-label">Condition Immunities (comma-separated)</label>
+              <input type="text" class="gen-control-input" id="monsterCondImm" placeholder="e.g., charmed, frightened" />
+            </div>
+          </div>
+
+          <!-- SENSES & LANGUAGES -->
+          <div class="gen-controls">
+            <h3 style="margin-top: 0; font-family: 'Cinzel', serif; font-size: 14px; color: var(--crimson);">Senses & Languages</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="gen-control-group">
+                <label class="gen-control-label">Darkvision (ft)</label>
+                <input type="number" class="gen-control-input" id="monsterDarkvision" min="0" value="0" />
+              </div>
+              <div class="gen-control-group">
+                <label class="gen-control-label">Blindsight (ft)</label>
+                <input type="number" class="gen-control-input" id="monsterBlindSight" min="0" value="0" />
+              </div>
+            </div>
+            <div class="gen-control-group">
+              <label class="gen-control-label">Languages (comma-separated)</label>
+              <input type="text" class="gen-control-input" id="monsterLanguages" placeholder="e.g., Common, Draconic, Telepathy 120 ft" />
+            </div>
+          </div>
+
+          <!-- TRAITS -->
+          <div class="gen-controls">
+            <h3 style="margin-top: 0; font-family: 'Cinzel', serif; font-size: 14px; color: var(--crimson);">Traits & Abilities</h3>
+            <button class="add-item-btn" onclick="addMonsterTrait()">+ Add Trait</button>
+            <div class="dynamic-list" id="monsterTraitsList"></div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="gen-controls">
+            <h3 style="margin-top: 0; font-family: 'Cinzel', serif; font-size: 14px; color: var(--crimson);">Actions</h3>
+            <button class="add-item-btn" onclick="addMonsterAction()">+ Add Action</button>
+            <div class="dynamic-list" id="monsterActionsList"></div>
+          </div>
+
+          <!-- LEGENDARY ACTIONS -->
+          <div class="gen-controls">
+            <h3 style="margin-top: 0; font-family: 'Cinzel', serif; font-size: 14px; color: var(--crimson);">Legendary Actions</h3>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 12px;">
+              <input type="checkbox" id="monsterHasLegendary" /> <span>This creature has legendary actions</span>
+            </label>
+            <button class="add-item-btn" onclick="addMonsterLegendary()" id="addLegendaryBtn" style="display: none;">+ Add Legendary Action</button>
+            <div class="dynamic-list" id="monsterLegendaryList"></div>
+          </div>
+
+          <div class="gen-button-group">
+            <button class="gen-button primary" onclick="generateStatBlock()">Generate Stat Block</button>
+            <button class="gen-button" onclick="randomizeDetailedMonster()">Randomize Builder</button>
+          </div>
+        </div>
+
+        <!-- OUTPUT STAT BLOCK -->
+        <div class="gen-output" id="statBlockOutput">
+          <div class="gen-output-empty">Configure your monster and click Generate to view the stat block</div>
         </div>
       </div>
 
@@ -3647,6 +4517,1041 @@
       link.download = 'world-map.png';
       link.click();
     }
-  </script>
-</body>
+
+    // ═══════════════════════════════ MONSTER CREATOR ═══════════════════════════════
+
+    const MONSTER_NAMES = {
+      beast: ['Dire Wolf', 'Giant Scorpion', 'War Horse', 'Owlbear', 'Winter Wyvern', 'Displacer Beast', 'Rust Monster', 'Phase Spider', 'Chimera', 'Manticore', 'Basilisk', 'Hydra', 'Stirge', 'Giant Ape', 'Giant Eagle', 'Giant Constrictor Snake'],
+      dragon: ['Ancient Red Dragon', 'Adult Blue Dragon', 'Young Green Dragon', 'Copper Dragon Wyrmling', 'Pseudodragon', 'Wyvern', 'Dragon Turtle', 'Sky Drake', 'Obsidian Dragon', 'Amethyst Dragon'],
+      undead: ['Vampire Lord', 'Lich King', 'Revenant Knight', 'Wraith', 'Ghost', 'Ghoul Lord', 'Mummy', 'Skeleton Warrior', 'Zombie Brute', 'Spectre', 'Phantom', 'Bone Devil'],
+      elemental: ['Fire Elemental', 'Water Elemental', 'Air Elemental', 'Earth Elemental', 'Magma Mephit', 'Smoke Mephit', 'Storm Elemental', 'Lightning Elemental', 'Frost Elemental', 'Dust Devil'],
+      fiend: ['Pit Fiend', 'Balor', 'Erinyes', 'Horned Devil', 'Cambion', 'Succubus', 'Incubus', 'Demon Prince', 'Shadow Demon', 'Hellhound'],
+      construct: ['Iron Golem', 'Stone Golem', 'Clay Golem', 'Flesh Golem', 'Animated Armor', 'Homunculus', 'Animated Tree', 'Scarecrow', 'Warforged Sentinel', 'Mechanical Construct'],
+      aberration: ['Beholder', 'Mind Flayer', 'Aboleth', 'Slaad', 'Gibbering Mouther', 'Chuul', 'Grell', 'Nothic', 'Alhoon', 'Otyugh'],
+      humanoid: ['Cult Fanatic', 'Assassin', 'Warlord', 'Knight Commander', 'Arch-Mage', 'Necromancer', 'Paladin Champion', 'Rogue Master', 'Gladiator', 'Bandit Captain']
+    };
+
+    const ABILITY_TEMPLATES = {
+      dragon: [
+        { name: 'Draconic Resilience', desc: 'If the dragon fails a saving throw, it can choose to succeed instead. It can\'t use this feature again until it finishes a long rest.' },
+        { name: 'Fire Immunity', desc: 'The dragon is immune to fire damage.' },
+        { name: 'Legendary Resistance', desc: 'If the dragon fails a saving throw, it can choose to succeed instead (3/day).' }
+      ],
+      undead: [
+        { name: 'Undead Nature', desc: 'The creature doesn\'t require air, food, drink, or sleep.' },
+        { name: 'Turn Resistance', desc: 'The creature has advantage on saving throws against effects that turn undead.' },
+        { name: 'Regeneration', desc: 'The creature regains 10 hit points at the start of its turn.' }
+      ],
+      elemental: [
+        { name: 'Elemental Form', desc: 'The creature can enter a hostile creature\'s space and stop there. It can move through other creatures and objects as if they were difficult terrain.' },
+        { name: 'Damage Immunity', desc: 'The creature is immune to poison damage and the poisoned condition.' }
+      ],
+      fiend: [
+        { name: 'Innate Spellcasting', desc: 'The creature\'s innate spellcasting ability is Charisma.' },
+        { name: 'Devil\'s Sight', desc: 'Magical darkness doesn\'t impede the creature\'s darkvision.' },
+        { name: 'Magic Resistance', desc: 'The creature has advantage on saving throws against spells and magical effects.' }
+      ]
+    };
+
+    const ACTION_TEMPLATES = {
+      breath: (damage, dc) => ({ name: 'Breath Weapon', desc: `The creature exhales a ${damage}d6 cone of destructive energy in a 30-foot cone. Each creature in that area must make a DC ${dc} saving throw, taking the full damage on a failed save, or half as much on a successful one.` }),
+      bite: (damage, bonus) => ({ name: 'Bite', desc: `Melee Weapon Attack: +${bonus} to hit, reach 5 ft., one target. Hit: ${damage}d8 + ${bonus} piercing damage.` }),
+      claw: (damage, bonus) => ({ name: 'Claw', desc: `Melee Weapon Attack: +${bonus} to hit, reach 5 ft., one target. Hit: ${damage}d6 + ${bonus} slashing damage.` }),
+      multiattack: (attacks) => ({ name: 'Multiattack', desc: `The creature makes ${attacks} attacks with its melee weapons.` }),
+      spellcast: () => ({ name: 'Spellcasting', desc: 'The creature is a spellcaster. Its spellcasting ability is Charisma (spell save DC 15). The creature knows the following spells:' })
+    };
+
+    function getModifier(ability) {
+      return Math.floor((ability - 10) / 2);
+    }
+
+    function getProfBonus(cr) {
+      cr = parseFloat(cr);
+      if (cr < 1) return 2;
+      if (cr < 5) return 2;
+      if (cr < 9) return 3;
+      if (cr < 13) return 4;
+      if (cr < 17) return 5;
+      return 6;
+    }
+
+    function getCRStats(cr) {
+      cr = parseFloat(cr);
+      const stats = {
+        0: { ac: 12, hp: 4, atk: 3, dc: 13, prof: 2 },
+        0.125: { ac: 13, hp: 15, atk: 3, dc: 13, prof: 2 },
+        0.25: { ac: 13, hp: 15, atk: 3, dc: 13, prof: 2 },
+        0.5: { ac: 13, hp: 22, atk: 3, dc: 13, prof: 2 },
+        1: { ac: 13, hp: 30, atk: 3, dc: 13, prof: 2 },
+        2: { ac: 14, hp: 45, atk: 4, dc: 13, prof: 2 },
+        3: { ac: 14, hp: 60, atk: 4, dc: 14, prof: 2 },
+        4: { ac: 15, hp: 75, atk: 5, dc: 14, prof: 2 },
+        5: { ac: 15, hp: 90, atk: 6, dc: 15, prof: 3 },
+        10: { ac: 17, hp: 155, atk: 7, dc: 16, prof: 4 },
+        15: { ac: 18, hp: 210, atk: 8, dc: 18, prof: 5 },
+        20: { ac: 19, hp: 270, atk: 10, dc: 19, prof: 6 },
+        25: { ac: 19, hp: 350, atk: 11, dc: 21, prof: 8 },
+        30: { ac: 21, hp: 450, atk: 14, dc: 23, prof: 9 }
+      };
+      return stats[cr] || stats[30];
+    }
+
+    function switchMonsterMode(mode) {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(`monster${mode.charAt(0).toUpperCase() + mode.slice(1)}Mode`).classList.add('active');
+    }
+
+    function parseConceptText(text) {
+      const lowerText = text.toLowerCase();
+      let size = 'Medium', type = 'Beast', element = 'none';
+      let cr = 3;
+
+      // Size detection
+      if (lowerText.includes('tiny') || lowerText.includes('diminutive')) size = 'Tiny';
+      if (lowerText.includes('small') || lowerText.includes('halfling')) size = 'Small';
+      if (lowerText.includes('large') || lowerText.includes('big') || lowerText.includes('giant')) size = 'Large';
+      if (lowerText.includes('huge') || lowerText.includes('house') || lowerText.includes('castle')) size = 'Huge';
+      if (lowerText.includes('gargantuan') || lowerText.includes('massive') || lowerText.includes('colossal')) size = 'Gargantuan';
+
+      // Type detection
+      if (lowerText.includes('dragon') || lowerText.includes('wyrm')) type = 'Dragon';
+      if (lowerText.includes('undead') || lowerText.includes('skeleton') || lowerText.includes('zombie') || lowerText.includes('ghost')) type = 'Undead';
+      if (lowerText.includes('demon') || lowerText.includes('devil') || lowerText.includes('fiend') || lowerText.includes('infernal')) type = 'Fiend';
+      if (lowerText.includes('elemental') || lowerText.includes('spirit')) type = 'Elemental';
+      if (lowerText.includes('construct') || lowerText.includes('golem') || lowerText.includes('animate')) type = 'Construct';
+      if (lowerText.includes('humanoid') || lowerText.includes('person') || lowerText.includes('warrior')) type = 'Humanoid';
+      if (lowerText.includes('aberration') || lowerText.includes('alien') || lowerText.includes('eldritch')) type = 'Aberration';
+
+      // Element detection
+      if (lowerText.includes('fire') || lowerText.includes('flame') || lowerText.includes('volcano')) element = 'fire';
+      if (lowerText.includes('ice') || lowerText.includes('frost') || lowerText.includes('cold') || lowerText.includes('arctic')) element = 'cold';
+      if (lowerText.includes('lightning') || lowerText.includes('electric') || lowerText.includes('storm')) element = 'lightning';
+      if (lowerText.includes('poison') || lowerText.includes('toxic') || lowerText.includes('venom')) element = 'poison';
+      if (lowerText.includes('shadow') || lowerText.includes('darkness') || lowerText.includes('void')) element = 'necrotic';
+
+      // CR detection
+      if (lowerText.includes('weak') || lowerText.includes('lowly')) cr = 0.5;
+      if (lowerText.includes('powerful') || lowerText.includes('mighty') || lowerText.includes('strong')) cr = Math.min(25, cr + 5);
+      if (lowerText.includes('ancient') || lowerText.includes('legendary') || lowerText.includes('god')) cr = Math.min(30, cr + 10);
+
+      return { size, type, element, cr };
+    }
+
+    function generateRandomMonsterName(type) {
+      const names = MONSTER_NAMES[type.toLowerCase()] || MONSTER_NAMES.beast;
+      return names[Math.floor(Math.random() * names.length)];
+    }
+
+    function generateMonsterFromConcept() {
+      const concept = document.getElementById('monsterConcept').value;
+      if (!concept.trim()) {
+        alert('Please enter a creature concept!');
+        return;
+      }
+
+      const parsed = parseConceptText(concept);
+      document.getElementById('monsterName').value = generateRandomMonsterName(parsed.type);
+      document.getElementById('monsterSize').value = parsed.size;
+      document.getElementById('monsterType').value = parsed.type;
+      document.getElementById('monsterCR').value = parsed.cr;
+
+      // Set damage type if element detected
+      if (parsed.element !== 'none') {
+        document.getElementById('monsterDamageRes').value = parsed.element;
+      }
+
+      updateMonsterCalculations();
+      generateStatBlock();
+    }
+
+    function updateMonsterCalculations() {
+      const cr = document.getElementById('monsterCR').value;
+      const stats = getCRStats(cr);
+      document.getElementById('monsterAC').value = stats.ac;
+      document.getElementById('monsterHP').value = stats.hp;
+    }
+
+    function updateMonsterMods() {
+      // Update modifiers display if needed
+    }
+
+    function addMonsterTrait() {
+      const list = document.getElementById('monsterTraitsList');
+      const id = 'trait_' + Date.now();
+      const item = document.createElement('div');
+      item.className = 'dynamic-item';
+      item.innerHTML = `
+        <div style="display: grid; gap: 8px;">
+          <input type="text" class="gen-control-input" placeholder="Trait name" value="" style="margin: 0;" />
+          <textarea class="gen-control-input" placeholder="Trait description" rows="3" style="margin: 0;"></textarea>
+          <button class="dynamic-item-remove" onclick="this.parentElement.parentElement.remove()">Remove</button>
+        </div>
+      `;
+      list.appendChild(item);
+    }
+
+    function addMonsterAction() {
+      const list = document.getElementById('monsterActionsList');
+      const id = 'action_' + Date.now();
+      const item = document.createElement('div');
+      item.className = 'dynamic-item';
+      item.innerHTML = `
+        <div style="display: grid; gap: 8px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <input type="text" class="gen-control-input" placeholder="Action name" value="" style="margin: 0;" />
+            <input type="number" class="gen-control-input" placeholder="Attack bonus" value="0" style="margin: 0;" />
+          </div>
+          <textarea class="gen-control-input" placeholder="Action description" rows="3" style="margin: 0;"></textarea>
+          <button class="dynamic-item-remove" onclick="this.parentElement.parentElement.remove()">Remove</button>
+        </div>
+      `;
+      list.appendChild(item);
+    }
+
+    function addMonsterLegendary() {
+      const list = document.getElementById('monsterLegendaryList');
+      const item = document.createElement('div');
+      item.className = 'dynamic-item';
+      item.innerHTML = `
+        <div style="display: grid; gap: 8px;">
+          <input type="text" class="gen-control-input" placeholder="Legendary action name" value="" style="margin: 0;" />
+          <textarea class="gen-control-input" placeholder="Legendary action description" rows="3" style="margin: 0;"></textarea>
+          <button class="dynamic-item-remove" onclick="this.parentElement.parentElement.remove()">Remove</button>
+        </div>
+      `;
+      list.appendChild(item);
+    }
+
+    document.getElementById('monsterHasLegendary')?.addEventListener('change', function() {
+      document.getElementById('addLegendaryBtn').style.display = this.checked ? 'inline-flex' : 'none';
+    });
+
+    function getTraitsByType(type) {
+      return ABILITY_TEMPLATES[type.toLowerCase()] || [];
+    }
+
+    function generateStatBlock() {
+      const name = document.getElementById('monsterName').value || 'Unnamed Monster';
+      const cr = document.getElementById('monsterCR').value;
+      const size = document.getElementById('monsterSize').value;
+      const type = document.getElementById('monsterType').value;
+      const alignment = document.getElementById('monsterAlignment').value;
+      const ac = document.getElementById('monsterAC').value;
+      const acType = document.getElementById('monsterACType').value || 'natural armor';
+      const hp = document.getElementById('monsterHP').value;
+
+      const walk = document.getElementById('monsterWalk').value || 0;
+      const fly = document.getElementById('monsterFly').value || 0;
+      const swim = document.getElementById('monsterSwim').value || 0;
+      const climb = document.getElementById('monsterClimb').value || 0;
+
+      const str = parseInt(document.getElementById('monsterSTR').value);
+      const dex = parseInt(document.getElementById('monsterDEX').value);
+      const con = parseInt(document.getElementById('monsterCON').value);
+      const int = parseInt(document.getElementById('monsterINT').value);
+      const wis = parseInt(document.getElementById('monsterWIS').value);
+      const cha = parseInt(document.getElementById('monsterCHA').value);
+
+      const damageRes = document.getElementById('monsterDamageRes').value;
+      const damageImm = document.getElementById('monsterDamageImm').value;
+      const condImm = document.getElementById('monsterCondImm').value;
+      const darkvision = document.getElementById('monsterDarkvision').value;
+      const blindSight = document.getElementById('monsterBlindSight').value;
+      const languages = document.getElementById('monsterLanguages').value;
+
+      let html = '<div class="statblock">';
+
+      html += '<div class="statblock-header">';
+      html += `<div class="statblock-name">${name}</div>`;
+      html += `<div class="statblock-subheader">${size} ${type}, ${alignment}</div>`;
+      html += '</div>';
+
+      html += '<div class="statblock-divider"></div>';
+
+      // AC, HP, Speed
+      html += '<div class="stat-row">';
+      html += `<div class="stat-block"><div class="stat-block-label">Armor Class</div><div class="stat-block-value">${ac} (${acType})</div></div>`;
+      html += `<div class="stat-block"><div class="stat-block-label">Hit Points</div><div class="stat-block-value">${hp}</div></div>`;
+      html += '</div>';
+
+      let speedStr = `${walk} ft.`;
+      if (fly > 0) speedStr += `, fly ${fly} ft.`;
+      if (swim > 0) speedStr += `, swim ${swim} ft.`;
+      if (climb > 0) speedStr += `, climb ${climb} ft.`;
+      html += `<div style="margin: 8px 0;"><strong>Speed</strong> ${speedStr}</div>`;
+
+      html += '<div class="statblock-divider"></div>';
+
+      // Ability Scores
+      html += '<div class="ability-scores">';
+      const abilities = [
+        { abbr: 'STR', score: str },
+        { abbr: 'DEX', score: dex },
+        { abbr: 'CON', score: con },
+        { abbr: 'INT', score: int },
+        { abbr: 'WIS', score: wis },
+        { abbr: 'CHA', score: cha }
+      ];
+      abilities.forEach(ab => {
+        const mod = getModifier(ab.score);
+        const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
+        html += `<div class="ability-score"><div class="ability-score-abbr">${ab.abbr}</div><div class="ability-score-value">${ab.score}</div><div class="ability-score-mod">(${modStr})</div></div>`;
+      });
+      html += '</div>';
+
+      html += '<div class="statblock-divider"></div>';
+
+      // Damage resistances, immunities, etc
+      if (damageRes) html += `<div><strong>Damage Resistances</strong> ${damageRes}</div>`;
+      if (damageImm) html += `<div><strong>Damage Immunities</strong> ${damageImm}</div>`;
+      if (condImm) html += `<div><strong>Condition Immunities</strong> ${condImm}</div>`;
+      if (darkvision > 0 || blindSight > 0) {
+        let senses = [];
+        if (darkvision > 0) senses.push(`darkvision ${darkvision} ft.`);
+        if (blindSight > 0) senses.push(`blindsight ${blindSight} ft.`);
+        html += `<div><strong>Senses</strong> ${senses.join(', ')}</div>`;
+      }
+      if (languages) html += `<div><strong>Languages</strong> ${languages}</div>`;
+      html += `<div><strong>Challenge</strong> ${cr} (${parseInt(cr) * 200} XP)</div>`;
+
+      html += '<div class="statblock-divider"></div>';
+
+      // Traits
+      const traitItems = document.querySelectorAll('#monsterTraitsList .dynamic-item');
+      if (traitItems.length > 0) {
+        html += '<div class="statblock-section-header">Traits</div>';
+        traitItems.forEach(item => {
+          const name = item.querySelector('input').value;
+          const desc = item.querySelector('textarea').value;
+          if (name && desc) {
+            html += `<div class="statblock-trait"><span class="statblock-trait-name">${name}.</span> <span class="statblock-trait-description">${desc}</span></div>`;
+          }
+        });
+      }
+
+      // Actions
+      const actionItems = document.querySelectorAll('#monsterActionsList .dynamic-item');
+      if (actionItems.length > 0) {
+        html += '<div class="statblock-section-header">Actions</div>';
+        actionItems.forEach(item => {
+          const inputs = item.querySelectorAll('input, textarea');
+          const name = inputs[0].value;
+          const bonus = inputs[1].value;
+          const desc = inputs[2].value;
+          if (name && desc) {
+            html += `<div class="statblock-trait"><span class="statblock-trait-name">${name}.</span> <span class="statblock-trait-description">${desc}</span></div>`;
+          }
+        });
+      }
+
+      // Legendary Actions
+      if (document.getElementById('monsterHasLegendary')?.checked) {
+        const legItems = document.querySelectorAll('#monsterLegendaryList .dynamic-item');
+        if (legItems.length > 0) {
+          html += '<div class="statblock-section-header">Legendary Actions</div>';
+          legItems.forEach(item => {
+            const inputs = item.querySelectorAll('input, textarea');
+            const name = inputs[0].value;
+            const desc = inputs[1].value;
+            if (name && desc) {
+              html += `<div class="statblock-trait"><span class="statblock-trait-name">${name}.</span> <span class="statblock-trait-description">${desc}</span></div>`;
+            }
+          });
+        }
+      }
+
+      html += '</div>';
+
+      // Add copy buttons
+      html += '<div class="copy-buttons">';
+      html += '<button class="gen-button" onclick="copyStatBlockText()">Copy as Text</button>';
+      html += '<button class="gen-button" onclick="copyStatBlockMarkdown()">Copy as Markdown</button>';
+      html += '<button class="gen-button" onclick="printStatBlock()">Print</button>';
+      html += '</div>';
+
+      document.getElementById('statBlockOutput').innerHTML = html;
+    }
+
+    function copyStatBlockText() {
+      const text = document.querySelector('.statblock').innerText;
+      navigator.clipboard.writeText(text).then(() => alert('Stat block copied to clipboard!'));
+    }
+
+    function copyStatBlockMarkdown() {
+      const text = document.querySelector('.statblock').innerText;
+      const markdown = '```\n' + text + '\n```';
+      navigator.clipboard.writeText(markdown).then(() => alert('Stat block copied as markdown!'));
+    }
+
+    function printStatBlock() {
+      const content = document.querySelector('.statblock').outerHTML;
+      const printWindow = window.open('', '', 'width=800,height=600');
+      printWindow.document.write(`
+        <html><head><title>Monster Stat Block</title>
+        <style>
+          body { font-family: serif; padding: 20px; background: #f5ede0; }
+          .statblock { background: white; padding: 20px; border: 2px solid #333; }
+          .statblock-name { font-size: 24px; font-weight: bold; color: #c0392b; margin-bottom: 4px; }
+          .statblock-divider { border-bottom: 2px solid #c0392b; margin: 12px 0; }
+        </style></head><body>${content}</body></html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+
+    function randomizeDetailedMonster() {
+      const types = ['Aberration', 'Beast', 'Celestial', 'Construct', 'Dragon', 'Elemental', 'Fey', 'Fiend', 'Giant', 'Humanoid', 'Monstrosity', 'Ooze', 'Plant', 'Undead'];
+      const sizes = ['Tiny', 'Small', 'Medium', 'Large', 'Huge', 'Gargantuan'];
+      const alignments = ['Unaligned', 'Lawful Good', 'Neutral Good', 'Chaotic Good', 'Lawful Neutral', 'Neutral', 'Chaotic Neutral', 'Lawful Evil', 'Neutral Evil', 'Chaotic Evil'];
+
+      document.getElementById('monsterName').value = generateRandomMonsterName(types[Math.floor(Math.random() * types.length)]);
+      document.getElementById('monsterSize').value = sizes[Math.floor(Math.random() * sizes.length)];
+      document.getElementById('monsterType').value = types[Math.floor(Math.random() * types.length)];
+      document.getElementById('monsterAlignment').value = alignments[Math.floor(Math.random() * alignments.length)];
+      document.getElementById('monsterCR').value = [0, 0.125, 0.25, 0.5, 1, 2, 3, 5, 8, 10, 13, 15, 20, 25, 30][Math.floor(Math.random() * 15)];
+
+      // Random ability scores
+      [document.getElementById('monsterSTR'), document.getElementById('monsterDEX'), document.getElementById('monsterCON'),
+       document.getElementById('monsterINT'), document.getElementById('monsterWIS'), document.getElementById('monsterCHA')].forEach(el => {
+        el.value = Math.floor(Math.random() * 11) + 8;
+      });
+
+      updateMonsterCalculations();
+    }
+
+    function randomizeAllMonster() {
+      randomizeDetailedMonster();
+      generateStatBlock();
+    }
+
+    // ═══════════════════════════════ REGION MAP GENERATOR ═══════════════════════════════
+    let regionMapData = { settlements: [], roads: [], rivers: [] };
+
+    function generateRegionMap() {
+      const canvas = document.getElementById('regionMapCanvas');
+      const ctx = canvas.getContext('2d');
+      const size = document.getElementById('regionSize').value;
+      const terrainType = document.getElementById('terrainRegionType').value;
+      const climate = document.getElementById('regionClimate').value;
+      const settlementDensity = document.getElementById('settlementDensity').value;
+
+      ctx.fillStyle = '#f5ede0';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const gridSize = size === 'small' ? 16 : size === 'medium' ? 24 : 32;
+      const heightmap = generateHeightmap(gridSize);
+      const waterLevel = climate === 'desert' ? 0.65 : climate === 'arctic' ? 0.45 : 0.50;
+
+      const mapStartX = 50, mapStartY = 50;
+      const mapWidth = canvas.width - 100, mapHeight = canvas.height - 100;
+
+      // Draw terrain
+      const cellWidth = mapWidth / gridSize;
+      const cellHeight = mapHeight / gridSize;
+
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          const height = heightmap[y][x];
+          const color = getTerrainColor(height, waterLevel, 0.70);
+          ctx.fillStyle = color;
+          ctx.fillRect(mapStartX + x * cellWidth, mapStartY + y * cellHeight, cellWidth + 1, cellHeight + 1);
+        }
+      }
+
+      // Add settlements
+      const settleCount = settlementDensity === 'sparse' ? randomInt(2, 4) : settlementDensity === 'moderate' ? randomInt(4, 7) : randomInt(7, 12);
+      regionMapData.settlements = [];
+
+      for (let i = 0; i < settleCount; i++) {
+        let placed = false;
+        let attempts = 0;
+        while (!placed && attempts < 30) {
+          const x = randomInt(0, gridSize - 1);
+          const y = randomInt(0, gridSize - 1);
+          const height = heightmap[y][x];
+          if (height > waterLevel + 0.05 && height < 0.65) {
+            const screenX = mapStartX + (x / gridSize) * mapWidth + randomInt(-10, 10);
+            const screenY = mapStartY + (y / gridSize) * mapHeight + randomInt(-10, 10);
+            ctx.fillStyle = '#c0392b';
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            const settleNames = ['Millbrook', 'Thornhaven', 'Silverpeak', 'Darkwood', 'Riverfall', 'Stonekeep', 'Skyhelm', 'Ashford'];
+            regionMapData.settlements.push({ name: randomNth(1, settleNames)[0], x: screenX, y: screenY });
+            placed = true;
+          }
+          attempts++;
+        }
+      }
+
+      // Draw roads
+      if (regionMapData.settlements.length > 1) {
+        ctx.strokeStyle = '#b8956a';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        for (let i = 0; i < regionMapData.settlements.length - 1; i++) {
+          ctx.beginPath();
+          ctx.moveTo(regionMapData.settlements[i].x, regionMapData.settlements[i].y);
+          ctx.lineTo(regionMapData.settlements[i + 1].x, regionMapData.settlements[i + 1].y);
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+      }
+
+      // Draw rivers
+      const riverCount = terrainType === 'coastal' ? randomInt(2, 4) : randomInt(1, 3);
+      for (let r = 0; r < riverCount; r++) {
+        const startX = randomInt(0, gridSize - 1);
+        const startY = randomInt(0, gridSize - 1);
+        const river = traceRiver(heightmap, startX, startY, gridSize, waterLevel);
+
+        ctx.strokeStyle = '#0047ab';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(mapStartX + (river[0].x / gridSize) * mapWidth, mapStartY + (river[0].y / gridSize) * mapHeight);
+        for (let i = 1; i < river.length; i++) {
+          ctx.lineTo(mapStartX + (river[i].x / gridSize) * mapWidth, mapStartY + (river[i].y / gridSize) * mapHeight);
+        }
+        ctx.stroke();
+      }
+
+      // Draw border
+      ctx.strokeStyle = '#8b7355';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(mapStartX, mapStartY, mapWidth, mapHeight);
+
+      document.getElementById('regionMapContainer').style.display = 'flex';
+      document.getElementById('regionMapLegend').style.display = 'grid';
+
+      generateRegionMapInfo();
+    }
+
+    function generateRegionMapInfo() {
+      let html = '<div class="gen-result">';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Region Name</div>';
+      const regionNames = ['The Shattered Isles', 'Thornlands', 'Misty Vale', 'Ironpeak Region', 'Shadowmarch'];
+      html += '<div class="gen-result-value">' + randomNth(1, regionNames)[0] + '</div></div>';
+
+      if (regionMapData.settlements.length > 0) {
+        html += '<div class="gen-result-item"><div class="gen-result-label">Key Settlements (' + regionMapData.settlements.length + ')</div>';
+        html += '<div class="gen-result-value">';
+        regionMapData.settlements.forEach(s => html += '<div>' + s.name + '</div>');
+        html += '</div></div>';
+      }
+
+      html += '</div>';
+      document.getElementById('regionMapOutput').innerHTML = html;
+    }
+
+    function downloadRegionMap() {
+      const canvas = document.getElementById('regionMapCanvas');
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'region-map.png';
+      link.click();
+    }
+
+    // ═══════════════════════════════ CITY MAP GENERATOR ═══════════════════════════════
+    let cityMapData = { name: '', districts: [], buildings: [] };
+
+    function generateCityMap() {
+      const canvas = document.getElementById('cityMapCanvas');
+      const ctx = canvas.getContext('2d');
+      const citySize = document.getElementById('citySize').value;
+      const cityStyle = document.getElementById('cityStyle').value;
+      const hasWalls = document.getElementById('cityWalls').checked;
+      const hasCastle = document.getElementById('cityCastle').checked;
+      const hasRiver = document.getElementById('cityRiver').checked;
+      const hasDocks = document.getElementById('cityDocks').checked;
+      const hasMarket = document.getElementById('cityMarket').checked;
+
+      ctx.fillStyle = '#f5ede0';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const padding = 40;
+      const cityAreaWidth = canvas.width - padding * 2;
+      const cityAreaHeight = canvas.height - padding * 2;
+
+      if (hasRiver) {
+        ctx.fillStyle = '#0047ab';
+        ctx.fillRect(padding + 200, padding, 30, cityAreaHeight);
+      }
+
+      if (hasDocks) {
+        ctx.fillStyle = '#0047ab';
+        ctx.fillRect(padding, padding, cityAreaWidth - 200, 60);
+        ctx.fillStyle = '#666';
+        ctx.font = '11px Arial';
+        ctx.fillText('Harbor District', padding + 10, padding + 30);
+      }
+
+      if (cityStyle === 'grid') {
+        drawGridStreets(ctx, padding, cityAreaHeight, citySize);
+      } else if (cityStyle === 'radial') {
+        drawRadialStreets(ctx, padding + cityAreaWidth / 2, padding + cityAreaHeight / 2, citySize);
+      } else if (cityStyle === 'river-town') {
+        drawRiverTownStreets(ctx, padding, cityAreaHeight);
+      } else {
+        drawOrganicStreets(ctx, padding, cityAreaHeight, citySize);
+      }
+
+      if (hasWalls) {
+        ctx.strokeStyle = '#888';
+        ctx.lineWidth = 4;
+        const wallPadding = 30;
+        ctx.strokeRect(padding + wallPadding, padding + wallPadding, cityAreaWidth - wallPadding * 2, cityAreaHeight - wallPadding * 2);
+        ctx.fillStyle = '#654321';
+        ctx.fillRect(padding + wallPadding + 50, padding + wallPadding - 2, 20, 8);
+        ctx.fillRect(padding + cityAreaWidth - wallPadding - 70, padding + wallPadding - 2, 20, 8);
+      }
+
+      if (hasCastle) {
+        const castleX = padding + cityAreaWidth - 80;
+        const castleY = padding + 60;
+        ctx.fillStyle = '#8b4513';
+        ctx.fillRect(castleX, castleY, 60, 60);
+        ctx.strokeStyle = '#654321';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(castleX, castleY, 60, 60);
+        ctx.fillStyle = '#c0392b';
+        ctx.fillRect(castleX + 55, castleY - 10, 3, 15);
+        ctx.beginPath();
+        ctx.moveTo(castleX + 58, castleY - 8);
+        ctx.lineTo(castleX + 68, castleY - 5);
+        ctx.lineTo(castleX + 58, castleY - 2);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      if (hasMarket) {
+        const marketX = padding + cityAreaWidth / 2 - 40;
+        const marketY = padding + cityAreaHeight / 2 - 40;
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(marketX, marketY, 80, 80);
+        ctx.fillStyle = '#666';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('MARKET', marketX + 40, marketY + 40);
+      }
+
+      generateCityBuildings(ctx, padding, cityAreaWidth, cityAreaHeight, citySize);
+
+      document.getElementById('cityMapContainer').style.display = 'flex';
+      document.getElementById('cityMapLegend').style.display = 'grid';
+
+      generateCityMapInfo(citySize);
+    }
+
+    function drawGridStreets(ctx, padding, height, citySize) {
+      const spacing = citySize === 'hamlet' ? 100 : citySize === 'village' ? 80 : citySize === 'town' ? 60 : citySize === 'city' ? 40 : 30;
+      ctx.strokeStyle = '#f0f0f0';
+      ctx.lineWidth = 3;
+      for (let x = padding; x < padding + 800; x += spacing) {
+        ctx.beginPath();
+        ctx.moveTo(x, padding);
+        ctx.lineTo(x, padding + height);
+        ctx.stroke();
+      }
+      for (let y = padding; y < padding + height; y += spacing) {
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(padding + 800, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawRadialStreets(ctx, centerX, centerY, citySize) {
+      const radius = citySize === 'hamlet' ? 200 : citySize === 'village' ? 250 : citySize === 'town' ? 300 : citySize === 'city' ? 350 : 400;
+      ctx.strokeStyle = '#f0f0f0';
+      ctx.lineWidth = 3;
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+      for (let r = 50; r < radius; r += 60) {
+        ctx.strokeStyle = '#f0f0f0';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    function drawRiverTownStreets(ctx, padding, height) {
+      ctx.strokeStyle = '#f0f0f0';
+      ctx.lineWidth = 3;
+      for (let y = padding + 40; y < padding + height; y += 70) {
+        ctx.beginPath();
+        ctx.moveTo(padding + 40, y);
+        ctx.lineTo(padding + 700, y);
+        ctx.stroke();
+      }
+      for (let x = padding + 100; x < padding + 700; x += 80) {
+        ctx.beginPath();
+        ctx.moveTo(x, padding + 40);
+        ctx.lineTo(x, padding + height);
+        ctx.stroke();
+      }
+    }
+
+    function drawOrganicStreets(ctx, padding, height, citySize) {
+      ctx.strokeStyle = '#f0f0f0';
+      ctx.lineWidth = 2;
+      const streetCount = citySize === 'hamlet' ? 3 : citySize === 'village' ? 5 : citySize === 'town' ? 8 : 12;
+      for (let i = 0; i < streetCount; i++) {
+        const startX = padding + randomInt(10, 750);
+        const startY = padding + randomInt(10, height - 10);
+        const endX = padding + randomInt(10, 750);
+        const endY = padding + randomInt(10, height - 10);
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo(startX + 100, startY + 50, endX, endY);
+        ctx.stroke();
+      }
+    }
+
+    function generateCityBuildings(ctx, padding, width, height, citySize) {
+      const buildingCount = citySize === 'hamlet' ? 8 : citySize === 'village' ? 12 : citySize === 'town' ? 20 : citySize === 'city' ? 35 : 50;
+      for (let i = 0; i < buildingCount; i++) {
+        const x = padding + randomInt(30, width - 70);
+        const y = padding + randomInt(30, height - 70);
+        const w = randomInt(30, 60);
+        const h = randomInt(30, 60);
+        ctx.fillStyle = '#d4a574';
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillStyle = '#ffeb3b';
+        for (let wy = 5; wy < h - 5; wy += 12) {
+          for (let wx = 5; wx < w - 5; wx += 15) {
+            ctx.fillRect(x + wx, y + wy, 4, 4);
+          }
+        }
+      }
+    }
+
+    function generateCityMapInfo(citySize) {
+      const populations = { hamlet: '50-200', village: '200-1000', town: '1000-5000', city: '5000-20000', metropolis: '20000+' };
+      let html = '<div class="gen-result">';
+      html += '<div class="gen-result-item"><div class="gen-result-label">City Name</div>';
+      const cityNames = ['Thornhaven', 'Silverpeak', 'Riverhold', 'Ironhammer', 'Eastmarch', 'Wayrest', 'Baldur\'s Gate', 'Neverwinter'];
+      html += '<div class="gen-result-value">' + randomNth(1, cityNames)[0] + '</div></div>';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Estimated Population</div>';
+      html += '<div class="gen-result-value">' + populations[citySize] + '</div></div>';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Notable Districts</div>';
+      const districts = ['Market Quarter', 'Harbor District', 'Noble\'s Row', 'Trade Quarter', 'Temple District'];
+      html += '<div class="gen-result-value">' + randomNth(2, districts).join('<br>') + '</div></div>';
+      html += '</div>';
+      document.getElementById('cityMapOutput').innerHTML = html;
+    }
+
+    function downloadCityMap() {
+      const canvas = document.getElementById('cityMapCanvas');
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'city-map.png';
+      link.click();
+    }
+
+    // ═══════════════════════════════ VILLAGE MAP GENERATOR ═══════════════════════════════
+    let villageMapData = { name: '', buildings: [], features: [] };
+
+    function generateVillageMap() {
+      const canvas = document.getElementById('villageMapCanvas');
+      const ctx = canvas.getContext('2d');
+      const villageType = document.getElementById('villageType').value;
+      const buildingCount = parseInt(document.getElementById('villageBuildings').value);
+      const hasChurch = document.getElementById('villageChurch').checked;
+      const hasTavern = document.getElementById('villageTavern').checked;
+      const hasMill = document.getElementById('villageMill').checked;
+      const hasBridge = document.getElementById('villageBridge').checked;
+      const hasWall = document.getElementById('villageWall').checked;
+
+      ctx.fillStyle = '#f5ede0';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const padding = 40;
+      const villageWidth = canvas.width - padding * 2;
+      const villageHeight = canvas.height - padding * 2;
+
+      ctx.fillStyle = '#4ade80';
+      ctx.fillRect(padding, padding, villageWidth / 3, villageHeight);
+
+      if (hasWall) {
+        ctx.strokeStyle = '#888';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([8, 4]);
+        ctx.strokeRect(padding + 20, padding + 20, villageWidth - 40, villageHeight - 40);
+        ctx.setLineDash([]);
+      }
+
+      ctx.fillStyle = '#b8956a';
+      ctx.fillRect(padding + villageWidth / 3 + 20, padding + 50, 15, villageHeight - 100);
+
+      villageMapData.buildings = [];
+      const buildings = [];
+
+      for (let i = 0; i < buildingCount; i++) {
+        let placed = false;
+        let attempts = 0;
+        while (!placed && attempts < 20) {
+          const x = padding + villageWidth / 2 + randomInt(-100, 100);
+          const y = padding + 100 + randomInt(0, villageHeight - 150);
+          const w = randomInt(20, 40);
+          const h = randomInt(20, 40);
+          let collision = false;
+          for (const b of buildings) {
+            if (!(x + w + 10 < b.x || x > b.x + b.w + 10 || y + h + 10 < b.y || y > b.y + b.h + 10)) {
+              collision = true;
+              break;
+            }
+          }
+          if (!collision) {
+            buildings.push({ x, y, w, h });
+            placed = true;
+          }
+          attempts++;
+        }
+      }
+
+      ctx.fillStyle = '#8b7355';
+      buildings.forEach(b => {
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.strokeStyle = '#654321';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(b.x, b.y, b.w, b.h);
+      });
+
+      let specialX = padding + villageWidth / 2 + 60;
+      let specialY = padding + 50;
+
+      if (hasChurch) {
+        drawSpecialBuilding(ctx, specialX, specialY, 30, 40, '#654321', '⛪');
+        specialY += 60;
+      }
+      if (hasTavern) {
+        drawSpecialBuilding(ctx, specialX, specialY, 30, 35, '#8b4513', '🍺');
+        specialY += 55;
+      }
+      if (hasMill) {
+        drawSpecialBuilding(ctx, specialX, specialY, 35, 35, '#d4a574', '⌀');
+        specialY += 55;
+      }
+      if (hasBridge) {
+        ctx.fillStyle = '#8b7355';
+        ctx.fillRect(padding + villageWidth / 3, padding + villageHeight - 40, 50, 15);
+      }
+
+      ctx.fillStyle = '#999';
+      ctx.beginPath();
+      ctx.arc(padding + villageWidth / 2, padding + villageHeight - 60, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#666';
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('W', padding + villageWidth / 2, padding + villageHeight - 56);
+
+      ctx.fillStyle = '#0047ab';
+      ctx.beginPath();
+      ctx.ellipse(padding + villageWidth / 3 + 40, padding + villageHeight - 100, 30, 20, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#666';
+      ctx.fillText('P', padding + villageWidth / 3 + 40, padding + villageHeight - 100);
+
+      document.getElementById('villageMapContainer').style.display = 'flex';
+      document.getElementById('villageMapLegend').style.display = 'grid';
+
+      generateVillageMapInfo(villageType);
+    }
+
+    function drawSpecialBuilding(ctx, x, y, w, h, color, label) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, x + w / 2, y + h / 2);
+    }
+
+    function generateVillageMapInfo(villageType) {
+      const typeDescriptions = {
+        farming: 'A quiet farming community surrounded by productive fields and pastures.',
+        fishing: 'Built along a river or coast, focused on fishing and trade.',
+        mining: 'Nestled in the foothills with visible mine entrances.',
+        logging: 'Deep in the forest with lumber mills and timber operations.',
+        crossroads: 'A bustling trade hub where major roads intersect.'
+      };
+
+      let html = '<div class="gen-result">';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Village Name</div>';
+      const villageNames = ['Millbrook', 'Thornhaven', 'Harvest Gap', 'Silverpeak', 'Darkwood Crossing', 'Westmarch'];
+      html += '<div class="gen-result-value">' + randomNth(1, villageNames)[0] + '</div></div>';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Type</div>';
+      html += '<div class="gen-result-value">' + villageType.charAt(0).toUpperCase() + villageType.slice(1) + ' Settlement</div></div>';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Description</div>';
+      html += '<div class="gen-result-value">' + typeDescriptions[villageType] + '</div></div>';
+      html += '</div>';
+      document.getElementById('villageMapOutput').innerHTML = html;
+    }
+
+    function downloadVillageMap() {
+      const canvas = document.getElementById('villageMapCanvas');
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'village-map.png';
+      link.click();
+    }
+
+    // ═══════════════════════════════ BUILDING MAP GENERATOR ═══════════════════════════════
+    let buildingMapData = { rooms: [], floors: [] };
+
+    function generateBuildingMap() {
+      const canvas = document.getElementById('buildingMapCanvas');
+      const ctx = canvas.getContext('2d');
+      const buildingType = document.getElementById('buildingType').value;
+      const floors = parseInt(document.getElementById('buildingFloors').value);
+      const roomCount = parseInt(document.getElementById('roomCount').value);
+
+      ctx.fillStyle = '#f5ede0';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const padding = 40;
+      const floorHeight = (canvas.height - padding * 2) / floors;
+      buildingMapData.floors = [];
+
+      for (let f = 0; f < floors; f++) {
+        const floorY = padding + f * floorHeight;
+        drawFloor(ctx, padding, floorY, canvas.width - padding * 2, floorHeight, roomCount, buildingType, f);
+        buildingMapData.floors.push({ floor: f + 1, rooms: [] });
+      }
+
+      ctx.fillStyle = '#666';
+      ctx.font = 'bold 10px Arial';
+      for (let f = 0; f < floors; f++) {
+        const floorLabel = f === 0 ? 'Ground Floor' : f === floors - 1 ? 'Top Floor' : 'Floor ' + (f + 1);
+        ctx.fillText(floorLabel, padding + 10, padding + (f + 0.5) * floorHeight);
+      }
+
+      document.getElementById('buildingMapContainer').style.display = 'flex';
+
+      generateBuildingMapInfo(buildingType, floors, roomCount);
+    }
+
+    function drawFloor(ctx, x, y, width, height, roomCount, buildingType, floorNum) {
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, width, height);
+
+      const cols = Math.ceil(Math.sqrt(roomCount));
+      const rows = Math.ceil(roomCount / cols);
+      const roomWidth = (width - 20) / cols;
+      const roomHeight = (height - 20) / rows;
+
+      let roomIndex = 0;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (roomIndex >= roomCount) break;
+
+          const roomX = x + 10 + col * roomWidth;
+          const roomY = y + 10 + row * roomHeight;
+
+          ctx.fillStyle = getRoomColor(buildingType, roomIndex, roomCount);
+          ctx.fillRect(roomX, roomY, roomWidth - 2, roomHeight - 2);
+          ctx.strokeStyle = '#666';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(roomX, roomY, roomWidth - 2, roomHeight - 2);
+
+          ctx.fillStyle = '#333';
+          ctx.font = '10px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const roomName = getRoomName(buildingType, roomIndex);
+          ctx.fillText(roomName, roomX + (roomWidth - 2) / 2, roomY + (roomHeight - 2) / 2);
+
+          roomIndex++;
+        }
+      }
+    }
+
+    function getRoomColor(buildingType, roomIndex, totalRooms) {
+      if (buildingType === 'mansion') {
+        if (roomIndex === 0) return '#d4a574'; if (roomIndex === 1) return '#c9a580'; if (roomIndex < 4) return '#d9ac7c'; if (roomIndex < 7) return '#deb887'; return '#e0c9aa';
+      } else if (buildingType === 'temple') {
+        if (roomIndex === 0) return '#c9a580'; if (roomIndex === 1) return '#d4a574'; if (roomIndex < 4) return '#deb887'; return '#e0c9aa';
+      } else if (buildingType === 'tavern') {
+        if (roomIndex === 0) return '#8b7355'; if (roomIndex === 1) return '#a0826d'; if (roomIndex < 4) return '#b5967d'; return '#c9a884';
+      } else if (buildingType === 'shop') {
+        if (roomIndex === 0) return '#d4a574'; if (roomIndex === 1) return '#c9a080'; if (roomIndex === 2) return '#deb887'; return '#e0c9aa';
+      } else if (buildingType === 'wizard-tower') {
+        if (roomIndex === 0) return '#9b7bbf'; if (roomIndex === 1) return '#b598d1'; if (roomIndex === 2) return '#9975c4'; return '#a68bc9';
+      }
+      return '#d4a574';
+    }
+
+    function getRoomName(buildingType, index) {
+      const names = {
+        mansion: ['Foyer', 'Hall', 'Bedroom', 'Study', 'Library', 'Salon', 'Kitchen', 'Cellar', 'Garden', 'Gallery'],
+        temple: ['Sanctuary', 'Altar', 'Chapel', 'Crypt', 'Vestry', 'Nave', 'Sacristy', 'Choir'],
+        tavern: ['Bar', 'Common', 'Room', 'Kitchen', 'Cellar', 'Store', 'Hearth', 'Ale'],
+        shop: ['Counter', 'Stock', 'Back', 'Office', 'Display', 'Till', 'Store', 'Vault'],
+        'wizard-tower': ['Entry', 'Lab', 'Library', 'Tower', 'Study', 'Vault', 'Chamber', 'Sanctum'],
+        'guild-hall': ['Hall', 'Office', 'Vault', 'Hall', 'Room', 'Store', 'Chamber', 'Archive']
+      };
+      const roomNames = names[buildingType] || names.mansion;
+      return roomNames[index % roomNames.length];
+    }
+
+    function generateBuildingMapInfo(buildingType, floors, roomCount) {
+      const descriptions = {
+        mansion: 'A grand residence spanning multiple floors with luxurious chambers and halls.',
+        temple: 'A sacred sanctuary with altar, chapels, and devotional spaces.',
+        tavern: 'A warm gathering place with common areas, private rooms, and a well-stocked cellar.',
+        shop: 'A merchant\'s establishment with storefront, storage, and business quarters.',
+        'wizard-tower': 'An arcane tower with laboratory, library, and mystical chambers.',
+        'guild-hall': 'A headquarters for a guild with meeting halls, vaults, and administrative areas.'
+      };
+
+      let html = '<div class="gen-result">';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Building Type</div>';
+      html += '<div class="gen-result-value">' + buildingType.charAt(0).toUpperCase() + buildingType.slice(1).replace('-', ' ') + '</div></div>';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Floors</div>';
+      html += '<div class="gen-result-value">' + floors + '</div></div>';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Total Rooms</div>';
+      html += '<div class="gen-result-value">' + (roomCount * floors) + '</div></div>';
+      html += '<div class="gen-result-item"><div class="gen-result-label">Description</div>';
+      html += '<div class="gen-result-value">' + descriptions[buildingType] + '</div></div>';
+      html += '</div>';
+      document.getElementById('buildingMapOutput').innerHTML = html;
+    }
+
+    function downloadBuildingMap() {
+      const canvas = document.getElementById('buildingMapCanvas');
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'building-map.png';
+      link.click();
+    }
+
+    // Update range displays
+    document.getElementById('villageBuildings')?.addEventListener('input', function() {
+      document.getElementById('buildingCountDisplay').textContent = this.value + ' buildings';
+    });
+
+    document.getElementById('roomCount')?.addEventListener('input', function() {
+      document.getElementById('roomCountDisplay').textContent = this.value + ' rooms';
+    });
+
+  </script></body>
 </html>

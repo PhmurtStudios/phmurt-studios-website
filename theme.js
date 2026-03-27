@@ -3,7 +3,7 @@
    ═══════════════════════════════ */
 (function() {
   var KEY = 'phmurt_theme';
-  var saved = localStorage.getItem(KEY) || 'dark';
+  var saved = localStorage.getItem(KEY) || 'light';
   if (saved === 'light') {
     document.documentElement.classList.add('light-mode');
   }
