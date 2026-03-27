@@ -1444,8 +1444,8 @@
         <p class="gen-description">Create detailed D&D 5e monster stat blocks. Use Quick Generate for instant creatures or Detailed Builder for full customization.</p>
 
         <div class="mode-tabs">
-          <button class="mode-tab active" onclick="switchMonsterMode('quick')">Quick Generate</button>
-          <button class="mode-tab" onclick="switchMonsterMode('detailed')">Detailed Builder</button>
+          <button class="mode-tab active" onclick="switchMonsterMode('quick', this)">Quick Generate</button>
+          <button class="mode-tab" onclick="switchMonsterMode('detailed', this)">Detailed Builder</button>
         </div>
 
         <!-- QUICK GENERATE MODE -->
@@ -4365,6 +4365,89 @@
       return river;
     }
 
+    function drawMountainSymbol(ctx, x, y, size) {
+      ctx.fillStyle = '#8b6f47';
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 1;
+      // Draw three triangles for mountains
+      const triangles = [
+        { ox: -size * 0.5, scale: 0.8 },
+        { ox: 0, scale: 1.0 },
+        { ox: size * 0.5, scale: 0.8 }
+      ];
+      triangles.forEach(t => {
+        ctx.beginPath();
+        ctx.moveTo(x + t.ox, y + size * t.scale);
+        ctx.lineTo(x + t.ox - size * t.scale * 0.6, y - size * t.scale * 0.8);
+        ctx.lineTo(x + t.ox + size * t.scale * 0.6, y - size * t.scale * 0.8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      });
+    }
+
+    function drawSettlementIcon(ctx, x, y, size) {
+      // Draw castle/building with battlements
+      ctx.fillStyle = '#8b6f47';
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(x - size, y - size, size * 2, size * 2);
+      ctx.strokeRect(x - size, y - size, size * 2, size * 2);
+
+      // Draw battlements on top
+      for (let i = 0; i < 4; i++) {
+        ctx.fillRect(x - size + i * (size * 0.4), y - size - 2, size * 0.2, 3);
+      }
+    }
+
+    function drawCornerDecoration(ctx, x, y, size) {
+      ctx.fillStyle = '#2c1810';
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 1;
+      const offset = 8;
+      const innerSize = size * 0.5;
+
+      // Outer corner
+      ctx.beginPath();
+      if (x < 400) ctx.moveTo(x + offset, y + offset); else ctx.moveTo(x - offset, y + offset);
+      if (x < 400) ctx.lineTo(x + size, y + offset); else ctx.lineTo(x - size, y + offset);
+      if (x < 400) ctx.lineTo(x + offset, y + size); else ctx.lineTo(x - offset, y + size);
+      ctx.stroke();
+
+      // Inner diamond
+      if (x < 400 && y < 300) {
+        ctx.beginPath();
+        ctx.moveTo(x + offset + 6, y + offset + 3);
+        ctx.lineTo(x + offset + 9, y + offset + 6);
+        ctx.lineTo(x + offset + 6, y + offset + 9);
+        ctx.lineTo(x + offset + 3, y + offset + 6);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function drawTitleCartouche(ctx, x, y, text) {
+      // Draw decorative banner for title
+      ctx.fillStyle = '#f5ede0';
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 2;
+      const width = 180;
+      const height = 35;
+      ctx.fillRect(x - width / 2, y - height / 2, width, height);
+      ctx.strokeRect(x - width / 2, y - height / 2, width, height);
+
+      // Inner decorative line
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x - width / 2 + 3, y - height / 2 + 3, width - 6, height - 6);
+
+      // Title text
+      ctx.fillStyle = '#2c1810';
+      ctx.font = 'bold 14px Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x, y);
+    }
+
     function drawCompassRose(ctx, x, y) {
       const size = 20;
       ctx.strokeStyle = '#888';
@@ -4527,8 +4610,14 @@
       elemental: ['Fire Elemental', 'Water Elemental', 'Air Elemental', 'Earth Elemental', 'Magma Mephit', 'Smoke Mephit', 'Storm Elemental', 'Lightning Elemental', 'Frost Elemental', 'Dust Devil'],
       fiend: ['Pit Fiend', 'Balor', 'Erinyes', 'Horned Devil', 'Cambion', 'Succubus', 'Incubus', 'Demon Prince', 'Shadow Demon', 'Hellhound'],
       construct: ['Iron Golem', 'Stone Golem', 'Clay Golem', 'Flesh Golem', 'Animated Armor', 'Homunculus', 'Animated Tree', 'Scarecrow', 'Warforged Sentinel', 'Mechanical Construct'],
-      aberration: ['Beholder', 'Mind Flayer', 'Aboleth', 'Slaad', 'Gibbering Mouther', 'Chuul', 'Grell', 'Nothic', 'Alhoon', 'Otyugh'],
-      humanoid: ['Cult Fanatic', 'Assassin', 'Warlord', 'Knight Commander', 'Arch-Mage', 'Necromancer', 'Paladin Champion', 'Rogue Master', 'Gladiator', 'Bandit Captain']
+      aberration: ['Beholder', 'Mind Flayer', 'Aboleth', 'Slaad', 'Gibbering Mouther', 'Chuul', 'Grell', 'Nothic', 'Alhoon', 'Otyugh', 'Tentacled Horror', 'Eldritch Spawn', 'Star Spawn', 'Cosmic Entity'],
+      humanoid: ['Cult Fanatic', 'Assassin', 'Warlord', 'Knight Commander', 'Arch-Mage', 'Necromancer', 'Paladin Champion', 'Rogue Master', 'Gladiator', 'Bandit Captain', 'Dark Lord', 'War Chief', 'Shadow Master'],
+      celestial: ['Solar', 'Deva', 'Unicorn', 'Phoenix', 'Ki-rin', 'Pegasus', 'Couatl', 'Empyrean', 'Radiant Guardian', 'Holy Avatar'],
+      fey: ['Archfey Prince', 'Titania', 'Oberon', 'Dryad Queen', 'Satyr Lord', 'Sprite Swarm', 'Pixie Monarch', 'Nymph Guardian', 'Korred Elder', 'Green Hag Crone'],
+      giant: ['Cloud Giant Lord', 'Storm Giant King', 'Fire Giant Captain', 'Frost Giant Jarl', 'Hill Giant Chief', 'Stone Giant Patriarch', 'Titan', 'Giant Emperor', 'War Giant', 'Legendary Colossus'],
+      monstrosity: ['Chimera', 'Hydra', 'Manticore', 'Displacer Beast', 'Owlbear', 'Basilisk', 'Gorgon', 'Wyvern', 'Cockatrice', 'Griffon'],
+      ooze: ['Black Pudding', 'Gelatinous Cube', 'Ochre Jelly', 'Gray Ooze', 'Amorphous Horror', 'Corrosive Mass', 'Ooze Lord', 'Sentient Sludge', 'Engulfing Blob', 'Acidic Terror'],
+      plant: ['Shambling Mound', 'Treant', 'Awakened Tree', 'Assassin Vine', 'Shrieker', 'Thornback Guardian', 'Fungal Horror', 'Carnivorous Plant', 'Ancient Treant', 'Garden of Thorns']
     };
 
     const ABILITY_TEMPLATES = {
@@ -4596,47 +4685,59 @@
       return stats[cr] || stats[30];
     }
 
-    function switchMonsterMode(mode) {
+    function switchMonsterMode(mode, el) {
       document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
-      event.target.classList.add('active');
+      if (el) el.classList.add('active');
       document.getElementById(`monster${mode.charAt(0).toUpperCase() + mode.slice(1)}Mode`).classList.add('active');
     }
 
     function parseConceptText(text) {
       const lowerText = text.toLowerCase();
-      let size = 'Medium', type = 'Beast', element = 'none';
-      let cr = 3;
+      let size = 'Medium', type = 'Beast', element = 'none', ac = 14, hp = 45;
+      let cr = 3, walk = 30, fly = 0, swim = 0, climb = 0;
+      let str = 15, dex = 12, con = 14, int = 10, wis = 11, cha = 10;
 
-      // Size detection
-      if (lowerText.includes('tiny') || lowerText.includes('diminutive')) size = 'Tiny';
-      if (lowerText.includes('small') || lowerText.includes('halfling')) size = 'Small';
-      if (lowerText.includes('large') || lowerText.includes('big') || lowerText.includes('giant')) size = 'Large';
-      if (lowerText.includes('huge') || lowerText.includes('house') || lowerText.includes('castle')) size = 'Huge';
-      if (lowerText.includes('gargantuan') || lowerText.includes('massive') || lowerText.includes('colossal')) size = 'Gargantuan';
+      // Size detection with contextual phrases
+      if (lowerText.includes('tiny') || lowerText.includes('diminutive') || lowerText.includes('pixel')) size = 'Tiny';
+      else if (lowerText.includes('small') || lowerText.includes('halfling') || lowerText.includes('child')) size = 'Small';
+      else if (lowerText.includes('gargantuan') || lowerText.includes('massive') || lowerText.includes('colossal') || lowerText.includes('mountain')) size = 'Gargantuan';
+      else if (lowerText.includes('huge') || lowerText.includes('house') || lowerText.includes('castle') || lowerText.includes('elephant')) size = 'Huge';
+      else if (lowerText.includes('large') || lowerText.includes('big') || lowerText.includes('giant') || lowerText.includes('horse')) size = 'Large';
 
-      // Type detection
-      if (lowerText.includes('dragon') || lowerText.includes('wyrm')) type = 'Dragon';
-      if (lowerText.includes('undead') || lowerText.includes('skeleton') || lowerText.includes('zombie') || lowerText.includes('ghost')) type = 'Undead';
-      if (lowerText.includes('demon') || lowerText.includes('devil') || lowerText.includes('fiend') || lowerText.includes('infernal')) type = 'Fiend';
-      if (lowerText.includes('elemental') || lowerText.includes('spirit')) type = 'Elemental';
-      if (lowerText.includes('construct') || lowerText.includes('golem') || lowerText.includes('animate')) type = 'Construct';
-      if (lowerText.includes('humanoid') || lowerText.includes('person') || lowerText.includes('warrior')) type = 'Humanoid';
-      if (lowerText.includes('aberration') || lowerText.includes('alien') || lowerText.includes('eldritch')) type = 'Aberration';
+      // Type detection - order matters for priority
+      if (lowerText.includes('dragon') || lowerText.includes('wyrm') || lowerText.includes('drake')) { type = 'Dragon'; str = 18; cha = 15; }
+      else if (lowerText.includes('undead') || lowerText.includes('skeleton') || lowerText.includes('zombie') || lowerText.includes('ghost') || lowerText.includes('vampire')) { type = 'Undead'; str = 16; dex = 14; }
+      else if (lowerText.includes('demon') || lowerText.includes('devil') || lowerText.includes('fiend') || lowerText.includes('infernal') || lowerText.includes('hellish')) { type = 'Fiend'; str = 17; cha = 16; }
+      else if (lowerText.includes('elemental') || lowerText.includes('spirit') || lowerText.includes('mephit')) { type = 'Elemental'; str = 16; con = 16; }
+      else if (lowerText.includes('construct') || lowerText.includes('golem') || lowerText.includes('animate') || lowerText.includes('clockwork')) { type = 'Construct'; str = 17; int = 3; }
+      else if (lowerText.includes('aberration') || lowerText.includes('alien') || lowerText.includes('eldritch') || lowerText.includes('tentacle')) { type = 'Aberration'; int = 15; cha = 12; }
+      else if (lowerText.includes('celestial') || lowerText.includes('divine') || lowerText.includes('holy')) { type = 'Celestial'; str = 16; wis = 16; cha = 16; }
+      else if (lowerText.includes('fey') || lowerText.includes('fairy') || lowerText.includes('sylvan')) { type = 'Fey'; dex = 16; cha = 14; }
+      else if (lowerText.includes('giant')) { type = 'Giant'; str = 19; con = 16; }
+      else if (lowerText.includes('monstrosity') || lowerText.includes('chimera') || lowerText.includes('hydra')) { type = 'Monstrosity'; str = 16; con = 15; }
+      else if (lowerText.includes('ooze') || lowerText.includes('slime') || lowerText.includes('blob')) { type = 'Ooze'; str = 14; int = 1; }
+      else if (lowerText.includes('plant') || lowerText.includes('tree') || lowerText.includes('treant') || lowerText.includes('shambling')) { type = 'Plant'; str = 16; wis = 14; }
+      else if (lowerText.includes('humanoid') || lowerText.includes('person') || lowerText.includes('warrior') || lowerText.includes('cultist')) { type = 'Humanoid'; }
 
-      // Element detection
-      if (lowerText.includes('fire') || lowerText.includes('flame') || lowerText.includes('volcano')) element = 'fire';
-      if (lowerText.includes('ice') || lowerText.includes('frost') || lowerText.includes('cold') || lowerText.includes('arctic')) element = 'cold';
-      if (lowerText.includes('lightning') || lowerText.includes('electric') || lowerText.includes('storm')) element = 'lightning';
-      if (lowerText.includes('poison') || lowerText.includes('toxic') || lowerText.includes('venom')) element = 'poison';
-      if (lowerText.includes('shadow') || lowerText.includes('darkness') || lowerText.includes('void')) element = 'necrotic';
+      // Element/damage type detection
+      if (lowerText.includes('fire') || lowerText.includes('flame') || lowerText.includes('volcano') || lowerText.includes('lava')) element = 'fire';
+      else if (lowerText.includes('ice') || lowerText.includes('frost') || lowerText.includes('cold') || lowerText.includes('arctic') || lowerText.includes('frozen')) element = 'cold';
+      else if (lowerText.includes('lightning') || lowerText.includes('electric') || lowerText.includes('storm') || lowerText.includes('thunder')) element = 'lightning';
+      else if (lowerText.includes('poison') || lowerText.includes('toxic') || lowerText.includes('venom')) element = 'poison';
+      else if (lowerText.includes('shadow') || lowerText.includes('darkness') || lowerText.includes('void') || lowerText.includes('evil')) element = 'necrotic';
+
+      // Movement detection
+      if (lowerText.includes('fly') || lowerText.includes('flying') || lowerText.includes('air') || lowerText.includes('winged')) fly = 60;
+      if (lowerText.includes('swim') || lowerText.includes('water') || lowerText.includes('aquatic') || lowerText.includes('fish')) { swim = 40; walk = 20; }
+      if (lowerText.includes('climb') || lowerText.includes('spider') || lowerText.includes('insect')) climb = 40;
 
       // CR detection
-      if (lowerText.includes('weak') || lowerText.includes('lowly')) cr = 0.5;
-      if (lowerText.includes('powerful') || lowerText.includes('mighty') || lowerText.includes('strong')) cr = Math.min(25, cr + 5);
-      if (lowerText.includes('ancient') || lowerText.includes('legendary') || lowerText.includes('god')) cr = Math.min(30, cr + 10);
+      if (lowerText.includes('weak') || lowerText.includes('lowly') || lowerText.includes('minion')) cr = 0.5;
+      else if (lowerText.includes('powerful') || lowerText.includes('mighty') || lowerText.includes('strong') || lowerText.includes('fearsome')) cr = 8;
+      else if (lowerText.includes('ancient') || lowerText.includes('legendary') || lowerText.includes('god') || lowerText.includes('demigod')) cr = Math.min(30, 20);
 
-      return { size, type, element, cr };
+      return { size, type, element, cr, ac, hp, walk, fly, swim, climb, str, dex, con, int, wis, cha };
     }
 
     function generateRandomMonsterName(type) {
@@ -4652,17 +4753,31 @@
       }
 
       const parsed = parseConceptText(concept);
+
+      // Fill all form fields
       document.getElementById('monsterName').value = generateRandomMonsterName(parsed.type);
       document.getElementById('monsterSize').value = parsed.size;
       document.getElementById('monsterType').value = parsed.type;
       document.getElementById('monsterCR').value = parsed.cr;
+      document.getElementById('monsterAC').value = parsed.ac;
+      document.getElementById('monsterHP').value = parsed.hp;
+      document.getElementById('monsterWalk').value = parsed.walk;
+      document.getElementById('monsterFly').value = parsed.fly;
+      document.getElementById('monsterSwim').value = parsed.swim;
+      document.getElementById('monsterClimb').value = parsed.climb;
+      document.getElementById('monsterSTR').value = parsed.str;
+      document.getElementById('monsterDEX').value = parsed.dex;
+      document.getElementById('monsterCON').value = parsed.con;
+      document.getElementById('monsterINT').value = parsed.int;
+      document.getElementById('monsterWIS').value = parsed.wis;
+      document.getElementById('monsterCHA').value = parsed.cha;
 
       // Set damage type if element detected
       if (parsed.element !== 'none') {
         document.getElementById('monsterDamageRes').value = parsed.element;
       }
 
-      updateMonsterCalculations();
+      updateMonsterMods();
       generateStatBlock();
     }
 
@@ -4674,7 +4789,25 @@
     }
 
     function updateMonsterMods() {
-      // Update modifiers display if needed
+      const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+      abilities.forEach(ability => {
+        const scoreEl = document.getElementById(`monster${ability}`);
+        const modEl = document.querySelector(`label:has(input#monster${ability})`);
+        if (scoreEl && modEl) {
+          const score = parseInt(scoreEl.value) || 10;
+          const mod = getModifier(score);
+          const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
+          let modDisplay = modEl.querySelector('.ability-mod');
+          if (!modDisplay) {
+            modDisplay = document.createElement('span');
+            modDisplay.className = 'ability-mod';
+            modDisplay.style.marginLeft = '8px';
+            modDisplay.style.color = 'var(--crimson)';
+            modEl.appendChild(modDisplay);
+          }
+          modDisplay.textContent = `(${modStr})`;
+        }
+      });
     }
 
     function addMonsterTrait() {
@@ -4937,90 +5070,177 @@
       const climate = document.getElementById('regionClimate').value;
       const settlementDensity = document.getElementById('settlementDensity').value;
 
-      ctx.fillStyle = '#f5ede0';
+      // Parchment background with aged texture
+      const parchmentGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      parchmentGrad.addColorStop(0, '#f8f3e8');
+      parchmentGrad.addColorStop(0.5, '#f5ede0');
+      parchmentGrad.addColorStop(1, '#f0e8d8');
+      ctx.fillStyle = parchmentGrad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const gridSize = size === 'small' ? 16 : size === 'medium' ? 24 : 32;
+      // Add aged paper texture with splotches
+      for (let i = 0; i < 150; i++) {
+        ctx.fillStyle = `rgba(139, 119, 101, ${Math.random() * 0.08})`;
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 3 + 1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Vignette darkening at edges
+      const vignette = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 100, canvas.width / 2, canvas.height / 2, canvas.width / 1.5);
+      vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      vignette.addColorStop(1, 'rgba(0, 0, 0, 0.15)');
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const gridSize = size === 'small' ? 12 : size === 'medium' ? 18 : 24;
       const heightmap = generateHeightmap(gridSize);
       const waterLevel = climate === 'desert' ? 0.65 : climate === 'arctic' ? 0.45 : 0.50;
 
-      const mapStartX = 50, mapStartY = 50;
-      const mapWidth = canvas.width - 100, mapHeight = canvas.height - 100;
+      const mapStartX = 80, mapStartY = 100;
+      const mapWidth = canvas.width - 160, mapHeight = canvas.height - 200;
 
-      // Draw terrain
+      // Draw smooth terrain with blended colors (multiple passes)
       const cellWidth = mapWidth / gridSize;
       const cellHeight = mapHeight / gridSize;
 
+      // First pass: base terrain colors
       for (let y = 0; y < gridSize; y++) {
         for (let x = 0; x < gridSize; x++) {
           const height = heightmap[y][x];
           const color = getTerrainColor(height, waterLevel, 0.70);
           ctx.fillStyle = color;
-          ctx.fillRect(mapStartX + x * cellWidth, mapStartY + y * cellHeight, cellWidth + 1, cellHeight + 1);
+          ctx.fillRect(mapStartX + x * cellWidth, mapStartY + y * cellHeight, cellWidth, cellHeight);
         }
       }
 
-      // Add settlements
+      // Second pass: terrain outlines and details
+      ctx.strokeStyle = 'rgba(44, 24, 16, 0.3)';
+      ctx.lineWidth = 0.5;
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          const height = heightmap[y][x];
+          const sx = mapStartX + x * cellWidth;
+          const sy = mapStartY + y * cellHeight;
+
+          // Draw mountain triangles
+          if (height > 0.70) {
+            drawMountainSymbol(ctx, sx + cellWidth / 2, sy + cellHeight / 2, cellWidth * 0.4);
+          }
+          // Draw forest circles
+          else if (height > 0.45 && height < 0.60 && Math.random() > 0.5) {
+            ctx.fillStyle = 'rgba(34, 139, 34, 0.6)';
+            ctx.beginPath();
+            ctx.arc(sx + cellWidth / 3, sy + cellHeight / 3, cellWidth * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Draw rivers with meanders
+      const riverCount = terrainType === 'coastal' ? randomInt(2, 4) : randomInt(1, 3);
+      for (let r = 0; r < riverCount; r++) {
+        const startX = randomInt(1, gridSize - 2);
+        const startY = randomInt(1, gridSize - 2);
+        const river = traceRiver(heightmap, startX, startY, gridSize, waterLevel);
+
+        if (river.length > 3) {
+          // Draw river with slight randomness for hand-drawn look
+          ctx.strokeStyle = '#2b5f99';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          const sx = mapStartX + (river[0].x / gridSize) * mapWidth + randomInt(-2, 2);
+          const sy = mapStartY + (river[0].y / gridSize) * mapHeight + randomInt(-2, 2);
+          ctx.moveTo(sx, sy);
+          for (let i = 1; i < river.length; i++) {
+            const x = mapStartX + (river[i].x / gridSize) * mapWidth + randomInt(-2, 2);
+            const y = mapStartY + (river[i].y / gridSize) * mapHeight + randomInt(-2, 2);
+            ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // Add settlements with improved icons
       const settleCount = settlementDensity === 'sparse' ? randomInt(2, 4) : settlementDensity === 'moderate' ? randomInt(4, 7) : randomInt(7, 12);
       regionMapData.settlements = [];
+      const settleNames = ['Millbrook', 'Thornhaven', 'Silverpeak', 'Darkwood', 'Riverfall', 'Stonekeep', 'Skyhelm', 'Ashford', 'Westmarch', 'Goldenhall'];
 
       for (let i = 0; i < settleCount; i++) {
         let placed = false;
         let attempts = 0;
         while (!placed && attempts < 30) {
-          const x = randomInt(0, gridSize - 1);
-          const y = randomInt(0, gridSize - 1);
+          const x = randomInt(1, gridSize - 2);
+          const y = randomInt(1, gridSize - 2);
           const height = heightmap[y][x];
           if (height > waterLevel + 0.05 && height < 0.65) {
-            const screenX = mapStartX + (x / gridSize) * mapWidth + randomInt(-10, 10);
-            const screenY = mapStartY + (y / gridSize) * mapHeight + randomInt(-10, 10);
-            ctx.fillStyle = '#c0392b';
-            ctx.beginPath();
-            ctx.arc(screenX, screenY, 5, 0, Math.PI * 2);
-            ctx.fill();
-            const settleNames = ['Millbrook', 'Thornhaven', 'Silverpeak', 'Darkwood', 'Riverfall', 'Stonekeep', 'Skyhelm', 'Ashford'];
-            regionMapData.settlements.push({ name: randomNth(1, settleNames)[0], x: screenX, y: screenY });
+            const screenX = mapStartX + (x / gridSize) * mapWidth + randomInt(-8, 8);
+            const screenY = mapStartY + (y / gridSize) * mapHeight + randomInt(-8, 8);
+
+            // Draw settlement as castle/building symbol
+            drawSettlementIcon(ctx, screenX, screenY, 6);
+
+            const name = randomNth(1, settleNames)[0];
+            regionMapData.settlements.push({ name: name, x: screenX, y: screenY });
             placed = true;
           }
           attempts++;
         }
       }
 
-      // Draw roads
+      // Draw roads connecting settlements
       if (regionMapData.settlements.length > 1) {
-        ctx.strokeStyle = '#b8956a';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = '#9b7d5e';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3, 3]);
         for (let i = 0; i < regionMapData.settlements.length - 1; i++) {
+          const s1 = regionMapData.settlements[i];
+          const s2 = regionMapData.settlements[i + 1];
           ctx.beginPath();
-          ctx.moveTo(regionMapData.settlements[i].x, regionMapData.settlements[i].y);
-          ctx.lineTo(regionMapData.settlements[i + 1].x, regionMapData.settlements[i + 1].y);
+          ctx.moveTo(s1.x, s1.y);
+          // Add slight curve for more organic look
+          const midX = (s1.x + s2.x) / 2 + randomInt(-10, 10);
+          const midY = (s1.y + s2.y) / 2 + randomInt(-10, 10);
+          ctx.quadraticCurveTo(midX, midY, s2.x, s2.y);
           ctx.stroke();
         }
         ctx.setLineDash([]);
       }
 
-      // Draw rivers
-      const riverCount = terrainType === 'coastal' ? randomInt(2, 4) : randomInt(1, 3);
-      for (let r = 0; r < riverCount; r++) {
-        const startX = randomInt(0, gridSize - 1);
-        const startY = randomInt(0, gridSize - 1);
-        const river = traceRiver(heightmap, startX, startY, gridSize, waterLevel);
-
-        ctx.strokeStyle = '#0047ab';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(mapStartX + (river[0].x / gridSize) * mapWidth, mapStartY + (river[0].y / gridSize) * mapHeight);
-        for (let i = 1; i < river.length; i++) {
-          ctx.lineTo(mapStartX + (river[i].x / gridSize) * mapWidth, mapStartY + (river[i].y / gridSize) * mapHeight);
-        }
-        ctx.stroke();
-      }
-
-      // Draw border
-      ctx.strokeStyle = '#8b7355';
-      ctx.lineWidth = 2;
+      // Draw ornate border
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 3;
       ctx.strokeRect(mapStartX, mapStartY, mapWidth, mapHeight);
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(mapStartX + 4, mapStartY + 4, mapWidth - 8, mapHeight - 8);
+
+      // Draw corner decorations
+      drawCornerDecoration(ctx, mapStartX, mapStartY, 15);
+      drawCornerDecoration(ctx, mapStartX + mapWidth, mapStartY, 15);
+      drawCornerDecoration(ctx, mapStartX, mapStartY + mapHeight, 15);
+      drawCornerDecoration(ctx, mapStartX + mapWidth, mapStartY + mapHeight, 15);
+
+      // Draw compass rose
+      drawCompassRose(ctx, mapStartX + mapWidth - 40, mapStartY + 35);
+
+      // Draw title cartouche
+      drawTitleCartouche(ctx, canvas.width / 2, mapStartY - 30, 'Regional Map');
+
+      // Settlement labels
+      ctx.fillStyle = '#2c1810';
+      ctx.font = 'italic 11px Georgia, serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      regionMapData.settlements.forEach(s => {
+        ctx.save();
+        ctx.translate(s.x + 10, s.y);
+        ctx.rotate((Math.random() - 0.5) * 0.3);
+        ctx.fillText(s.name, 0, 0);
+        ctx.restore();
+      });
 
       document.getElementById('regionMapContainer').style.display = 'flex';
       document.getElementById('regionMapLegend').style.display = 'grid';
@@ -5067,81 +5287,254 @@
       const hasDocks = document.getElementById('cityDocks').checked;
       const hasMarket = document.getElementById('cityMarket').checked;
 
-      ctx.fillStyle = '#f5ede0';
+      // Parchment background
+      const parchmentGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      parchmentGrad.addColorStop(0, '#f8f3e8');
+      parchmentGrad.addColorStop(0.5, '#f5ede0');
+      parchmentGrad.addColorStop(1, '#f0e8d8');
+      ctx.fillStyle = parchmentGrad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const padding = 40;
-      const cityAreaWidth = canvas.width - padding * 2;
-      const cityAreaHeight = canvas.height - padding * 2;
-
-      if (hasRiver) {
-        ctx.fillStyle = '#0047ab';
-        ctx.fillRect(padding + 200, padding, 30, cityAreaHeight);
-      }
-
-      if (hasDocks) {
-        ctx.fillStyle = '#0047ab';
-        ctx.fillRect(padding, padding, cityAreaWidth - 200, 60);
-        ctx.fillStyle = '#666';
-        ctx.font = '11px Arial';
-        ctx.fillText('Harbor District', padding + 10, padding + 30);
-      }
-
-      if (cityStyle === 'grid') {
-        drawGridStreets(ctx, padding, cityAreaHeight, citySize);
-      } else if (cityStyle === 'radial') {
-        drawRadialStreets(ctx, padding + cityAreaWidth / 2, padding + cityAreaHeight / 2, citySize);
-      } else if (cityStyle === 'river-town') {
-        drawRiverTownStreets(ctx, padding, cityAreaHeight);
-      } else {
-        drawOrganicStreets(ctx, padding, cityAreaHeight, citySize);
-      }
-
-      if (hasWalls) {
-        ctx.strokeStyle = '#888';
-        ctx.lineWidth = 4;
-        const wallPadding = 30;
-        ctx.strokeRect(padding + wallPadding, padding + wallPadding, cityAreaWidth - wallPadding * 2, cityAreaHeight - wallPadding * 2);
-        ctx.fillStyle = '#654321';
-        ctx.fillRect(padding + wallPadding + 50, padding + wallPadding - 2, 20, 8);
-        ctx.fillRect(padding + cityAreaWidth - wallPadding - 70, padding + wallPadding - 2, 20, 8);
-      }
-
-      if (hasCastle) {
-        const castleX = padding + cityAreaWidth - 80;
-        const castleY = padding + 60;
-        ctx.fillStyle = '#8b4513';
-        ctx.fillRect(castleX, castleY, 60, 60);
-        ctx.strokeStyle = '#654321';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(castleX, castleY, 60, 60);
-        ctx.fillStyle = '#c0392b';
-        ctx.fillRect(castleX + 55, castleY - 10, 3, 15);
+      // Aged texture
+      for (let i = 0; i < 120; i++) {
+        ctx.fillStyle = `rgba(139, 119, 101, ${Math.random() * 0.06})`;
         ctx.beginPath();
-        ctx.moveTo(castleX + 58, castleY - 8);
-        ctx.lineTo(castleX + 68, castleY - 5);
-        ctx.lineTo(castleX + 58, castleY - 2);
-        ctx.closePath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2.5 + 0.5, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      if (hasMarket) {
-        const marketX = padding + cityAreaWidth / 2 - 40;
-        const marketY = padding + cityAreaHeight / 2 - 40;
-        ctx.fillStyle = '#22c55e';
-        ctx.fillRect(marketX, marketY, 80, 80);
-        ctx.fillStyle = '#666';
-        ctx.font = '10px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('MARKET', marketX + 40, marketY + 40);
+      const padding = 50;
+      const cityAreaWidth = canvas.width - padding * 2;
+      const cityAreaHeight = canvas.height - padding * 2;
+      cityMapData.buildings = [];
+
+      // Generate organic street network
+      const streets = generateOrganicStreetNetwork(padding, padding, cityAreaWidth, cityAreaHeight, citySize);
+
+      // Draw water features first
+      let riverX = -1;
+      if (hasRiver) {
+        riverX = padding + cityAreaWidth * 0.35;
+        ctx.fillStyle = '#7fa3c8';
+        ctx.fillRect(riverX - 15, padding, 30, cityAreaHeight);
+        ctx.strokeStyle = '#2b5f99';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(riverX - 15, padding, 30, cityAreaHeight);
       }
 
-      generateCityBuildings(ctx, padding, cityAreaWidth, cityAreaHeight, citySize);
+      if (hasDocks) {
+        ctx.fillStyle = '#7fa3c8';
+        ctx.fillRect(padding, padding, cityAreaWidth - 150, 50);
+        ctx.strokeStyle = '#2b5f99';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(padding, padding, cityAreaWidth - 150, 50);
+
+        // Dock details
+        for (let i = 0; i < 3; i++) {
+          const dockY = padding + 15 + i * 15;
+          ctx.strokeStyle = '#8b6f47';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(padding + 10, dockY);
+          ctx.lineTo(padding + cityAreaWidth - 160, dockY);
+          ctx.stroke();
+        }
+      }
+
+      // Draw streets
+      ctx.strokeStyle = '#d4c4a8';
+      ctx.lineWidth = 2.5;
+      streets.forEach(street => {
+        ctx.beginPath();
+        ctx.moveTo(street.x1, street.y1);
+        ctx.lineTo(street.x2, street.y2);
+        ctx.stroke();
+      });
+
+      // Generate and draw building footprints
+      generateCityBuildingsOrganic(ctx, padding, cityAreaWidth, cityAreaHeight, streets, riverX);
+
+      // Draw castle if present
+      if (hasCastle) {
+        drawCastleComplex(ctx, padding + cityAreaWidth - 100, padding + 50, 70, 60);
+      }
+
+      // Draw market square
+      if (hasMarket) {
+        const marketX = padding + cityAreaWidth / 2.5;
+        const marketY = padding + cityAreaHeight / 2;
+        drawMarketSquare(ctx, marketX, marketY, 80);
+      }
+
+      // Draw city walls
+      if (hasWalls) {
+        drawCityWalls(ctx, padding + 25, padding + 25, cityAreaWidth - 50, cityAreaHeight - 50);
+      }
+
+      // Draw title
+      ctx.fillStyle = '#2c1810';
+      ctx.font = 'bold 16px Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('City Map', canvas.width / 2, 25);
 
       document.getElementById('cityMapContainer').style.display = 'flex';
       document.getElementById('cityMapLegend').style.display = 'grid';
 
       generateCityMapInfo(citySize);
+    }
+
+    function generateOrganicStreetNetwork(startX, startY, width, height, citySize) {
+      const streets = [];
+      const numStreets = citySize === 'hamlet' ? 3 : citySize === 'village' ? 5 : citySize === 'town' ? 8 : citySize === 'city' ? 12 : 16;
+
+      for (let i = 0; i < numStreets; i++) {
+        const isHorizontal = Math.random() > 0.4;
+        if (isHorizontal) {
+          const y = startY + (height / (numStreets / 2)) * (i / 2) + randomInt(-20, 20);
+          const x1 = startX + randomInt(10, width * 0.2);
+          const x2 = startX + width - randomInt(10, width * 0.2);
+          streets.push({ x1, y1: y, x2, y2: y + randomInt(-15, 15) });
+        } else {
+          const x = startX + (width / (numStreets / 2)) * (i / 2) + randomInt(-20, 20);
+          const y1 = startY + randomInt(10, height * 0.2);
+          const y2 = startY + height - randomInt(10, height * 0.2);
+          streets.push({ x1: x, y1, x2: x + randomInt(-15, 15), y2 });
+        }
+      }
+      return streets;
+    }
+
+    function generateCityBuildingsOrganic(ctx, startX, width, height, streets, riverX) {
+      const buildingCount = Math.floor(30 + Math.random() * 40);
+      const buildings = [];
+
+      for (let i = 0; i < buildingCount; i++) {
+        let placed = false;
+        let attempts = 0;
+        while (!placed && attempts < 15) {
+          const x = startX + randomInt(10, width - 60);
+          const y = startX + randomInt(10, height - 60);
+          const w = randomInt(25, 55);
+          const h = randomInt(20, 50);
+
+          // Check collision with river
+          if (riverX > 0 && Math.abs(x - riverX) < 50) {
+            attempts++;
+            continue;
+          }
+
+          // Check collision with other buildings
+          let collision = false;
+          for (const b of buildings) {
+            if (!(x + w + 8 < b.x || x > b.x + b.w + 8 || y + h + 8 < b.y || y > b.y + b.h + 8)) {
+              collision = true;
+              break;
+            }
+          }
+
+          if (!collision) {
+            buildings.push({ x, y, w, h });
+            placed = true;
+          }
+          attempts++;
+        }
+      }
+
+      // Draw buildings
+      buildings.forEach(b => {
+        ctx.fillStyle = '#d9b5a0';
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.strokeStyle = '#8b6f47';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+        // Add windows
+        ctx.fillStyle = '#ffd966';
+        for (let wy = b.y + 4; wy < b.y + b.h - 4; wy += 9) {
+          for (let wx = b.x + 4; wx < b.x + b.w - 4; wx += 10) {
+            ctx.fillRect(wx, wy, 3, 3);
+          }
+        }
+      });
+
+      cityMapData.buildings = buildings;
+    }
+
+    function drawCastleComplex(ctx, x, y, w, h) {
+      // Main keep
+      ctx.fillStyle = '#a0826d';
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+
+      // Corner towers
+      const towerSize = 15;
+      [
+        { tx: x - towerSize / 2, ty: y - towerSize / 2 },
+        { tx: x + w - towerSize / 2, ty: y - towerSize / 2 },
+        { tx: x - towerSize / 2, ty: y + h - towerSize / 2 },
+        { tx: x + w - towerSize / 2, ty: y + h - towerSize / 2 }
+      ].forEach(tower => {
+        ctx.fillRect(tower.tx, tower.ty, towerSize, towerSize);
+        ctx.strokeRect(tower.tx, tower.ty, towerSize, towerSize);
+      });
+
+      // Battlements on top
+      for (let i = 0; i < Math.floor(w / 12); i++) {
+        ctx.fillRect(x + i * 12, y - 4, 6, 4);
+      }
+    }
+
+    function drawMarketSquare(ctx, x, y, size) {
+      ctx.fillStyle = '#e8d5c4';
+      ctx.fillRect(x - size / 2, y - size / 2, size, size);
+      ctx.strokeStyle = '#8b6f47';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x - size / 2, y - size / 2, size, size);
+
+      // Market stalls as dots
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2;
+        const stallX = x + Math.cos(angle) * (size / 3.5);
+        const stallY = y + Math.sin(angle) * (size / 3.5);
+        ctx.fillStyle = '#d4a574';
+        ctx.fillRect(stallX - 4, stallY - 4, 8, 8);
+      }
+
+      // Center well
+      ctx.fillStyle = '#7fa3c8';
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#2b5f99';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    function drawCityWalls(ctx, x, y, w, h) {
+      ctx.strokeStyle = '#8b6f47';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(x, y, w, h);
+
+      // Gates
+      const gateWidth = 20;
+      // North gate
+      ctx.clearRect(x + w / 2 - gateWidth / 2, y - 2, gateWidth, 6);
+      // South gate
+      ctx.clearRect(x + w / 2 - gateWidth / 2, y + h - 2, gateWidth, 6);
+      // East gate
+      ctx.clearRect(x + w - 2, y + h / 2 - gateWidth / 2, 6, gateWidth);
+      // West gate
+      ctx.clearRect(x - 2, y + h / 2 - gateWidth / 2, 6, gateWidth);
+
+      // Towers at corners
+      const towerSize = 12;
+      ctx.fillStyle = '#8b6f47';
+      ctx.fillRect(x - towerSize / 2, y - towerSize / 2, towerSize, towerSize);
+      ctx.fillRect(x + w - towerSize / 2, y - towerSize / 2, towerSize, towerSize);
+      ctx.fillRect(x - towerSize / 2, y + h - towerSize / 2, towerSize, towerSize);
+      ctx.fillRect(x + w - towerSize / 2, y + h - towerSize / 2, towerSize, towerSize);
     }
 
     function drawGridStreets(ctx, padding, height, citySize) {
@@ -5275,27 +5668,89 @@
       const hasBridge = document.getElementById('villageBridge').checked;
       const hasWall = document.getElementById('villageWall').checked;
 
-      ctx.fillStyle = '#f5ede0';
+      // Parchment background
+      const parchmentGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      parchmentGrad.addColorStop(0, '#f8f3e8');
+      parchmentGrad.addColorStop(0.5, '#f5ede0');
+      parchmentGrad.addColorStop(1, '#f0e8d8');
+      ctx.fillStyle = parchmentGrad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const padding = 40;
+      // Aged texture
+      for (let i = 0; i < 100; i++) {
+        ctx.fillStyle = `rgba(139, 119, 101, ${Math.random() * 0.06})`;
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2 + 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const padding = 50;
       const villageWidth = canvas.width - padding * 2;
       const villageHeight = canvas.height - padding * 2;
 
-      ctx.fillStyle = '#4ade80';
-      ctx.fillRect(padding, padding, villageWidth / 3, villageHeight);
+      // Draw farmland with striped pattern
+      ctx.fillStyle = '#a8d05a';
+      ctx.fillRect(padding, padding, villageWidth * 0.35, villageHeight);
 
-      if (hasWall) {
-        ctx.strokeStyle = '#888';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([8, 4]);
-        ctx.strokeRect(padding + 20, padding + 20, villageWidth - 40, villageHeight - 40);
-        ctx.setLineDash([]);
+      // Farmland stripes
+      ctx.strokeStyle = 'rgba(90, 120, 30, 0.3)';
+      ctx.lineWidth = 2;
+      for (let y = padding; y < padding + villageHeight; y += 15) {
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(padding + villageWidth * 0.35, y);
+        ctx.stroke();
       }
 
-      ctx.fillStyle = '#b8956a';
-      ctx.fillRect(padding + villageWidth / 3 + 20, padding + 50, 15, villageHeight - 100);
+      // Water feature (pond or stream)
+      const waterX = padding + villageWidth * 0.25;
+      const waterY = padding + villageHeight * 0.75;
+      ctx.fillStyle = '#7fa3c8';
+      ctx.beginPath();
+      ctx.ellipse(waterX, waterY, 40, 25, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#2b5f99';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
 
+      // Village green/central area
+      ctx.fillStyle = '#b8d968';
+      const centerX = padding + villageWidth / 2;
+      const centerY = padding + villageHeight / 2;
+      ctx.fillRect(centerX - 50, centerY - 50, 100, 100);
+      ctx.strokeStyle = '#6b8e23';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(centerX - 50, centerY - 50, 100, 100);
+
+      // Central well
+      ctx.fillStyle = '#c0c0c0';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#888';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Paths connecting buildings
+      ctx.strokeStyle = '#c9a084';
+      ctx.lineWidth = 2.5;
+      const pathX1 = padding + villageWidth * 0.4;
+      const pathX2 = padding + villageWidth * 0.8;
+      const pathY1 = padding + villageHeight * 0.3;
+      const pathY2 = padding + villageHeight * 0.7;
+
+      // Draw winding paths
+      ctx.beginPath();
+      ctx.moveTo(pathX1, padding);
+      ctx.quadraticCurveTo(pathX1 + 40, centerY, pathX2, pathY2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(pathX1, padding);
+      ctx.quadraticCurveTo(centerX - 40, pathY1, pathX2, padding);
+      ctx.stroke();
+
+      // Buildings along the village
       villageMapData.buildings = [];
       const buildings = [];
 
@@ -5303,10 +5758,11 @@
         let placed = false;
         let attempts = 0;
         while (!placed && attempts < 20) {
-          const x = padding + villageWidth / 2 + randomInt(-100, 100);
-          const y = padding + 100 + randomInt(0, villageHeight - 150);
-          const w = randomInt(20, 40);
-          const h = randomInt(20, 40);
+          const x = padding + villageWidth * 0.45 + randomInt(-50, 150);
+          const y = padding + 60 + randomInt(0, villageHeight - 200);
+          const w = randomInt(28, 45);
+          const h = randomInt(24, 42);
+
           let collision = false;
           for (const b of buildings) {
             if (!(x + w + 10 < b.x || x > b.x + b.w + 10 || y + h + 10 < b.y || y > b.y + b.h + 10)) {
@@ -5314,7 +5770,8 @@
               break;
             }
           }
-          if (!collision) {
+
+          if (!collision && x > padding + villageWidth * 0.35) {
             buildings.push({ x, y, w, h });
             placed = true;
           }
@@ -5322,54 +5779,195 @@
         }
       }
 
-      ctx.fillStyle = '#8b7355';
+      // Draw regular buildings
       buildings.forEach(b => {
-        ctx.fillRect(b.x, b.y, b.w, b.h);
-        ctx.strokeStyle = '#654321';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(b.x, b.y, b.w, b.h);
+        drawVillageBuilding(ctx, b.x, b.y, b.w, b.h);
       });
 
-      let specialX = padding + villageWidth / 2 + 60;
-      let specialY = padding + 50;
+      // Special buildings
+      const specialBuildingX = padding + villageWidth - 90;
 
       if (hasChurch) {
-        drawSpecialBuilding(ctx, specialX, specialY, 30, 40, '#654321', '⛪');
-        specialY += 60;
+        drawChurch(ctx, specialBuildingX, padding + 60, 50, 50);
       }
       if (hasTavern) {
-        drawSpecialBuilding(ctx, specialX, specialY, 30, 35, '#8b4513', '🍺');
-        specialY += 55;
+        drawTavern(ctx, specialBuildingX, padding + 120, 50, 45);
       }
       if (hasMill) {
-        drawSpecialBuilding(ctx, specialX, specialY, 35, 35, '#d4a574', '⌀');
-        specialY += 55;
+        drawMill(ctx, specialBuildingX - 70, padding + villageHeight - 80, 55, 45);
       }
+
       if (hasBridge) {
-        ctx.fillStyle = '#8b7355';
-        ctx.fillRect(padding + villageWidth / 3, padding + villageHeight - 40, 50, 15);
+        drawBridge(ctx, padding + villageWidth * 0.25 - 30, waterY + 30, 60, 12);
       }
 
-      ctx.fillStyle = '#999';
-      ctx.beginPath();
-      ctx.arc(padding + villageWidth / 2, padding + villageHeight - 60, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#666';
-      ctx.font = '10px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('W', padding + villageWidth / 2, padding + villageHeight - 56);
+      // Village walls
+      if (hasWall) {
+        drawVillageWalls(ctx, padding + 30, padding + 30, villageWidth - 60, villageHeight - 60);
+      }
 
-      ctx.fillStyle = '#0047ab';
-      ctx.beginPath();
-      ctx.ellipse(padding + villageWidth / 3 + 40, padding + villageHeight - 100, 30, 20, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#666';
-      ctx.fillText('P', padding + villageWidth / 3 + 40, padding + villageHeight - 100);
+      // Title
+      ctx.fillStyle = '#2c1810';
+      ctx.font = 'bold 16px Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Village Map', canvas.width / 2, 25);
 
       document.getElementById('villageMapContainer').style.display = 'flex';
       document.getElementById('villageMapLegend').style.display = 'grid';
 
       generateVillageMapInfo(villageType);
+    }
+
+    function drawVillageBuilding(ctx, x, y, w, h) {
+      // Building body
+      ctx.fillStyle = '#c9a084';
+      ctx.fillRect(x, y, w, h);
+
+      // Roof with peaked gables
+      ctx.fillStyle = '#8b6f47';
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + w / 2, y - 12);
+      ctx.lineTo(x + w, y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Walls
+      ctx.strokeStyle = '#8b6f47';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, w, h);
+
+      // Windows
+      ctx.fillStyle = '#ffd966';
+      for (let wy = y + 8; wy < y + h - 8; wy += 12) {
+        for (let wx = x + 5; wx < x + w - 5; wx += 12) {
+          ctx.fillRect(wx, wy, 4, 4);
+        }
+      }
+
+      // Door
+      ctx.fillStyle = '#654321';
+      ctx.fillRect(x + w / 2 - 5, y + h - 10, 10, 10);
+    }
+
+    function drawChurch(ctx, x, y, w, h) {
+      ctx.fillStyle = '#8b4513';
+      ctx.fillRect(x, y, w, h);
+
+      // Cross on roof
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x + w / 2, y - 20);
+      ctx.lineTo(x + w / 2, y - 5);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + w / 2 - 8, y - 12);
+      ctx.lineTo(x + w / 2 + 8, y - 12);
+      ctx.stroke();
+
+      // Walls
+      ctx.strokeStyle = '#654321';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, w, h);
+
+      // Stained glass windows
+      ctx.fillStyle = '#9966ff';
+      ctx.fillRect(x + 10, y + 15, 8, 12);
+      ctx.fillRect(x + w - 18, y + 15, 8, 12);
+    }
+
+    function drawTavern(ctx, x, y, w, h) {
+      ctx.fillStyle = '#a0826d';
+      ctx.fillRect(x, y, w, h);
+
+      // Sign
+      ctx.strokeStyle = '#8b6f47';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x - 15, y + 10, 8, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Walls
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, w, h);
+
+      // Door and windows
+      ctx.fillStyle = '#8b7355';
+      ctx.fillRect(x + w / 2 - 7, y + h - 12, 14, 12);
+
+      ctx.fillStyle = '#ffd966';
+      ctx.fillRect(x + 8, y + 10, 7, 7);
+      ctx.fillRect(x + w - 15, y + 10, 7, 7);
+    }
+
+    function drawMill(ctx, x, y, w, h) {
+      ctx.fillStyle = '#d4a574';
+      ctx.fillRect(x, y, w, h);
+
+      // Wheel
+      ctx.strokeStyle = '#8b6f47';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x + w + 15, y + h / 2, 18, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Wheel spokes
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2;
+        const sx = x + w + 15 + Math.cos(angle) * 12;
+        const sy = y + h / 2 + Math.sin(angle) * 12;
+        ctx.beginPath();
+        ctx.moveTo(x + w + 15, y + h / 2);
+        ctx.lineTo(sx, sy);
+        ctx.stroke();
+      }
+
+      // Building walls
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, w, h);
+    }
+
+    function drawBridge(ctx, x, y, w, h) {
+      ctx.fillStyle = '#8b7355';
+      ctx.fillRect(x, y, w, h);
+
+      // Bridge railings
+      ctx.strokeStyle = '#654321';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y - 8);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + w, y);
+      ctx.lineTo(x + w, y - 8);
+      ctx.stroke();
+
+      // Planks
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x + (w / 4) * i, y);
+        ctx.lineTo(x + (w / 4) * i, y + h);
+        ctx.stroke();
+      }
+    }
+
+    function drawVillageWalls(ctx, x, y, w, h) {
+      ctx.strokeStyle = '#8b7355';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 3]);
+      ctx.strokeRect(x, y, w, h);
+      ctx.setLineDash([]);
+
+      // Corner posts
+      const postSize = 6;
+      ctx.fillStyle = '#654321';
+      ctx.fillRect(x - postSize / 2, y - postSize / 2, postSize, postSize);
+      ctx.fillRect(x + w - postSize / 2, y - postSize / 2, postSize, postSize);
+      ctx.fillRect(x - postSize / 2, y + h - postSize / 2, postSize, postSize);
+      ctx.fillRect(x + w - postSize / 2, y + h - postSize / 2, postSize, postSize);
     }
 
     function drawSpecialBuilding(ctx, x, y, w, h, color, label) {
@@ -5424,29 +6022,168 @@
       const floors = parseInt(document.getElementById('buildingFloors').value);
       const roomCount = parseInt(document.getElementById('roomCount').value);
 
-      ctx.fillStyle = '#f5ede0';
+      // White background like an architect's drawing
+      ctx.fillStyle = '#fefdf8';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const padding = 40;
-      const floorHeight = (canvas.height - padding * 2) / floors;
+      // Subtle grid in background
+      ctx.strokeStyle = 'rgba(200, 200, 200, 0.1)';
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x < canvas.width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      const padding = 50;
+      const floorHeight = (canvas.height - padding * 3 - 40) / floors;
       buildingMapData.floors = [];
 
+      // Draw each floor with BSP-style room layout
       for (let f = 0; f < floors; f++) {
-        const floorY = padding + f * floorHeight;
-        drawFloor(ctx, padding, floorY, canvas.width - padding * 2, floorHeight, roomCount, buildingType, f);
+        const floorY = padding + f * (floorHeight + 30);
+        drawFloorPlan(ctx, padding, floorY, canvas.width - padding * 2, floorHeight, roomCount, buildingType, f);
         buildingMapData.floors.push({ floor: f + 1, rooms: [] });
       }
 
-      ctx.fillStyle = '#666';
-      ctx.font = 'bold 10px Arial';
+      // Floor labels
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 11px Arial';
       for (let f = 0; f < floors; f++) {
-        const floorLabel = f === 0 ? 'Ground Floor' : f === floors - 1 ? 'Top Floor' : 'Floor ' + (f + 1);
-        ctx.fillText(floorLabel, padding + 10, padding + (f + 0.5) * floorHeight);
+        const floorLabel = f === 0 ? 'GROUND FLOOR' : f === floors - 1 ? 'TOP FLOOR' : 'FLOOR ' + (f + 1);
+        ctx.fillText(floorLabel, padding - 5, padding - 20 + f * (floorHeight + 30));
       }
+
+      // Title
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Architectural Floor Plan', canvas.width / 2, 25);
 
       document.getElementById('buildingMapContainer').style.display = 'flex';
 
       generateBuildingMapInfo(buildingType, floors, roomCount);
+    }
+
+    function drawFloorPlan(ctx, x, y, width, height, roomCount, buildingType, floorNum) {
+      // Outer walls with double lines
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, width, height);
+
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x + 2, y + 2, width - 4, height - 4);
+
+      // Generate room layout using simple subdivision
+      const rooms = generateRoomLayout(x + 10, y + 10, width - 20, height - 20, roomCount);
+
+      rooms.forEach((room, idx) => {
+        // Room fill - subtle pattern based on type
+        const color = getRoomColor(buildingType, idx, roomCount);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.15;
+        ctx.fillRect(room.x, room.y, room.w, room.h);
+        ctx.globalAlpha = 1.0;
+
+        // Room walls
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(room.x, room.y, room.w, room.h);
+
+        // Door markers (small arcs at openings)
+        if (room.doorSide) {
+          drawDoorMarker(ctx, room, room.doorSide);
+        }
+
+        // Room label
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 9px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const roomName = getRoomName(buildingType, idx);
+        ctx.fillText(roomName, room.x + room.w / 2, room.y + room.h / 2 - 3);
+
+        // Optional furniture hints
+        drawRoomFurniture(ctx, room, buildingType, idx);
+      });
+    }
+
+    function generateRoomLayout(x, y, width, height, roomCount) {
+      const rooms = [];
+
+      // Simple vertical room subdivision
+      const roomHeight = height / roomCount;
+      const leftRooms = Math.ceil(roomCount / 2);
+      const rightRooms = roomCount - leftRooms;
+
+      // Left side rooms
+      for (let i = 0; i < leftRooms; i++) {
+        rooms.push({
+          x: x,
+          y: y + i * roomHeight,
+          w: width / 2 - 5,
+          h: roomHeight - 2,
+          doorSide: 'right'
+        });
+      }
+
+      // Right side rooms
+      for (let i = 0; i < rightRooms; i++) {
+        rooms.push({
+          x: x + width / 2 + 5,
+          y: y + i * roomHeight,
+          w: width / 2 - 5,
+          h: roomHeight - 2,
+          doorSide: 'left'
+        });
+      }
+
+      return rooms;
+    }
+
+    function drawDoorMarker(ctx, room, side) {
+      ctx.strokeStyle = '#666';
+      ctx.lineWidth = 1.5;
+      const radius = 8;
+
+      if (side === 'right') {
+        ctx.beginPath();
+        ctx.arc(room.x + room.w, room.y + room.h / 2, radius, 0, Math.PI / 2);
+        ctx.stroke();
+      } else if (side === 'left') {
+        ctx.beginPath();
+        ctx.arc(room.x, room.y + room.h / 2, radius, Math.PI / 2, Math.PI);
+        ctx.stroke();
+      } else if (side === 'top') {
+        ctx.beginPath();
+        ctx.arc(room.x + room.w / 2, room.y, radius, Math.PI / 2, Math.PI);
+        ctx.stroke();
+      } else if (side === 'bottom') {
+        ctx.beginPath();
+        ctx.arc(room.x + room.w / 2, room.y + room.h, radius, Math.PI * 1.5, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    function drawRoomFurniture(ctx, room, buildingType, roomIndex) {
+      ctx.strokeStyle = '#999';
+      ctx.lineWidth = 1;
+
+      // Draw subtle furniture based on room type
+      if (buildingType === 'mansion' || buildingType === 'guild-hall') {
+        if (roomIndex === 0) {
+          // Foyer/Hall - draw rectangular outline (furniture)
+          ctx.strokeRect(room.x + 8, room.y + 8, room.w - 16, room.h - 16);
+        }
+      }
+      // Add more furniture hints as needed
     }
 
     function drawFloor(ctx, x, y, width, height, roomCount, buildingType, floorNum) {
