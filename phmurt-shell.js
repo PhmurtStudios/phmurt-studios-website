@@ -334,6 +334,11 @@
   }
 
   function _getAuthSession() {
+    /* Prefer PhmurtDB (covers both Supabase and legacy sessions) */
+    if (typeof PhmurtDB !== 'undefined' && PhmurtDB.getSession) {
+      return PhmurtDB.getSession();
+    }
+    /* Fallback: read localStorage directly */
     try { return JSON.parse(localStorage.getItem('phmurt_auth_session') || 'null'); }
     catch(e) { return null; }
   }
@@ -374,8 +379,12 @@
         var soBtn = document.getElementById('nav-signout-btn');
         if (soBtn) {
           soBtn.addEventListener('click', function() {
-            localStorage.removeItem('phmurt_auth_session');
-            window.dispatchEvent(new Event('phmurt-auth-change'));
+            if (typeof PhmurtDB !== 'undefined' && PhmurtDB.signOut) {
+              PhmurtDB.signOut();
+            } else {
+              localStorage.removeItem('phmurt_auth_session');
+              window.dispatchEvent(new Event('phmurt-auth-change'));
+            }
             dd.classList.remove('open');
             if (typeof window.psToast === 'function') window.psToast('Signed out.');
           });
