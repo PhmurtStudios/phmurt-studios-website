@@ -72,10 +72,7 @@ var PhmurtDB = (function () {
   /* ══════════════════════════════════════════════════════════════════
      SUPABASE INIT
   ══════════════════════════════════════════════════════════════════ */
-  (function _initSupabase() {
-    var sb = _sb();
-    if (!sb) { _initLegacy(); return; }
-
+  function _runSupabaseInit(sb) {
     sb.auth.getSession().then(function (r) {
       var sess = r.data && r.data.session;
       if (sess && sess.user) {
@@ -100,6 +97,24 @@ var PhmurtDB = (function () {
         _fireChange();
       }
     });
+  }
+
+  (function _initSupabase() {
+    var sb = _sb();
+    if (!sb) {
+      _initLegacy();
+      /* CDN may still be loading — wait for it and upgrade to cloud auth */
+      if (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL &&
+          typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY) {
+        window.addEventListener('phmurt-supabase-ready', function () {
+          var sb2 = _sb();
+          if (!sb2) return;
+          _runSupabaseInit(sb2);
+        }, { once: true });
+      }
+      return;
+    }
+    _runSupabaseInit(sb);
   })();
 
   /* ══════════════════════════════════════════════════════════════════
