@@ -895,11 +895,7 @@
       }
 
       // Listen for custom auth events that phmurt-auth.js may fire
-      window.addEventListener('phmurt-auth-change', function() {
-        onAuthChanged();
-        // Pull cloud campaigns when user signs in
-        setTimeout(syncCampaignsFromCloud, 400);
-      });
+      window.addEventListener('phmurt-auth-change', function() { onAuthChanged(); });
 
       // Catch storage events (sign-in in another tab updates localStorage)
       window.addEventListener('storage', function(e) {
@@ -913,11 +909,13 @@
     }
 
     // ═══════════════════════════════
-    // STORAGE: shared campaign registry + Supabase cloud sync
+    // STORAGE: shared campaign registry
     // ═══════════════════════════════
-    // Local: campaigns stored in phmurt_campaign_registry (keyed by campaign ID).
-    // Cloud: when Supabase is configured each save/delete also syncs to the campaigns table.
-    // On page load, cloud campaigns are merged into the local registry.
+    // Campaigns are stored in a shared registry (phmurt_campaign_registry) keyed by campaign ID.
+    // Each user also has a list of campaign IDs they belong to (phmurt_my_campaign_ids).
+    // This way, when user B joins via invite code, they can find and access the campaign
+    // that user A created as long as they share the same browser/device.
+    // When PhmurtDB backend support is available, this will sync via the server.
 
     function loadAllCampaignsFromRegistry() {
       var reg = localStorage.getItem('phmurt_campaign_registry');
@@ -926,49 +924,6 @@
 
     function saveRegistry(registry) {
       localStorage.setItem('phmurt_campaign_registry', JSON.stringify(registry));
-    }
-
-    // ── Cloud sync helpers ──────────────────────────────────────────
-    function _syncCampaignToCloud(campaign) {
-      if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.saveCampaign === 'function') {
-        PhmurtDB.saveCampaign(campaign).catch(function() {});
-      }
-    }
-
-    function _deleteCampaignFromCloud(campaignId) {
-      if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.deleteCampaign === 'function') {
-        PhmurtDB.deleteCampaign(campaignId).catch(function() {});
-      }
-    }
-
-    // Pull all owned campaigns from Supabase and merge into local registry
-    function syncCampaignsFromCloud() {
-      if (typeof PhmurtDB === 'undefined' || typeof PhmurtDB.getCampaigns !== 'function') return;
-      if (!PhmurtDB.db()) return;  // Supabase not configured
-      PhmurtDB.getCampaigns().then(function(cloudCampaigns) {
-        if (!cloudCampaigns || !cloudCampaigns.length) return;
-        var registry = loadAllCampaignsFromRegistry();
-        var user = getAuthUser();
-        var myIds = user ? getMyCampaignIds() : [];
-        var changed = false;
-        cloudCampaigns.forEach(function(c) {
-          if (!c || !c.id) return;
-          if (!registry[c.id] || (c.updatedAt && registry[c.id].updatedAt && c.updatedAt > registry[c.id].updatedAt)) {
-            registry[c.id] = c;
-            changed = true;
-          }
-          if (user && myIds.indexOf(c.id) === -1) {
-            myIds.push(c.id);
-            changed = true;
-          }
-        });
-        if (changed) {
-          saveRegistry(registry);
-          if (user) saveMyCampaignIds(myIds);
-          loadCampaigns();
-          renderCampaignList();
-        }
-      }).catch(function() {});
     }
 
     function getMyCampaignIds() {
@@ -1033,7 +988,6 @@
       var registry = loadAllCampaignsFromRegistry();
       campaigns.forEach(function(c) {
         registry[c.id] = c;
-        _syncCampaignToCloud(c);  // ← cloud sync
       });
       saveRegistry(registry);
     }
@@ -1182,7 +1136,6 @@
       var reg = loadAllCampaignsFromRegistry();
       delete reg[id];
       saveRegistry(reg);
-      _deleteCampaignFromCloud(id);  // ← cloud delete
       renderCampaignList();
     }
 
