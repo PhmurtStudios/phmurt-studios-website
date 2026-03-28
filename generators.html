@@ -6378,6 +6378,17 @@ let cityMapData = {
     castle: null
 };
 
+// Zoom/Pan interaction state
+var cityGen_zoom = 1;
+var cityGen_panX = 0;
+var cityGen_panY = 0;
+var cityGen_isDragging = false;
+var cityGen_lastMouseX = 0;
+var cityGen_lastMouseY = 0;
+var cityGen_minZoom = 1;
+var cityGen_maxZoom = 4;
+var cityGen_interactionInitialized = false;
+
 const SIZE_CONFIG = {
     hamlet:     { wards: 3,  radius: 160, seeds: 45,  label: 'Hamlet',     lotDepth: 2, minLotArea: 180, streetWidth: 5 },
     village:    { wards: 5,  radius: 210, seeds: 90,  label: 'Village',    lotDepth: 2, minLotArea: 140, streetWidth: 5 },
@@ -7591,11 +7602,44 @@ function cityGen_generateMarketSquare(wardTypes, boundary, plazaRadius) {
         }
     }
 
+    // Generate decorative elements: crates, barrels, carts
+    var decorations = [];
+    var numDecos = 5 + Math.floor(Math.random() * 6);
+    for (var d = 0; d < numDecos; d++) {
+        var dAngle = Math.random() * Math.PI * 2;
+        var dDist = plazaRadius * (0.35 + Math.random() * 0.5);
+        var dx = marketWard.x + Math.cos(dAngle) * dDist;
+        var dy = marketWard.y + Math.sin(dAngle) * dDist;
+        // Check not too close to fountain
+        var fDist = Math.sqrt((dx - marketWard.x) * (dx - marketWard.x) + (dy - marketWard.y) * (dy - marketWard.y));
+        if (fDist < plazaRadius * 0.2) continue;
+        var types = ['crate', 'barrel', 'sack', 'cart'];
+        decorations.push({
+            x: dx, y: dy,
+            type: types[Math.floor(Math.random() * types.length)],
+            size: 2 + Math.random() * 2,
+            rotation: Math.random() * Math.PI * 2
+        });
+    }
+
+    // Generate spoke paths from fountain outward
+    var paths = [];
+    var numPaths = 4 + Math.floor(Math.random() * 3);
+    for (var p = 0; p < numPaths; p++) {
+        var pAngle = (p / numPaths) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+        paths.push({
+            angle: pAngle,
+            width: 2 + Math.random()
+        });
+    }
+
     return {
         center: { x: marketWard.x, y: marketWard.y },
         radius: plazaRadius,
         stalls: stalls,
-        fountain: { x: marketWard.x, y: marketWard.y }
+        fountain: { x: marketWard.x, y: marketWard.y },
+        decorations: decorations,
+        paths: paths
     };
 }
 
@@ -7728,61 +7772,150 @@ function cityGen_drawFarms(ctx, farms) {
     }
 }
 
-function cityGen_drawRiver(ctx, river) {
-    if (!river) return;
-    var pts = river.points;
+function cityGen_drawRiverBody(ctx, pts, width, isMain) {
     if (pts.length < 2) return;
 
-    // Draw river as filled polygon with offset curves
-    var leftBank = cityGen_offsetCurve(pts, river.width * 0.5);
-    var rightBank = cityGen_offsetCurve(pts, -river.width * 0.5);
+    // Variable width along the river (wider in middle)
+    var leftBank = [];
+    var rightBank = [];
+    for (var i = 0; i < pts.length; i++) {
+        var t = i / (pts.length - 1);
+        var w = width * (0.7 + Math.sin(t * Math.PI) * 0.4) * 0.5;
+        // Add slight wobble for natural bank
+        w += (Math.sin(t * 17.3) * 1.5 + Math.cos(t * 23.7) * 1.0);
 
+        var dx, dy, dist, nx, ny;
+        if (i === 0) {
+            dx = pts[1].x - pts[0].x;
+            dy = pts[1].y - pts[0].y;
+        } else if (i === pts.length - 1) {
+            dx = pts[i].x - pts[i - 1].x;
+            dy = pts[i].y - pts[i - 1].y;
+        } else {
+            dx = pts[i + 1].x - pts[i - 1].x;
+            dy = pts[i + 1].y - pts[i - 1].y;
+        }
+        dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        nx = -dy / dist;
+        ny = dx / dist;
+
+        leftBank.push({ x: pts[i].x + nx * w, y: pts[i].y + ny * w });
+        rightBank.push({ x: pts[i].x - nx * w, y: pts[i].y - ny * w });
+    }
+
+    // Muddy bank fringe (outer edge, slightly wider)
+    if (isMain) {
+        ctx.fillStyle = '#8a7a60';
+        ctx.globalAlpha = 0.3;
+        var bankExtra = 3;
+        ctx.beginPath();
+        ctx.moveTo(leftBank[0].x, leftBank[0].y);
+        for (var i = 0; i < leftBank.length; i++) {
+            var bx = leftBank[i].x + (leftBank[i].x - pts[i].x) / (width * 0.5) * bankExtra;
+            var by = leftBank[i].y + (leftBank[i].y - pts[i].y) / (width * 0.5) * bankExtra;
+            ctx.lineTo(bx, by);
+        }
+        for (var i = rightBank.length - 1; i >= 0; i--) {
+            var bx = rightBank[i].x + (rightBank[i].x - pts[i].x) / (width * 0.5) * bankExtra;
+            var by = rightBank[i].y + (rightBank[i].y - pts[i].y) / (width * 0.5) * bankExtra;
+            ctx.lineTo(bx, by);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
+
+    // Main water body — use bezier curves for smoothness
     ctx.fillStyle = COLOR_PALETTE.riverColor;
     ctx.beginPath();
     ctx.moveTo(leftBank[0].x, leftBank[0].y);
-    for (var i = 1; i < leftBank.length; i++) {
-        ctx.lineTo(leftBank[i].x, leftBank[i].y);
+    for (var i = 1; i < leftBank.length - 1; i += 2) {
+        var cpx = leftBank[i].x;
+        var cpy = leftBank[i].y;
+        var nx = i + 1 < leftBank.length ? leftBank[i + 1].x : leftBank[i].x;
+        var ny = i + 1 < leftBank.length ? leftBank[i + 1].y : leftBank[i].y;
+        ctx.quadraticCurveTo(cpx, cpy, (cpx + nx) / 2, (cpy + ny) / 2);
     }
-    for (var i = rightBank.length - 1; i >= 0; i--) {
-        ctx.lineTo(rightBank[i].x, rightBank[i].y);
+    ctx.lineTo(leftBank[leftBank.length - 1].x, leftBank[leftBank.length - 1].y);
+    for (var i = rightBank.length - 1; i > 0; i -= 2) {
+        var cpx = rightBank[i].x;
+        var cpy = rightBank[i].y;
+        var px = i - 1 >= 0 ? rightBank[i - 1].x : rightBank[i].x;
+        var py = i - 1 >= 0 ? rightBank[i - 1].y : rightBank[i].y;
+        ctx.quadraticCurveTo(cpx, cpy, (cpx + px) / 2, (cpy + py) / 2);
     }
+    ctx.lineTo(rightBank[0].x, rightBank[0].y);
     ctx.closePath();
     ctx.fill();
 
-    // River banks (dark outline)
+    // Water highlight/sheen (lighter strip down center)
+    ctx.strokeStyle = '#8abfd0';
+    ctx.lineWidth = width * 0.15;
+    ctx.globalAlpha = 0.35;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (var i = 1; i < pts.length - 1; i += 2) {
+        var cpx = pts[i].x;
+        var cpy = pts[i].y;
+        var nx = i + 1 < pts.length ? pts[i + 1].x : pts[i].x;
+        var ny = i + 1 < pts.length ? pts[i + 1].y : pts[i].y;
+        ctx.quadraticCurveTo(cpx, cpy, (cpx + nx) / 2, (cpy + ny) / 2);
+    }
+    ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+
+    // Flow lines (small dashes along the current)
+    if (isMain) {
+        ctx.strokeStyle = '#5a8fa5';
+        ctx.lineWidth = 0.6;
+        ctx.globalAlpha = 0.4;
+        for (var f = 0; f < pts.length - 3; f += 4) {
+            var flowT = (f + Math.random() * 2) / pts.length;
+            var sideOff = (Math.random() - 0.5) * width * 0.3;
+            var fIdx = Math.min(f, pts.length - 2);
+            var fdx = pts[fIdx + 1].x - pts[fIdx].x;
+            var fdy = pts[fIdx + 1].y - pts[fIdx].y;
+            var fDist = Math.sqrt(fdx * fdx + fdy * fdy) || 1;
+            var fnx = -fdy / fDist;
+            var fny = fdx / fDist;
+            ctx.beginPath();
+            ctx.moveTo(pts[fIdx].x + fnx * sideOff, pts[fIdx].y + fny * sideOff);
+            ctx.lineTo(pts[fIdx].x + fnx * sideOff + fdx * 0.4, pts[fIdx].y + fny * sideOff + fdy * 0.4);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1.0;
+    }
+
+    // River bank outlines (dark edges)
     ctx.strokeStyle = COLOR_PALETTE.riverDark;
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = isMain ? 1.8 : 1;
     ctx.beginPath();
     ctx.moveTo(leftBank[0].x, leftBank[0].y);
     for (var i = 1; i < leftBank.length; i++) {
         ctx.lineTo(leftBank[i].x, leftBank[i].y);
     }
     ctx.stroke();
-
     ctx.beginPath();
     ctx.moveTo(rightBank[0].x, rightBank[0].y);
     for (var i = 1; i < rightBank.length; i++) {
         ctx.lineTo(rightBank[i].x, rightBank[i].y);
     }
     ctx.stroke();
+}
+
+function cityGen_drawRiver(ctx, river) {
+    if (!river) return;
+    var pts = river.points;
+    if (pts.length < 2) return;
+
+    // Draw main river
+    cityGen_drawRiverBody(ctx, pts, river.width, true);
 
     // Draw tributary if present
     if (river.tributary) {
         var tri = river.tributary;
-        var triLeftBank = cityGen_offsetCurve(tri.points, tri.width * 0.5);
-        var triRightBank = cityGen_offsetCurve(tri.points, -tri.width * 0.5);
-
-        ctx.fillStyle = COLOR_PALETTE.riverColor;
-        ctx.beginPath();
-        ctx.moveTo(triLeftBank[0].x, triLeftBank[0].y);
-        for (var i = 1; i < triLeftBank.length; i++) {
-            ctx.lineTo(triLeftBank[i].x, triLeftBank[i].y);
-        }
-        for (var i = triRightBank.length - 1; i >= 0; i--) {
-            ctx.lineTo(triRightBank[i].x, triRightBank[i].y);
-        }
-        ctx.closePath();
-        ctx.fill();
+        cityGen_drawRiverBody(ctx, tri.points, tri.width, false);
     }
 }
 
@@ -8775,6 +8908,631 @@ function cityGen_drawRoads(ctx, roads) {
 }
 
 // ============================================================================
+// SHOP DATA & INVENTORY GENERATION
+// ============================================================================
+
+var SHOP_DATA = {
+    blacksmith: {
+        names: ['The Iron Anvil', 'Hammerfell Forge', 'Red Steel Smithy', 'The Clanging Hammer', 'Thornmetal Works'],
+        desc: 'The heat of the forge washes over you as you enter. Weapons and armor line the walls, and the steady ring of hammer on steel fills the air.',
+        inventory: [
+            { name: 'Longsword', desc: 'Well-balanced steel blade, standard military issue', price: '15 gp' },
+            { name: 'Chain Mail', desc: 'Interlocking steel rings, offers solid protection', price: '75 gp' },
+            { name: 'Steel Shield', desc: 'Round shield with iron boss center', price: '10 gp' },
+            { name: 'Dagger', desc: 'Simple belt knife, good for utility or combat', price: '2 gp' },
+            { name: 'Horseshoes (set)', desc: 'Four fitted horseshoes with nails', price: '1 gp' },
+            { name: 'Iron Pot', desc: 'Heavy cooking pot, trail-worthy', price: '2 gp' },
+            { name: 'Battleaxe', desc: 'Single-headed axe with ash wood haft', price: '10 gp' },
+            { name: 'Repair Services', desc: 'Mend damaged weapons or armor', price: '5-20 gp' }
+        ]
+    },
+    tavern: {
+        names: ['The Drunken Dragon', 'Ye Olde Flagon', 'The Rusty Nail', 'The Golden Goose', 'The Sleeping Giant'],
+        desc: 'Warmth, laughter, and the smell of roasting meat greet you. Travelers and locals crowd the common room, swapping stories over mugs of ale.',
+        inventory: [
+            { name: 'Ale (pint)', desc: 'Local brew, dark and bitter', price: '4 cp' },
+            { name: 'Wine (glass)', desc: 'Passable red from the southern vineyards', price: '2 sp' },
+            { name: 'Hot Meal', desc: 'Stew, bread, and cheese. Fills the belly', price: '5 sp' },
+            { name: 'Room (night)', desc: 'Simple private room with bed and basin', price: '5 sp' },
+            { name: 'Mead (flagon)', desc: 'Sweet honey mead, a house specialty', price: '8 sp' },
+            { name: 'Trail Rations', desc: 'Packed provisions for the road, three days', price: '1 gp' },
+            { name: 'Rumors', desc: 'Buy a round and loosen local tongues', price: '2-10 sp' }
+        ]
+    },
+    church: {
+        names: ['Temple of the Dawn', 'The Silver Shrine', 'Chapel of the Eternal Flame', 'Sanctuary of Light', 'The Hallowed Ground'],
+        desc: 'Stained glass casts colored light across stone pews. The scent of incense hangs heavy in the reverent quiet.',
+        inventory: [
+            { name: 'Healing Prayer', desc: 'Minor divine healing from an acolyte', price: '10 gp' },
+            { name: 'Holy Water (vial)', desc: 'Blessed water, potent against undead', price: '25 gp' },
+            { name: 'Blessing', desc: 'A priest invokes divine favor upon you', price: '5 gp' },
+            { name: 'Funeral Rites', desc: 'Proper burial and last rites', price: '25 gp' },
+            { name: 'Remove Curse', desc: 'Petition to lift a minor curse', price: '50 gp' },
+            { name: 'Candles (dozen)', desc: 'Beeswax prayer candles', price: '1 sp' }
+        ]
+    },
+    library: {
+        names: ['The Dusty Tome', 'Hall of Scrolls', 'The Inkwell Archive', 'Athenaeum of Shadows', 'The Whispering Stacks'],
+        desc: 'Towering shelves of leather-bound volumes stretch to the vaulted ceiling. Scholars hunch over manuscripts by lamplight.',
+        inventory: [
+            { name: 'Map (local region)', desc: 'Detailed cartography of the surrounding lands', price: '15 gp' },
+            { name: 'Spell Scroll (1st)', desc: 'Single-use arcane scroll, 1st level', price: '50 gp' },
+            { name: 'Research Session', desc: 'Access to the archives for one full day', price: '5 gp' },
+            { name: 'Blank Spellbook', desc: 'Fine parchment bound in leather, 100 pages', price: '50 gp' },
+            { name: 'Ink & Quill Set', desc: 'High quality writing supplies', price: '10 gp' },
+            { name: 'Historical Tome', desc: 'Treatise on local history and legends', price: '25 gp' },
+            { name: 'Translation Service', desc: 'Scholarly translation of ancient texts', price: '20 gp' }
+        ]
+    },
+    bakery: {
+        names: ['The Golden Crust', 'Honeybread Bakehouse', 'The Warm Hearth', 'Flourmill Bakery', 'The Rising Loaf'],
+        desc: 'The irresistible aroma of fresh bread and pastries drifts from the open door. Flour dusts every surface.',
+        inventory: [
+            { name: 'Loaf of Bread', desc: 'Hearty brown bread, baked this morning', price: '2 cp' },
+            { name: 'Meat Pie', desc: 'Flaky crust stuffed with spiced mutton', price: '1 sp' },
+            { name: 'Honey Cake', desc: 'Sweet layered cake drizzled with wildflower honey', price: '5 cp' },
+            { name: 'Trail Biscuits (dozen)', desc: 'Hard tack that keeps for weeks on the road', price: '3 sp' },
+            { name: 'Pastry Assortment', desc: 'Box of assorted fruit-filled pastries', price: '8 cp' },
+            { name: 'Wedding Cake', desc: 'Grand three-tier celebration cake, made to order', price: '5 gp' }
+        ]
+    },
+    apothecary: {
+        names: ['The Mortar & Pestle', 'Greenleaf Remedies', 'The Healing Hand', 'Roots & Tinctures', 'The Wise Woman'],
+        desc: 'Bundles of dried herbs hang from the ceiling. Shelves of stoppered bottles contain salves, poultices, and mysterious tinctures.',
+        inventory: [
+            { name: 'Healing Potion', desc: 'Red liquid that mends wounds. Tastes of cherries', price: '50 gp' },
+            { name: 'Antitoxin', desc: 'Bitter draught that neutralizes most poisons', price: '50 gp' },
+            { name: 'Healer\'s Kit', desc: 'Bandages, salves, and splints for field medicine', price: '5 gp' },
+            { name: 'Fever Remedy', desc: 'Willow bark tea blend for common illness', price: '5 sp' },
+            { name: 'Poultice (3 uses)', desc: 'Herbal paste to prevent infection in wounds', price: '1 gp' },
+            { name: 'Sleeping Draught', desc: 'Induces deep restful sleep for 8 hours', price: '10 gp' },
+            { name: 'Smelling Salts', desc: 'Revives the unconscious with sharp vapors', price: '2 gp' }
+        ]
+    },
+    jeweler: {
+        names: ['The Gilded Gem', 'Sparkstone Jewelers', 'Crown & Circlet', 'The Diamond Eye', 'Prismatic Treasures'],
+        desc: 'Precious stones glitter under careful lamplight. Velvet-lined cases display rings, necklaces, and ornate crowns.',
+        inventory: [
+            { name: 'Gold Ring', desc: 'Simple gold band, suitable for enchantment', price: '25 gp' },
+            { name: 'Silver Necklace', desc: 'Fine chain with a small pendant setting', price: '15 gp' },
+            { name: 'Gem Appraisal', desc: 'Professional assessment of gemstone value', price: '5 gp' },
+            { name: 'Ruby (small)', desc: 'Deep red stone of modest quality', price: '100 gp' },
+            { name: 'Signet Ring', desc: 'Custom ring with engraved family crest', price: '50 gp' },
+            { name: 'Pearl Earrings', desc: 'Matched pair of lustrous freshwater pearls', price: '30 gp' }
+        ]
+    },
+    alchemist: {
+        names: ['The Bubbling Cauldron', 'Elixirs & Elements', 'The Philosopher\'s Flask', 'Transmutation Station', 'The Purple Vial'],
+        desc: 'Glass apparatus bubbles and steams on cluttered workbenches. Colored liquids glow faintly in crystalline vials.',
+        inventory: [
+            { name: 'Alchemist\'s Fire', desc: 'Sticky, flammable substance that ignites on impact', price: '50 gp' },
+            { name: 'Acid Vial', desc: 'Concentrated acid in a reinforced glass vial', price: '25 gp' },
+            { name: 'Smokestick', desc: 'Creates a thick cloud of concealing smoke', price: '10 gp' },
+            { name: 'Thunderstone', desc: 'Explodes with deafening crack when thrown', price: '30 gp' },
+            { name: 'Potion of Growth', desc: 'Doubles size for 1 minute. Handle with care', price: '75 gp' },
+            { name: 'Universal Solvent', desc: 'Dissolves most adhesives and bindings', price: '50 gp' },
+            { name: 'Alchemist\'s Supplies', desc: 'Full kit for alchemical experimentation', price: '50 gp' }
+        ]
+    },
+    herbalist: {
+        names: ['The Green Bower', 'Wildroot Herbals', 'Petal & Stem', 'The Druid\'s Garden', 'Nature\'s Bounty'],
+        desc: 'Living plants crowd every windowsill and shelf. The earthy scent of fresh herbs fills this cozy shop.',
+        inventory: [
+            { name: 'Goodberry Pouch', desc: 'Enchanted berries that sustain for a day', price: '15 gp' },
+            { name: 'Wolfsbane', desc: 'Rare herb said to ward off lycanthropes', price: '25 gp' },
+            { name: 'Belladonna', desc: 'Poisonous nightshade, useful in antivenom', price: '10 gp' },
+            { name: 'Healing Herbs (bundle)', desc: 'Mixed medicinal herbs for poultices', price: '5 gp' },
+            { name: 'Rare Mushrooms', desc: 'Exotic fungi with magical properties', price: '20 gp' },
+            { name: 'Herbal Tea Blend', desc: 'Calming blend for restful meditation', price: '2 gp' }
+        ]
+    },
+    tanner: {
+        names: ['Toughskin Tannery', 'The Leatherworker', 'Hide & Seek', 'The Cured Hide', 'Roughshod Leather'],
+        desc: 'The sharp smell of curing chemicals hits you first. Hides stretch on frames while finished leather goods hang on display.',
+        inventory: [
+            { name: 'Leather Armor', desc: 'Flexible armor of hardened leather', price: '10 gp' },
+            { name: 'Studded Leather', desc: 'Reinforced with rivets for extra protection', price: '45 gp' },
+            { name: 'Leather Pack', desc: 'Sturdy adventurer\'s backpack', price: '2 gp' },
+            { name: 'Waterskin', desc: 'Holds a half-gallon, sewn and sealed', price: '2 sp' },
+            { name: 'Leather Belt', desc: 'Wide belt with pouch loops', price: '5 sp' },
+            { name: 'Boot Repair', desc: 'Resole and waterproof your boots', price: '1 gp' }
+        ]
+    },
+    bowyer: {
+        names: ['The Bent Bow', 'Fletcher\'s Rest', 'Trueflight Archery', 'The Quivering Arrow', 'Yew & String'],
+        desc: 'Bows of all sizes hang from ceiling hooks. Bundles of arrows sorted by type fill barrels along the walls.',
+        inventory: [
+            { name: 'Shortbow', desc: 'Light and quick, ideal for skirmishers', price: '25 gp' },
+            { name: 'Longbow', desc: 'Powerful yew bow for experienced archers', price: '50 gp' },
+            { name: 'Arrows (20)', desc: 'Standard broadhead hunting arrows', price: '1 gp' },
+            { name: 'Silver Arrows (5)', desc: 'Silver-tipped, effective against shapeshifters', price: '25 gp' },
+            { name: 'Crossbow, Light', desc: 'Mechanical bow with trigger mechanism', price: '25 gp' },
+            { name: 'Quiver', desc: 'Holds 20 arrows, oiled leather', price: '1 gp' }
+        ]
+    },
+    clothier: {
+        names: ['Silken Stitch', 'The Velvet Needle', 'Threadbare Finery', 'Cloth & Crown', 'The Tailor\'s Mark'],
+        desc: 'Bolts of colorful fabric fill shelves from floor to ceiling. A tailor works at a large cutting table.',
+        inventory: [
+            { name: 'Common Clothes', desc: 'Simple tunic, trousers, and cloak', price: '5 sp' },
+            { name: 'Fine Clothes', desc: 'Noble attire fit for court appearances', price: '15 gp' },
+            { name: 'Traveler\'s Cloak', desc: 'Hooded and waterproofed for the road', price: '2 gp' },
+            { name: 'Costume', desc: 'Disguise outfit, custom made to order', price: '5 gp' },
+            { name: 'Robes', desc: 'Scholarly or priestly vestments', price: '1 gp' },
+            { name: 'Silk Scarf', desc: 'Vibrant dyed silk, a luxury item', price: '10 gp' }
+        ]
+    },
+    cooper: {
+        names: ['Oakbottom Cooperage', 'The Barrel House', 'Stave & Hoop', 'Ironbound Kegs', 'The Round Cask'],
+        desc: 'The rhythmic thud of mallets on barrel staves fills the workshop. Finished casks of every size crowd the floor.',
+        inventory: [
+            { name: 'Barrel', desc: 'Standard 40-gallon oak barrel', price: '2 gp' },
+            { name: 'Bucket', desc: 'Wooden bucket with rope handle', price: '5 cp' },
+            { name: 'Cask (small)', desc: 'Five-gallon traveling cask', price: '1 gp' },
+            { name: 'Watertight Chest', desc: 'Cooper-built sealed storage chest', price: '5 gp' },
+            { name: 'Wine Barrel', desc: 'Charred oak for aging spirits', price: '5 gp' },
+            { name: 'Repair Service', desc: 'Fix leaky barrels and casks', price: '5 sp' }
+        ]
+    },
+    chandler: {
+        names: ['The Waxen Wick', 'Brightflame Candles', 'Tallow & Light', 'The Gentle Glow', 'Lanternkeep'],
+        desc: 'Hundreds of candles illuminate the shop in warm, flickering light. The sweet smell of beeswax is intoxicating.',
+        inventory: [
+            { name: 'Candles (10)', desc: 'Tallow candles, each burns for 1 hour', price: '1 sp' },
+            { name: 'Lantern, Hooded', desc: 'Shuttered lantern, adjustable light', price: '5 gp' },
+            { name: 'Oil Flask', desc: 'Lamp oil, burns for 6 hours', price: '1 sp' },
+            { name: 'Torch (6)', desc: 'Pitch-soaked, burns for 1 hour each', price: '6 cp' },
+            { name: 'Everburning Candle', desc: 'Magical candle that never melts. Warm glow', price: '50 gp' },
+            { name: 'Scented Candle Set', desc: 'Lavender, pine, and rose. Luxury items', price: '5 sp' }
+        ]
+    },
+    cartographer: {
+        names: ['The Charted Course', 'Compass & Quill', 'The Explorer\'s Atlas', 'Mapmaker\'s Guild', 'True North Cartography'],
+        desc: 'Maps and charts paper every wall. Astrolabes, compasses, and measuring tools fill glass cabinets.',
+        inventory: [
+            { name: 'Local Map', desc: 'Detailed map of the city and surroundings', price: '5 gp' },
+            { name: 'Regional Map', desc: 'Major roads, towns, and geographic features', price: '15 gp' },
+            { name: 'Compass', desc: 'Magnetized needle in a brass housing', price: '10 gp' },
+            { name: 'Spyglass', desc: 'Collapsible brass telescope', price: '100 gp' },
+            { name: 'Dungeon Map', desc: 'Rumored layout of a nearby ruin', price: '25 gp' },
+            { name: 'Custom Commission', desc: 'Have a map drawn to your specifications', price: '50 gp' }
+        ]
+    },
+    enchanter: {
+        names: ['The Arcane Emporium', 'Starweave Enchantments', 'The Glowing Sigil', 'Mystic Bindings', 'The Runed Chamber'],
+        desc: 'Faint magical energy crackles in the air. Enchanted items pulse with soft light behind warded glass cases.',
+        inventory: [
+            { name: 'Identify Service', desc: 'Determine the properties of a magic item', price: '20 gp' },
+            { name: '+1 Weapon Enchant', desc: 'Imbue a weapon with arcane sharpness', price: '500 gp' },
+            { name: 'Ring of Protection', desc: 'Subtle ward that deflects minor harm', price: '300 gp' },
+            { name: 'Bag of Holding', desc: 'Extradimensional space in a small sack', price: '250 gp' },
+            { name: 'Scroll of Fireball', desc: 'Single-use arcane scroll, devastating', price: '150 gp' },
+            { name: 'Wand of Magic Missiles', desc: 'Reliable force bolts, 7 charges', price: '200 gp' }
+        ]
+    },
+    lighthouse: {
+        names: ['The Harbor Light', 'Beacon Point', 'The Watchfire Tower', 'Stormguide Light', 'The Lamplighter\'s Post'],
+        desc: 'The tall tower stands sentinel over the waterfront. Its eternal flame guides ships safely through treacherous waters.',
+        inventory: [
+            { name: 'Docking Fee', desc: 'Secure berth for one vessel, one week', price: '5 gp' },
+            { name: 'Weather Report', desc: 'Keeper\'s forecast for the next three days', price: '1 gp' },
+            { name: 'Signal Flare (3)', desc: 'Bright flares visible for miles at sea', price: '5 gp' },
+            { name: 'Sailor\'s Charts', desc: 'Coastal navigation maps', price: '10 gp' },
+            { name: 'Rope (50 ft)', desc: 'Hemp rope, marine quality', price: '1 gp' }
+        ]
+    },
+    shop: {
+        names: ['The General Store', 'Sundries & Supplies', 'The Peddler\'s Pack', 'Needful Things', 'The Trader\'s Post'],
+        desc: 'A little bit of everything fills this cramped shop. Practical goods for travelers and townsfolk alike.',
+        inventory: [
+            { name: 'Backpack', desc: 'Sturdy canvas pack, holds 30 lbs', price: '2 gp' },
+            { name: 'Rope (50 ft)', desc: 'Hempen rope, essential for adventuring', price: '1 gp' },
+            { name: 'Rations (5 days)', desc: 'Dried meat, hardtack, and dried fruit', price: '2 gp 5 sp' },
+            { name: 'Bedroll', desc: 'Wool-lined roll for sleeping outdoors', price: '1 gp' },
+            { name: 'Tinderbox', desc: 'Flint, steel, and tinder for starting fires', price: '5 sp' },
+            { name: 'Crowbar', desc: 'Iron bar for prying and leverage', price: '2 gp' },
+            { name: 'Pitons (10)', desc: 'Iron spikes for climbing', price: '5 sp' }
+        ]
+    },
+    stables: {
+        names: ['The Iron Horseshoe', 'Swifthoof Stables', 'The Hay Loft', 'Saddleworth Livery', 'Gallop & Groom'],
+        desc: 'Horses whinny and stamp in their stalls. The smell of hay and leather fills the long barn.',
+        inventory: [
+            { name: 'Riding Horse', desc: 'Trained mount, gentle temperament', price: '75 gp' },
+            { name: 'Warhorse', desc: 'Battle-trained destrier, fearless', price: '400 gp' },
+            { name: 'Stabling (per day)', desc: 'Feed, water, and shelter for one mount', price: '5 sp' },
+            { name: 'Saddle', desc: 'Military saddle with stirrups', price: '20 gp' },
+            { name: 'Saddlebags', desc: 'Leather bags that drape over the saddle', price: '4 gp' },
+            { name: 'Bit and Bridle', desc: 'Standard riding tack', price: '2 gp' },
+            { name: 'Cart and Donkey', desc: 'Simple two-wheel cart with beast of burden', price: '35 gp' }
+        ]
+    },
+    barracks: {
+        names: ['The City Watch Post', 'Iron Guard Barracks', 'The Shield Wall', 'Sentinel Quarters', 'The Garrison'],
+        desc: 'Soldiers drill in the yard while officers review duty rosters. Weapons racks and training dummies fill the grounds.',
+        inventory: [
+            { name: 'Mercenary Hire (day)', desc: 'Armed guard for escort or protection', price: '2 gp' },
+            { name: 'Bounty Board', desc: 'View active bounties and wanted notices', price: 'Free' },
+            { name: 'Weapons Training', desc: 'Session with a drill sergeant', price: '5 gp' },
+            { name: 'Guard Report', desc: 'Information about recent threats in the area', price: '1 gp' }
+        ]
+    },
+    market: {
+        names: ['The Grand Bazaar', 'Trader\'s Circle', 'The Open Market', 'Merchant\'s Row', 'The Hawker\'s Square'],
+        desc: 'A bustling open-air market where merchants hawk their wares. The noise of bartering fills the air.',
+        inventory: [
+            { name: 'Fresh Produce', desc: 'Seasonal fruits and vegetables', price: '1-5 cp' },
+            { name: 'Exotic Spices', desc: 'Imported seasonings from distant lands', price: '5 gp' },
+            { name: 'Bolts of Cloth', desc: 'Various fabrics by the yard', price: '5 sp/yard' },
+            { name: 'Pottery', desc: 'Handcrafted bowls, plates, and jugs', price: '2 sp' },
+            { name: 'Used Goods', desc: 'Second-hand equipment at bargain prices', price: 'Varies' },
+            { name: 'Street Food', desc: 'Grilled meats on a stick, hot and fresh', price: '3 cp' }
+        ]
+    },
+    well: {
+        names: ['The Town Well', 'Old Stone Well', 'The Deep Draw', 'Wishing Well', 'The Clear Spring'],
+        desc: 'A stone-lined well at a crossroads. Locals gather here to draw water and exchange gossip.',
+        inventory: [
+            { name: 'Fresh Water', desc: 'Fill your waterskin from the well', price: 'Free' },
+            { name: 'Local Gossip', desc: 'Hear what the townsfolk are talking about', price: 'Free' },
+            { name: 'Make a Wish', desc: 'Toss a coin and hope for the best', price: '1 cp' }
+        ]
+    },
+    castle: {
+        names: ['The Keep', 'The Citadel', 'The Lord\'s Fortress', 'The High Castle', 'The Stronghold'],
+        desc: 'Massive stone walls tower above the city. Guards patrol the battlements, watching over the realm.',
+        inventory: [
+            { name: 'Audience Request', desc: 'Petition the lord for an audience', price: '10 gp' },
+            { name: 'Guard Hire', desc: 'Request armed escort from the garrison', price: '5 gp/day' },
+            { name: 'Bounty Board', desc: 'Official quests sanctioned by the lord', price: 'Free' }
+        ]
+    },
+    garden_area: { names: ['Public Garden'], desc: 'A peaceful green space within the city walls.', inventory: [] },
+    fountain: { names: ['City Fountain'], desc: 'An ornate fountain at a public square.', inventory: [] }
+};
+
+function cityGen_generateShopDetails(landmarks) {
+    if (!landmarks) return;
+    for (var i = 0; i < landmarks.length; i++) {
+        var lm = landmarks[i];
+        var shopInfo = SHOP_DATA[lm.type];
+        if (!shopInfo) continue;
+        lm.shopName = shopInfo.names[Math.floor(Math.random() * shopInfo.names.length)];
+        lm.shopDesc = shopInfo.desc;
+        lm.shopInventory = shopInfo.inventory || [];
+        lm.shopLabel = LANDMARK_TYPES[lm.type] ? LANDMARK_TYPES[lm.type].label : lm.type;
+    }
+}
+
+// ============================================================================
+// ZOOM / PAN / INTERACTION SYSTEM
+// ============================================================================
+
+function cityGen_screenToWorld(screenX, screenY) {
+    return {
+        x: (screenX - cityGen_panX) / cityGen_zoom,
+        y: (screenY - cityGen_panY) / cityGen_zoom
+    };
+}
+
+function cityGen_worldToScreen(worldX, worldY) {
+    return {
+        x: worldX * cityGen_zoom + cityGen_panX,
+        y: worldY * cityGen_zoom + cityGen_panY
+    };
+}
+
+function cityGen_findLandmarkAt(worldX, worldY) {
+    if (!cityMapData || !cityMapData.landmarks) return null;
+    var bestDist = Infinity;
+    var best = null;
+    for (var i = 0; i < cityMapData.landmarks.length; i++) {
+        var lm = cityMapData.landmarks[i];
+        var dx = lm.x - worldX, dy = lm.y - worldY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var hitRadius = (lm.size || 8) * 1.2;
+        if (dist < hitRadius && dist < bestDist) {
+            bestDist = dist;
+            best = lm;
+        }
+    }
+    return best;
+}
+
+function cityGen_ensureTooltip() {
+    var tip = document.getElementById('cityGen_tooltip');
+    if (!tip) {
+        tip = document.createElement('div');
+        tip.id = 'cityGen_tooltip';
+        tip.style.cssText = 'position:absolute;display:none;pointer-events:none;background:rgba(30,20,10,0.92);color:#f5ead0;padding:6px 12px;border-radius:4px;font:13px Georgia,serif;z-index:1000;max-width:220px;box-shadow:0 2px 8px rgba(0,0,0,0.4);border:1px solid #8b7355;white-space:nowrap;';
+        document.body.appendChild(tip);
+    }
+    return tip;
+}
+
+function cityGen_showTooltip(landmark, screenX, screenY) {
+    var tip = cityGen_ensureTooltip();
+    var name = landmark.shopName || (LANDMARK_TYPES[landmark.type] ? LANDMARK_TYPES[landmark.type].label : landmark.type);
+    var label = landmark.shopLabel || '';
+    tip.innerHTML = '<div style="font-weight:bold;font-size:14px;">' + name + '</div>' +
+        (label && label !== name ? '<div style="font-size:11px;color:#c8b898;font-style:italic;">' + label + '</div>' : '') +
+        '<div style="font-size:11px;color:#a89878;margin-top:2px;">Click for details</div>';
+    tip.style.display = 'block';
+    tip.style.left = (screenX + 15) + 'px';
+    tip.style.top = (screenY - 10) + 'px';
+    // Keep on screen
+    var rect = tip.getBoundingClientRect();
+    if (rect.right > window.innerWidth - 10) {
+        tip.style.left = (screenX - rect.width - 10) + 'px';
+    }
+    if (rect.bottom > window.innerHeight - 10) {
+        tip.style.top = (screenY - rect.height - 10) + 'px';
+    }
+}
+
+function cityGen_hideTooltip() {
+    var tip = document.getElementById('cityGen_tooltip');
+    if (tip) tip.style.display = 'none';
+}
+
+function cityGen_ensureModal() {
+    var modal = document.getElementById('cityGen_shopModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'cityGen_shopModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:2000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);';
+        modal.innerHTML = '<div id="cityGen_shopContent" style="background:linear-gradient(135deg,#f5ead0,#e8dcc0);border:2px solid #8b7355;border-radius:8px;padding:0;max-width:480px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:Georgia,serif;color:#2c1810;position:relative;"></div>';
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) cityGen_hideShopModal();
+        });
+        document.body.appendChild(modal);
+    }
+    return modal;
+}
+
+function cityGen_showShopModal(landmark) {
+    var modal = cityGen_ensureModal();
+    var content = document.getElementById('cityGen_shopContent');
+    if (!content || !landmark) return;
+
+    var name = landmark.shopName || 'Unknown Location';
+    var label = landmark.shopLabel || '';
+    var desc = landmark.shopDesc || '';
+    var inv = landmark.shopInventory || [];
+
+    var html = '<div style="background:#3d2817;color:#f5ead0;padding:16px 20px;border-radius:6px 6px 0 0;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:start;">';
+    html += '<div><div style="font-size:20px;font-weight:bold;margin-bottom:2px;">' + name + '</div>';
+    if (label) html += '<div style="font-size:13px;color:#c8b898;font-style:italic;">' + label + '</div>';
+    html += '</div>';
+    html += '<span id="cityGen_closeModal" style="cursor:pointer;font-size:24px;line-height:1;color:#c8b898;padding:0 4px;">&times;</span>';
+    html += '</div></div>';
+
+    html += '<div style="padding:16px 20px;">';
+    html += '<p style="font-style:italic;color:#5a4030;margin:0 0 16px 0;line-height:1.5;font-size:14px;">' + desc + '</p>';
+
+    if (inv.length > 0) {
+        html += '<div style="border-top:1px solid #c8b898;padding-top:12px;margin-top:8px;">';
+        html += '<div style="font-weight:bold;font-size:15px;margin-bottom:10px;color:#3d2817;">Available Goods & Services</div>';
+        html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+        html += '<tr style="border-bottom:2px solid #c8b898;"><th style="text-align:left;padding:4px 8px;color:#5a4030;">Item</th><th style="text-align:left;padding:4px 8px;color:#5a4030;">Description</th><th style="text-align:right;padding:4px 8px;color:#5a4030;">Price</th></tr>';
+        for (var i = 0; i < inv.length; i++) {
+            var item = inv[i];
+            var rowBg = i % 2 === 0 ? 'background:rgba(200,184,152,0.2);' : '';
+            html += '<tr style="' + rowBg + 'border-bottom:1px solid rgba(200,184,152,0.3);">';
+            html += '<td style="padding:6px 8px;font-weight:bold;white-space:nowrap;">' + item.name + '</td>';
+            html += '<td style="padding:6px 8px;color:#5a4a3a;font-size:12px;">' + item.desc + '</td>';
+            html += '<td style="padding:6px 8px;text-align:right;white-space:nowrap;color:#8b6f47;font-weight:bold;">' + item.price + '</td>';
+            html += '</tr>';
+        }
+        html += '</table></div>';
+    }
+
+    html += '</div>';
+    content.innerHTML = html;
+    modal.style.display = 'flex';
+
+    document.getElementById('cityGen_closeModal').addEventListener('click', cityGen_hideShopModal);
+}
+
+function cityGen_hideShopModal() {
+    var modal = document.getElementById('cityGen_shopModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function cityGen_clampPan(canvas) {
+    var cw = canvas.width, ch = canvas.height;
+    var maxPanX = 0;
+    var minPanX = cw - cw * cityGen_zoom;
+    var maxPanY = 0;
+    var minPanY = ch - ch * cityGen_zoom;
+    cityGen_panX = Math.min(maxPanX, Math.max(minPanX, cityGen_panX));
+    cityGen_panY = Math.min(maxPanY, Math.max(minPanY, cityGen_panY));
+}
+
+function cityGen_initInteraction(canvas) {
+    if (cityGen_interactionInitialized) return;
+    cityGen_interactionInitialized = true;
+
+    var container = canvas.parentElement;
+
+    // Mouse wheel zoom
+    canvas.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        var rect = canvas.getBoundingClientRect();
+        var scaleX = canvas.width / rect.width;
+        var scaleY = canvas.height / rect.height;
+        var mouseX = (e.clientX - rect.left) * scaleX;
+        var mouseY = (e.clientY - rect.top) * scaleY;
+
+        var oldZoom = cityGen_zoom;
+        var zoomDelta = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+        cityGen_zoom = Math.min(cityGen_maxZoom, Math.max(cityGen_minZoom, cityGen_zoom * zoomDelta));
+
+        // Zoom toward mouse position
+        cityGen_panX = mouseX - (mouseX - cityGen_panX) * (cityGen_zoom / oldZoom);
+        cityGen_panY = mouseY - (mouseY - cityGen_panY) * (cityGen_zoom / oldZoom);
+        cityGen_clampPan(canvas);
+
+        cityGen_render(canvas, cityMapData);
+
+        // Show zoom indicator briefly
+        cityGen_showZoomIndicator(canvas, cityGen_zoom);
+    }, { passive: false });
+
+    // Mouse drag pan
+    canvas.addEventListener('mousedown', function(e) {
+        if (e.button === 0) {
+            cityGen_isDragging = true;
+            cityGen_lastMouseX = e.clientX;
+            cityGen_lastMouseY = e.clientY;
+            canvas.style.cursor = 'grabbing';
+        }
+    });
+
+    window.addEventListener('mousemove', function(e) {
+        var rect = canvas.getBoundingClientRect();
+        var scaleX = canvas.width / rect.width;
+        var scaleY = canvas.height / rect.height;
+
+        if (cityGen_isDragging) {
+            var dx = (e.clientX - cityGen_lastMouseX) * scaleX;
+            var dy = (e.clientY - cityGen_lastMouseY) * scaleY;
+            cityGen_panX += dx;
+            cityGen_panY += dy;
+            cityGen_lastMouseX = e.clientX;
+            cityGen_lastMouseY = e.clientY;
+            cityGen_clampPan(canvas);
+            cityGen_render(canvas, cityMapData);
+            cityGen_hideTooltip();
+            return;
+        }
+
+        // Hover detection
+        var mouseX = (e.clientX - rect.left) * scaleX;
+        var mouseY = (e.clientY - rect.top) * scaleY;
+        // Check if mouse is over canvas
+        if (mouseX < 0 || mouseX > canvas.width || mouseY < 0 || mouseY > canvas.height) {
+            cityGen_hideTooltip();
+            canvas.style.cursor = 'default';
+            return;
+        }
+        var world = cityGen_screenToWorld(mouseX, mouseY);
+        var hit = cityGen_findLandmarkAt(world.x, world.y);
+        if (hit) {
+            canvas.style.cursor = 'pointer';
+            cityGen_showTooltip(hit, e.clientX, e.clientY);
+        } else {
+            canvas.style.cursor = cityGen_zoom > 1 ? 'grab' : 'default';
+            cityGen_hideTooltip();
+        }
+    });
+
+    window.addEventListener('mouseup', function(e) {
+        if (cityGen_isDragging) {
+            cityGen_isDragging = false;
+            canvas.style.cursor = cityGen_zoom > 1 ? 'grab' : 'default';
+        }
+    });
+
+    // Click for shop details
+    canvas.addEventListener('click', function(e) {
+        var rect = canvas.getBoundingClientRect();
+        var scaleX = canvas.width / rect.width;
+        var scaleY = canvas.height / rect.height;
+        var mouseX = (e.clientX - rect.left) * scaleX;
+        var mouseY = (e.clientY - rect.top) * scaleY;
+        var world = cityGen_screenToWorld(mouseX, mouseY);
+        var hit = cityGen_findLandmarkAt(world.x, world.y);
+        if (hit && hit.shopName) {
+            cityGen_hideTooltip();
+            cityGen_showShopModal(hit);
+        }
+    });
+
+    // Touch support for mobile
+    var touchStartDist = 0;
+    var touchStartZoom = 1;
+    canvas.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1) {
+            cityGen_isDragging = true;
+            cityGen_lastMouseX = e.touches[0].clientX;
+            cityGen_lastMouseY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            cityGen_isDragging = false;
+            var dx = e.touches[0].clientX - e.touches[1].clientX;
+            var dy = e.touches[0].clientY - e.touches[1].clientY;
+            touchStartDist = Math.sqrt(dx * dx + dy * dy);
+            touchStartZoom = cityGen_zoom;
+        }
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', function(e) {
+        var rect = canvas.getBoundingClientRect();
+        var scaleX = canvas.width / rect.width;
+        var scaleY = canvas.height / rect.height;
+
+        if (e.touches.length === 1 && cityGen_isDragging) {
+            var dx = (e.touches[0].clientX - cityGen_lastMouseX) * scaleX;
+            var dy = (e.touches[0].clientY - cityGen_lastMouseY) * scaleY;
+            cityGen_panX += dx;
+            cityGen_panY += dy;
+            cityGen_lastMouseX = e.touches[0].clientX;
+            cityGen_lastMouseY = e.touches[0].clientY;
+            cityGen_clampPan(canvas);
+            cityGen_render(canvas, cityMapData);
+        } else if (e.touches.length === 2) {
+            var dx = e.touches[0].clientX - e.touches[1].clientX;
+            var dy = e.touches[0].clientY - e.touches[1].clientY;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            var midX = ((e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left) * scaleX;
+            var midY = ((e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top) * scaleY;
+            var oldZoom = cityGen_zoom;
+            cityGen_zoom = Math.min(cityGen_maxZoom, Math.max(cityGen_minZoom, touchStartZoom * (dist / touchStartDist)));
+            cityGen_panX = midX - (midX - cityGen_panX) * (cityGen_zoom / oldZoom);
+            cityGen_panY = midY - (midY - cityGen_panY) * (cityGen_zoom / oldZoom);
+            cityGen_clampPan(canvas);
+            cityGen_render(canvas, cityMapData);
+        }
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', function(e) {
+        cityGen_isDragging = false;
+        // Detect tap for shop details
+        if (e.changedTouches.length === 1) {
+            var rect = canvas.getBoundingClientRect();
+            var scaleX = canvas.width / rect.width;
+            var scaleY = canvas.height / rect.height;
+            var tx = (e.changedTouches[0].clientX - rect.left) * scaleX;
+            var ty = (e.changedTouches[0].clientY - rect.top) * scaleY;
+            var world = cityGen_screenToWorld(tx, ty);
+            var hit = cityGen_findLandmarkAt(world.x, world.y);
+            if (hit && hit.shopName) {
+                cityGen_showShopModal(hit);
+            }
+        }
+    });
+}
+
+function cityGen_showZoomIndicator(canvas, zoom) {
+    var container = canvas.parentElement;
+    var ind = document.getElementById('cityGen_zoomInd');
+    if (!ind) {
+        ind = document.createElement('div');
+        ind.id = 'cityGen_zoomInd';
+        ind.style.cssText = 'position:absolute;bottom:12px;right:12px;background:rgba(30,20,10,0.8);color:#f5ead0;padding:4px 10px;border-radius:4px;font:12px Georgia,serif;pointer-events:none;transition:opacity 0.3s;z-index:500;';
+        container.style.position = 'relative';
+        container.appendChild(ind);
+    }
+    ind.textContent = Math.round(zoom * 100) + '%';
+    ind.style.opacity = '1';
+    clearTimeout(ind._fadeTimer);
+    ind._fadeTimer = setTimeout(function() { ind.style.opacity = '0'; }, 1500);
+}
+
+// ============================================================================
 // MAIN RENDER FUNCTION
 // ============================================================================
 
@@ -8782,6 +9540,15 @@ function cityGen_render(canvas, data) {
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Fill background outside the zoom area
+    ctx.fillStyle = '#2c1810';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Apply zoom/pan transform
+    ctx.save();
+    ctx.translate(cityGen_panX, cityGen_panY);
+    ctx.scale(cityGen_zoom, cityGen_zoom);
 
     ctx.fillStyle = COLOR_PALETTE.background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -8826,7 +9593,7 @@ function cityGen_render(canvas, data) {
         ctx.fillStyle = '#c8b898';
         ctx.globalAlpha = 0.5;
         ctx.beginPath();
-        ctx.arc(msc.x, msc.y, msr + 4, 0, Math.PI * 2);
+        ctx.arc(msc.x, msc.y, msr + 6, 0, Math.PI * 2);
         ctx.fill();
         // Plaza ground — warm stone
         ctx.fillStyle = '#e8dcc0';
@@ -8835,6 +9602,23 @@ function cityGen_render(canvas, data) {
         ctx.arc(msc.x, msc.y, msr, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1.0;
+
+        // Spoke paths radiating from fountain
+        if (data.marketSquare.paths) {
+            ctx.strokeStyle = '#d8cca8';
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.5;
+            for (var pp = 0; pp < data.marketSquare.paths.length; pp++) {
+                var path = data.marketSquare.paths[pp];
+                ctx.lineWidth = path.width;
+                ctx.beginPath();
+                ctx.moveTo(msc.x + Math.cos(path.angle) * msr * 0.15, msc.y + Math.sin(path.angle) * msr * 0.15);
+                ctx.lineTo(msc.x + Math.cos(path.angle) * msr * 0.95, msc.y + Math.sin(path.angle) * msr * 0.95);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+        }
+
         // Cobblestone texture
         ctx.strokeStyle = '#d0c4a8';
         ctx.lineWidth = 0.3;
@@ -8959,6 +9743,62 @@ function cityGen_render(canvas, data) {
         ctx.beginPath();
         ctx.arc(ftn.x, ftn.y, ftnR * 0.3, 0, Math.PI * 2);
         ctx.fill();
+
+        // Decorative elements (crates, barrels, sacks, carts)
+        if (data.marketSquare.decorations) {
+            for (var dd = 0; dd < data.marketSquare.decorations.length; dd++) {
+                var deco = data.marketSquare.decorations[dd];
+                ctx.save();
+                ctx.translate(deco.x, deco.y);
+                ctx.rotate(deco.rotation || 0);
+                var ds = deco.size;
+                if (deco.type === 'crate') {
+                    ctx.fillStyle = '#8b6f47';
+                    ctx.fillRect(-ds, -ds, ds * 2, ds * 2);
+                    ctx.strokeStyle = '#5d4a3d';
+                    ctx.lineWidth = 0.5;
+                    ctx.strokeRect(-ds, -ds, ds * 2, ds * 2);
+                    ctx.beginPath();
+                    ctx.moveTo(-ds, 0);
+                    ctx.lineTo(ds, 0);
+                    ctx.moveTo(0, -ds);
+                    ctx.lineTo(0, ds);
+                    ctx.stroke();
+                } else if (deco.type === 'barrel') {
+                    ctx.fillStyle = '#7a5a37';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, ds, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#5d4a3d';
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(0, 0, ds * 0.6, 0, Math.PI * 2);
+                    ctx.stroke();
+                } else if (deco.type === 'sack') {
+                    ctx.fillStyle = '#b8a878';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, ds * 0.8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#a09060';
+                    ctx.beginPath();
+                    ctx.arc(0, -ds * 0.3, ds * 0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (deco.type === 'cart') {
+                    ctx.fillStyle = '#6a5030';
+                    ctx.fillRect(-ds * 1.5, -ds * 0.8, ds * 3, ds * 1.6);
+                    ctx.strokeStyle = '#4a3020';
+                    ctx.lineWidth = 0.6;
+                    ctx.strokeRect(-ds * 1.5, -ds * 0.8, ds * 3, ds * 1.6);
+                    // Wheels
+                    ctx.beginPath();
+                    ctx.arc(-ds * 1.2, ds * 0.8, ds * 0.5, 0, Math.PI * 2);
+                    ctx.arc(ds * 1.2, ds * 0.8, ds * 0.5, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+        }
     }
 
     if (data.landmarks) {
@@ -8973,6 +9813,9 @@ function cityGen_render(canvas, data) {
     if (data.name) {
         cityGen_drawCityName(ctx, data.name, canvas.width / 2, canvas.height);
     }
+
+    // Restore from zoom/pan transform
+    ctx.restore();
 }
 
 // ============================================================================
@@ -9116,6 +9959,9 @@ function generateCityMap() {
     // 12. Generate landmarks
     var landmarks = cityGen_generateLandmarks(wardTypes, boundary);
 
+    // 12a. Generate shop details for each landmark
+    cityGen_generateShopDetails(landmarks);
+
     // 12.5. Generate roads
     var roads = cityGen_generateRoads(wardTypes, centerX, centerY, boundary);
 
@@ -9168,8 +10014,16 @@ function generateCityMap() {
         sizeLabel: 'A ' + sizeConfig.label + ' of the Realm'
     };
 
-    // 19. Render
+    // 19. Reset zoom/pan for new map
+    cityGen_zoom = 1;
+    cityGen_panX = 0;
+    cityGen_panY = 0;
+
+    // 20. Render
     cityGen_render(canvas, cityMapData);
+
+    // 21. Init interaction (zoom/pan/hover/click) — only once
+    cityGen_initInteraction(canvas);
 
     // Update info panel
     generateCityMapInfo(size, sizeConfig);
