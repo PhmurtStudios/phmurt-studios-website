@@ -4990,14 +4990,16 @@
         description = TRAIT_COMPONENTS.passives[Math.floor(Math.random() * TRAIT_COMPONENTS.passives.length)];
       }
 
-      // Fill in placeholders
-      description = description.replace(/\{name\}/g, 'creature')
+      // Fill in placeholders - pick a consistent save and condition for the whole trait
+      const saveName = saves[Math.floor(Math.random() * saves.length)];
+      const conditionName = conditions[Math.floor(Math.random() * conditions.length)];
+      description = description.replace(/\{name\}/g, 'the creature')
         .replace(/\{range\}/g, range)
         .replace(/\{dc\}/g, dc)
-        .replace(/\{save\}/g, saves[Math.floor(Math.random() * saves.length)])
+        .replace(/\{save\}/g, saveName)
         .replace(/\{dice\}/g, dice)
         .replace(/\{dmgType\}/g, dmgType)
-        .replace(/\{condition\}/g, conditions[Math.floor(Math.random() * conditions.length)])
+        .replace(/\{condition\}/g, conditionName)
         .replace(/\{prof\}/g, prof);
 
       return { name: generateTraitName(element, null), description };
@@ -5171,7 +5173,10 @@
         `scholars debate whether it is truly malevolent or simply an apex predator following its nature`
       ];
 
-      return `${origins[Math.floor(Math.random() * origins.length)]}, ${name} is a creature of terrible power. ${behaviors[Math.floor(Math.random() * behaviors.length)].charAt(0).toUpperCase() + behaviors[Math.floor(Math.random() * behaviors.length)].slice(1)}.`;
+      const originIdx = Math.floor(Math.random() * origins.length);
+      const behaviorIdx = Math.floor(Math.random() * behaviors.length);
+      const behaviorText = behaviors[behaviorIdx];
+      return `${origins[originIdx]}, ${name} is a creature of terrible power. ${behaviorText.charAt(0).toUpperCase() + behaviorText.slice(1)}.`;
     }
 
     // ── Speed generation ──
@@ -5426,6 +5431,9 @@
           legendaryList.appendChild(item);
         });
       }
+
+      // Auto-generate stat block
+      setTimeout(() => generateStatBlock(), 50);
     }
 
     function generateMonsterFromConcept() {
@@ -5447,6 +5455,8 @@
           const monster = generateMonsterAI(concept);
           populateMonsterForm(monster);
           updateMonsterMods();
+          // Switch to detailed mode and show stat block
+          switchMonsterMode('detailed');
           generateStatBlock();
         } catch (err) {
           console.error('Monster generation error:', err);
@@ -5493,6 +5503,254 @@
 
     function randomizeAllMonster() {
       randomizeDetailedMonster();
+    }
+
+    // ── Add trait to the form ──
+    function addMonsterTrait() {
+      const traitsList = document.getElementById('monsterTraitsList');
+      const item = document.createElement('div');
+      item.className = 'dynamic-item';
+      item.innerHTML = `<div style="display:grid;gap:8px;">
+        <input type="text" class="gen-control-input" placeholder="Trait name" style="margin:0;" />
+        <textarea class="gen-control-input" placeholder="Trait description" rows="3" style="margin:0;"></textarea>
+        <button class="dynamic-item-remove" onclick="this.parentElement.parentElement.remove()">Remove</button>
+      </div>`;
+      traitsList.appendChild(item);
+    }
+
+    // ── Add action to the form ──
+    function addMonsterAction() {
+      const actionsList = document.getElementById('monsterActionsList');
+      const item = document.createElement('div');
+      item.className = 'dynamic-item';
+      item.innerHTML = `<div style="display:grid;gap:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="text" class="gen-control-input" placeholder="Action name" style="margin:0;" />
+          <input type="number" class="gen-control-input" placeholder="Attack bonus" value="0" style="margin:0;" />
+        </div>
+        <textarea class="gen-control-input" placeholder="Action description" rows="3" style="margin:0;"></textarea>
+        <button class="dynamic-item-remove" onclick="this.parentElement.parentElement.remove()">Remove</button>
+      </div>`;
+      actionsList.appendChild(item);
+    }
+
+    // ── Add legendary action to the form ──
+    function addMonsterLegendary() {
+      const legendaryList = document.getElementById('monsterLegendaryList');
+      const item = document.createElement('div');
+      item.className = 'dynamic-item';
+      item.innerHTML = `<div style="display:grid;gap:8px;">
+        <input type="text" class="gen-control-input" placeholder="Legendary action name" style="margin:0;" />
+        <textarea class="gen-control-input" placeholder="Description" rows="3" style="margin:0;"></textarea>
+        <button class="dynamic-item-remove" onclick="this.parentElement.parentElement.remove()">Remove</button>
+      </div>`;
+      legendaryList.appendChild(item);
+    }
+
+    // ── Generate stat block in D&D 5e format ──
+    function generateStatBlock() {
+      const name = document.getElementById('monsterName').value || 'Unnamed Creature';
+      const size = document.getElementById('monsterSize').value || 'Medium';
+      const type = document.getElementById('monsterType').value || 'Beast';
+      const alignment = document.getElementById('monsterAlignment').value || 'Neutral';
+      const cr = parseFloat(document.getElementById('monsterCR').value) || 0;
+      const ac = parseInt(document.getElementById('monsterAC').value) || 10;
+      const acType = document.getElementById('monsterACType').value || 'natural armor';
+      const hp = parseInt(document.getElementById('monsterHP').value) || 1;
+
+      // Speed
+      const walk = parseInt(document.getElementById('monsterWalk').value) || 0;
+      const fly = parseInt(document.getElementById('monsterFly').value) || 0;
+      const swim = parseInt(document.getElementById('monsterSwim').value) || 0;
+      const climb = parseInt(document.getElementById('monsterClimb').value) || 0;
+
+      // Ability scores
+      const str = parseInt(document.getElementById('monsterSTR').value) || 10;
+      const dex = parseInt(document.getElementById('monsterDEX').value) || 10;
+      const con = parseInt(document.getElementById('monsterCON').value) || 10;
+      const int = parseInt(document.getElementById('monsterINT').value) || 10;
+      const wis = parseInt(document.getElementById('monsterWIS').value) || 10;
+      const cha = parseInt(document.getElementById('monsterCHA').value) || 10;
+
+      // Resistances & immunities
+      const damageRes = document.getElementById('monsterDamageRes').value || '';
+      const damageImm = document.getElementById('monsterDamageImm').value || '';
+      const condImm = document.getElementById('monsterCondImm').value || '';
+
+      // Senses & languages
+      const darkvision = parseInt(document.getElementById('monsterDarkvision').value) || 0;
+      const blindsight = parseInt(document.getElementById('monsterBlindSight').value) || 0;
+      const languages = document.getElementById('monsterLanguages').value || '—';
+
+      // Get CR data for proficiency
+      const crData = getCRData(cr);
+      const prof = crData.prof;
+      const xp = crData.xp;
+
+      // Build speed string
+      let speedStr = '';
+      if (walk > 0) speedStr += `${walk} ft.`;
+      if (fly > 0) speedStr += (speedStr ? ', ' : '') + `fly ${fly} ft.`;
+      if (swim > 0) speedStr += (speedStr ? ', ' : '') + `swim ${swim} ft.`;
+      if (climb > 0) speedStr += (speedStr ? ', ' : '') + `climb ${climb} ft.`;
+      if (!speedStr) speedStr = '0 ft.';
+
+      // Build senses string
+      let sensesStr = [];
+      if (darkvision > 0) sensesStr.push(`darkvision ${darkvision} ft.`);
+      if (blindsight > 0) sensesStr.push(`blindsight ${blindsight} ft.`);
+      const passivePerc = 10 + Math.floor(wis / 2) - 5;
+      sensesStr.push(`passive Perception ${passivePerc}`);
+      const sensesLine = sensesStr.join(', ');
+
+      // Collect traits
+      const traitsDiv = document.getElementById('monsterTraitsList');
+      const traits = [];
+      traitsDiv.querySelectorAll('.dynamic-item').forEach(item => {
+        const inputs = item.querySelectorAll('input[type="text"], textarea');
+        if (inputs.length >= 2 && inputs[0].value && inputs[1].value) {
+          traits.push({
+            name: inputs[0].value,
+            description: inputs[1].value
+          });
+        }
+      });
+
+      // Collect actions
+      const actionsDiv = document.getElementById('monsterActionsList');
+      const actions = [];
+      actionsDiv.querySelectorAll('.dynamic-item').forEach(item => {
+        const inputs = item.querySelectorAll('input, textarea');
+        if (inputs.length >= 2 && inputs[0].value) {
+          actions.push({
+            name: inputs[0].value,
+            description: inputs[2]?.value || ''
+          });
+        }
+      });
+
+      // Collect legendary actions
+      const legendaryDiv = document.getElementById('monsterLegendaryList');
+      const legendary = [];
+      legendaryDiv.querySelectorAll('.dynamic-item').forEach(item => {
+        const inputs = item.querySelectorAll('input[type="text"], textarea');
+        if (inputs.length >= 2 && inputs[0].value && inputs[1].value) {
+          legendary.push({
+            name: inputs[0].value,
+            description: inputs[1].value
+          });
+        }
+      });
+
+      // Build HTML stat block
+      let html = `
+        <div style="font-family: 'Times New Roman', Times, serif; max-width: 600px; background: white; color: black; padding: 20px; border: 2px solid #2a2a2a;">
+
+          <!-- Header bar -->
+          <div style="background-color: #7a200d; color: white; padding: 8px 12px; margin: -20px -20px 15px -20px; font-weight: bold; font-size: 14px;">
+            ${name.toUpperCase()}
+          </div>
+
+          <!-- Size, Type, Alignment -->
+          <div style="font-style: italic; margin-bottom: 12px; font-size: 13px;">
+            <em>${size} ${type.toLowerCase()}, ${alignment}</em>
+          </div>
+
+          <!-- Divider -->
+          <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
+
+          <!-- AC, HP, Speed -->
+          <div style="margin-bottom: 12px; font-size: 13px;">
+            <div><strong>Armor Class</strong> ${ac} (${acType})</div>
+            <div><strong>Hit Points</strong> ${hp} (hit dice unknown)</div>
+            <div><strong>Speed</strong> ${speedStr}</div>
+          </div>
+
+          <!-- Divider -->
+          <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
+
+          <!-- Ability Scores -->
+          <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; text-align: center; margin-bottom: 12px; font-size: 12px;">
+            <div>
+              <strong>STR</strong><br>${str}<br>${getModifier(str) >= 0 ? '+' : ''}${getModifier(str)}
+            </div>
+            <div>
+              <strong>DEX</strong><br>${dex}<br>${getModifier(dex) >= 0 ? '+' : ''}${getModifier(dex)}
+            </div>
+            <div>
+              <strong>CON</strong><br>${con}<br>${getModifier(con) >= 0 ? '+' : ''}${getModifier(con)}
+            </div>
+            <div>
+              <strong>INT</strong><br>${int}<br>${getModifier(int) >= 0 ? '+' : ''}${getModifier(int)}
+            </div>
+            <div>
+              <strong>WIS</strong><br>${wis}<br>${getModifier(wis) >= 0 ? '+' : ''}${getModifier(wis)}
+            </div>
+            <div>
+              <strong>CHA</strong><br>${cha}<br>${getModifier(cha) >= 0 ? '+' : ''}${getModifier(cha)}
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
+
+          <!-- Saves, Skills, Resistances -->
+          <div style="margin-bottom: 12px; font-size: 13px;">
+            ${damageRes ? `<div><strong>Damage Resistances</strong> ${damageRes}</div>` : ''}
+            ${damageImm ? `<div><strong>Damage Immunities</strong> ${damageImm}</div>` : ''}
+            ${condImm ? `<div><strong>Condition Immunities</strong> ${condImm}</div>` : ''}
+            <div><strong>Senses</strong> ${sensesLine}</div>
+            <div><strong>Languages</strong> ${languages}</div>
+            <div><strong>Challenge</strong> ${cr} (${xp} XP)</div>
+          </div>
+
+          <!-- Divider -->
+          <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
+
+          <!-- Traits -->
+          ${traits.length > 0 ? `
+            <div style="margin-bottom: 12px;">
+              ${traits.map(t => `
+                <div style="margin-bottom: 8px; font-size: 13px;">
+                  <strong><em>${t.name}.</em></strong> ${t.description}
+                </div>
+              `).join('')}
+            </div>
+            <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
+          ` : ''}
+
+          <!-- Actions -->
+          ${actions.length > 0 ? `
+            <div style="margin-bottom: 12px;">
+              <div style="font-weight: bold; margin-bottom: 8px;">ACTIONS</div>
+              ${actions.map(a => `
+                <div style="margin-bottom: 8px; font-size: 13px;">
+                  <strong><em>${a.name}.</em></strong> ${a.description}
+                </div>
+              `).join('')}
+            </div>
+            ${legendary.length > 0 ? '<div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>' : ''}
+          ` : ''}
+
+          <!-- Legendary Actions -->
+          ${legendary.length > 0 ? `
+            <div style="margin-bottom: 12px;">
+              <div style="font-weight: bold; margin-bottom: 8px;">LEGENDARY ACTIONS</div>
+              ${legendary.map(l => `
+                <div style="margin-bottom: 8px; font-size: 13px;">
+                  <strong><em>${l.name}.</em></strong> ${l.description}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <!-- Bottom bar -->
+          <div style="background-color: #7a200d; color: white; padding: 8px 12px; margin: 15px -20px -20px -20px;"></div>
+        </div>
+      `;
+
+      const output = document.getElementById('statBlockOutput');
+      output.innerHTML = html;
     }
 
 
@@ -6096,83 +6354,8 @@
     // ═══════════════════════════════ CITY MAP GENERATOR ═══════════════════════════════
     let cityMapData = { name: '', districts: [], buildings: [] };
 
-    // ── Street network generation ──
-    function generateStreetNetwork(cx, cy, radius, citySize) {
-      const streets = [];
-      // Radial streets from center
-      const radialCount = { hamlet: 4, village: 5, town: 6, city: 8, metropolis: 10 }[citySize] || 6;
-      const ringCount = { hamlet: 1, village: 2, town: 3, city: 4, metropolis: 5 }[citySize] || 3;
-
-      // Generate radial roads with slight curves
-      for (let i = 0; i < radialCount; i++) {
-        const baseAngle = (i / radialCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
-        const road = [];
-        const steps = 20;
-        for (let s = 0; s <= steps; s++) {
-          const t = s / steps;
-          const r = t * radius * 1.15;
-          const wobble = Math.sin(t * 3) * 8 + (Math.random() - 0.5) * 4;
-          const angle = baseAngle + wobble * 0.003;
-          road.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
-        }
-        streets.push({ type: 'radial', points: road, width: i < 4 ? 12 : 8 });
-      }
-
-      // Generate ring roads (concentric)
-      for (let ring = 1; ring <= ringCount; ring++) {
-        const ringRadius = (ring / (ringCount + 1)) * radius;
-        const road = [];
-        const segments = 48;
-        for (let s = 0; s <= segments; s++) {
-          const angle = (s / segments) * Math.PI * 2;
-          const wobble = Math.sin(angle * 3 + ring) * 6 + Math.sin(angle * 7) * 3;
-          road.push({
-            x: cx + Math.cos(angle) * (ringRadius + wobble),
-            y: cy + Math.sin(angle) * (ringRadius + wobble)
-          });
-        }
-        streets.push({ type: 'ring', points: road, width: ring === ringCount ? 10 : 7 });
-      }
-
-      // Some cross streets for organic feel
-      const crossCount = { hamlet: 2, village: 3, town: 5, city: 8, metropolis: 12 }[citySize] || 5;
-      for (let i = 0; i < crossCount; i++) {
-        const angle1 = Math.random() * Math.PI * 2;
-        const r1 = 0.2 * radius + Math.random() * 0.4 * radius;
-        const angle2 = angle1 + (Math.random() - 0.5) * 1.2;
-        const r2 = r1 + 0.15 * radius + Math.random() * 0.3 * radius;
-        const road = [];
-        const steps = 8;
-        for (let s = 0; s <= steps; s++) {
-          const t = s / steps;
-          const angle = angle1 + (angle2 - angle1) * t;
-          const r = r1 + (r2 - r1) * t;
-          const wobble = Math.sin(t * 5) * 5;
-          road.push({
-            x: cx + Math.cos(angle) * r + wobble,
-            y: cy + Math.sin(angle) * r + wobble
-          });
-        }
-        streets.push({ type: 'cross', points: road, width: 5 + Math.random() * 3 });
-      }
-
-      return streets;
-    }
-
-    // ── Check if a point is on a street ──
-    function isOnStreet(x, y, streets, margin) {
-      for (const street of streets) {
-        for (let i = 0; i < street.points.length - 1; i++) {
-          const p1 = street.points[i];
-          const p2 = street.points[i + 1];
-          const dist = pointToSegmentDist(x, y, p1.x, p1.y, p2.x, p2.y);
-          if (dist < street.width / 2 + margin) return true;
-        }
-      }
-      return false;
-    }
-
-    function pointToSegmentDist(px, py, x1, y1, x2, y2) {
+    // ── Helper: point to segment distance ──
+    function cityMapPointToSegmentDist(px, py, x1, y1, x2, y2) {
       const dx = x2 - x1, dy = y2 - y1;
       const lenSq = dx * dx + dy * dy;
       if (lenSq === 0) return Math.hypot(px - x1, py - y1);
@@ -6181,103 +6364,143 @@
       return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
     }
 
-    // ── Find nearest street direction for building alignment ──
-    function getNearestStreetAngle(x, y, streets) {
-      let bestDist = Infinity, bestAngle = 0;
-      for (const street of streets) {
-        for (let i = 0; i < street.points.length - 1; i++) {
-          const p1 = street.points[i], p2 = street.points[i + 1];
-          const dist = pointToSegmentDist(x, y, p1.x, p1.y, p2.x, p2.y);
-          if (dist < bestDist) {
-            bestDist = dist;
-            bestAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-          }
+    // ── Generate ring roads (concentric irregular polygons) ──
+    function generateCityRingRoads(cx, cy, radius, citySize) {
+      const ringCount = { hamlet: 2, village: 3, town: 4, city: 5, metropolis: 6 }[citySize] || 4;
+      const roads = [];
+
+      for (let ring = 1; ring <= ringCount; ring++) {
+        const ringRadius = (ring / (ringCount + 1)) * radius;
+        const vertices = 12 + Math.floor(Math.random() * 8);
+        const road = [];
+
+        for (let v = 0; v < vertices; v++) {
+          const angle = (v / vertices) * Math.PI * 2;
+          const offset = (Math.random() - 0.5) * ringRadius * 0.15;
+          const r = ringRadius + offset;
+          road.push({
+            x: cx + Math.cos(angle) * r,
+            y: cy + Math.sin(angle) * r
+          });
         }
+        road.push(road[0]);
+
+        roads.push({ type: 'ring', points: road, width: 8 });
       }
-      return bestAngle;
+
+      return roads;
     }
 
-    // ── Generate city blocks by filling areas between streets ──
-    function generateCityBlocks(cx, cy, radius, streets, citySize) {
-      const buildings = [];
-      const densityFactor = { hamlet: 0.25, village: 0.35, town: 0.5, city: 0.65, metropolis: 0.8 }[citySize] || 0.5;
+    // ── Generate radial roads ──
+    function generateCityRadialRoads(cx, cy, radius, citySize) {
+      const radialCount = { hamlet: 4, village: 5, town: 6, city: 8, metropolis: 10 }[citySize] || 6;
+      const roads = [];
 
-      // Grid scan for building placement
-      const step = 4;
-      const buildingSlots = [];
+      for (let i = 0; i < radialCount; i++) {
+        const angle = (i / radialCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+        const road = [];
+        const steps = 30;
 
-      for (let y = cy - radius; y < cy + radius; y += step) {
-        for (let x = cx - radius; x < cx + radius; x += step) {
-          const distFromCenter = Math.hypot(x - cx, y - cy);
-          if (distFromCenter > radius * 1.05) continue;
-
-          // Skip if on a street
-          if (isOnStreet(x, y, streets, 2)) continue;
-
-          // Density falls off from center
-          const centerFactor = 1 - (distFromCenter / radius) * 0.6;
-          if (Math.random() > densityFactor * centerFactor) continue;
-
-          buildingSlots.push({ x, y, distFromCenter });
+        for (let s = 0; s <= steps; s++) {
+          const t = s / steps;
+          const r = t * radius * 1.1;
+          const wobble = Math.sin(t * 4) * 6;
+          road.push({
+            x: cx + Math.cos(angle) * r + Math.sin(angle) * wobble,
+            y: cy + Math.sin(angle) * r + Math.cos(angle) * wobble
+          });
         }
+
+        roads.push({ type: 'radial', points: road, width: 8 });
       }
 
-      // Convert slots to buildings with proper sizes and alignment
+      return roads;
+    }
+
+    // ── Check if point is on a street ──
+    function isCityMapPointOnStreet(x, y, roads, margin) {
+      for (const road of roads) {
+        for (let i = 0; i < road.points.length - 1; i++) {
+          const p1 = road.points[i];
+          const p2 = road.points[i + 1];
+          const dist = cityMapPointToSegmentDist(x, y, p1.x, p1.y, p2.x, p2.y);
+          if (dist < road.width / 2 + margin) return true;
+        }
+      }
+      return false;
+    }
+
+    // ── Pack buildings tightly into a region ──
+    function packBuildingsIntoRegion(centerX, centerY, regionRadius, roads, districtColor) {
+      const buildings = [];
       const occupied = new Set();
-      buildingSlots.sort(() => Math.random() - 0.5);
+      const gridSize = 3;
 
-      for (const slot of buildingSlots) {
-        const key = `${Math.round(slot.x / 4)},${Math.round(slot.y / 4)}`;
-        if (occupied.has(key)) continue;
+      for (let y = centerY - regionRadius; y < centerY + regionRadius; y += gridSize) {
+        for (let x = centerX - regionRadius; x < centerX + regionRadius; x += gridSize) {
+          const distFromCenter = Math.hypot(x - centerX, y - centerY);
+          if (distFromCenter > regionRadius) continue;
 
-        // Building size varies - larger near center, smaller at edges
-        const centerRatio = slot.distFromCenter / radius;
-        const minW = centerRatio < 0.3 ? 8 : 6;
-        const maxW = centerRatio < 0.3 ? 18 : 14;
-        const w = minW + Math.random() * (maxW - minW);
-        const h = minW + Math.random() * (maxW - minW);
+          // Skip streets
+          if (isCityMapPointOnStreet(x, y, roads, 1)) continue;
 
-        // Align to nearest street
-        const angle = getNearestStreetAngle(slot.x, slot.y, streets);
+          const gridKey = `${Math.round(x / gridSize)},${Math.round(y / gridSize)}`;
+          if (occupied.has(gridKey)) continue;
 
-        // Check if building would overlap a street
-        const corners = getRotatedCorners(slot.x, slot.y, w, h, angle);
-        let onStreet = false;
-        for (const c of corners) {
-          if (isOnStreet(c.x, c.y, streets, 1)) { onStreet = true; break; }
-        }
-        if (onStreet) continue;
+          // Random building size (tight packing)
+          const w = 6 + Math.random() * 10;
+          const h = 6 + Math.random() * 10;
 
-        // Mark as occupied
-        for (let dy = -1; dy <= Math.ceil(h / 4); dy++) {
-          for (let dx = -1; dx <= Math.ceil(w / 4); dx++) {
-            occupied.add(`${Math.round(slot.x / 4) + dx},${Math.round(slot.y / 4) + dy}`);
+          // Check overlap
+          let overlaps = false;
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const checkKey = `${Math.round(x / gridSize) + dx},${Math.round(y / gridSize) + dy}`;
+              if (occupied.has(checkKey)) { overlaps = true; break; }
+            }
+            if (overlaps) break;
           }
-        }
+          if (overlaps) continue;
 
-        buildings.push({ x: slot.x, y: slot.y, w, h, angle, distFromCenter: slot.distFromCenter });
+          // Mark occupied
+          for (let dy = -1; dy <= Math.ceil(h / gridSize); dy++) {
+            for (let dx = -1; dx <= Math.ceil(w / gridSize); dx++) {
+              occupied.add(`${Math.round(x / gridSize) + dx},${Math.round(y / gridSize) + dy}`);
+            }
+          }
+
+          // Slight color variation within district
+          const hueVar = (Math.random() - 0.5) * 20;
+          const satVar = (Math.random() - 0.5) * 15;
+
+          buildings.push({
+            x, y, w, h,
+            angle: (Math.random() - 0.5) * 0.3,
+            color: districtColor,
+            hueVar, satVar
+          });
+        }
       }
 
       return buildings;
     }
 
-    function getRotatedCorners(cx, cy, w, h, angle) {
-      const cos = Math.cos(angle), sin = Math.sin(angle);
-      const hw = w / 2, hh = h / 2;
-      return [
-        { x: cx + cos * (-hw) - sin * (-hh), y: cy + sin * (-hw) + cos * (-hh) },
-        { x: cx + cos * (hw) - sin * (-hh), y: cy + sin * (hw) + cos * (-hh) },
-        { x: cx + cos * (hw) - sin * (hh), y: cy + sin * (hw) + cos * (hh) },
-        { x: cx + cos * (-hw) - sin * (hh), y: cy + sin * (-hw) + cos * (hh) }
-      ];
+    // ── Convert hex to RGB ──
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 200, g: 180, b: 160 };
     }
 
     // ── Draw a compass rose ──
-    function drawCompassRose(ctx, x, y, size) {
+    function drawCityMapCompassRose(ctx, x, y, size) {
       ctx.save();
       ctx.translate(x, y);
 
-      // Outer circle
+      // Outer rings
       ctx.strokeStyle = '#2c1810';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -6295,7 +6518,6 @@
         const tipY = Math.sin(angle) * len;
         const spread = i % 2 === 0 ? 0.12 : 0.15;
 
-        // Dark half
         ctx.fillStyle = '#2c1810';
         ctx.beginPath();
         ctx.moveTo(0, 0);
@@ -6304,7 +6526,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // Light half
         ctx.fillStyle = '#e8dcc8';
         ctx.strokeStyle = '#2c1810';
         ctx.lineWidth = 0.5;
@@ -6317,7 +6538,7 @@
         ctx.stroke();
       }
 
-      // Cardinal labels
+      // Labels
       ctx.fillStyle = '#2c1810';
       ctx.font = 'bold 13px Georgia, serif';
       ctx.textAlign = 'center';
@@ -6328,7 +6549,6 @@
       ctx.fillText('E', size + 10, 0);
       ctx.fillText('W', -size - 10, 0);
 
-      // Center dot
       ctx.fillStyle = '#2c1810';
       ctx.beginPath();
       ctx.arc(0, 0, 3, 0, Math.PI * 2);
@@ -6338,19 +6558,17 @@
     }
 
     // ── Draw scale bar ──
-    function drawScaleBar(ctx, x, y) {
+    function drawCityMapScaleBar(ctx, x, y) {
       const barWidth = 120;
       ctx.strokeStyle = '#2c1810';
       ctx.fillStyle = '#2c1810';
       ctx.lineWidth = 1.5;
 
-      // Main bar
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.lineTo(x + barWidth, y);
       ctx.stroke();
 
-      // Tick marks
       for (let i = 0; i <= 2; i++) {
         const tx = x + (i / 2) * barWidth;
         ctx.beginPath();
@@ -6359,10 +6577,8 @@
         ctx.stroke();
       }
 
-      // Alternating fills
       ctx.fillRect(x, y - 2, barWidth / 2, 4);
 
-      // Labels
       ctx.font = '10px Georgia, serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
@@ -6372,15 +6588,14 @@
     }
 
     // ── Draw district label ──
-    function drawDistrictLabel(ctx, label, x, y, angle) {
+    function drawCityMapDistrictLabel(ctx, label, x, y, angle) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(angle || 0);
       ctx.fillStyle = 'rgba(44, 24, 16, 0.55)';
-      ctx.font = 'italic small-caps 600 13px Georgia, serif';
+      ctx.font = 'italic 600 13px Georgia, serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.letterSpacing = '2px';
       ctx.fillText(label.toUpperCase(), 0, 0);
       ctx.restore();
     }
@@ -6400,7 +6615,7 @@
       canvas.width = cw;
       canvas.height = ch;
 
-      // ── Parchment background ──
+      // Parchment background
       const grad = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, cw * 0.7);
       grad.addColorStop(0, '#ece4d4');
       grad.addColorStop(0.7, '#e4d9c5');
@@ -6431,7 +6646,7 @@
       const mapCy = ch / 2 + 15;
       const cityRadius = { hamlet: 120, village: 180, town: 250, city: 320, metropolis: 380 }[citySize] || 250;
 
-      // ── City name ──
+      // City name
       const cityNames = ['Wolfheart', 'Silverspire', 'Thornhaven', 'Deephold', 'Rivermark',
         'Eastwatch', 'Goldwick', 'Stormford', 'Ironholt', 'Ashenmere', 'Ravenfall', 'Whitecliff'];
       const cityName = cityNames[Math.floor(Math.random() * cityNames.length)];
@@ -6441,7 +6656,7 @@
       ctx.textBaseline = 'top';
       ctx.fillText(cityName, cw / 2, 18);
 
-      // ── Generate river ──
+      // Generate river
       let riverPath = null;
       if (hasRiver) {
         const riverDir = Math.random() > 0.5;
@@ -6463,24 +6678,47 @@
       function isInRiver(x, y) {
         if (!riverPath) return false;
         for (let i = 0; i < riverPath.length - 1; i++) {
-          const dist = pointToSegmentDist(x, y, riverPath[i].x, riverPath[i].y, riverPath[i + 1].x, riverPath[i + 1].y);
+          const dist = cityMapPointToSegmentDist(x, y, riverPath[i].x, riverPath[i].y, riverPath[i + 1].x, riverPath[i + 1].y);
           if (dist < 18) return true;
         }
         return false;
       }
 
-      // ── Generate street network ──
-      const streets = generateStreetNetwork(mapCx, mapCy, cityRadius, citySize);
+      // Generate street network
+      const ringRoads = generateCityRingRoads(mapCx, mapCy, cityRadius, citySize);
+      const radialRoads = generateCityRadialRoads(mapCx, mapCy, cityRadius, citySize);
+      const allRoads = [...ringRoads, ...radialRoads];
 
-      // ── Generate buildings packed into blocks ──
-      let buildings = generateCityBlocks(mapCx, mapCy, cityRadius, streets, citySize);
+      // Generate buildings in districts
+      const districtCount = { hamlet: 2, village: 3, town: 4, city: 5, metropolis: 7 }[citySize] || 4;
+      const districtColors = ['#d4c5a9', '#c9b896', '#d8c8a8', '#c4b590', '#d0c0a0', '#c8b88a', '#d6c6aa'];
+      let allBuildings = [];
+      const usedDistricts = [];
+      const districtNames = ['Old Town', 'Market Quarter', 'Free Docks', 'North Docks', 'Green Docks',
+        'Temple Ward', 'Eastern Slums', 'Stonetide', 'Applebridge', 'Greensource',
+        'Craftsmen', 'Noble Quarter', 'Warehouse', 'Barracks', 'Gardens'];
 
-      // Remove buildings in river
-      if (riverPath) {
-        buildings = buildings.filter(b => !isInRiver(b.x, b.y));
+      for (let d = 0; d < districtCount; d++) {
+        const angle = (d / districtCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+        const dist = cityRadius * (0.3 + Math.random() * 0.4);
+        const districtCx = mapCx + Math.cos(angle) * dist;
+        const districtCy = mapCy + Math.sin(angle) * dist;
+        const districtRadius = 60 + Math.random() * 40;
+        const color = districtColors[d % districtColors.length];
+
+        const districtBuildings = packBuildingsIntoRegion(districtCx, districtCy, districtRadius, allRoads, color);
+        allBuildings = allBuildings.concat(districtBuildings);
+
+        const name = districtNames[d % districtNames.length];
+        usedDistricts.push(name);
       }
 
-      // ── Draw surrounding terrain (light green/gray outside city) ──
+      // Filter buildings not in river
+      if (riverPath) {
+        allBuildings = allBuildings.filter(b => !isInRiver(b.x, b.y));
+      }
+
+      // Draw terrain outside city
       ctx.fillStyle = '#d6ceab';
       ctx.globalAlpha = 0.3;
       for (let i = 0; i < 2000; i++) {
@@ -6496,9 +6734,8 @@
       }
       ctx.globalAlpha = 1;
 
-      // ── Draw river ──
+      // Draw river
       if (riverPath && riverPath.length > 1) {
-        // River water
         ctx.strokeStyle = '#8bb8c4';
         ctx.lineWidth = 28;
         ctx.lineCap = 'round';
@@ -6510,7 +6747,6 @@
         }
         ctx.stroke();
 
-        // River banks
         ctx.strokeStyle = '#6d9aa8';
         ctx.lineWidth = 30;
         ctx.globalAlpha = 0.3;
@@ -6522,7 +6758,6 @@
         ctx.stroke();
         ctx.globalAlpha = 1;
 
-        // Inner lighter water
         ctx.strokeStyle = '#a8d4e0';
         ctx.lineWidth = 16;
         ctx.beginPath();
@@ -6531,27 +6766,6 @@
           ctx.lineTo(riverPath[i].x, riverPath[i].y);
         }
         ctx.stroke();
-
-        // Dock piers along waterfront near buildings
-        ctx.strokeStyle = '#4a3728';
-        ctx.lineWidth = 1.5;
-        buildings.forEach(b => {
-          if (riverPath) {
-            for (let i = 0; i < riverPath.length - 1; i++) {
-              const dist = pointToSegmentDist(b.x, b.y, riverPath[i].x, riverPath[i].y, riverPath[i + 1].x, riverPath[i + 1].y);
-              if (dist > 20 && dist < 40 && Math.random() > 0.7) {
-                const dx = riverPath[i].x - b.x;
-                const dy = riverPath[i].y - b.y;
-                const len = Math.hypot(dx, dy);
-                ctx.beginPath();
-                ctx.moveTo(b.x + dx / len * 5, b.y + dy / len * 5);
-                ctx.lineTo(b.x + dx / len * 22, b.y + dy / len * 22);
-                ctx.stroke();
-                break;
-              }
-            }
-          }
-        });
 
         // Bridge
         const bridgeIdx = Math.floor(riverPath.length * 0.45);
@@ -6565,7 +6779,7 @@
           ctx.moveTo(bp.x + Math.cos(perpAngle) * 22, bp.y + Math.sin(perpAngle) * 22);
           ctx.lineTo(bp.x - Math.cos(perpAngle) * 22, bp.y - Math.sin(perpAngle) * 22);
           ctx.stroke();
-          // Bridge railings
+
           ctx.lineWidth = 2;
           [-1, 1].forEach(side => {
             ctx.beginPath();
@@ -6576,118 +6790,74 @@
         }
       }
 
-      // ── Draw streets (as lighter paths) ──
-      streets.forEach(street => {
-        if (street.points.length < 2) return;
-        ctx.strokeStyle = '#ddd4c0';
-        ctx.lineWidth = street.width + 2;
+      // Draw roads
+      allRoads.forEach(road => {
+        if (road.points.length < 2) return;
+        ctx.strokeStyle = '#ede5d5';
+        ctx.lineWidth = road.width + 2;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.beginPath();
-        ctx.moveTo(street.points[0].x, street.points[0].y);
-        for (let i = 1; i < street.points.length; i++) {
-          ctx.lineTo(street.points[i].x, street.points[i].y);
+        ctx.moveTo(road.points[0].x, road.points[0].y);
+        for (let i = 1; i < road.points.length; i++) {
+          ctx.lineTo(road.points[i].x, road.points[i].y);
         }
         ctx.stroke();
       });
 
-      // ── Draw buildings ──
-      buildings.forEach(b => {
+      // Draw buildings
+      allBuildings.forEach(b => {
         ctx.save();
         ctx.translate(b.x, b.y);
         ctx.rotate(b.angle);
 
-        // Building shadow
+        // Shadow
         ctx.fillStyle = 'rgba(60, 40, 20, 0.08)';
-        ctx.fillRect(-b.w / 2 + 1.5, -b.h / 2 + 1.5, b.w, b.h);
+        ctx.fillRect(-b.w / 2 + 1, -b.h / 2 + 1, b.w, b.h);
 
-        // Building fill - slight color variation
-        const shade = 0.92 + Math.random() * 0.08;
-        const r = Math.floor(212 * shade);
-        const g = Math.floor(197 * shade);
-        const bv = Math.floor(169 * shade);
-        ctx.fillStyle = `rgb(${r},${g},${bv})`;
+        // Building fill with district color
+        const rgb = hexToRgb(b.color);
+        const shade = 0.93 + Math.random() * 0.07;
+        ctx.fillStyle = `rgb(${Math.floor(rgb.r * shade)},${Math.floor(rgb.g * shade)},${Math.floor(rgb.b * shade)})`;
         ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
 
-        // Building outline
+        // Outline
         ctx.strokeStyle = '#3d2817';
-        ctx.lineWidth = 0.7;
+        ctx.lineWidth = 0.6;
         ctx.strokeRect(-b.w / 2, -b.h / 2, b.w, b.h);
-
-        // Roof line for larger buildings
-        if (b.w > 10 || b.h > 10) {
-          ctx.strokeStyle = 'rgba(61, 40, 23, 0.4)';
-          ctx.lineWidth = 0.5;
-          if (b.w > b.h) {
-            ctx.beginPath();
-            ctx.moveTo(-b.w / 2, 0);
-            ctx.lineTo(b.w / 2, 0);
-            ctx.stroke();
-          } else {
-            ctx.beginPath();
-            ctx.moveTo(0, -b.h / 2);
-            ctx.lineTo(0, b.h / 2);
-            ctx.stroke();
-          }
-        }
 
         ctx.restore();
       });
 
-      // ── City walls ──
+      // City walls
       if (hasWalls) {
         const wallRadius = cityRadius * 0.95;
-        const towerSpacing = 55;
-        const towerCount = Math.max(8, Math.floor(2 * Math.PI * wallRadius / towerSpacing));
-        const gateCount = Math.min(radialGateCount(streets), 4);
-
-        // Determine gate positions (aligned with radial streets)
-        const gateAngles = [];
-        const radialStreets = streets.filter(s => s.type === 'radial');
-        for (let i = 0; i < Math.min(gateCount, radialStreets.length); i++) {
-          const rs = radialStreets[i];
-          const lastPt = rs.points[rs.points.length - 1];
-          gateAngles.push(Math.atan2(lastPt.y - mapCy, lastPt.x - mapCx));
-        }
-
-        // Wall path (organic, not perfect circle)
-        const wallPoints = [];
         const wallSegments = 120;
+        const wallPoints = [];
+
         for (let i = 0; i < wallSegments; i++) {
           const angle = (i / wallSegments) * Math.PI * 2;
           const wobble = Math.sin(angle * 5) * 8 + Math.sin(angle * 11) * 4;
           const r = wallRadius + wobble;
           wallPoints.push({
             x: mapCx + Math.cos(angle) * r,
-            y: mapCy + Math.sin(angle) * r,
-            angle: angle
+            y: mapCy + Math.sin(angle) * r
           });
         }
 
-        // Draw wall
         ctx.strokeStyle = '#2c1810';
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(wallPoints[0].x, wallPoints[0].y);
         for (let i = 1; i < wallPoints.length; i++) {
-          // Skip gate sections
-          let isGate = false;
-          for (const ga of gateAngles) {
-            if (Math.abs(wallPoints[i].angle - ga) < 0.08) { isGate = true; break; }
-          }
-          if (isGate) {
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(wallPoints[i].x, wallPoints[i].y);
-          } else {
-            ctx.lineTo(wallPoints[i].x, wallPoints[i].y);
-          }
+          ctx.lineTo(wallPoints[i].x, wallPoints[i].y);
         }
         ctx.closePath();
         ctx.stroke();
 
         // Towers
         ctx.fillStyle = '#2c1810';
+        const towerCount = 12 + Math.floor(Math.random() * 8);
         for (let i = 0; i < towerCount; i++) {
           const angle = (i / towerCount) * Math.PI * 2;
           const wobble = Math.sin(angle * 5) * 8 + Math.sin(angle * 11) * 4;
@@ -6698,30 +6868,16 @@
           ctx.arc(tx, ty, 5, 0, Math.PI * 2);
           ctx.fill();
         }
-
-        // Gate towers (larger)
-        gateAngles.forEach(ga => {
-          const wobble = Math.sin(ga * 5) * 8 + Math.sin(ga * 11) * 4;
-          const r = wallRadius + wobble;
-          const tx = mapCx + Math.cos(ga) * r;
-          const ty = mapCy + Math.sin(ga) * r;
-          [-0.04, 0.04].forEach(offset => {
-            ctx.beginPath();
-            ctx.arc(tx + Math.cos(ga + Math.PI / 2 + offset) * 8, ty + Math.sin(ga + Math.PI / 2 + offset) * 8, 6, 0, Math.PI * 2);
-            ctx.fill();
-          });
-        });
       }
 
-      // ── Castle/Keep ──
+      // Castle
       if (hasCastle) {
         const castleAngle = Math.random() * Math.PI * 2;
-        const castleR = cityRadius * 0.3 + Math.random() * cityRadius * 0.2;
+        const castleR = cityRadius * 0.25 + Math.random() * cityRadius * 0.15;
         const castleX = mapCx + Math.cos(castleAngle) * castleR;
         const castleY = mapCy + Math.sin(castleAngle) * castleR;
         const castleW = 60, castleH = 50;
 
-        // Castle wall
         ctx.strokeStyle = '#1a0e06';
         ctx.lineWidth = 4;
         ctx.fillStyle = '#3d2817';
@@ -6730,12 +6886,10 @@
         ctx.fill();
         ctx.stroke();
 
-        // Inner keep
         ctx.fillStyle = '#2c1810';
         ctx.fillRect(castleX - 15, castleY - 12, 30, 24);
         ctx.strokeRect(castleX - 15, castleY - 12, 30, 24);
 
-        // Corner towers
         const castleCorners = [
           [castleX - castleW / 2, castleY - castleH / 2],
           [castleX + castleW / 2, castleY - castleH / 2],
@@ -6749,7 +6903,6 @@
           ctx.fill();
         });
 
-        // Castle label
         ctx.fillStyle = '#e8dcc8';
         ctx.font = 'bold 10px Georgia, serif';
         ctx.textAlign = 'center';
@@ -6757,27 +6910,19 @@
         ctx.fillText('CASTLE', castleX, castleY);
       }
 
-      // ── District labels ──
-      const districtNames = ['Old Town', 'Market Quarter', 'Free Docks', 'North Docks', 'Green Docks',
-        'Temple Ward', 'Eastern Slums', 'Stonetide', 'Applebridge', 'Greensource',
-        'Craftsmen', 'Noble Quarter', 'Warehouse', 'Barracks', 'Gardens'];
-      const usedDistricts = [];
-      const districtCount = { hamlet: 2, village: 3, town: 4, city: 6, metropolis: 8 }[citySize] || 4;
-
-      for (let i = 0; i < districtCount; i++) {
-        const angle = (i / districtCount) * Math.PI * 2 + Math.random() * 0.3;
-        const dist = cityRadius * (0.25 + Math.random() * 0.45);
+      // District labels
+      for (let d = 0; d < districtCount; d++) {
+        const angle = (d / districtCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+        const dist = cityRadius * (0.3 + Math.random() * 0.4);
         const lx = mapCx + Math.cos(angle) * dist;
         const ly = mapCy + Math.sin(angle) * dist;
-        const name = districtNames[i % districtNames.length];
-        usedDistricts.push(name);
-        drawDistrictLabel(ctx, name, lx, ly, (Math.random() - 0.5) * 0.5);
+        const name = districtNames[d % districtNames.length];
+        drawCityMapDistrictLabel(ctx, name, lx, ly, (Math.random() - 0.5) * 0.5);
       }
 
-      // ── Roads extending outside walls ──
+      // Outer roads
       ctx.strokeStyle = '#b8a88c';
       ctx.lineWidth = 3;
-      ctx.setLineDash([]);
       const outerRoadCount = 3 + Math.floor(Math.random() * 3);
       for (let i = 0; i < outerRoadCount; i++) {
         const angle = (i / outerRoadCount) * Math.PI * 2 + Math.random() * 0.3;
@@ -6795,24 +6940,18 @@
         ctx.stroke();
       }
 
-      // ── Compass rose ──
-      drawCompassRose(ctx, cw - 70, ch - 70, 30);
+      // Compass and scale
+      drawCityMapCompassRose(ctx, cw - 70, ch - 70, 30);
+      drawCityMapScaleBar(ctx, mapMargin + 10, ch - mapMargin + 25);
 
-      // ── Scale bar ──
-      drawScaleBar(ctx, mapMargin + 10, ch - mapMargin + 25);
-
-      // ── Store data and show ──
+      // Store data and show
       cityMapData.name = cityName;
-      cityMapData.buildings = buildings;
+      cityMapData.buildings = allBuildings;
       cityMapData.districts = usedDistricts;
 
       document.getElementById('cityMapContainer').style.display = 'flex';
       document.getElementById('cityMapLegend').style.display = 'grid';
       generateCityMapInfo(citySize);
-    }
-
-    function radialGateCount(streets) {
-      return streets.filter(s => s.type === 'radial').length;
     }
 
     function generateCityMapInfo(citySize) {
@@ -6837,7 +6976,6 @@
       link.download = 'city-map.png';
       link.click();
     }
-
     // ═══════════════════════════════ VILLAGE MAP GENERATOR ═══════════════════════════════
     let villageMapData = { name: '', buildings: [], features: [] };
 
