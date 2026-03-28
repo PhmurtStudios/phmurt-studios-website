@@ -6352,9 +6352,10 @@
     }
 
 
+
     // ═══════════════════════════════ CITY MAP GENERATOR ═══════════════════════════════
 // ============================================================================
-// CITY MAP GENERATOR
+// CITY MAP GENERATOR v5
 // ============================================================================
 
 // ============================================================================
@@ -6370,6 +6371,15 @@ let cityMapData = {
     river: null,
     walls: null,
     castle: null
+};
+
+// FIX #1: Proper size mapping for hamlet/village/town/city/metropolis
+const SIZE_CONFIG = {
+    hamlet: { wards: 3, radius: 250, buildingMult: 0.5, label: 'Hamlet' },
+    village: { wards: 5, radius: 290, buildingMult: 0.7, label: 'Village' },
+    town: { wards: 7, radius: 320, buildingMult: 1.0, label: 'Town' },
+    city: { wards: 11, radius: 350, buildingMult: 1.4, label: 'City' },
+    metropolis: { wards: 16, radius: 380, buildingMult: 1.8, label: 'Metropolis' }
 };
 
 const CITY_TEMPLATES = {
@@ -6888,30 +6898,59 @@ function cityGen_assignWardTypes(seeds, centerX, centerY, boundary) {
 }
 
 // ============================================================================
-// RIVER GENERATION
+// RIVER GENERATION - IMPROVEMENT #7: Cubic Bezier interpolation
 // ============================================================================
+
+function cityGen_cubicBezier(p0, p1, p2, p3, t) {
+    const mt = 1 - t;
+    const mt2 = mt * mt;
+    const mt3 = mt2 * mt;
+    const t2 = t * t;
+    const t3 = t2 * t;
+
+    return mt3 * p0 + 3 * mt2 * t * p1 + 3 * mt * t2 * p2 + t3 * p3;
+}
 
 function cityGen_generateRiver(centerX, centerY, radius, noise, numPoints = 40) {
     const riverPath = [];
 
-    for (let i = 0; i < numPoints; i++) {
-        const t = i / (numPoints - 1);
-        const angle = Math.random() * Math.PI * 2;
+    // Generate smoother control points
+    const controlPoints = [];
+    const numControls = 8;
+
+    for (let i = 0; i < numControls; i++) {
+        const t = i / (numControls - 1);
+        const angle = Math.random() * 0.4 - 0.2;
         const offset = cityGen_fbm(noise, Math.cos(angle) * 20, Math.sin(angle) * 20 + t * 30, 3, 2.0, 0.5);
 
-        const x = centerX + (Math.random() - 0.5) * radius * 1.4 + offset * 20;
-        const y = centerY - radius * 0.7 + t * radius * 1.4;
-        riverPath.push({x, y});
+        controlPoints.push({
+            x: centerX + (Math.random() - 0.5) * radius * 0.8 + offset * 15,
+            y: centerY - radius * 0.7 + t * radius * 1.4
+        });
+    }
+
+    // Interpolate between control points using cubic bezier
+    for (let i = 0; i < controlPoints.length - 1; i++) {
+        const p0 = controlPoints[Math.max(0, i - 1)];
+        const p1 = controlPoints[i];
+        const p2 = controlPoints[i + 1];
+        const p3 = controlPoints[Math.min(controlPoints.length - 1, i + 2)];
+
+        for (let t = 0; t < 1; t += 0.05) {
+            const x = cityGen_cubicBezier(p0.x, p1.x, p2.x, p3.x, t);
+            const y = cityGen_cubicBezier(p0.y, p1.y, p2.y, p3.y, t);
+            riverPath.push({x, y});
+        }
     }
 
     return riverPath;
 }
 
 // ============================================================================
-// ROAD NETWORK
+// ROAD NETWORK - IMPROVEMENTS #6, #8
 // ============================================================================
 
-function cityGen_generateRoads(centerX, centerY, radius, boundary, wardSeeds, noise) {
+function cityGen_generateRoads(centerX, centerY, radius, boundary, wardSeeds, noise, cityStyle, riverData) {
     const roads = [];
 
     const numArterial = Math.max(2, Math.floor(Math.random() * 2) + 2);
@@ -6920,7 +6959,15 @@ function cityGen_generateRoads(centerX, centerY, radius, boundary, wardSeeds, no
         const road = [];
 
         for (let t = 0; t <= 1; t += 0.05) {
-            const wobble = cityGen_fbm(noise, Math.cos(angle) * 10 + t * 20, Math.sin(angle) * 10 + t * 20, 2, 2.0, 0.5);
+            let wobble = cityGen_fbm(noise, Math.cos(angle) * 10 + t * 20, Math.sin(angle) * 10 + t * 20, 2, 2.0, 0.5);
+
+            // Improvement #8: Street layout influence
+            if (cityStyle === 'grid') {
+                wobble *= 0.3; // Less wobble for grid
+            } else if (cityStyle === 'river-town' && riverData) {
+                wobble *= 1.2; // More wobble, follows river
+            }
+
             const x = centerX + Math.cos(angle) * radius * (0.15 + t * 0.75) + wobble * 15;
             const y = centerY + Math.sin(angle) * radius * (0.15 + t * 0.75) + wobble * 15;
             road.push({x, y});
@@ -6952,6 +6999,31 @@ function cityGen_generateRoads(centerX, centerY, radius, boundary, wardSeeds, no
             width: 8 + Math.random() * 2,
             type: 'ring'
         });
+    }
+
+    // Improvement #6: Lane roads connecting ward seeds
+    if (wardSeeds.length > 1) {
+        for (let i = 0; i < wardSeeds.length - 1; i++) {
+            const seed1 = wardSeeds[i];
+            const seed2 = wardSeeds[i + 1];
+
+            const lanePath = [];
+            const numLanePoints = Math.ceil(Math.hypot(seed2.x - seed1.x, seed2.y - seed1.y) / 10);
+
+            for (let t = 0; t <= 1; t += 1 / numLanePoints) {
+                const wobble = cityGen_fbm(noise, seed1.x * 0.1 + t * 20, seed1.y * 0.1 + t * 20, 2, 2.0, 0.4) * 8;
+                lanePath.push({
+                    x: seed1.x + (seed2.x - seed1.x) * t + wobble,
+                    y: seed1.y + (seed2.y - seed1.y) * t + wobble
+                });
+            }
+
+            roads.push({
+                path: lanePath,
+                width: 4 + Math.random() * 2,
+                type: 'lane'
+            });
+        }
     }
 
     return roads;
@@ -7015,13 +7087,14 @@ function cityGen_generateOpenSpaces(wardAssignments, centerX, centerY, boundary,
 }
 
 // ============================================================================
-// BUILDING PLACEMENT
+// BUILDING PLACEMENT - IMPROVEMENTS #4, #5
 // ============================================================================
 
-function cityGen_generateBuildings(wardAssignments, boundary, openSpaces, roads) {
+function cityGen_generateBuildings(wardAssignments, boundary, openSpaces, roads, buildingMult) {
     const buildings = [];
     const spatialHash = {};
     const GRID_CELL = 10;
+    const MIN_GAP = 12; // Improvement #5: Increased from 8
 
     function hashCell(x, y) {
         return Math.floor(x / GRID_CELL) + ',' + Math.floor(y / GRID_CELL);
@@ -7043,10 +7116,10 @@ function cityGen_generateBuildings(wardAssignments, boundary, openSpaces, roads)
     }
 
     function hasConflict(building) {
-        const minX = Math.floor((building.x - building.w / 2 - 8) / GRID_CELL);
-        const maxX = Math.ceil((building.x + building.w / 2 + 8) / GRID_CELL);
-        const minY = Math.floor((building.y - building.h / 2 - 8) / GRID_CELL);
-        const maxY = Math.ceil((building.y + building.h / 2 + 8) / GRID_CELL);
+        const minX = Math.floor((building.x - building.w / 2 - MIN_GAP) / GRID_CELL);
+        const maxX = Math.ceil((building.x + building.w / 2 + MIN_GAP) / GRID_CELL);
+        const minY = Math.floor((building.y - building.h / 2 - MIN_GAP) / GRID_CELL);
+        const maxY = Math.ceil((building.y + building.h / 2 + MIN_GAP) / GRID_CELL);
 
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
@@ -7054,10 +7127,9 @@ function cityGen_generateBuildings(wardAssignments, boundary, openSpaces, roads)
                 if (spatialHash[cell]) {
                     for (let i = 0; i < spatialHash[cell].length; i++) {
                         const other = spatialHash[cell][i];
-                        const dx = other.x - building.x;
-                        const dy = other.y - building.y;
-                        const minDist = (other.w + building.w) / 2 + (other.h + building.h) / 2;
-                        if (Math.abs(dx) < minDist && Math.abs(dy) < minDist) {
+                        const overlapX = (other.w + building.w) / 2 + MIN_GAP;
+                        const overlapY = (other.h + building.h) / 2 + MIN_GAP;
+                        if (Math.abs(other.x - building.x) < overlapX && Math.abs(other.y - building.y) < overlapY) {
                             return true;
                         }
                     }
@@ -7075,15 +7147,16 @@ function cityGen_generateBuildings(wardAssignments, boundary, openSpaces, roads)
             continue;
         }
 
-        const numBuildings = Math.floor(8 + Math.random() * 8);
+        // Improvement #4: Scale buildings based on SIZE_CONFIG.buildingMult
+        const numBuildings = Math.floor((8 + Math.random() * 8) * buildingMult);
 
         for (let b = 0; b < numBuildings; b++) {
             let building = null;
             let attempts = 0;
 
-            while (attempts < 20) {
+            while (attempts < 40) {
                 const angle = Math.random() * Math.PI * 2;
-                const dist = Math.random() * 60;
+                const dist = Math.random() * 100;
                 const x = ward.seed.x + Math.cos(angle) * dist;
                 const y = ward.seed.y + Math.sin(angle) * dist;
 
@@ -7556,13 +7629,13 @@ function cityGen_render(canvas, data) {
         ctx.fill();
     }
 
-    // Ward fills
+    // Improvement #10: Better ward fills with gradient and scaled radius
     ctx.globalAlpha = 0.15;
     for (let i = 0; i < data.wardAssignments.length; i++) {
         const ward = data.wardAssignments[i];
         ctx.fillStyle = WARD_TYPES[ward.type].color;
         ctx.beginPath();
-        ctx.arc(ward.seed.x, ward.seed.y, 70, 0, Math.PI * 2);
+        ctx.arc(ward.seed.x, ward.seed.y, 90, 0, Math.PI * 2);
         ctx.fill();
     }
     ctx.globalAlpha = 1;
@@ -7780,9 +7853,10 @@ function cityGen_render(canvas, data) {
     ctx.textAlign = 'center';
     ctx.fillText(data.name, w / 2, 50);
 
-    // Subtitle
+    // Improvement #11: Improved subtitle using size label
     ctx.font = '14px Georgia';
-    ctx.fillText('A Settlement of the Realm', w / 2, 70);
+    const sizeLabel = data.sizeLabel || 'A Settlement of the Realm';
+    ctx.fillText(sizeLabel, w / 2, 70);
 
     // Compass rose
     const compassX = w - 40;
@@ -7826,11 +7900,17 @@ function cityGen_render(canvas, data) {
 
 function generateCityMap() {
     const sizeSelect = document.getElementById('citySize');
+    const styleSelect = document.getElementById('cityStyle');
+    const docksCheckbox = document.getElementById('cityDocks');
+    const marketCheckbox = document.getElementById('cityMarket');
     const wallsCheckbox = document.getElementById('cityWalls');
     const castleCheckbox = document.getElementById('cityCastle');
     const riverCheckbox = document.getElementById('cityRiver');
 
-    const size = sizeSelect ? sizeSelect.value : 'medium';
+    const size = sizeSelect ? sizeSelect.value : 'town';
+    const cityStyle = styleSelect ? styleSelect.value : 'organic';
+    const includeDocks = docksCheckbox ? docksCheckbox.checked : false;
+    const includeMarket = marketCheckbox ? marketCheckbox.checked : false;
     const includeWalls = wallsCheckbox ? wallsCheckbox.checked : false;
     const includeCastle = castleCheckbox ? castleCheckbox.checked : false;
     const includeRiver = riverCheckbox ? riverCheckbox.checked : false;
@@ -7840,7 +7920,12 @@ function generateCityMap() {
 
     const centerX = 450;
     const centerY = 450;
-    const radius = 350;
+
+    // FIX #3 & Improvement #9: Read SIZE_CONFIG by size, get radius from there
+    const sizeConfig = SIZE_CONFIG[size] || SIZE_CONFIG.town;
+    const radius = sizeConfig.radius;
+    const buildingMult = sizeConfig.buildingMult;
+    const numWards = sizeConfig.wards;
 
     const templateKey = Object.keys(CITY_TEMPLATES)[Math.floor(Math.random() * Object.keys(CITY_TEMPLATES).length)];
     const template = CITY_TEMPLATES[templateKey];
@@ -7851,24 +7936,39 @@ function generateCityMap() {
     const boundary = cityGen_createBoundary(centerX, centerY, radius, template.boundary, noise);
 
     // Generate wards
-    const numWards = size === 'small' ? 6 : size === 'large' ? 15 : 10;
     const wardSeeds = cityGen_generateWards(numWards, centerX, centerY, radius, template, noise);
     const wardAssignments = cityGen_assignWardTypes(wardSeeds, centerX, centerY, boundary);
 
-    // Generate roads
-    const roads = cityGen_generateRoads(centerX, centerY, radius, boundary, wardSeeds, noise);
+    // FIX #3: Influence ward type assignment based on UI controls
+    if (includeMarket) {
+        for (let i = 0; i < wardAssignments.length && i < 2; i++) {
+            if (wardAssignments[i].type !== 'castle') {
+                wardAssignments[i].type = 'market';
+            }
+        }
+    }
+    if (includeDocks) {
+        for (let i = 0; i < wardAssignments.length && i < 3; i++) {
+            if (wardAssignments[i].type !== 'castle' && wardAssignments[i].type !== 'market') {
+                wardAssignments[i].type = 'docks';
+            }
+        }
+    }
 
-    // Generate river
+    // Generate river (before roads for influence)
     let river = null;
     if (includeRiver) {
         river = cityGen_generateRiver(centerX, centerY, radius, noise);
     }
 
+    // Generate roads - pass cityStyle for influence
+    const roads = cityGen_generateRoads(centerX, centerY, radius, boundary, wardSeeds, noise, cityStyle, river);
+
     // Generate open spaces
     const openSpaces = cityGen_generateOpenSpaces(wardAssignments, centerX, centerY, boundary, roads);
 
-    // Generate buildings
-    const buildings = cityGen_generateBuildings(wardAssignments, boundary, openSpaces, roads);
+    // Generate buildings - pass buildingMult for scaling
+    const buildings = cityGen_generateBuildings(wardAssignments, boundary, openSpaces, roads, buildingMult);
 
     // Generate landmarks
     const landmarks = cityGen_generateLandmarks(wardAssignments, boundary);
@@ -7901,60 +8001,72 @@ function generateCityMap() {
         castle: castle,
         boundary: boundary,
         wardAssignments: wardAssignments,
-        openSpaces: openSpaces
+        openSpaces: openSpaces,
+        sizeLabel: 'A ' + sizeConfig.label + ' of the Realm'
     };
 
     // Render
     cityGen_render(canvas, cityMapData);
 
     // Update info
-    generateCityMapInfo(size);
+    generateCityMapInfo(size, sizeConfig);
 }
 
-function generateCityMapInfo(size) {
+// FIX #2: Proper generateCityMapInfo output with gen-result class structure
+function generateCityMapInfo(size, sizeConfig) {
     const container = document.getElementById('cityMapContainer');
-    if (!container) return;
-
-    let sizeLabel = 'Medium';
-    if (size === 'small') sizeLabel = 'Small';
-    else if (size === 'large') sizeLabel = 'Large';
-
-    let html = '<h3>' + cityMapData.name + '</h3>';
-    html += '<p><strong>Size:</strong> ' + sizeLabel + '</p>';
-    html += '<p><strong>Wards:</strong> ' + cityMapData.wards.length + '</p>';
-    html += '<p><strong>Buildings:</strong> ' + cityMapData.buildings.length + '</p>';
-    html += '<p><strong>Landmarks:</strong> ' + cityMapData.landmarks.length + '</p>';
-
-    if (cityMapData.walls) {
-        html += '<p><strong>City Walls:</strong> Yes</p>';
-    }
-
-    if (cityMapData.castle) {
-        html += '<p><strong>Castle:</strong> Yes</p>';
-    }
-
-    if (cityMapData.river) {
-        html += '<p><strong>River:</strong> Yes</p>';
-    }
-
     const legend = document.getElementById('cityMapLegend');
+    const output = document.getElementById('cityMapOutput');
+
+    if (container) container.style.display = 'flex';
+    if (legend) legend.style.display = 'grid';
+
+    if (!output) return;
+
+    const sizeConfigData = sizeConfig || SIZE_CONFIG[size] || SIZE_CONFIG.town;
+    const population = Math.floor(cityMapData.buildings.length * (3 + Math.random() * 5));
+
+    let html = '<div class="gen-result">';
+    html += '<div class="gen-result-item"><div class="gen-result-label">Settlement Name</div><div class="gen-result-value">' + cityMapData.name + '</div></div>';
+    html += '<div class="gen-result-item"><div class="gen-result-label">Size</div><div class="gen-result-value">' + sizeConfigData.label + '</div></div>';
+    html += '<div class="gen-result-item"><div class="gen-result-label">Population</div><div class="gen-result-value">~' + population + ' souls</div></div>';
+    html += '<div class="gen-result-item"><div class="gen-result-label">Wards</div><div class="gen-result-value">' + cityMapData.wards.length + '</div></div>';
+    html += '<div class="gen-result-item"><div class="gen-result-label">Buildings</div><div class="gen-result-value">' + cityMapData.buildings.length + '</div></div>';
+    html += '<div class="gen-result-item"><div class="gen-result-label">Landmarks</div><div class="gen-result-value">' + cityMapData.landmarks.length + '</div></div>';
+
+    if (cityMapData.walls) html += '<div class="gen-result-item"><div class="gen-result-label">City Walls</div><div class="gen-result-value">Yes</div></div>';
+    if (cityMapData.castle) html += '<div class="gen-result-item"><div class="gen-result-label">Castle</div><div class="gen-result-value">Yes</div></div>';
+    if (cityMapData.river) html += '<div class="gen-result-item"><div class="gen-result-label">River</div><div class="gen-result-value">Yes</div></div>';
+
+    // Ward breakdown
+    const wardCounts = {};
+    for (let i = 0; i < cityMapData.wardAssignments.length; i++) {
+        const type = cityMapData.wardAssignments[i].type;
+        wardCounts[type] = (wardCounts[type] || 0) + 1;
+    }
+    const wardList = Object.keys(wardCounts).map(function(t) { return WARD_TYPES[t].label + ' (' + wardCounts[t] + ')'; }).join(', ');
+    html += '<div class="gen-result-item"><div class="gen-result-label">Districts</div><div class="gen-result-value">' + wardList + '</div></div>';
+
+    // Landmark breakdown
+    const landmarkList = cityMapData.landmarks.map(function(l) { return LANDMARK_TYPES[l.type].label; }).join(', ');
+    if (landmarkList) html += '<div class="gen-result-item"><div class="gen-result-label">Notable Locations</div><div class="gen-result-value">' + landmarkList + '</div></div>';
+
+    html += '</div>';
+    output.innerHTML = html;
+
+    // Also update legend with ward types
     if (legend) {
-        let legendHtml = '<h4>Ward Types</h4>';
+        let legendHtml = '';
         const seenTypes = {};
         for (let i = 0; i < cityMapData.wardAssignments.length; i++) {
             const wardType = cityMapData.wardAssignments[i].type;
             if (!seenTypes[wardType]) {
                 seenTypes[wardType] = true;
                 const wardInfo = WARD_TYPES[wardType];
-                legendHtml += '<div style="margin: 5px 0;"><span style="display: inline-block; width: 20px; height: 20px; background-color: ' + wardInfo.color + '; border: 1px solid #3d2817; margin-right: 8px;"></span>' + wardInfo.label + '</div>';
+                legendHtml += '<div class="gen-terrain-item"><span class="gen-terrain-swatch" style="background: ' + wardInfo.color + ';"></span><span>' + wardInfo.label + '</span></div>';
             }
         }
         legend.innerHTML = legendHtml;
-    }
-
-    const output = document.getElementById('cityMapOutput');
-    if (output) {
-        output.innerHTML = html;
     }
 }
 
@@ -7969,6 +8081,7 @@ function downloadCityMap() {
     link.click();
     document.body.removeChild(link);
 }
+
 
     // ═══════════════════════════════ VILLAGE MAP GENERATOR ═══════════════════════════════
     let villageMapData = { name: '', buildings: [], features: [] };
