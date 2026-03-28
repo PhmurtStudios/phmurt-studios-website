@@ -1160,6 +1160,7 @@
               <option value="grid">Grid</option>
               <option value="radial">Radial</option>
               <option value="river-town">River Town</option>
+              <option value="coastal">Coastal Port</option>
             </select>
           </div>
           <div class="gen-control-group">
@@ -6355,7 +6356,7 @@
 
     // ═══════════════════════════════ CITY MAP GENERATOR ═══════════════════════════════
 // ============================================================================
-// CITY MAP GENERATOR v8 - BLOCK-CENTRIC WATABOU-STYLE ENGINE
+// CITY MAP GENERATOR v8 ENHANCED - BLOCK-CENTRIC WATABOU-STYLE ENGINE
 // ============================================================================
 // Algorithm: Voronoi cells via half-plane clipping → inset for streets →
 // recursive lot subdivision → each lot = one irregular polygon building
@@ -6386,31 +6387,56 @@ const SIZE_CONFIG = {
 };
 
 const WARD_TYPES = {
-    market:     { color: '#d4a574', label: 'Market Square', density: 0.35 },
-    residential:{ color: '#c4956a', label: 'Residential',   density: 0.40 },
-    noble:      { color: '#dbb88a', label: 'Noble Quarter', density: 0.28 },
-    slums:      { color: '#b8956a', label: 'Slums',         density: 0.45 },
-    docks:      { color: '#c9a87c', label: 'Docks',         density: 0.32 },
-    temple:     { color: '#d4b896', label: 'Temple Ward',   density: 0.25 },
-    military:   { color: '#bfa07a', label: 'Barracks',      density: 0.30 },
-    craftsmen:  { color: '#c8a070', label: 'Craftsmen',     density: 0.38 },
-    garden:     { color: '#b8d4a0', label: 'Gardens',       density: 0.05 },
-    academic:   { color: '#d4c4a8', label: 'Academy',       density: 0.32 }
+    market:      { color: '#d4a574', label: 'Market Square',    density: 0.35 },
+    residential: { color: '#c4956a', label: 'Residential',      density: 0.40 },
+    noble:       { color: '#dbb88a', label: 'Noble Quarter',    density: 0.28 },
+    slums:       { color: '#b8956a', label: 'Slums',            density: 0.45 },
+    docks:       { color: '#c9a87c', label: 'Docks',            density: 0.32 },
+    temple:      { color: '#d4b896', label: 'Temple Ward',      density: 0.25 },
+    military:    { color: '#bfa07a', label: 'Barracks',         density: 0.30 },
+    craftsmen:   { color: '#c8a070', label: 'Craftsmen',        density: 0.38 },
+    garden:      { color: '#b8d4a0', label: 'Gardens',          density: 0.05 },
+    academic:    { color: '#d4c4a8', label: 'Academy',          density: 0.32 },
+    warehouse:   { color: '#a89878', label: 'Warehouse',        density: 0.30 },
+    thieves:     { color: '#9a8468', label: "Thieves' Quarter",  density: 0.48 },
+    foreign:     { color: '#c8b088', label: 'Foreign Quarter',  density: 0.36 },
+    brewery:     { color: '#c4a050', label: "Brewers' Row",     density: 0.35 },
+    cemetery:    { color: '#b8b8a0', label: 'The Boneyards',    density: 0.08 },
+    entertainment: { color: '#c89090', label: 'Pleasure District', density: 0.38 },
+    fishery:     { color: '#88aab0', label: "Fishmonger's Wharf", density: 0.32 },
+    tannery:     { color: '#987050', label: "Tanners' Alley",    density: 0.40 },
+    magic:       { color: '#a898c0', label: 'Arcane Ward',       density: 0.22 },
+    grove:       { color: '#80b870', label: 'Sacred Grove',      density: 0.06 },
+    mercenary:   { color: '#b09878', label: 'Sellsword Camp',    density: 0.33 },
+    embassy:     { color: '#c8b8a0', label: 'Embassy Row',       density: 0.20 }
 };
 
 const LANDMARK_TYPES = {
-    blacksmith:  { label: 'Blacksmith',  symbol: 'hammer' },
-    tavern:      { label: 'Tavern',      symbol: 'mug' },
-    church:      { label: 'Church',      symbol: 'cross' },
-    castle:      { label: 'Castle',      symbol: 'castle' },
-    market:      { label: 'Market',      symbol: 'cart' },
-    library:     { label: 'Library',     symbol: 'book' },
-    shop:        { label: 'Shop',        symbol: 'sign' },
-    stables:     { label: 'Stables',     symbol: 'horse' },
-    barracks:    { label: 'Barracks',    symbol: 'shield' },
-    garden_area: { label: 'Garden',      symbol: 'tree' },
-    fountain:    { label: 'Fountain',    symbol: 'fountain' },
-    well:        { label: 'Well',        symbol: 'well' }
+    blacksmith:    { label: 'Blacksmith',    symbol: 'hammer' },
+    tavern:        { label: 'Tavern',        symbol: 'mug' },
+    church:        { label: 'Church',        symbol: 'cross' },
+    castle:        { label: 'Castle',        symbol: 'castle' },
+    market:        { label: 'Market',        symbol: 'cart' },
+    library:       { label: 'Library',       symbol: 'book' },
+    shop:          { label: 'Shop',          symbol: 'sign' },
+    stables:       { label: 'Stables',       symbol: 'horse' },
+    barracks:      { label: 'Barracks',      symbol: 'shield' },
+    garden_area:   { label: 'Garden',        symbol: 'tree' },
+    fountain:      { label: 'Fountain',      symbol: 'fountain' },
+    well:          { label: 'Well',          symbol: 'well' },
+    bakery:        { label: 'Bakery',        symbol: 'bread' },
+    apothecary:    { label: 'Apothecary',    symbol: 'mortar' },
+    jeweler:       { label: 'Jeweler',       symbol: 'gem' },
+    tanner:        { label: 'Tannery',       symbol: 'leather' },
+    alchemist:     { label: 'Alchemist',     symbol: 'flask' },
+    herbalist:     { label: 'Herbalist',     symbol: 'plant' },
+    bowyer:        { label: 'Bowyer',        symbol: 'bow' },
+    clothier:      { label: 'Clothier',      symbol: 'scissors' },
+    cooper:        { label: 'Cooper',        symbol: 'barrel' },
+    chandler:      { label: 'Chandler',      symbol: 'candle' },
+    cartographer:  { label: 'Cartographer',  symbol: 'compass' },
+    enchanter:     { label: 'Enchanter',     symbol: 'star' },
+    lighthouse:    { label: 'Lighthouse',    symbol: 'lighthouse' }
 };
 
 const CITY_NAMES = [
@@ -6422,36 +6448,6 @@ const CITY_NAMES = [
     'Yellowstone', 'Zephyrhaven', 'Anthelm', 'Briarton', 'Coldreach', 'Drakenholm', 'Eldergrove', 'Foxtail',
     'Goldthorne', 'Hightower', 'Ironwood', 'Justhold'
 ];
-
-const CITY_TEMPLATES = {
-    riverside:  { name: 'Riverside',  boundary: 'rounded',     roadStyle: 'organic',       archetypes: ['bruges', 'ankhmorpork'],      weight: 1.0 },
-    hilltop:    { name: 'Hilltop',    boundary: 'circular',     roadStyle: 'radial',        archetypes: ['carcassonne', 'siena'],        weight: 1.0 },
-    crossroads: { name: 'Crossroads', boundary: 'rectangular',  roadStyle: 'grid',          archetypes: ['rothenburg', 'york'],          weight: 1.0 },
-    coastal:    { name: 'Coastal',    boundary: 'curved',       roadStyle: 'organic',       archetypes: ['bruges', 'kingsLanding'],      weight: 1.0 },
-    walled:     { name: 'Walled',     boundary: 'angular',      roadStyle: 'hierarchical',  archetypes: ['carcassonne', 'constantinople'], weight: 1.0 },
-    crescent:   { name: 'Crescent',   boundary: 'crescent',     roadStyle: 'curved',        archetypes: ['ankhmorpork'],                 weight: 0.8 },
-    star:       { name: 'Star',       boundary: 'star',         roadStyle: 'radial',        archetypes: ['waterdeep', 'constantinople'], weight: 0.9 },
-    sprawl:     { name: 'Sprawl',     boundary: 'irregular',    roadStyle: 'organic',       archetypes: ['ankhmorpork'],                 weight: 0.9 },
-    island:     { name: 'Island',     boundary: 'island',       roadStyle: 'organic',       archetypes: ['bruges', 'waterdeep'],         weight: 0.8 },
-    fortress:   { name: 'Fortress',   boundary: 'rectangular',  roadStyle: 'grid',          archetypes: ['constantinople', 'carcassonne'], weight: 1.0 }
-};
-
-const CITY_ARCHETYPES = {
-    carcassonne:    { name: 'Carcassonne (Fortified Hilltop)',     densityProfile: { inner: 0.45, middle: 0.40, outer: 0.25 }, streetPattern: 'curved_contours' },
-    bruges:         { name: 'Bruges/Ghent (Merchant Canal City)',  densityProfile: { inner: 0.50, middle: 0.45, outer: 0.30 }, streetPattern: 'grid_with_curves' },
-    rothenburg:     { name: 'Rothenburg (Classic Walled Medieval)',densityProfile: { inner: 0.48, middle: 0.42, outer: 0.28 }, streetPattern: 'radial_from_center' },
-    siena:          { name: 'Siena (Organic Hill City)',           densityProfile: { inner: 0.52, middle: 0.45, outer: 0.25 }, streetPattern: 'organic_contours' },
-    constantinople: { name: 'Constantinople (Imperial Capital)',   densityProfile: { inner: 0.55, middle: 0.48, outer: 0.32 }, streetPattern: 'hierarchical_main_axis' },
-    york:           { name: 'York/Chester (Roman + Medieval)',     densityProfile: { inner: 0.46, middle: 0.41, outer: 0.27 }, streetPattern: 'grid_with_organic' },
-    waterdeep:      { name: 'Waterdeep (D&D Ward City)',          densityProfile: { inner: 0.48, middle: 0.42, outer: 0.30 }, streetPattern: 'ward_radial' },
-    minasTirith:    { name: 'Minas Tirith (Concentric Ascending)',densityProfile: { inner: 0.40, middle: 0.35, outer: 0.25 }, streetPattern: 'concentric_ascending' },
-    ankhmorpork:    { name: 'Ankh-Morpork (Chaotic Organic)',     densityProfile: { inner: 0.60, middle: 0.50, outer: 0.35 }, streetPattern: 'organic_chaotic' },
-    kingsLanding:   { name: "King's Landing (Coastal Capital)",   densityProfile: { inner: 0.50, middle: 0.44, outer: 0.30 }, streetPattern: 'hierarchical_named' }
-};
-
-// ============================================================================
-// COLOR PALETTE (Watabou-style parchment aesthetic)
-// ============================================================================
 
 const COLOR_PALETTE = {
     background:     '#f5ead0',
@@ -6557,8 +6553,6 @@ function cityGen_polygonCentroid(polygon) {
     return { x: cx / polygon.length, y: cy / polygon.length };
 }
 
-// Clip polygon by half-plane: keep side where dot(p - mid, normal) <= 0
-// Used for Voronoi cell computation and lot subdivision
 function cityGen_clipByHalfPlane(polygon, midX, midY, nx, ny) {
     if (!polygon || polygon.length < 3) return [];
     var output = [];
@@ -6585,7 +6579,6 @@ function cityGen_clipByHalfPlane(polygon, midX, midY, nx, ny) {
     return output.length >= 3 ? output : [];
 }
 
-// Inset polygon inward by distance (creates street gaps between blocks)
 function cityGen_insetPolygon(polygon, distance) {
     if (!polygon || polygon.length < 3) return [];
     var centroid = cityGen_polygonCentroid(polygon);
@@ -6597,7 +6590,6 @@ function cityGen_insetPolygon(polygon, distance) {
         var curr = polygon[i];
         var next = polygon[(i + 1) % n];
 
-        // Edge normals (pointing inward)
         var dx1 = curr.x - prev.x, dy1 = curr.y - prev.y;
         var len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1) || 1;
         var nx1 = -dy1 / len1, ny1 = dx1 / len1;
@@ -6606,20 +6598,17 @@ function cityGen_insetPolygon(polygon, distance) {
         var len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2) || 1;
         var nx2 = -dy2 / len2, ny2 = dx2 / len2;
 
-        // Check if normal points inward (toward centroid)
         var toCenter1 = (centroid.x - curr.x) * nx1 + (centroid.y - curr.y) * ny1;
         if (toCenter1 < 0) { nx1 = -nx1; ny1 = -ny1; }
         var toCenter2 = (centroid.x - curr.x) * nx2 + (centroid.y - curr.y) * ny2;
         if (toCenter2 < 0) { nx2 = -nx2; ny2 = -ny2; }
 
-        // Average normal at vertex
         var avgNx = (nx1 + nx2) * 0.5;
         var avgNy = (ny1 + ny2) * 0.5;
         var avgLen = Math.sqrt(avgNx * avgNx + avgNy * avgNy);
         if (avgLen < 0.01) continue;
 
         var scale = distance / avgLen;
-        // Clamp scale to avoid extreme insets on sharp corners
         if (scale > distance * 3) scale = distance * 3;
 
         inset.push({
@@ -6628,7 +6617,6 @@ function cityGen_insetPolygon(polygon, distance) {
         });
     }
 
-    // Validate: inset polygon should be smaller and non-degenerate
     if (inset.length < 3) return [];
     var insetArea = cityGen_polygonArea(inset);
     var origArea = cityGen_polygonArea(polygon);
@@ -6650,82 +6638,227 @@ function cityGen_rgbToHex(r, g, b) {
     }).join('');
 }
 
+function cityGen_offsetCurve(points, offset) {
+    var result = [];
+    var n = points.length;
+    for (var i = 0; i < n; i++) {
+        var prev = points[(i - 1 + n) % n];
+        var curr = points[i];
+        var next = points[(i + 1) % n];
+
+        var dx1 = curr.x - prev.x, dy1 = curr.y - prev.y;
+        var len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1) || 1;
+        var nx1 = -dy1 / len1, ny1 = dx1 / len1;
+
+        var dx2 = next.x - curr.x, dy2 = next.y - curr.y;
+        var len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2) || 1;
+        var nx2 = -dy2 / len2, ny2 = dx2 / len2;
+
+        var avgNx = (nx1 + nx2) * 0.5;
+        var avgNy = (ny1 + ny2) * 0.5;
+        var avgLen = Math.sqrt(avgNx * avgNx + avgNy * avgNy);
+        if (avgLen < 0.01) {
+            result.push({ x: curr.x + nx1 * offset, y: curr.y + ny1 * offset });
+        } else {
+            var scale = offset / avgLen;
+            if (scale > offset * 3) scale = offset * 3;
+            result.push({ x: curr.x + avgNx * scale, y: curr.y + avgNy * scale });
+        }
+    }
+    return result;
+}
+
 // ============================================================================
-// CITY BOUNDARY GENERATION (organic Perlin-noise shape)
+// CITY BOUNDARY GENERATION
 // ============================================================================
 
-function cityGen_createBoundary(centerX, centerY, radius, noise) {
+function cityGen_createBoundary(centerX, centerY, radius, noise, cityStyle) {
+    var style = cityStyle || 'organic';
     var points = [];
     var pointCount = 64;
-    for (var i = 0; i < pointCount; i++) {
-        var angle = (i / pointCount) * Math.PI * 2;
-        var noiseVal = cityGen_fbm(noise, Math.cos(angle) * 2, Math.sin(angle) * 2, 4, 2.0, 0.5);
-        var r = radius * (0.82 + noiseVal * 0.30);
-        points.push({
-            x: centerX + Math.cos(angle) * r,
-            y: centerY + Math.sin(angle) * r
-        });
+
+    if (style === 'grid') {
+        // Rectangular boundary with slight Perlin variation
+        var w = radius * 0.85;
+        var h = radius * 0.85;
+        var corners = [
+            { x: centerX - w, y: centerY - h },
+            { x: centerX + w, y: centerY - h },
+            { x: centerX + w, y: centerY + h },
+            { x: centerX - w, y: centerY + h }
+        ];
+        for (var i = 0; i < 4; i++) {
+            var c1 = corners[i];
+            var c2 = corners[(i + 1) % 4];
+            var segments = 16;
+            for (var s = 0; s < segments; s++) {
+                var t = s / segments;
+                var x = c1.x + (c2.x - c1.x) * t;
+                var y = c1.y + (c2.y - c1.y) * t;
+                var noise_val = cityGen_fbm(noise, x / 200, y / 200, 3, 2.0, 0.5);
+                var offset = noise_val * radius * 0.05;
+                points.push({
+                    x: x + offset + (Math.random() - 0.5) * 3,
+                    y: y + offset + (Math.random() - 0.5) * 3
+                });
+            }
+        }
+    } else if (style === 'radial') {
+        // Circular boundary
+        for (var i = 0; i < pointCount; i++) {
+            var angle = (i / pointCount) * Math.PI * 2;
+            var r = radius * (0.95 + cityGen_fbm(noise, Math.cos(angle) * 2, Math.sin(angle) * 2, 2, 2.0, 0.5) * 0.08);
+            points.push({
+                x: centerX + Math.cos(angle) * r,
+                y: centerY + Math.sin(angle) * r
+            });
+        }
+    } else if (style === 'river-town') {
+        // D-shaped: flat on one side
+        var angle_split = Math.random() * Math.PI * 2;
+        for (var i = 0; i < pointCount; i++) {
+            var angle = (i / pointCount) * Math.PI * 2;
+            var toFlat = Math.abs(Math.sin((angle - angle_split) * 0.5));
+            var r = radius * (0.85 + toFlat * 0.25 + cityGen_fbm(noise, Math.cos(angle) * 2, Math.sin(angle) * 2, 3, 2.0, 0.5) * 0.15);
+            points.push({
+                x: centerX + Math.cos(angle) * r,
+                y: centerY + Math.sin(angle) * r
+            });
+        }
+    } else if (style === 'coastal') {
+        // Semicircular: flat ocean side
+        var oceanAngle = Math.random() * Math.PI * 2;
+        for (var i = 0; i < pointCount; i++) {
+            var angle = (i / pointCount) * Math.PI * 2;
+            var toOcean = Math.abs(Math.sin((angle - oceanAngle) * 0.5));
+            var noiseVal = cityGen_fbm(noise, Math.cos(angle) * 2, Math.sin(angle) * 2, 4, 2.0, 0.5);
+            var r = radius * (0.82 + (toOcean * 0.35) + noiseVal * 0.2);
+            points.push({
+                x: centerX + Math.cos(angle) * r,
+                y: centerY + Math.sin(angle) * r
+            });
+        }
+    } else {
+        // Organic (default)
+        for (var i = 0; i < pointCount; i++) {
+            var angle = (i / pointCount) * Math.PI * 2;
+            var noiseVal = cityGen_fbm(noise, Math.cos(angle) * 2, Math.sin(angle) * 2, 4, 2.0, 0.5);
+            var r = radius * (0.82 + noiseVal * 0.30);
+            points.push({
+                x: centerX + Math.cos(angle) * r,
+                y: centerY + Math.sin(angle) * r
+            });
+        }
     }
+
     return points;
 }
 
 // ============================================================================
-// SEED SCATTERING (Poisson-like distribution inside boundary)
+// SEED SCATTERING (Poisson-like distribution)
 // ============================================================================
 
-function cityGen_scatterSeeds(boundary, count, centerX, centerY, radius, riverPoints, riverWidth) {
+function cityGen_scatterSeeds(boundary, count, centerX, centerY, radius, riverPoints, riverWidth, cityStyle) {
     var seeds = [];
     var minDist = (radius * 2) / Math.sqrt(count * 1.8);
-    var attempts = 0;
-    var maxAttempts = count * 30;
+    var style = cityStyle || 'organic';
 
-    while (seeds.length < count && attempts < maxAttempts) {
-        attempts++;
-        // Use sqrt for uniform disk distribution
-        var angle = Math.random() * Math.PI * 2;
-        var dist = Math.sqrt(Math.random()) * radius * 0.92;
-        var x = centerX + Math.cos(angle) * dist;
-        var y = centerY + Math.sin(angle) * dist;
-
-        if (!cityGen_pointInPolygon({ x: x, y: y }, boundary)) continue;
-
-        // Check river avoidance
-        if (riverPoints && riverWidth) {
-            var nearRiver = false;
-            for (var r = 0; r < riverPoints.length; r++) {
-                if (cityGen_distance(x, y, riverPoints[r].x, riverPoints[r].y) < riverWidth * 0.8) {
-                    nearRiver = true;
-                    break;
+    if (style === 'grid') {
+        // Generate ALL grid positions first, then filter
+        var cols = Math.ceil(Math.sqrt(count * 1.4));
+        var rows = cols;
+        var spacing = (radius * 1.8) / cols;
+        var candidates = [];
+        for (var row = 0; row < rows; row++) {
+            for (var col = 0; col < cols; col++) {
+                var x = centerX - radius * 0.9 + col * spacing + (Math.random() - 0.5) * spacing * 0.25;
+                var y = centerY - radius * 0.9 + row * spacing + (Math.random() - 0.5) * spacing * 0.25;
+                if (cityGen_pointInPolygon({ x: x, y: y }, boundary)) {
+                    var nearRiver = false;
+                    if (riverPoints && riverWidth) {
+                        for (var r = 0; r < riverPoints.length; r++) {
+                            if (cityGen_distance(x, y, riverPoints[r].x, riverPoints[r].y) < riverWidth * 0.8) {
+                                nearRiver = true; break;
+                            }
+                        }
+                    }
+                    if (!nearRiver) candidates.push({ x: x, y: y });
                 }
             }
-            if (nearRiver) continue;
         }
-
-        // Check minimum distance to existing seeds
-        var tooClose = false;
-        for (var s = 0; s < seeds.length; s++) {
-            if (cityGen_distance(x, y, seeds[s].x, seeds[s].y) < minDist) {
-                tooClose = true;
-                break;
+        // Take up to count seeds from candidates
+        for (var i = 0; i < candidates.length && seeds.length < count; i++) {
+            seeds.push({ x: candidates[i].x, y: candidates[i].y, id: seeds.length });
+        }
+    } else if (style === 'radial') {
+        // Concentric rings radiating from center
+        var ringSpacing = minDist * 1.3;
+        var maxRings = Math.ceil(radius * 0.9 / ringSpacing);
+        for (var ring = 0; ring < maxRings && seeds.length < count; ring++) {
+            var ringR = ringSpacing * (ring + 0.5);
+            if (ringR > radius * 0.9) break;
+            var circumference = 2 * Math.PI * ringR;
+            var seatsInRing = Math.max(4, Math.floor(circumference / (minDist * 1.1)));
+            for (var s = 0; s < seatsInRing && seeds.length < count; s++) {
+                var angle = (s / seatsInRing) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+                var jitteredR = ringR + (Math.random() - 0.5) * ringSpacing * 0.2;
+                var x = centerX + Math.cos(angle) * jitteredR;
+                var y = centerY + Math.sin(angle) * jitteredR;
+                if (!cityGen_pointInPolygon({ x: x, y: y }, boundary)) continue;
+                var nearRiver = false;
+                if (riverPoints && riverWidth) {
+                    for (var r = 0; r < riverPoints.length; r++) {
+                        if (cityGen_distance(x, y, riverPoints[r].x, riverPoints[r].y) < riverWidth * 0.8) {
+                            nearRiver = true; break;
+                        }
+                    }
+                }
+                if (nearRiver) continue;
+                seeds.push({ x: x, y: y, id: seeds.length });
             }
         }
-        if (tooClose) continue;
-
-        seeds.push({ x: x, y: y, id: seeds.length });
+    } else {
+        // Organic/random Poisson-like scattering
+        var attempts = 0;
+        var maxAttempts = count * 30;
+        while (seeds.length < count && attempts < maxAttempts) {
+            attempts++;
+            var angle = Math.random() * Math.PI * 2;
+            var dist = Math.sqrt(Math.random()) * radius * 0.92;
+            var x = centerX + Math.cos(angle) * dist;
+            var y = centerY + Math.sin(angle) * dist;
+            if (!cityGen_pointInPolygon({ x: x, y: y }, boundary)) continue;
+            if (riverPoints && riverWidth) {
+                var nearRiver = false;
+                for (var r = 0; r < riverPoints.length; r++) {
+                    if (cityGen_distance(x, y, riverPoints[r].x, riverPoints[r].y) < riverWidth * 0.8) {
+                        nearRiver = true; break;
+                    }
+                }
+                if (nearRiver) continue;
+            }
+            var tooClose = false;
+            for (var s = 0; s < seeds.length; s++) {
+                if (cityGen_distance(x, y, seeds[s].x, seeds[s].y) < minDist) {
+                    tooClose = true; break;
+                }
+            }
+            if (tooClose) continue;
+            seeds.push({ x: x, y: y, id: seeds.length });
+        }
     }
 
     return seeds;
 }
 
 // ============================================================================
-// VORONOI CELL COMPUTATION (half-plane clipping — O(n * k) where k = neighbors)
+// VORONOI CELL COMPUTATION
 // ============================================================================
 
 function cityGen_computeVoronoiCells(seeds, boundary) {
     var cells = [];
     var numSeeds = seeds.length;
 
-    // Pre-sort each seed's neighbors by distance for efficiency
     var neighborLists = [];
     for (var i = 0; i < numSeeds; i++) {
         var dists = [];
@@ -6739,18 +6872,16 @@ function cityGen_computeVoronoiCells(seeds, boundary) {
         neighborLists.push(dists);
     }
 
-    // Max neighbors to check (Voronoi cells in 2D have ~6 neighbors on average)
     var maxCheck = Math.min(24, numSeeds - 1);
 
     for (var i = 0; i < numSeeds; i++) {
-        var cell = boundary.slice(); // Start with boundary polygon
+        var cell = boundary.slice();
         var neighbors = neighborLists[i];
 
         for (var k = 0; k < Math.min(maxCheck, neighbors.length); k++) {
             if (cell.length < 3) break;
             var j = neighbors[k].idx;
 
-            // Clip cell by perpendicular bisector half-plane
             var midX = (seeds[i].x + seeds[j].x) * 0.5;
             var midY = (seeds[i].y + seeds[j].y) * 0.5;
             var nx = seeds[j].x - seeds[i].x;
@@ -6772,7 +6903,7 @@ function cityGen_computeVoronoiCells(seeds, boundary) {
 }
 
 // ============================================================================
-// RECURSIVE LOT SUBDIVISION (splits blocks into irregular building lots)
+// RECURSIVE LOT SUBDIVISION
 // ============================================================================
 
 function cityGen_subdivideLot(polygon, depth, minArea) {
@@ -6781,7 +6912,6 @@ function cityGen_subdivideLot(polygon, depth, minArea) {
         return [polygon];
     }
 
-    // Find bounding box
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     for (var i = 0; i < polygon.length; i++) {
         if (polygon[i].x < minX) minX = polygon[i].x;
@@ -6793,12 +6923,10 @@ function cityGen_subdivideLot(polygon, depth, minArea) {
     var w = maxX - minX;
     var h = maxY - minY;
 
-    // Skip if too narrow in either dimension
     if (w < 6 || h < 6) return [polygon];
 
-    // Split along longer axis with randomized position and slight angle jitter
-    var splitRatio = 0.33 + Math.random() * 0.34; // 33-67%
-    var jitter = (Math.random() - 0.5) * 0.12; // ±~7 degrees rotation
+    var splitRatio = 0.33 + Math.random() * 0.34;
+    var jitter = (Math.random() - 0.5) * 0.12;
 
     var px, py, nx, ny;
     if (w >= h) {
@@ -6833,8 +6961,7 @@ function cityGen_subdivideLot(polygon, depth, minArea) {
 // WARD ASSIGNMENT
 // ============================================================================
 
-function cityGen_assignWards(cells, numWards, centerX, centerY, radius) {
-    // Create ward centers
+function cityGen_assignWards(cells, numWards, centerX, centerY, radius, citySize) {
     var wardSeeds = [];
     for (var i = 0; i < numWards; i++) {
         var angle = (i / numWards) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
@@ -6846,23 +6973,32 @@ function cityGen_assignWards(cells, numWards, centerX, centerY, radius) {
         });
     }
 
-    // Assign ward types based on distance from center
+    var allWardTypes = Object.keys(WARD_TYPES);
     var wardTypes = [];
+
     for (var i = 0; i < wardSeeds.length; i++) {
         var d = cityGen_distance(centerX, centerY, wardSeeds[i].x, wardSeeds[i].y);
         var ratio = d / radius;
         var type;
+
         if (i === 0) {
             type = 'market';
         } else if (ratio < 0.3) {
-            type = Math.random() > 0.5 ? 'noble' : 'temple';
+            var opts = ['noble', 'temple', 'magic', 'academic'];
+            type = opts[Math.floor(Math.random() * opts.length)];
         } else if (ratio < 0.55) {
-            var r = Math.random();
-            type = r > 0.6 ? 'residential' : (r > 0.3 ? 'craftsmen' : 'academic');
+            var opts2 = ['residential', 'craftsmen', 'academic', 'brewery', 'foreign'];
+            if (citySize === 'metropolis' || citySize === 'city') opts2.push('embassy', 'entertainment');
+            type = opts2[Math.floor(Math.random() * opts2.length)];
         } else {
-            var r = Math.random();
-            type = r > 0.6 ? 'residential' : (r > 0.3 ? 'slums' : 'military');
+            var opts3 = ['residential', 'slums', 'military', 'docks', 'warehouse'];
+            if (citySize === 'metropolis' || citySize === 'city') {
+                opts3.push('thieves', 'tannery', 'fishery', 'mercenary');
+            }
+            if (Math.random() > 0.7) opts3.push('cemetery', 'grove');
+            type = opts3[Math.floor(Math.random() * opts3.length)];
         }
+
         wardTypes.push({
             x: wardSeeds[i].x,
             y: wardSeeds[i].y,
@@ -6871,7 +7007,6 @@ function cityGen_assignWards(cells, numWards, centerX, centerY, radius) {
         });
     }
 
-    // Assign each cell to nearest ward
     for (var c = 0; c < cells.length; c++) {
         var cell = cells[c];
         var centroid = cityGen_polygonCentroid(cell.polygon);
@@ -6892,7 +7027,7 @@ function cityGen_assignWards(cells, numWards, centerX, centerY, radius) {
 }
 
 // ============================================================================
-// BUILDING GENERATION FROM VORONOI CELLS
+// BUILDING GENERATION
 // ============================================================================
 
 function cityGen_generateBuildings(cells, sizeConfig) {
@@ -6906,25 +7041,20 @@ function cityGen_generateBuildings(cells, sizeConfig) {
         var wardType = cell.wardType || 'residential';
         var wardConfig = WARD_TYPES[wardType] || WARD_TYPES.residential;
 
-        // Skip garden wards (they become green spaces)
-        if (wardType === 'garden') continue;
+        if (wardType === 'garden' || wardType === 'grove' || wardType === 'cemetery') continue;
 
-        // Inset polygon to create street gaps
         var block = cityGen_insetPolygon(cell.polygon, streetWidth);
         if (block.length < 3) continue;
 
         var blockArea = cityGen_polygonArea(block);
         if (blockArea < minLotArea * 0.5) continue;
 
-        // Occasionally leave a block as open plaza/square (~5% chance)
         if (Math.random() < 0.05 && wardType === 'market') continue;
 
-        // Determine subdivision depth based on block size and ward density
         var effectiveDepth = lotDepth;
         if (blockArea < minLotArea * 2) effectiveDepth = 1;
         if (wardConfig.density < 0.2) effectiveDepth = Math.max(1, effectiveDepth - 1);
 
-        // Subdivide block into building lots
         var lots = cityGen_subdivideLot(block, effectiveDepth, minLotArea);
 
         for (var l = 0; l < lots.length; l++) {
@@ -6933,7 +7063,6 @@ function cityGen_generateBuildings(cells, sizeConfig) {
             var lotArea = cityGen_polygonArea(lot);
             if (lotArea < 15) continue;
 
-            // Color: base ward color with subtle per-building variation
             var baseColor = wardConfig.color;
             var rgb = cityGen_hexToRgb(baseColor);
             var v = (Math.random() - 0.5) * 24;
@@ -6953,7 +7082,7 @@ function cityGen_generateBuildings(cells, sizeConfig) {
 }
 
 // ============================================================================
-// SUBURB BUILDINGS (scattered outside walls)
+// SUBURB BUILDINGS
 // ============================================================================
 
 function cityGen_generateSuburbs(boundary, centerX, centerY, radius, wardTypes) {
@@ -6969,9 +7098,7 @@ function cityGen_generateSuburbs(boundary, centerX, centerY, radius, wardTypes) 
         var x = bp.x + Math.cos(angle) * dist;
         var y = bp.y + Math.sin(angle) * dist;
 
-        // Must be outside boundary
         if (cityGen_pointInPolygon({ x: x, y: y }, boundary)) continue;
-        // Must be inside canvas
         if (x < 30 || x > 870 || y < 30 || y > 870) continue;
 
         var size = 6 + Math.random() * 10;
@@ -7009,11 +7136,11 @@ function cityGen_generateSuburbs(boundary, centerX, centerY, radius, wardTypes) 
 }
 
 // ============================================================================
-// RIVER GENERATION (linear flow with Perlin curves)
+// RIVER GENERATION (enhanced with variable width and tributaries)
 // ============================================================================
 
 function cityGen_generateRiver(centerX, centerY, radius, noise) {
-    var flowAngle = Math.random() * Math.PI; // Random flow direction
+    var flowAngle = Math.random() * Math.PI;
     var perpAngle = flowAngle + Math.PI * 0.5;
     var extent = radius + 80;
 
@@ -7030,7 +7157,6 @@ function cityGen_generateRiver(centerX, centerY, radius, noise) {
         var baseX = startX + (endX - startX) * t;
         var baseY = startY + (endY - startY) * t;
 
-        // Perlin noise meander perpendicular to flow
         var noiseVal = cityGen_fbm(noise, t * 4 + 0.5, 7.3, 3, 2.0, 0.5);
         var offset = noiseVal * 70;
 
@@ -7040,15 +7166,51 @@ function cityGen_generateRiver(centerX, centerY, radius, noise) {
         });
     }
 
-    return {
+    // Variable width: wider in middle, narrower at edges
+    var baseWidth = 16 + Math.random() * 10;
+    var widthProfile = function(t) {
+        return baseWidth * (0.7 + Math.sin(t * Math.PI) * 0.4);
+    };
+
+    var river = {
         points: points,
-        width: 16 + Math.random() * 10,
+        width: baseWidth,
+        widthProfile: widthProfile,
         flowAngle: flowAngle
     };
+
+    // Add tributary 30% chance
+    if (Math.random() < 0.3) {
+        var triIdx = Math.floor(segments * (0.3 + Math.random() * 0.4));
+        var triStart = points[triIdx];
+        var triAngle = flowAngle + (Math.random() - 0.5) * Math.PI * 0.6;
+        var triPerpAngle = triAngle + Math.PI * 0.5;
+        var triPoints = [];
+
+        for (var i = 0; i <= 25; i++) {
+            var t = i / 25;
+            var x = triStart.x + Math.cos(triAngle) * t * 80;
+            var y = triStart.y + Math.sin(triAngle) * t * 80;
+            var tri_noise = cityGen_fbm(noise, t * 3 + 2.5, 5.3, 2, 2.0, 0.5);
+            var tri_offset = tri_noise * 40;
+            triPoints.push({
+                x: x + Math.cos(triPerpAngle) * tri_offset,
+                y: y + Math.sin(triPerpAngle) * tri_offset
+            });
+        }
+
+        river.tributary = {
+            points: triPoints,
+            width: baseWidth * 0.5,
+            flowAngle: triAngle
+        };
+    }
+
+    return river;
 }
 
 // ============================================================================
-// FARM FIELD GENERATION (outside walls)
+// FARM FIELD GENERATION
 // ============================================================================
 
 function cityGen_generateFarms(boundary, centerX, centerY, radius) {
@@ -7062,7 +7224,6 @@ function cityGen_generateFarms(boundary, centerX, centerY, radius) {
         var fx = centerX + Math.cos(angle) * dist;
         var fy = centerY + Math.sin(angle) * dist;
 
-        // Must be outside boundary and inside canvas
         if (cityGen_pointInPolygon({ x: fx, y: fy }, boundary)) continue;
         if (fx < 20 || fx > 880 || fy < 20 || fy > 880) continue;
 
@@ -7082,20 +7243,19 @@ function cityGen_generateFarms(boundary, centerX, centerY, radius) {
 }
 
 // ============================================================================
-// CASTLE GENERATION
+// CASTLE GENERATION (enhanced)
 // ============================================================================
 
 function cityGen_generateCastle(centerX, centerY, radius, boundary) {
-    // Place castle at edge of city (high ground)
     var angle = Math.random() * Math.PI * 2;
     var dist = radius * 0.55;
     var cx = centerX + Math.cos(angle) * dist;
     var cy = centerY + Math.sin(angle) * dist;
 
-    // Castle compound polygon (irregular shape)
     var castleRadius = 35 + Math.random() * 15;
     var points = [];
     var sides = 8 + Math.floor(Math.random() * 4);
+
     for (var i = 0; i < sides; i++) {
         var a = (i / sides) * Math.PI * 2;
         var r = castleRadius * (0.85 + Math.random() * 0.3);
@@ -7105,7 +7265,7 @@ function cityGen_generateCastle(centerX, centerY, radius, boundary) {
         });
     }
 
-    // Corner towers
+    // Corner towers (round towers at curtain wall)
     var towers = [];
     for (var i = 0; i < sides; i += 2) {
         towers.push({
@@ -7115,18 +7275,42 @@ function cityGen_generateCastle(centerX, centerY, radius, boundary) {
         });
     }
 
-    // Keep tower (central)
+    // Central keep (larger rectangular tower)
     var keep = {
         x: cx, y: cy,
-        radius: 12 + Math.random() * 5
+        width: 16 + Math.random() * 6,
+        height: 16 + Math.random() * 6
     };
+
+    // Gatehouse on one side
+    var gateIdx = Math.floor(Math.random() * sides);
+    var gatehouse = {
+        x: points[gateIdx].x,
+        y: points[gateIdx].y,
+        size: 8 + Math.random() * 3
+    };
+
+    // Inner courtyard buildings (2-3 small structures)
+    var innerBuildings = [];
+    for (var i = 0; i < 2 + Math.floor(Math.random() * 2); i++) {
+        var ia = Math.random() * Math.PI * 2;
+        var ir = castleRadius * 0.3 + Math.random() * castleRadius * 0.25;
+        innerBuildings.push({
+            x: cx + Math.cos(ia) * ir,
+            y: cy + Math.sin(ia) * ir,
+            width: 6 + Math.random() * 4,
+            height: 6 + Math.random() * 4
+        });
+    }
 
     return {
         center: { x: cx, y: cy },
         polygon: points,
         radius: castleRadius,
         towers: towers,
-        keep: keep
+        keep: keep,
+        gatehouse: gatehouse,
+        innerBuildings: innerBuildings
     };
 }
 
@@ -7160,7 +7344,7 @@ function cityGen_generateWallTowers(wallPoly) {
 }
 
 // ============================================================================
-// GATE GENERATION (openings in walls)
+// GATE GENERATION
 // ============================================================================
 
 function cityGen_generateGates(wallPoly, centerX, centerY) {
@@ -7197,18 +7381,36 @@ function cityGen_generateGates(wallPoly, centerX, centerY) {
 }
 
 // ============================================================================
-// LANDMARK GENERATION
+// LANDMARK GENERATION (enhanced with ward-appropriate types)
 // ============================================================================
 
 function cityGen_generateLandmarks(wardTypes, boundary) {
     var landmarks = [];
-    var types = ['church', 'tavern', 'market', 'fountain', 'well', 'blacksmith', 'library'];
+    var defaultTypes = ['church', 'tavern', 'market', 'fountain', 'well', 'blacksmith', 'library'];
 
     for (var w = 0; w < wardTypes.length; w++) {
         if (Math.random() > 0.55) continue;
 
-        var type = types[Math.floor(Math.random() * types.length)];
         var ward = wardTypes[w];
+        var wardType = ward.type;
+        var type = defaultTypes[Math.floor(Math.random() * defaultTypes.length)];
+
+        // Ward-appropriate landmark types
+        if (wardType === 'market') type = 'market';
+        else if (wardType === 'temple') type = 'church';
+        else if (wardType === 'docks') type = Math.random() > 0.5 ? 'tavern' : 'lighthouse';
+        else if (wardType === 'military') type = 'barracks';
+        else if (wardType === 'craftsmen') type = Math.random() > 0.4 ? 'blacksmith' : 'shop';
+        else if (wardType === 'academic') type = 'library';
+        else if (wardType === 'brewery') type = 'tavern';
+        else if (wardType === 'bakery') type = 'bakery';
+        else if (wardType === 'tannery') type = 'tanner';
+        else if (wardType === 'magic') type = 'enchanter';
+        else if (wardType === 'fishery') type = 'lighthouse';
+        else if (wardType === 'entertainment') type = 'tavern';
+        else if (wardType === 'cemetery') { if (Math.random() > 0.5) continue; type = 'well'; }
+        else if (wardType === 'grove') { if (Math.random() > 0.5) continue; type = 'garden_area'; }
+
         var angle = Math.random() * Math.PI * 2;
         var dist = 20 + Math.random() * 25;
         var x = ward.x + Math.cos(angle) * dist;
@@ -7227,7 +7429,7 @@ function cityGen_generateLandmarks(wardTypes, boundary) {
 }
 
 // ============================================================================
-// BRIDGE GENERATION (across river)
+// BRIDGE GENERATION
 // ============================================================================
 
 function cityGen_generateBridges(river, boundary) {
@@ -7242,7 +7444,6 @@ function cityGen_generateBridges(river, boundary) {
         if (idx >= pts.length - 1) continue;
         var p = pts[idx];
 
-        // Only add bridge if it's inside the city boundary
         if (cityGen_pointInPolygon(p, boundary)) {
             var perpAngle = river.flowAngle + Math.PI * 0.5;
             var halfLen = river.width * 0.7;
@@ -7257,6 +7458,42 @@ function cityGen_generateBridges(river, boundary) {
     }
 
     return bridges;
+}
+
+// ============================================================================
+// MARKET SQUARE PLAZA GENERATION
+// ============================================================================
+
+function cityGen_generateMarketSquare(wardTypes, boundary) {
+    var marketWard = null;
+    for (var i = 0; i < wardTypes.length; i++) {
+        if (wardTypes[i].type === 'market') {
+            marketWard = wardTypes[i];
+            break;
+        }
+    }
+    if (!marketWard) return null;
+
+    var plazaRadius = 25 + Math.random() * 15;
+    var stalls = [];
+
+    for (var i = 0; i < 8 + Math.floor(Math.random() * 4); i++) {
+        var angle = (i / 12) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+        var dist = plazaRadius * 0.75;
+        stalls.push({
+            x: marketWard.x + Math.cos(angle) * dist,
+            y: marketWard.y + Math.sin(angle) * dist,
+            width: 4 + Math.random() * 3,
+            height: 4 + Math.random() * 3
+        });
+    }
+
+    return {
+        center: { x: marketWard.x, y: marketWard.y },
+        radius: plazaRadius,
+        stalls: stalls,
+        fountain: { x: marketWard.x, y: marketWard.y }
+    };
 }
 
 // ============================================================================
@@ -7288,12 +7525,10 @@ function cityGen_drawFarms(ctx, farms) {
         ctx.translate(farm.x, farm.y);
         ctx.rotate(farm.rotation);
 
-        // Field background
         ctx.fillStyle = COLOR_PALETTE.farmGreen;
         ctx.globalAlpha = 0.5;
         ctx.fillRect(-farm.w / 2, -farm.h / 2, farm.w, farm.h);
 
-        // Crop row lines
         ctx.strokeStyle = COLOR_PALETTE.farmLines;
         ctx.lineWidth = 0.6;
         ctx.globalAlpha = 0.4;
@@ -7316,29 +7551,57 @@ function cityGen_drawRiver(ctx, river) {
     var pts = river.points;
     if (pts.length < 2) return;
 
-    // River fill (wide stroke)
+    // Draw river as filled polygon with offset curves
+    var leftBank = cityGen_offsetCurve(pts, river.width * 0.5);
+    var rightBank = cityGen_offsetCurve(pts, -river.width * 0.5);
+
+    ctx.fillStyle = COLOR_PALETTE.riverColor;
     ctx.beginPath();
-    ctx.moveTo(pts[0].x, pts[0].y);
-    for (var i = 1; i < pts.length; i++) {
-        ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.moveTo(leftBank[0].x, leftBank[0].y);
+    for (var i = 1; i < leftBank.length; i++) {
+        ctx.lineTo(leftBank[i].x, leftBank[i].y);
     }
-    ctx.strokeStyle = COLOR_PALETTE.riverColor;
-    ctx.lineWidth = river.width;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    for (var i = rightBank.length - 1; i >= 0; i--) {
+        ctx.lineTo(rightBank[i].x, rightBank[i].y);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // River banks (dark outline)
+    ctx.strokeStyle = COLOR_PALETTE.riverDark;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(leftBank[0].x, leftBank[0].y);
+    for (var i = 1; i < leftBank.length; i++) {
+        ctx.lineTo(leftBank[i].x, leftBank[i].y);
+    }
     ctx.stroke();
 
-    // River outline (thin dark edges)
-    ctx.strokeStyle = COLOR_PALETTE.riverDark;
-    ctx.lineWidth = river.width + 2;
-    ctx.globalCompositeOperation = 'destination-over';
     ctx.beginPath();
-    ctx.moveTo(pts[0].x, pts[0].y);
-    for (var i = 1; i < pts.length; i++) {
-        ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.moveTo(rightBank[0].x, rightBank[0].y);
+    for (var i = 1; i < rightBank.length; i++) {
+        ctx.lineTo(rightBank[i].x, rightBank[i].y);
     }
     ctx.stroke();
-    ctx.globalCompositeOperation = 'source-over';
+
+    // Draw tributary if present
+    if (river.tributary) {
+        var tri = river.tributary;
+        var triLeftBank = cityGen_offsetCurve(tri.points, tri.width * 0.5);
+        var triRightBank = cityGen_offsetCurve(tri.points, -tri.width * 0.5);
+
+        ctx.fillStyle = COLOR_PALETTE.riverColor;
+        ctx.beginPath();
+        ctx.moveTo(triLeftBank[0].x, triLeftBank[0].y);
+        for (var i = 1; i < triLeftBank.length; i++) {
+            ctx.lineTo(triLeftBank[i].x, triLeftBank[i].y);
+        }
+        for (var i = triRightBank.length - 1; i >= 0; i--) {
+            ctx.lineTo(triRightBank[i].x, triRightBank[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
 }
 
 function cityGen_drawBridges(ctx, bridges) {
@@ -7352,32 +7615,26 @@ function cityGen_drawBridges(ctx, bridges) {
         ctx.lineTo(br.x2, br.y2);
         ctx.stroke();
 
-        // Bridge railings
-        ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
+        var railSize = br.width * 0.6;
+        ctx.strokeStyle = COLOR_PALETTE.bridgeColor;
         ctx.lineWidth = 0.8;
-        var dx = br.x2 - br.x1, dy = br.y2 - br.y1;
-        var len = Math.sqrt(dx * dx + dy * dy) || 1;
-        var nx = -dy / len * br.width * 0.4;
-        var ny = dx / len * br.width * 0.4;
-
-        ctx.beginPath();
-        ctx.moveTo(br.x1 + nx, br.y1 + ny);
-        ctx.lineTo(br.x2 + nx, br.y2 + ny);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(br.x1 - nx, br.y1 - ny);
-        ctx.lineTo(br.x2 - nx, br.y2 - ny);
-        ctx.stroke();
+        var segments = 4;
+        for (var s = 0; s <= segments; s++) {
+            var t = s / segments;
+            var x = br.x1 + (br.x2 - br.x1) * t;
+            var y = br.y1 + (br.y2 - br.y1) * t;
+            ctx.beginPath();
+            var perpAngle = Math.atan2(br.y2 - br.y1, br.x2 - br.x1) + Math.PI * 0.5;
+            ctx.moveTo(x + Math.cos(perpAngle) * railSize, y + Math.sin(perpAngle) * railSize);
+            ctx.lineTo(x - Math.cos(perpAngle) * railSize, y - Math.sin(perpAngle) * railSize);
+            ctx.stroke();
+        }
     }
 }
 
-function cityGen_drawWalls(ctx, wallPoly, towers, gates) {
-    if (!wallPoly || wallPoly.length < 3) return;
-
-    // Main wall line
+function cityGen_drawWalls(ctx, wallPoly, wallTowers, gates) {
     ctx.strokeStyle = COLOR_PALETTE.wallDark;
-    ctx.lineWidth = 3.5;
-    ctx.lineJoin = 'round';
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(wallPoly[0].x, wallPoly[0].y);
     for (var i = 1; i < wallPoly.length; i++) {
@@ -7386,80 +7643,126 @@ function cityGen_drawWalls(ctx, wallPoly, towers, gates) {
     ctx.closePath();
     ctx.stroke();
 
-    // Square towers at intervals
-    for (var t = 0; t < towers.length; t++) {
-        var tw = towers[t];
-        var s = tw.size;
+    for (var t = 0; t < wallTowers.length; t++) {
+        var tower = wallTowers[t];
         ctx.fillStyle = COLOR_PALETTE.towerColor;
-        ctx.fillRect(tw.x - s / 2, tw.y - s / 2, s, s);
+        ctx.beginPath();
+        ctx.arc(tower.x, tower.y, tower.size, 0, Math.PI * 2);
+        ctx.fill();
     }
 
-    // Gate openings (small gaps in wall)
     for (var g = 0; g < gates.length; g++) {
         var gate = gates[g];
         ctx.fillStyle = COLOR_PALETTE.gateColor;
-        ctx.beginPath();
-        ctx.arc(gate.x, gate.y, 5, 0, Math.PI * 2);
-        ctx.fill();
+        var gateW = 12;
+        var gateH = 8;
+        ctx.save();
+        ctx.translate(gate.x, gate.y);
+        ctx.rotate(gate.angle);
+        ctx.fillRect(-gateW / 2, -gateH / 2, gateW, gateH);
+        ctx.restore();
     }
 }
 
 function cityGen_drawCastle(ctx, castle) {
-    if (!castle) return;
-
-    // Castle compound fill
-    cityGen_drawPolygon(ctx, castle.polygon, '#d9c8a5', COLOR_PALETTE.wallDark, 2.5);
-
-    // Keep (central tower)
-    if (castle.keep) {
-        ctx.fillStyle = '#bfa88a';
-        ctx.strokeStyle = COLOR_PALETTE.wallDark;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(castle.keep.x, castle.keep.y, castle.keep.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+    // Outer curtain wall
+    ctx.strokeStyle = COLOR_PALETTE.wallDark;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(castle.polygon[0].x, castle.polygon[0].y);
+    for (var i = 1; i < castle.polygon.length; i++) {
+        ctx.lineTo(castle.polygon[i].x, castle.polygon[i].y);
     }
+    ctx.closePath();
+    ctx.stroke();
 
     // Corner towers
+    ctx.fillStyle = COLOR_PALETTE.towerColor;
     for (var t = 0; t < castle.towers.length; t++) {
-        var tw = castle.towers[t];
-        ctx.fillStyle = COLOR_PALETTE.wallDark;
+        var tower = castle.towers[t];
         ctx.beginPath();
-        ctx.arc(tw.x, tw.y, tw.radius, 0, Math.PI * 2);
+        ctx.arc(tower.x, tower.y, tower.radius, 0, Math.PI * 2);
         ctx.fill();
     }
+
+    // Inner courtyard (open parchment area)
+    ctx.fillStyle = COLOR_PALETTE.cream;
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    ctx.arc(castle.center.x, castle.center.y, castle.radius * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+
+    // Inner buildings
+    ctx.fillStyle = COLOR_PALETTE.buildingBase;
+    for (var i = 0; i < castle.innerBuildings.length; i++) {
+        var ib = castle.innerBuildings[i];
+        ctx.fillRect(ib.x - ib.width / 2, ib.y - ib.height / 2, ib.width, ib.height);
+        ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(ib.x - ib.width / 2, ib.y - ib.height / 2, ib.width, ib.height);
+    }
+
+    // Central keep (large rectangular tower with crenellations)
+    ctx.fillStyle = COLOR_PALETTE.towerColor;
+    var keepX = castle.keep.x - castle.keep.width / 2;
+    var keepY = castle.keep.y - castle.keep.height / 2;
+    ctx.fillRect(keepX, keepY, castle.keep.width, castle.keep.height);
+
+    // Crenellations on keep
+    ctx.fillStyle = COLOR_PALETTE.gateColor;
+    var crenelSize = castle.keep.width / 6;
+    for (var c = 0; c < 6; c += 2) {
+        ctx.fillRect(keepX + c * crenelSize, keepY - crenelSize * 0.4, crenelSize, crenelSize * 0.4);
+    }
+
+    // Gatehouse
+    ctx.fillStyle = COLOR_PALETTE.buildingBase;
+    var gh = castle.gatehouse;
+    ctx.save();
+    ctx.translate(gh.x, gh.y);
+    ctx.fillRect(-gh.size / 2, -gh.size / 2, gh.size, gh.size);
+    ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
+    ctx.lineWidth = 0.8;
+    ctx.strokeRect(-gh.size / 2, -gh.size / 2, gh.size, gh.size);
+    ctx.restore();
 }
 
-function cityGen_drawLandmarks(ctx, landmarks) {
-    for (var i = 0; i < landmarks.length; i++) {
-        var lm = landmarks[i];
-        var type = lm.type;
-        var x = lm.x, y = lm.y, size = lm.size;
+function cityGen_drawMarketSquare(ctx, plaza) {
+    if (!plaza) return;
 
-        if (type === 'blacksmith')       { cityGen_drawBlacksmith(ctx, x, y, size); }
-        else if (type === 'tavern')      { cityGen_drawTavern(ctx, x, y, size); }
-        else if (type === 'church')      { cityGen_drawChurch(ctx, x, y, size); }
-        else if (type === 'castle')      { cityGen_drawCastleLandmark(ctx, x, y, size); }
-        else if (type === 'market')      { cityGen_drawMarket(ctx, x, y, size); }
-        else if (type === 'library')     { cityGen_drawLibrary(ctx, x, y, size); }
-        else if (type === 'shop')        { cityGen_drawShop(ctx, x, y, size); }
-        else if (type === 'stables')     { cityGen_drawStables(ctx, x, y, size); }
-        else if (type === 'barracks')    { cityGen_drawBarracks(ctx, x, y, size); }
-        else if (type === 'garden_area') { cityGen_drawGardenArea(ctx, x, y, size); }
-        else if (type === 'fountain')    { cityGen_drawFountain(ctx, x, y, size); }
-        else if (type === 'well')        { cityGen_drawWell(ctx, x, y, size); }
+    // Plaza ground (open parchment)
+    ctx.fillStyle = COLOR_PALETTE.cream;
+    ctx.globalAlpha = 0.4;
+    ctx.beginPath();
+    ctx.arc(plaza.center.x, plaza.center.y, plaza.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+
+    // Market stalls
+    ctx.fillStyle = '#d4a574';
+    for (var s = 0; s < plaza.stalls.length; s++) {
+        var stall = plaza.stalls[s];
+        ctx.fillRect(stall.x - stall.width / 2, stall.y - stall.height / 2, stall.width, stall.height);
+        ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(stall.x - stall.width / 2, stall.y - stall.height / 2, stall.width, stall.height);
     }
+
+    // Fountain/well in center
+    ctx.fillStyle = '#4a8fa0';
+    ctx.beginPath();
+    ctx.arc(plaza.fountain.x, plaza.fountain.y, 4, 0, Math.PI * 2);
+    ctx.fill();
 }
 
 function cityGen_drawParchmentTexture(ctx, noise, width, height) {
-    // Subtle noise texture over the parchment background
     ctx.globalAlpha = 0.03;
+    ctx.fillStyle = '#8b7355';
     for (var x = 0; x < width; x += 6) {
         for (var y = 0; y < height; y += 6) {
             var n = cityGen_fbm(noise, x * 0.02, y * 0.02, 2, 2.0, 0.5);
             if (n > 0.1) {
-                ctx.fillStyle = '#8b7355';
                 ctx.fillRect(x, y, 4, 4);
             }
         }
@@ -7467,273 +7770,175 @@ function cityGen_drawParchmentTexture(ctx, noise, width, height) {
     ctx.globalAlpha = 1.0;
 }
 
-function cityGen_drawCityName(ctx, name, centerX, canvasHeight) {
-    ctx.font = 'italic 22px Georgia, "Times New Roman", serif';
-    ctx.fillStyle = '#5d4a3d';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(name, centerX, canvasHeight - 15);
+// ============================================================================
+// LANDMARK DRAWING FUNCTIONS (Specialty Shop Icons)
+// ============================================================================
 
-    // Decorative underline
-    var textWidth = ctx.measureText(name).width;
-    ctx.strokeStyle = '#8b7355';
-    ctx.lineWidth = 0.8;
+function cityGen_drawBakery(ctx, x, y, size) {
+    ctx.fillStyle = '#d4a574';
     ctx.beginPath();
-    ctx.moveTo(centerX - textWidth * 0.6, canvasHeight - 12);
-    ctx.lineTo(centerX + textWidth * 0.6, canvasHeight - 12);
+    ctx.ellipse(x, y, size / 2, size / 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#c4956a';
+    ctx.fillRect(x - size / 4, y - size / 4, size / 2, size / 2);
+}
+
+function cityGen_drawApothecary(ctx, x, y, size) {
+    ctx.fillStyle = '#6b4423';
+    ctx.beginPath();
+    ctx.arc(x, y, size * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#3d2817';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#f5ead0';
+    ctx.fillRect(x - size * 0.15, y - size * 0.15, size * 0.3, size * 0.3);
+}
+
+function cityGen_drawJeweler(ctx, x, y, size) {
+    ctx.fillStyle = '#d4af37';
+    ctx.beginPath();
+    ctx.moveTo(x, y - size / 2);
+    ctx.lineTo(x + size / 2, y + size / 2.5);
+    ctx.lineTo(x - size / 2, y + size / 2.5);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function cityGen_drawTanner(ctx, x, y, size) {
+    ctx.fillStyle = '#8b6f47';
+    ctx.fillRect(x - size / 2, y - size / 2, size, size);
+    ctx.fillStyle = '#5d4a3d';
+    for (var i = 0; i < 3; i++) {
+        ctx.fillRect(x - size / 3 + i * size / 3, y - size / 3, size / 6, size * 0.66);
+    }
+}
+
+function cityGen_drawAlchemist(ctx, x, y, size) {
+    ctx.fillStyle = '#6a5acd';
+    ctx.beginPath();
+    ctx.moveTo(x, y - size / 2);
+    ctx.lineTo(x + size / 3, y);
+    ctx.lineTo(x + size / 3, y + size / 2);
+    ctx.lineTo(x - size / 3, y + size / 2);
+    ctx.lineTo(x - size / 3, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#9d8ac6';
+    ctx.beginPath();
+    ctx.arc(x, y + size / 3, size * 0.15, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function cityGen_drawHerbalist(ctx, x, y, size) {
+    ctx.fillStyle = '#7a9b57';
+    ctx.beginPath();
+    ctx.moveTo(x, y - size / 2);
+    ctx.lineTo(x - size / 3, y + size / 2);
+    ctx.lineTo(x + size / 3, y + size / 2);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function cityGen_drawBowyer(ctx, x, y, size) {
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, size / 2.5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - size / 3, y - size / 3);
+    ctx.quadraticCurveTo(x, y - size / 2, x + size / 3, y - size / 3);
     ctx.stroke();
 }
 
-// ============================================================================
-// MAIN RENDER FUNCTION
-// ============================================================================
+function cityGen_drawClothier(ctx, x, y, size) {
+    ctx.fillStyle = '#c89090';
+    ctx.beginPath();
+    ctx.moveTo(x - size / 3, y - size / 2);
+    ctx.lineTo(x, y - size / 2);
+    ctx.lineTo(x + size / 6, y);
+    ctx.lineTo(x, y + size / 2);
+    ctx.lineTo(x - size / 3, y + size / 2);
+    ctx.lineTo(x - size / 4, y);
+    ctx.closePath();
+    ctx.fill();
+}
 
-function cityGen_render(canvas, data) {
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 1. Parchment background
-    ctx.fillStyle = COLOR_PALETTE.background;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // 2. Parchment texture
-    if (data.noise) {
-        cityGen_drawParchmentTexture(ctx, data.noise, canvas.width, canvas.height);
-    }
-
-    // 3. Farm fields (outside walls)
-    if (data.farms) {
-        cityGen_drawFarms(ctx, data.farms);
-    }
-
-    // 4. Garden ward areas (green fill)
-    if (data.gardenAreas) {
-        for (var g = 0; g < data.gardenAreas.length; g++) {
-            var ga = data.gardenAreas[g];
-            ctx.fillStyle = COLOR_PALETTE.farmGreen;
-            ctx.globalAlpha = 0.3;
-            ctx.beginPath();
-            ctx.moveTo(ga[0].x, ga[0].y);
-            for (var i = 1; i < ga.length; i++) ctx.lineTo(ga[i].x, ga[i].y);
-            ctx.closePath();
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
-        }
-    }
-
-    // 5. All building fills first (so outlines layer on top)
-    for (var i = 0; i < data.buildings.length; i++) {
-        var b = data.buildings[i];
-        if (!b.polygon || b.polygon.length < 3) continue;
-        ctx.fillStyle = b.color;
+function cityGen_drawCooper(ctx, x, y, size) {
+    ctx.fillStyle = '#8b6f47';
+    ctx.beginPath();
+    ctx.ellipse(x, y, size / 2, size / 2.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1.5;
+    for (var i = 0; i < 3; i++) {
         ctx.beginPath();
-        ctx.moveTo(b.polygon[0].x, b.polygon[0].y);
-        for (var j = 1; j < b.polygon.length; j++) {
-            ctx.lineTo(b.polygon[j].x, b.polygon[j].y);
-        }
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    // 6. All building outlines (drawn separately for clean shared edges)
-    ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
-    ctx.lineWidth = 0.6;
-    ctx.lineJoin = 'round';
-    for (var i = 0; i < data.buildings.length; i++) {
-        var b = data.buildings[i];
-        if (!b.polygon || b.polygon.length < 3) continue;
-        ctx.beginPath();
-        ctx.moveTo(b.polygon[0].x, b.polygon[0].y);
-        for (var j = 1; j < b.polygon.length; j++) {
-            ctx.lineTo(b.polygon[j].x, b.polygon[j].y);
-        }
-        ctx.closePath();
+        ctx.ellipse(x, y - size / 3 + i * size / 3, size / 2, size / 4, 0, 0, Math.PI * 2);
         ctx.stroke();
     }
+}
 
-    // 7. River (drawn over buildings)
-    if (data.river) {
-        cityGen_drawRiver(ctx, data.river);
-    }
+function cityGen_drawChandler(ctx, x, y, size) {
+    ctx.fillStyle = '#f4a460';
+    ctx.beginPath();
+    ctx.moveTo(x, y - size / 2);
+    ctx.lineTo(x + size / 4, y + size / 2);
+    ctx.lineTo(x - size / 4, y + size / 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#d4a574';
+    ctx.beginPath();
+    ctx.arc(x, y - size / 2, size / 6, 0, Math.PI * 2);
+    ctx.fill();
+}
 
-    // 8. Bridges
-    if (data.bridges) {
-        cityGen_drawBridges(ctx, data.bridges);
-    }
-
-    // 9. Walls and towers
-    if (data.walls) {
-        var wallTowers = cityGen_generateWallTowers(data.walls);
-        var gates = data.gates || [];
-        cityGen_drawWalls(ctx, data.walls, wallTowers, gates);
-    }
-
-    // 10. Castle
-    if (data.castle) {
-        cityGen_drawCastle(ctx, data.castle);
-    }
-
-    // 11. Landmarks
-    if (data.landmarks) {
-        cityGen_drawLandmarks(ctx, data.landmarks);
-    }
-
-    // 12. City name
-    if (data.name) {
-        cityGen_drawCityName(ctx, data.name, canvas.width / 2, canvas.height);
+function cityGen_drawCartographer(ctx, x, y, size) {
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+    ctx.stroke();
+    for (var i = 0; i < 4; i++) {
+        var angle = (i / 4) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(angle) * size / 2, y + Math.sin(angle) * size / 2);
+        ctx.stroke();
     }
 }
 
-// ============================================================================
-// MASTER GENERATION FUNCTION
-// ============================================================================
-
-function generateCityMap() {
-    var sizeSelect = document.getElementById('citySize');
-    var styleSelect = document.getElementById('cityStyle');
-    var docksCheckbox = document.getElementById('cityDocks');
-    var marketCheckbox = document.getElementById('cityMarket');
-    var wallsCheckbox = document.getElementById('cityWalls');
-    var castleCheckbox = document.getElementById('cityCastle');
-    var riverCheckbox = document.getElementById('cityRiver');
-
-    var size = sizeSelect ? sizeSelect.value : 'town';
-    var cityStyle = styleSelect ? styleSelect.value : 'organic';
-    var includeDocks = docksCheckbox ? docksCheckbox.checked : false;
-    var includeMarket = marketCheckbox ? marketCheckbox.checked : false;
-    var includeWalls = wallsCheckbox ? wallsCheckbox.checked : false;
-    var includeCastle = castleCheckbox ? castleCheckbox.checked : false;
-    var includeRiver = riverCheckbox ? riverCheckbox.checked : false;
-
-    var canvas = document.getElementById('cityMapCanvas');
-    if (!canvas) return;
-
-    var centerX = 450;
-    var centerY = 450;
-    var sizeConfig = SIZE_CONFIG[size] || SIZE_CONFIG.town;
-    var radius = sizeConfig.radius;
-
-    var noise = cityGen_makeNoise();
-
-    // 1. Generate city boundary
-    var boundary = cityGen_createBoundary(centerX, centerY, radius, noise);
-
-    // 2. Generate river (if enabled) — before seeds so seeds avoid it
-    var river = null;
-    var riverPoints = null;
-    var riverWidth = 0;
-    if (includeRiver) {
-        river = cityGen_generateRiver(centerX, centerY, radius, noise);
-        riverPoints = river.points;
-        riverWidth = river.width;
-    }
-
-    // 3. Scatter block seeds (Poisson-like distribution)
-    var seeds = cityGen_scatterSeeds(boundary, sizeConfig.seeds, centerX, centerY, radius, riverPoints, riverWidth);
-
-    // 4. Compute Voronoi cells → city blocks
-    var cells = cityGen_computeVoronoiCells(seeds, boundary);
-
-    // 5. Assign wards to cells
-    var wardTypes = cityGen_assignWards(cells, sizeConfig.wards, centerX, centerY, radius);
-
-    // Override ward types based on UI checkboxes
-    if (includeMarket && wardTypes.length > 0) {
-        wardTypes[0].type = 'market';
-    }
-    if (includeDocks) {
-        for (var i = 0; i < wardTypes.length; i++) {
-            if (wardTypes[i].type !== 'market' && wardTypes[i].type !== 'noble') {
-                wardTypes[i].type = 'docks';
-                break;
-            }
-        }
-    }
-    // Re-assign cells after overrides
-    for (var c = 0; c < cells.length; c++) {
-        var cell = cells[c];
-        if (cell.wardIndex !== undefined && cell.wardIndex < wardTypes.length) {
-            cell.wardType = wardTypes[cell.wardIndex].type;
-        }
-    }
-
-    // 6. Collect garden areas for green rendering
-    var gardenAreas = [];
-    for (var c = 0; c < cells.length; c++) {
-        if (cells[c].wardType === 'garden') {
-            gardenAreas.push(cells[c].polygon);
-        }
-    }
-
-    // 7. Generate buildings from cell lots
-    var buildings = cityGen_generateBuildings(cells, sizeConfig);
-
-    // 8. Generate suburb buildings outside walls
-    var suburbs = cityGen_generateSuburbs(boundary, centerX, centerY, radius, wardTypes);
-    var allBuildings = buildings.concat(suburbs);
-
-    // 9. Generate farms outside walls
-    var farms = cityGen_generateFarms(boundary, centerX, centerY, radius);
-
-    // 10. Generate landmarks
-    var landmarks = cityGen_generateLandmarks(wardTypes, boundary);
-
-    // 11. Walls
-    var walls = null;
-    var gates = [];
-    if (includeWalls) {
-        walls = boundary;
-        gates = cityGen_generateGates(boundary, centerX, centerY);
-    }
-
-    // 12. Castle
-    var castle = null;
-    if (includeCastle) {
-        castle = cityGen_generateCastle(centerX, centerY, radius, boundary);
-    }
-
-    // 13. Bridges
-    var bridges = [];
-    if (river) {
-        bridges = cityGen_generateBridges(river, boundary);
-    }
-
-    // 14. City name
-    var cityName = CITY_NAMES[Math.floor(Math.random() * CITY_NAMES.length)];
-
-    // Store global data
-    cityMapData = {
-        name: cityName,
-        wards: wardTypes,
-        buildings: allBuildings,
-        landmarks: landmarks,
-        roads: [],
-        river: river,
-        walls: walls,
-        castle: castle,
-        boundary: boundary,
-        wardAssignments: wardTypes,
-        suburbs: suburbs,
-        farms: farms,
-        gates: gates,
-        bridges: bridges,
-        gardenAreas: gardenAreas,
-        noise: noise,
-        sizeLabel: 'A ' + sizeConfig.label + ' of the Realm'
-    };
-
-    // Render
-    cityGen_render(canvas, cityMapData);
-
-    // Update info panel
-    generateCityMapInfo(size, sizeConfig);
+function cityGen_drawEnchanter(ctx, x, y, size) {
+    ctx.fillStyle = '#a898c0';
+    ctx.beginPath();
+    ctx.moveTo(x, y - size / 2);
+    ctx.lineTo(x + size / 3, y - size / 6);
+    ctx.lineTo(x + size / 2, y);
+    ctx.lineTo(x + size / 3, y + size / 6);
+    ctx.lineTo(x, y + size / 2);
+    ctx.lineTo(x - size / 3, y + size / 6);
+    ctx.lineTo(x - size / 2, y);
+    ctx.lineTo(x - size / 3, y - size / 6);
+    ctx.closePath();
+    ctx.fill();
 }
 
-// ============================================================================
-// LANDMARK DRAWING FUNCTIONS
-// ============================================================================
+function cityGen_drawLighthouse(ctx, x, y, size) {
+    ctx.fillStyle = '#5d4a3d';
+    ctx.beginPath();
+    ctx.moveTo(x - size / 4, y + size / 2);
+    ctx.lineTo(x + size / 4, y + size / 2);
+    ctx.lineTo(x + size / 5, y - size / 2);
+    ctx.lineTo(x - size / 5, y - size / 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#f4a460';
+    ctx.beginPath();
+    ctx.arc(x, y - size / 2.5, size / 4, 0, Math.PI * 2);
+    ctx.fill();
+}
 
+// Original landmark functions
 function cityGen_drawBlacksmith(ctx, x, y, size) {
     ctx.fillStyle = '#3d2817';
     ctx.fillRect(x - size / 2, y - size / 2, size, size);
@@ -7758,7 +7963,6 @@ function cityGen_drawChurch(ctx, x, y, size) {
     ctx.lineTo(x - size / 2, y + size / 2);
     ctx.closePath();
     ctx.fill();
-    // Cross on top
     ctx.strokeStyle = '#3d2817';
     ctx.lineWidth = 1.2;
     ctx.beginPath();
@@ -7772,7 +7976,6 @@ function cityGen_drawChurch(ctx, x, y, size) {
 function cityGen_drawCastleLandmark(ctx, x, y, size) {
     ctx.fillStyle = '#5d4a3d';
     ctx.fillRect(x - size / 2, y - size / 2, size, size);
-    // Crenellations
     ctx.fillStyle = '#f5ead0';
     var cw = size / 5;
     for (var i = 0; i < 5; i += 2) {
@@ -7854,6 +8057,303 @@ function cityGen_drawWell(ctx, x, y, size) {
 }
 
 // ============================================================================
+// LANDMARK RENDERER
+// ============================================================================
+
+function cityGen_drawLandmarks(ctx, landmarks) {
+    var drawFunctions = {
+        blacksmith: cityGen_drawBlacksmith,
+        tavern: cityGen_drawTavern,
+        church: cityGen_drawChurch,
+        castle: cityGen_drawCastleLandmark,
+        market: cityGen_drawMarket,
+        library: cityGen_drawLibrary,
+        shop: cityGen_drawShop,
+        stables: cityGen_drawStables,
+        barracks: cityGen_drawBarracks,
+        garden_area: cityGen_drawGardenArea,
+        fountain: cityGen_drawFountain,
+        well: cityGen_drawWell,
+        bakery: cityGen_drawBakery,
+        apothecary: cityGen_drawApothecary,
+        jeweler: cityGen_drawJeweler,
+        tanner: cityGen_drawTanner,
+        alchemist: cityGen_drawAlchemist,
+        herbalist: cityGen_drawHerbalist,
+        bowyer: cityGen_drawBowyer,
+        clothier: cityGen_drawClothier,
+        cooper: cityGen_drawCooper,
+        chandler: cityGen_drawChandler,
+        cartographer: cityGen_drawCartographer,
+        enchanter: cityGen_drawEnchanter,
+        lighthouse: cityGen_drawLighthouse
+    };
+
+    for (var i = 0; i < landmarks.length; i++) {
+        var landmark = landmarks[i];
+        var drawFunc = drawFunctions[landmark.type];
+        if (drawFunc) {
+            drawFunc(ctx, landmark.x, landmark.y, landmark.size);
+        }
+    }
+}
+
+function cityGen_drawCityName(ctx, name, x, y) {
+    ctx.fillStyle = COLOR_PALETTE.buildingOutline;
+    ctx.font = 'bold 18px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(name, x, y - 20);
+}
+
+// ============================================================================
+// MAIN RENDER FUNCTION
+// ============================================================================
+
+function cityGen_render(canvas, data) {
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = COLOR_PALETTE.background;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (data.noise) {
+        cityGen_drawParchmentTexture(ctx, data.noise, canvas.width, canvas.height);
+    }
+
+    if (data.farms) {
+        cityGen_drawFarms(ctx, data.farms);
+    }
+
+    if (data.gardenAreas) {
+        for (var g = 0; g < data.gardenAreas.length; g++) {
+            var ga = data.gardenAreas[g];
+            ctx.fillStyle = COLOR_PALETTE.farmGreen;
+            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.moveTo(ga[0].x, ga[0].y);
+            for (var i = 1; i < ga.length; i++) ctx.lineTo(ga[i].x, ga[i].y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+    }
+
+    for (var i = 0; i < data.buildings.length; i++) {
+        var b = data.buildings[i];
+        if (!b.polygon || b.polygon.length < 3) continue;
+        ctx.fillStyle = b.color;
+        ctx.beginPath();
+        ctx.moveTo(b.polygon[0].x, b.polygon[0].y);
+        for (var j = 1; j < b.polygon.length; j++) {
+            ctx.lineTo(b.polygon[j].x, b.polygon[j].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
+    ctx.lineWidth = 0.6;
+    ctx.lineJoin = 'round';
+    for (var i = 0; i < data.buildings.length; i++) {
+        var b = data.buildings[i];
+        if (!b.polygon || b.polygon.length < 3) continue;
+        ctx.beginPath();
+        ctx.moveTo(b.polygon[0].x, b.polygon[0].y);
+        for (var j = 1; j < b.polygon.length; j++) {
+            ctx.lineTo(b.polygon[j].x, b.polygon[j].y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    if (data.river) {
+        cityGen_drawRiver(ctx, data.river);
+    }
+
+    if (data.bridges) {
+        cityGen_drawBridges(ctx, data.bridges);
+    }
+
+    if (data.walls) {
+        var wallTowers = cityGen_generateWallTowers(data.walls);
+        var gates = data.gates || [];
+        cityGen_drawWalls(ctx, data.walls, wallTowers, gates);
+    }
+
+    if (data.castle) {
+        cityGen_drawCastle(ctx, data.castle);
+    }
+
+    if (data.marketSquare) {
+        cityGen_drawMarketSquare(ctx, data.marketSquare);
+    }
+
+    if (data.landmarks) {
+        cityGen_drawLandmarks(ctx, data.landmarks);
+    }
+
+    if (data.name) {
+        cityGen_drawCityName(ctx, data.name, canvas.width / 2, canvas.height);
+    }
+}
+
+// ============================================================================
+// MASTER GENERATION FUNCTION (Interface Contract)
+// ============================================================================
+
+function generateCityMap() {
+    var sizeSelect = document.getElementById('citySize');
+    var styleSelect = document.getElementById('cityStyle');
+    var docksCheckbox = document.getElementById('cityDocks');
+    var marketCheckbox = document.getElementById('cityMarket');
+    var wallsCheckbox = document.getElementById('cityWalls');
+    var castleCheckbox = document.getElementById('cityCastle');
+    var riverCheckbox = document.getElementById('cityRiver');
+
+    var size = sizeSelect ? sizeSelect.value : 'town';
+    var cityStyle = styleSelect ? styleSelect.value : 'organic';
+    var includeDocks = docksCheckbox ? docksCheckbox.checked : false;
+    var includeMarket = marketCheckbox ? marketCheckbox.checked : false;
+    var includeWalls = wallsCheckbox ? wallsCheckbox.checked : false;
+    var includeCastle = castleCheckbox ? castleCheckbox.checked : false;
+    var includeRiver = riverCheckbox ? riverCheckbox.checked : false;
+
+    var canvas = document.getElementById('cityMapCanvas');
+    if (!canvas) return;
+
+    var centerX = 450;
+    var centerY = 450;
+    var sizeConfig = SIZE_CONFIG[size] || SIZE_CONFIG.town;
+    var radius = sizeConfig.radius;
+
+    var noise = cityGen_makeNoise();
+
+    // 1. Generate city boundary (style-aware)
+    var boundary = cityGen_createBoundary(centerX, centerY, radius, noise, cityStyle);
+
+    // 2. Generate river (if enabled or forced for certain styles)
+    var river = null;
+    var riverPoints = null;
+    var riverWidth = 0;
+    var forceRiver = (cityStyle === 'river-town');
+    if (includeRiver || forceRiver) {
+        river = cityGen_generateRiver(centerX, centerY, radius, noise);
+        riverPoints = river.points;
+        riverWidth = river.width;
+    }
+
+    // 3. Scatter block seeds (style-aware)
+    var seeds = cityGen_scatterSeeds(boundary, sizeConfig.seeds, centerX, centerY, radius, riverPoints, riverWidth, cityStyle);
+
+    // 4. Compute Voronoi cells
+    var cells = cityGen_computeVoronoiCells(seeds, boundary);
+
+    // 5. Assign wards
+    var wardTypes = cityGen_assignWards(cells, sizeConfig.wards, centerX, centerY, radius, size);
+
+    // Override ward types based on UI
+    if (includeMarket && wardTypes.length > 0) {
+        wardTypes[0].type = 'market';
+    }
+    if (includeDocks) {
+        for (var i = 0; i < wardTypes.length; i++) {
+            if (wardTypes[i].type !== 'market' && wardTypes[i].type !== 'noble') {
+                wardTypes[i].type = 'docks';
+                break;
+            }
+        }
+    }
+
+    // Re-assign cells after overrides
+    for (var c = 0; c < cells.length; c++) {
+        var cell = cells[c];
+        if (cell.wardIndex !== undefined && cell.wardIndex < wardTypes.length) {
+            cell.wardType = wardTypes[cell.wardIndex].type;
+        }
+    }
+
+    // 6. Collect garden areas
+    var gardenAreas = [];
+    for (var c = 0; c < cells.length; c++) {
+        if (cells[c].wardType === 'garden' || cells[c].wardType === 'grove' || cells[c].wardType === 'cemetery') {
+            gardenAreas.push(cells[c].polygon);
+        }
+    }
+
+    // 7. Generate buildings
+    var buildings = cityGen_generateBuildings(cells, sizeConfig);
+
+    // 8. Generate suburbs
+    var suburbs = cityGen_generateSuburbs(boundary, centerX, centerY, radius, wardTypes);
+    var allBuildings = buildings.concat(suburbs);
+
+    // 9. Generate farms
+    var farms = cityGen_generateFarms(boundary, centerX, centerY, radius);
+
+    // 10. Generate landmarks
+    var landmarks = cityGen_generateLandmarks(wardTypes, boundary);
+
+    // 11. Generate market square (if enabled)
+    var marketSquare = null;
+    if (includeMarket) {
+        marketSquare = cityGen_generateMarketSquare(wardTypes, boundary);
+    }
+
+    // 12. Walls
+    var walls = null;
+    var gates = [];
+    if (includeWalls) {
+        walls = boundary;
+        gates = cityGen_generateGates(boundary, centerX, centerY);
+    }
+
+    // 13. Castle
+    var castle = null;
+    if (includeCastle) {
+        castle = cityGen_generateCastle(centerX, centerY, radius, boundary);
+    }
+
+    // 14. Bridges
+    var bridges = [];
+    if (river) {
+        bridges = cityGen_generateBridges(river, boundary);
+    }
+
+    // 15. City name
+    var cityName = CITY_NAMES[Math.floor(Math.random() * CITY_NAMES.length)];
+
+    // Store global data
+    cityMapData = {
+        name: cityName,
+        wards: wardTypes,
+        buildings: allBuildings,
+        landmarks: landmarks,
+        roads: [],
+        river: river,
+        walls: walls,
+        castle: castle,
+        boundary: boundary,
+        wardAssignments: wardTypes,
+        suburbs: suburbs,
+        farms: farms,
+        gates: gates,
+        bridges: bridges,
+        gardenAreas: gardenAreas,
+        noise: noise,
+        marketSquare: marketSquare,
+        sizeLabel: 'A ' + sizeConfig.label + ' of the Realm'
+    };
+
+    // Render
+    cityGen_render(canvas, cityMapData);
+
+    // Update info panel
+    generateCityMapInfo(size, sizeConfig);
+}
+
+// ============================================================================
 // INFO GENERATION FUNCTION (Interface Contract)
 // ============================================================================
 
@@ -7882,7 +8382,6 @@ function generateCityMapInfo(size, sizeConfig) {
     if (cityMapData.castle) html += '<div class="gen-result-item"><div class="gen-result-label">Castle</div><div class="gen-result-value">Yes</div></div>';
     if (cityMapData.river) html += '<div class="gen-result-item"><div class="gen-result-label">River</div><div class="gen-result-value">Yes</div></div>';
 
-    // Ward breakdown
     var wardCounts = {};
     for (var i = 0; i < cityMapData.wardAssignments.length; i++) {
         var type = cityMapData.wardAssignments[i].type;
@@ -7893,7 +8392,6 @@ function generateCityMapInfo(size, sizeConfig) {
     }).join(', ');
     html += '<div class="gen-result-item"><div class="gen-result-label">Districts</div><div class="gen-result-value">' + wardList + '</div></div>';
 
-    // Landmark breakdown
     var landmarkList = cityMapData.landmarks.map(function(l) {
         return LANDMARK_TYPES[l.type] ? LANDMARK_TYPES[l.type].label : l.type;
     }).join(', ');
