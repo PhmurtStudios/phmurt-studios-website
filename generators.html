@@ -6352,72 +6352,57 @@
     }
 
     // ═══════════════════════════════ CITY MAP GENERATOR ═══════════════════════════════
-    // Premium-quality procedural city map generator using Voronoi-based ward system
-    // Reference: Watabou's Medieval Fantasy City Generator
-    
+    // Premium procedural city map generator v3.0
+    // Voronoi block-based system with AI agent refinement pipeline
+    // Inspired by watabou's Medieval Fantasy City Generator
+
     let cityMapData = { name: '', wards: [], buildings: [], landmarks: [], roads: [] };
-    
-    // City templates define overall shape characteristics
+
+    // ── City templates: dramatically different city shapes ──
     const CITY_TEMPLATES = {
-      riverside: { vertices: 18, elongation: 1.8, wobble: 0.4 },
-      hilltop: { vertices: 14, elongation: 0.9, wobble: 0.3 },
-      crossroads: { vertices: 20, elongation: 1.2, wobble: 0.35 },
-      coastal: { vertices: 16, elongation: 1.4, wobble: 0.45 },
-      walled: { vertices: 12, elongation: 0.95, wobble: 0.25 }
+      riverside: { vertices: 22, elongation: 1.9, wobble: 0.35, roadStyle: 'organic', description: 'A city built along a major river' },
+      hilltop: { vertices: 16, elongation: 0.85, wobble: 0.25, roadStyle: 'radial', description: 'A fortified hilltop settlement' },
+      crossroads: { vertices: 24, elongation: 1.15, wobble: 0.3, roadStyle: 'grid', description: 'A trade hub at a major crossroads' },
+      coastal: { vertices: 18, elongation: 1.5, wobble: 0.4, roadStyle: 'organic', description: 'A port city on the coast' },
+      walled: { vertices: 14, elongation: 0.92, wobble: 0.2, roadStyle: 'radial', description: 'A heavily fortified walled city' },
+      crescent: { vertices: 20, elongation: 1.3, wobble: 0.35, roadStyle: 'organic', description: 'A city curved around a bay or hill' },
+      star: { vertices: 10, elongation: 1.0, wobble: 0.15, roadStyle: 'radial', description: 'A city with star-shaped fortifications' }
     };
-    
-    // Ward types with visual and semantic properties
+
+    // ── Ward types with visual and semantic properties ──
     const WARD_TYPES = {
-      market: { color: '#d4c0a0', density: 0.85, buildingSize: [6, 14], name: 'Market' },
-      residential: { color: '#d8cbb0', density: 0.75, buildingSize: [8, 16], name: 'Residential' },
-      noble: { color: '#e0d5c0', density: 0.5, buildingSize: [12, 20], name: 'Noble Quarter' },
-      slums: { color: '#c8b898', density: 0.95, buildingSize: [4, 10], name: 'Slums' },
-      docks: { color: '#c8c4b8', density: 0.6, buildingSize: [10, 18], name: 'Docks' },
-      temple: { color: '#ddd0a8', density: 0.3, buildingSize: [14, 24], name: 'Temple Ward' },
-      military: { color: '#ccc5b5', density: 0.4, buildingSize: [12, 22], name: 'Military' },
-      craftsmen: { color: '#d8c4a0', density: 0.8, buildingSize: [8, 16], name: 'Craftsmen' },
-      garden: { color: '#b8c9a0', density: 0.1, buildingSize: [0, 0], name: 'Garden' }
+      market: { color: '#c9b48a', density: 0.55, buildingSize: [10, 20], name: 'Market District', buildingStyle: 'shops' },
+      residential: { color: '#d1c4a5', density: 0.45, buildingSize: [12, 22], name: 'Residential Quarter', buildingStyle: 'houses' },
+      noble: { color: '#dbd2be', density: 0.25, buildingSize: [18, 32], name: 'Noble Quarter', buildingStyle: 'manors' },
+      slums: { color: '#bfad8a', density: 0.65, buildingSize: [6, 14], name: 'The Warrens', buildingStyle: 'shacks' },
+      docks: { color: '#c0baa8', density: 0.4, buildingSize: [14, 24], name: 'Dockside', buildingStyle: 'warehouses' },
+      temple: { color: '#d5c999', density: 0.2, buildingSize: [20, 36], name: 'Temple Ward', buildingStyle: 'temples' },
+      military: { color: '#c4bda8', density: 0.3, buildingSize: [16, 28], name: 'Garrison', buildingStyle: 'barracks' },
+      craftsmen: { color: '#ccb88e', density: 0.5, buildingSize: [10, 20], name: "Craftsmen's Row", buildingStyle: 'workshops' },
+      garden: { color: '#a8b88a', density: 0.08, buildingSize: [0, 0], name: 'Garden District', buildingStyle: 'none' },
+      academic: { color: '#c8c0aa', density: 0.2, buildingSize: [16, 30], name: 'Scholar Quarter', buildingStyle: 'halls' }
     };
-    
-    // Landmarks and their drawing functions
+
+    // ── Landmark definitions ──
     const LANDMARK_TYPES = {
-      blacksmith: { symbol: 'drawBlacksmith', color: '#7a200d', ward: 'craftsmen', name: 'Blacksmith' },
-      tavern: { symbol: 'drawTavern', color: '#7a200d', ward: 'market', name: 'Tavern' },
-      church: { symbol: 'drawChurch', color: '#7a200d', ward: 'temple', name: 'Church' },
-      castle: { symbol: 'drawCastleIcon', color: '#7a200d', ward: 'military', name: 'Castle' },
-      market: { symbol: 'drawMarketStall', color: '#7a200d', ward: 'market', name: 'Market Stall' },
-      library: { symbol: 'drawLibrary', color: '#7a200d', ward: 'residential', name: 'Library' },
-      shop: { symbol: 'drawShop', color: '#7a200d', ward: 'craftsmen', name: 'Shop' },
-      stables: { symbol: 'drawStables', color: '#7a200d', ward: 'docks', name: 'Stables' },
-      barracks: { symbol: 'drawBarracks', color: '#7a200d', ward: 'military', name: 'Barracks' },
-      garden_area: { symbol: 'drawGardenSymbol', color: '#7a200d', ward: 'garden', name: 'Garden' }
+      blacksmith: { symbol: 'drawBlacksmith', color: '#5a1a0a', ward: 'craftsmen', name: 'Blacksmith' },
+      tavern: { symbol: 'drawTavern', color: '#5a1a0a', ward: 'market', name: 'Tavern' },
+      church: { symbol: 'drawChurch', color: '#5a1a0a', ward: 'temple', name: 'Church' },
+      castle: { symbol: 'drawCastleIcon', color: '#5a1a0a', ward: 'military', name: 'Castle' },
+      market: { symbol: 'drawMarketStall', color: '#5a1a0a', ward: 'market', name: 'Market Stall' },
+      library: { symbol: 'drawLibrary', color: '#5a1a0a', ward: 'academic', name: 'Library' },
+      shop: { symbol: 'drawShop', color: '#5a1a0a', ward: 'craftsmen', name: 'Shop' },
+      stables: { symbol: 'drawStables', color: '#5a1a0a', ward: 'docks', name: 'Stables' },
+      barracks: { symbol: 'drawBarracks', color: '#5a1a0a', ward: 'military', name: 'Barracks' },
+      garden_area: { symbol: 'drawGardenSymbol', color: '#5a1a0a', ward: 'garden', name: 'Garden' },
+      fountain: { symbol: 'drawFountain', color: '#5a1a0a', ward: 'noble', name: 'Fountain' },
+      well: { symbol: 'drawWell', color: '#5a1a0a', ward: 'residential', name: 'Well' }
     };
-    
-    // ── Generate organic city boundary polygon ──
-    function cityGen_generateCityBoundary(centerX, centerY, radius, template) {
-      const vertices = template.vertices + Math.floor(Math.random() * 4) - 2;
-      const boundary = [];
-      
-      for (let i = 0; i < vertices; i++) {
-        const angle = (i / vertices) * Math.PI * 2;
-        const primaryWobble = Math.sin(angle * 3) * radius * (0.2 + Math.random() * 0.15);
-        const secondaryWobble = Math.sin(angle * 7 + Math.random() * Math.PI) * radius * (0.1 + Math.random() * 0.08);
-        const elongation = template.elongation + (Math.random() - 0.5) * 0.2;
-        
-        const baseRadius = radius * (elongation > 1 ? (Math.abs(Math.cos(angle)) > 0.7 ? elongation : 1) : 1);
-        const r = baseRadius + primaryWobble + secondaryWobble;
-        
-        boundary.push({
-          x: centerX + Math.cos(angle) * r,
-          y: centerY + Math.sin(angle) * r
-        });
-      }
-      
-      boundary.push(boundary[0]); // Close polygon
-      return boundary;
-    }
-    
-    // ── Point-in-polygon test ──
+
+    // ══════════════════════════════════════════════════════════════
+    // GEOMETRY UTILITIES
+    // ══════════════════════════════════════════════════════════════
+
     function cityGen_pointInPolygon(x, y, polygon) {
       let inside = false;
       for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
@@ -6428,122 +6413,550 @@
       }
       return inside;
     }
-    
-    // ── Simple Voronoi-like ward generation (using spatial partitioning) ──
-    function cityGen_generateWards(boundary, citySize, centerX, centerY) {
-      const wardCounts = { hamlet: 2, village: 4, town: 6, city: 10, metropolis: 15 }[citySize] || 6;
-      const wards = [];
-      const wardTypeKeys = Object.keys(WARD_TYPES);
-      
-      // Generate seed points
-      const seeds = [];
-      for (let w = 0; w < wardCounts; w++) {
-        let seed;
-        let attempts = 0;
-        do {
-          const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() * (Math.hypot(boundary[0].x - centerX, boundary[0].y - centerY) * 0.7);
-          seed = {
-            x: centerX + Math.cos(angle) * dist,
-            y: centerY + Math.sin(angle) * dist
-          };
-          attempts++;
-        } while (attempts < 10 && !cityGen_pointInPolygon(seed.x, seed.y, boundary));
-        
-        if (cityGen_pointInPolygon(seed.x, seed.y, boundary)) {
-          const typeKey = wardTypeKeys[Math.floor(Math.random() * wardTypeKeys.length)];
-          const wardType = WARD_TYPES[typeKey];
-          seeds.push({
-            x: seed.x,
-            y: seed.y,
-            type: typeKey,
-            color: wardType.color,
-            density: wardType.density,
-            buildingSize: wardType.buildingSize,
-            name: wardType.name,
-            buildings: []
-          });
-        }
-      }
-      
-      return seeds;
+
+    function cityGen_pointToSegmentDist(px, py, x1, y1, x2, y2) {
+      const dx = x2 - x1, dy = y2 - y1;
+      const lenSq = dx * dx + dy * dy;
+      if (lenSq === 0) return Math.hypot(px - x1, py - y1);
+      let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+      t = Math.max(0, Math.min(1, t));
+      return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
     }
-    
-    // ── Generate main roads crossing the city ──
-    function cityGen_generateMainRoads(boundary, centerX, centerY, radius) {
-      const roads = [];
-      const roadCount = 2 + Math.floor(Math.random() * 3);
-      
-      for (let r = 0; r < roadCount; r++) {
-        const angle = (r / roadCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
-        const road = [];
-        const steps = 40;
-        
-        for (let s = 0; s <= steps; s++) {
-          const t = s / steps;
-          const baseX = centerX + Math.cos(angle) * (radius * 1.2 * (t - 0.5) * 2);
-          const baseY = centerY + Math.sin(angle) * (radius * 1.2 * (t - 0.5) * 2);
-          
-          const perpAngle = angle + Math.PI / 2;
-          const wobble = Math.sin(t * Math.PI * 3) * 15 + Math.sin(t * 7 + Math.random() * Math.PI) * 8;
-          
-          road.push({
-            x: baseX + Math.cos(perpAngle) * wobble,
-            y: baseY + Math.sin(perpAngle) * wobble
-          });
-        }
-        
-        roads.push({
-          type: 'main',
-          points: road,
-          width: 12,
-          angle: angle
-        });
-      }
-      
-      return roads;
+
+    function cityGen_hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16)
+      } : { r: 200, g: 180, b: 160 };
     }
-    
-    // ── Generate ring roads around city ──
-    function cityGen_generateRingRoads(centerX, centerY, radius, boundary) {
-      const roads = [];
-      const ringCount = 2 + Math.floor(Math.random() * 2);
-      
-      for (let ring = 1; ring <= ringCount; ring++) {
-        const ringRadius = (ring / (ringCount + 1)) * radius * 0.8;
-        const vertices = 20 + Math.floor(Math.random() * 12);
-        const road = [];
-        
-        for (let v = 0; v < vertices; v++) {
-          const angle = (v / vertices) * Math.PI * 2;
-          const wobble = Math.sin(angle * 4) * ringRadius * 0.1 + Math.sin(angle * 9 + Math.random() * Math.PI) * ringRadius * 0.05;
-          const r = ringRadius + wobble;
-          
-          const point = {
-            x: centerX + Math.cos(angle) * r,
-            y: centerY + Math.sin(angle) * r
-          };
-          
-          if (cityGen_pointInPolygon(point.x, point.y, boundary)) {
-            road.push(point);
+
+    function cityGen_lerp(a, b, t) { return a + (b - a) * t; }
+
+    function cityGen_clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    // Polygon centroid
+    function cityGen_centroid(poly) {
+      let cx = 0, cy = 0;
+      for (const p of poly) { cx += p.x; cy += p.y; }
+      return { x: cx / poly.length, y: cy / poly.length };
+    }
+
+    // Polygon area (signed)
+    function cityGen_polyArea(poly) {
+      let area = 0;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        area += (poly[j].x + poly[i].x) * (poly[j].y - poly[i].y);
+      }
+      return Math.abs(area / 2);
+    }
+
+    // Shrink polygon toward centroid
+    function cityGen_shrinkPoly(poly, amount) {
+      const c = cityGen_centroid(poly);
+      return poly.map(p => {
+        const dx = p.x - c.x, dy = p.y - c.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 1) return { x: p.x, y: p.y };
+        const scale = Math.max(0, (d - amount) / d);
+        return { x: c.x + dx * scale, y: c.y + dy * scale };
+      });
+    }
+
+    // Line segment intersection
+    function cityGen_segIntersect(a1, a2, b1, b2) {
+      const d1x = a2.x - a1.x, d1y = a2.y - a1.y;
+      const d2x = b2.x - b1.x, d2y = b2.y - b1.y;
+      const cross = d1x * d2y - d1y * d2x;
+      if (Math.abs(cross) < 1e-8) return null;
+      const t = ((b1.x - a1.x) * d2y - (b1.y - a1.y) * d2x) / cross;
+      const u = ((b1.x - a1.x) * d1y - (b1.y - a1.y) * d1x) / cross;
+      if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+        return { x: a1.x + t * d1x, y: a1.y + t * d1y };
+      }
+      return null;
+    }
+
+    // Clip polygon to boundary polygon (Sutherland-Hodgman)
+    function cityGen_clipPoly(subject, clip) {
+      let output = [...subject];
+      for (let i = 0; i < clip.length; i++) {
+        if (output.length === 0) return [];
+        const edgeStart = clip[i];
+        const edgeEnd = clip[(i + 1) % clip.length];
+        const input = [...output];
+        output = [];
+        for (let j = 0; j < input.length; j++) {
+          const current = input[j];
+          const prev = input[(j + input.length - 1) % input.length];
+          const currInside = cityGen_isLeft(edgeStart, edgeEnd, current) >= 0;
+          const prevInside = cityGen_isLeft(edgeStart, edgeEnd, prev) >= 0;
+          if (currInside) {
+            if (!prevInside) {
+              const ix = cityGen_lineIntersect(edgeStart, edgeEnd, prev, current);
+              if (ix) output.push(ix);
+            }
+            output.push(current);
+          } else if (prevInside) {
+            const ix = cityGen_lineIntersect(edgeStart, edgeEnd, prev, current);
+            if (ix) output.push(ix);
           }
         }
-        
-        if (road.length > 3) {
-          road.push(road[0]); // Close ring
-          roads.push({
-            type: 'ring',
-            points: road,
-            width: 8
-          });
+      }
+      return output;
+    }
+
+    function cityGen_isLeft(a, b, c) {
+      return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    }
+
+    function cityGen_lineIntersect(a, b, c, d) {
+      const denom = (d.y - c.y) * (b.x - a.x) - (d.x - c.x) * (b.y - a.y);
+      if (Math.abs(denom) < 1e-10) return null;
+      const ua = ((d.x - c.x) * (a.y - c.y) - (d.y - c.y) * (a.x - c.x)) / denom;
+      return { x: a.x + ua * (b.x - a.x), y: a.y + ua * (b.y - a.y) };
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // VORONOI IMPLEMENTATION (Fortune's algorithm simplified via Delaunay)
+    // ══════════════════════════════════════════════════════════════
+
+    // Simple Voronoi from Delaunay triangulation
+    function cityGen_computeVoronoi(points, bounds) {
+      // Bowyer-Watson Delaunay triangulation
+      const { minX, minY, maxX, maxY } = bounds;
+      const dx = maxX - minX, dy = maxY - minY;
+      const dmax = Math.max(dx, dy) * 10;
+
+      // Super triangle
+      const st = [
+        { x: minX - dmax, y: minY - dmax },
+        { x: minX + dmax * 3, y: minY - dmax },
+        { x: minX - dmax, y: minY + dmax * 3 }
+      ];
+
+      let triangles = [{ v: [st[0], st[1], st[2]], circ: cityGen_circumcircle(st[0], st[1], st[2]) }];
+
+      for (const p of points) {
+        const badTriangles = [];
+        const polygon = [];
+
+        for (const tri of triangles) {
+          if (tri.circ && cityGen_distSq(p, tri.circ) < tri.circ.r * tri.circ.r) {
+            badTriangles.push(tri);
+          }
+        }
+
+        // Find boundary edges
+        for (const tri of badTriangles) {
+          for (let i = 0; i < 3; i++) {
+            const e = [tri.v[i], tri.v[(i + 1) % 3]];
+            let shared = false;
+            for (const other of badTriangles) {
+              if (other === tri) continue;
+              let count = 0;
+              for (const ov of other.v) {
+                if ((ov.x === e[0].x && ov.y === e[0].y) || (ov.x === e[1].x && ov.y === e[1].y)) count++;
+              }
+              if (count === 2) { shared = true; break; }
+            }
+            if (!shared) polygon.push(e);
+          }
+        }
+
+        triangles = triangles.filter(t => !badTriangles.includes(t));
+
+        for (const edge of polygon) {
+          const circ = cityGen_circumcircle(edge[0], edge[1], p);
+          if (circ) triangles.push({ v: [edge[0], edge[1], p], circ });
         }
       }
-      
+
+      // Remove triangles connected to super triangle
+      triangles = triangles.filter(t => {
+        for (const v of t.v) {
+          for (const s of st) {
+            if (v.x === s.x && v.y === s.y) return false;
+          }
+        }
+        return true;
+      });
+
+      // Extract Voronoi cells from Delaunay dual
+      const cells = new Map();
+      for (const p of points) {
+        const key = `${p.x},${p.y}`;
+        cells.set(key, { site: p, vertices: [] });
+      }
+
+      for (const tri of triangles) {
+        if (!tri.circ) continue;
+        const cc = { x: tri.circ.x, y: tri.circ.y };
+        for (const v of tri.v) {
+          const key = `${v.x},${v.y}`;
+          if (cells.has(key)) {
+            cells.get(key).vertices.push(cc);
+          }
+        }
+      }
+
+      // Sort vertices around each cell
+      const result = [];
+      for (const [, cell] of cells) {
+        if (cell.vertices.length < 3) continue;
+        const c = cityGen_centroid(cell.vertices);
+        cell.vertices.sort((a, b) => Math.atan2(a.y - c.y, a.x - c.x) - Math.atan2(b.y - c.y, b.x - c.x));
+        result.push({ site: cell.site, polygon: cell.vertices });
+      }
+
+      return result;
+    }
+
+    function cityGen_circumcircle(a, b, c) {
+      const ax = a.x, ay = a.y, bx = b.x, by = b.y, cx = c.x, cy = c.y;
+      const d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+      if (Math.abs(d) < 1e-10) return null;
+      const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
+      const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+      const r = Math.hypot(ax - ux, ay - uy);
+      return { x: ux, y: uy, r };
+    }
+
+    function cityGen_distSq(a, b) {
+      return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // PERLIN NOISE (for organic shapes)
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_makeNoise() {
+      const perm = new Uint8Array(512);
+      const p = new Uint8Array(256);
+      for (let i = 0; i < 256; i++) p[i] = i;
+      for (let i = 255; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [p[i], p[j]] = [p[j], p[i]];
+      }
+      for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+
+      function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+      function grad(hash, x, y) {
+        const h = hash & 3;
+        const u = h < 2 ? x : y;
+        const v = h < 2 ? y : x;
+        return ((h & 1) ? -u : u) + ((h & 2) ? -v : v);
+      }
+
+      return function noise2D(x, y) {
+        const xi = Math.floor(x) & 255, yi = Math.floor(y) & 255;
+        const xf = x - Math.floor(x), yf = y - Math.floor(y);
+        const u = fade(xf), v = fade(yf);
+        const aa = perm[perm[xi] + yi], ab = perm[perm[xi] + yi + 1];
+        const ba = perm[perm[xi + 1] + yi], bb = perm[perm[xi + 1] + yi + 1];
+        return cityGen_lerp(
+          cityGen_lerp(grad(aa, xf, yf), grad(ba, xf - 1, yf), u),
+          cityGen_lerp(grad(ab, xf, yf - 1), grad(bb, xf - 1, yf - 1), u), v
+        );
+      };
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // CITY BOUNDARY GENERATOR
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_generateCityBoundary(cx, cy, radius, template) {
+      const noise = cityGen_makeNoise();
+      const vertices = template.vertices + Math.floor(Math.random() * 6) - 3;
+      const numVerts = Math.max(12, vertices);
+      const boundary = [];
+      const phase = Math.random() * Math.PI * 2;
+
+      for (let i = 0; i < numVerts; i++) {
+        const angle = (i / numVerts) * Math.PI * 2;
+        // Multi-octave noise for organic boundary
+        const n1 = noise(Math.cos(angle + phase) * 2, Math.sin(angle + phase) * 2) * radius * 0.25;
+        const n2 = noise(Math.cos(angle * 3 + phase) * 4, Math.sin(angle * 3 + phase) * 4) * radius * 0.1;
+        const n3 = noise(Math.cos(angle * 7 + phase) * 8, Math.sin(angle * 7 + phase) * 8) * radius * 0.04;
+
+        // Elongation based on template
+        let elong = 1;
+        if (template.elongation > 1.2) {
+          elong = 1 + (template.elongation - 1) * Math.abs(Math.cos(angle));
+        } else if (template.elongation < 0.9) {
+          elong = template.elongation + (1 - template.elongation) * 0.5;
+        }
+
+        const r = radius * elong + n1 + n2 + n3;
+        boundary.push({
+          x: cx + Math.cos(angle) * r,
+          y: cy + Math.sin(angle) * r
+        });
+      }
+
+      // Subdivide for smoother boundary
+      const smooth = [];
+      for (let i = 0; i < boundary.length; i++) {
+        const curr = boundary[i];
+        const next = boundary[(i + 1) % boundary.length];
+        smooth.push(curr);
+        smooth.push({
+          x: (curr.x + next.x) / 2 + (Math.random() - 0.5) * radius * template.wobble * 0.3,
+          y: (curr.y + next.y) / 2 + (Math.random() - 0.5) * radius * template.wobble * 0.3
+        });
+      }
+
+      smooth.push(smooth[0]); // Close polygon
+      return smooth;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ROAD NETWORK GENERATOR
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_generateRoadNetwork(boundary, cx, cy, radius, template, hasRiver, riverPath) {
+      const roads = [];
+      const style = template.roadStyle;
+      const noise = cityGen_makeNoise();
+
+      // ── Main arterial roads ──
+      if (style === 'radial') {
+        // Radial roads from center outward
+        const roadCount = 3 + Math.floor(Math.random() * 4);
+        const baseAngle = Math.random() * Math.PI * 2;
+        for (let r = 0; r < roadCount; r++) {
+          const angle = baseAngle + (r / roadCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+          const road = cityGen_generateOrganicRoad(cx, cy, angle, radius * 1.15, noise, 6);
+          roads.push({ type: 'main', points: road, width: 14 });
+        }
+      } else if (style === 'grid') {
+        // Grid-ish with organic wobble
+        const gridRoads = 2 + Math.floor(Math.random() * 2);
+        const baseAngle = Math.random() * Math.PI * 0.5;
+        for (let r = 0; r < gridRoads; r++) {
+          const angle = baseAngle + (r / gridRoads) * Math.PI;
+          const road = cityGen_generateOrganicRoad(cx, cy, angle, radius * 1.15, noise, 4);
+          roads.push({ type: 'main', points: road, width: 14 });
+        }
+        // Perpendicular roads
+        for (let r = 0; r < gridRoads; r++) {
+          const angle = baseAngle + Math.PI / 2 + (r / gridRoads) * Math.PI;
+          const road = cityGen_generateOrganicRoad(cx, cy, angle, radius * 1.15, noise, 4);
+          roads.push({ type: 'main', points: road, width: 12 });
+        }
+      } else {
+        // Organic: irregular roads
+        const roadCount = 2 + Math.floor(Math.random() * 3);
+        for (let r = 0; r < roadCount; r++) {
+          const angle = Math.random() * Math.PI * 2;
+          const road = cityGen_generateOrganicRoad(cx, cy, angle, radius * 1.15, noise, 10);
+          roads.push({ type: 'main', points: road, width: 13 });
+        }
+      }
+
+      // ── Ring/loop roads ──
+      const ringCount = style === 'radial' ? 2 + Math.floor(Math.random() * 2) : 1 + Math.floor(Math.random() * 2);
+      for (let ring = 1; ring <= ringCount; ring++) {
+        const ringRadius = (ring / (ringCount + 1)) * radius * 0.85;
+        const road = cityGen_generateRingRoad(cx, cy, ringRadius, boundary, noise);
+        if (road.length > 4) {
+          roads.push({ type: 'ring', points: road, width: 9 });
+        }
+      }
+
+      // ── Secondary connecting roads ──
+      const secondaryCount = 3 + Math.floor(Math.random() * 5);
+      for (let s = 0; s < secondaryCount; s++) {
+        const startAngle = Math.random() * Math.PI * 2;
+        const startDist = radius * (0.15 + Math.random() * 0.5);
+        const sx = cx + Math.cos(startAngle) * startDist;
+        const sy = cy + Math.sin(startAngle) * startDist;
+
+        if (!cityGen_pointInPolygon(sx, sy, boundary)) continue;
+
+        const endAngle = startAngle + (Math.random() - 0.5) * 1.5;
+        const endDist = startDist + radius * (0.15 + Math.random() * 0.3);
+        const ex = cx + Math.cos(endAngle) * endDist;
+        const ey = cy + Math.sin(endAngle) * endDist;
+
+        const road = cityGen_generateCurvedRoad(sx, sy, ex, ey, noise, 5);
+        const clipped = road.filter(p => cityGen_pointInPolygon(p.x, p.y, boundary));
+        if (clipped.length > 2) {
+          roads.push({ type: 'secondary', points: clipped, width: 6 });
+        }
+      }
+
       return roads;
     }
-    
-    // ── Check if point is on any road ──
-    function cityGen_isPointOnRoad(x, y, roads, margin = 1) {
+
+    function cityGen_generateOrganicRoad(cx, cy, angle, length, noise, wobbleAmount) {
+      const road = [];
+      const steps = 35;
+      const phase = Math.random() * 100;
+
+      for (let s = 0; s <= steps; s++) {
+        const t = s / steps;
+        const dist = length * (t - 0.5) * 2;
+        const baseX = cx + Math.cos(angle) * dist;
+        const baseY = cy + Math.sin(angle) * dist;
+
+        const perpAngle = angle + Math.PI / 2;
+        const n = noise(t * 4 + phase, angle * 2) * wobbleAmount;
+        const wobble = n + Math.sin(t * Math.PI * 2.5 + phase) * wobbleAmount * 0.5;
+
+        road.push({
+          x: baseX + Math.cos(perpAngle) * wobble,
+          y: baseY + Math.sin(perpAngle) * wobble
+        });
+      }
+      return road;
+    }
+
+    function cityGen_generateRingRoad(cx, cy, ringRadius, boundary, noise) {
+      const road = [];
+      const verts = 28 + Math.floor(Math.random() * 12);
+      const phase = Math.random() * 100;
+
+      for (let v = 0; v <= verts; v++) {
+        const angle = (v / verts) * Math.PI * 2;
+        const n = noise(Math.cos(angle) * 3 + phase, Math.sin(angle) * 3 + phase) * ringRadius * 0.12;
+        const r = ringRadius + n;
+        const point = { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r };
+
+        if (cityGen_pointInPolygon(point.x, point.y, boundary)) {
+          road.push(point);
+        }
+      }
+      if (road.length > 3) road.push(road[0]);
+      return road;
+    }
+
+    function cityGen_generateCurvedRoad(x1, y1, x2, y2, noise, wobbleAmount) {
+      const road = [];
+      const steps = 15;
+      const phase = Math.random() * 100;
+      const midOffX = (Math.random() - 0.5) * wobbleAmount * 6;
+      const midOffY = (Math.random() - 0.5) * wobbleAmount * 6;
+
+      for (let s = 0; s <= steps; s++) {
+        const t = s / steps;
+        // Quadratic bezier with noise
+        const mx = (x1 + x2) / 2 + midOffX;
+        const my = (y1 + y2) / 2 + midOffY;
+        const bx = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * mx + t * t * x2;
+        const by = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * my + t * t * y2;
+        const n = noise(t * 3 + phase, phase) * wobbleAmount * 0.3;
+        road.push({ x: bx + n, y: by + n });
+      }
+      return road;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // WARD GENERATION (Voronoi-based district system)
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_generateWards(boundary, citySize, cx, cy, radius) {
+      const wardCounts = { hamlet: 3, village: 5, town: 7, city: 11, metropolis: 16 }[citySize] || 7;
+      const wardTypeKeys = Object.keys(WARD_TYPES);
+
+      // Generate ward seed points with spatial distribution
+      const seeds = [];
+      const noise = cityGen_makeNoise();
+
+      // Use Poisson-disk-like sampling for better distribution
+      for (let w = 0; w < wardCounts; w++) {
+        let bestSeed = null;
+        let bestMinDist = -1;
+
+        for (let attempt = 0; attempt < 30; attempt++) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.sqrt(Math.random()) * radius * 0.85;
+          const px = cx + Math.cos(angle) * dist;
+          const py = cy + Math.sin(angle) * dist;
+
+          if (!cityGen_pointInPolygon(px, py, boundary)) continue;
+
+          // Find minimum distance to existing seeds
+          let minDist = Infinity;
+          for (const s of seeds) {
+            const d = Math.hypot(px - s.x, py - s.y);
+            if (d < minDist) minDist = d;
+          }
+
+          if (seeds.length === 0 || minDist > bestMinDist) {
+            bestMinDist = minDist;
+            bestSeed = { x: px, y: py };
+          }
+        }
+
+        if (bestSeed) seeds.push(bestSeed);
+      }
+
+      if (seeds.length < 2) return [];
+
+      // Compute Voronoi cells
+      const voronoiBounds = {
+        minX: cx - radius * 1.5, minY: cy - radius * 1.5,
+        maxX: cx + radius * 1.5, maxY: cy + radius * 1.5
+      };
+      const voronoiCells = cityGen_computeVoronoi(seeds, voronoiBounds);
+
+      // Assign ward types intelligently
+      const wards = [];
+      const usedTypes = new Set();
+
+      // Sort by distance from center (center wards get important types)
+      const sortedCells = voronoiCells.sort((a, b) =>
+        Math.hypot(a.site.x - cx, a.site.y - cy) - Math.hypot(b.site.x - cx, b.site.y - cy)
+      );
+
+      // First ward near center is always market or temple
+      const centerTypes = ['market', 'temple', 'noble'];
+      const outerTypes = ['residential', 'slums', 'garden', 'craftsmen', 'docks'];
+      const midTypes = ['craftsmen', 'residential', 'military', 'academic'];
+
+      sortedCells.forEach((cell, idx) => {
+        const distFromCenter = Math.hypot(cell.site.x - cx, cell.site.y - cy) / radius;
+        let typeKey;
+
+        if (idx === 0) {
+          typeKey = centerTypes[Math.floor(Math.random() * centerTypes.length)];
+        } else if (distFromCenter < 0.35) {
+          typeKey = midTypes[Math.floor(Math.random() * midTypes.length)];
+        } else {
+          typeKey = outerTypes[Math.floor(Math.random() * outerTypes.length)];
+        }
+
+        // Clip ward polygon to city boundary
+        let clipped = cell.polygon;
+        if (clipped.length >= 3) {
+          clipped = cityGen_clipPoly(clipped, boundary.slice(0, -1));
+        }
+        if (clipped.length < 3) return;
+
+        const wardType = WARD_TYPES[typeKey];
+        wards.push({
+          site: cell.site,
+          polygon: clipped,
+          type: typeKey,
+          color: wardType.color,
+          density: wardType.density,
+          buildingSize: wardType.buildingSize,
+          buildingStyle: wardType.buildingStyle,
+          name: wardType.name,
+          buildings: [],
+          landmarks: [],
+          openSpaces: []
+        });
+      });
+
+      return wards;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // BUILDING GENERATION (Block-based placement)
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_isPointOnRoad(x, y, roads, margin) {
       for (const road of roads) {
         for (let i = 0; i < road.points.length - 1; i++) {
           const p1 = road.points[i];
@@ -6554,283 +6967,715 @@
       }
       return false;
     }
-    
-    // ── Distance from point to line segment ──
-    function cityGen_pointToSegmentDist(px, py, x1, y1, x2, y2) {
-      const dx = x2 - x1, dy = y2 - y1;
-      const lenSq = dx * dx + dy * dy;
-      if (lenSq === 0) return Math.hypot(px - x1, py - y1);
-      let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
-      t = Math.max(0, Math.min(1, t));
-      return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
-    }
-    
-    // ── Generate buildings in a ward using occupancy grid ──
-    function cityGen_generateBuildingsInWard(ward, centerX, centerY, radius, roads, boundary) {
+
+    function cityGen_generateBuildingsInWard(ward, roads, boundary, allBuildings) {
       const buildings = [];
-      const occupancy = new Set();
-      const gridSize = 2;
+      if (ward.type === 'garden') return buildings;
+
       const [minSize, maxSize] = ward.buildingSize;
-      const targetCount = Math.floor(radius * radius * ward.density * 0.15);
-      
+      if (maxSize <= 0) return buildings;
+
+      // Calculate ward bounding box
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const p of ward.polygon) {
+        if (p.x < minX) minX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y > maxY) maxY = p.y;
+      }
+
+      const wardArea = cityGen_polyArea(ward.polygon);
+      // Dramatically reduce target count for more spacing
+      const targetCount = Math.floor(wardArea * ward.density * 0.0008);
+
+      // Shrink the ward polygon for building setback from ward edges
+      const buildZone = cityGen_shrinkPoly(ward.polygon, 10);
+      if (buildZone.length < 3) return buildings;
+
+      // Use spatial hash for collision detection with generous spacing
+      const CELL_SIZE = 8;
+      const occupied = new Set();
+
+      function markOccupied(x, y, w, h, angle) {
+        // Mark cells around building footprint with padding
+        const padding = 6; // 6px gap between buildings
+        const hw = w / 2 + padding, hh = h / 2 + padding;
+        const cos = Math.cos(angle), sin = Math.sin(angle);
+        // Check corners of padded bounding box
+        const corners = [
+          { x: x + cos * hw - sin * hh, y: y + sin * hw + cos * hh },
+          { x: x - cos * hw - sin * hh, y: y - sin * hw + cos * hh },
+          { x: x + cos * hw + sin * hh, y: y + sin * hw - cos * hh },
+          { x: x - cos * hw + sin * hh, y: y - sin * hw - cos * hh }
+        ];
+        let cMinX = Infinity, cMinY = Infinity, cMaxX = -Infinity, cMaxY = -Infinity;
+        for (const c of corners) {
+          if (c.x < cMinX) cMinX = c.x;
+          if (c.y < cMinY) cMinY = c.y;
+          if (c.x > cMaxX) cMaxX = c.x;
+          if (c.y > cMaxY) cMaxY = c.y;
+        }
+        const gx0 = Math.floor(cMinX / CELL_SIZE);
+        const gy0 = Math.floor(cMinY / CELL_SIZE);
+        const gx1 = Math.floor(cMaxX / CELL_SIZE);
+        const gy1 = Math.floor(cMaxY / CELL_SIZE);
+        for (let gy = gy0; gy <= gy1; gy++) {
+          for (let gx = gx0; gx <= gx1; gx++) {
+            occupied.add(`${gx},${gy}`);
+          }
+        }
+      }
+
+      function canPlace(x, y, w, h, angle) {
+        const padding = 6;
+        const hw = w / 2 + padding, hh = h / 2 + padding;
+        const cos = Math.cos(angle), sin = Math.sin(angle);
+        const corners = [
+          { x: x + cos * hw - sin * hh, y: y + sin * hw + cos * hh },
+          { x: x - cos * hw - sin * hh, y: y - sin * hw + cos * hh },
+          { x: x + cos * hw + sin * hh, y: y + sin * hw - cos * hh },
+          { x: x - cos * hw + sin * hh, y: y - sin * hw - cos * hh }
+        ];
+        let cMinX = Infinity, cMinY = Infinity, cMaxX = -Infinity, cMaxY = -Infinity;
+        for (const c of corners) {
+          if (c.x < cMinX) cMinX = c.x;
+          if (c.y < cMinY) cMinY = c.y;
+          if (c.x > cMaxX) cMaxX = c.x;
+          if (c.y > cMaxY) cMaxY = c.y;
+        }
+        const gx0 = Math.floor(cMinX / CELL_SIZE);
+        const gy0 = Math.floor(cMinY / CELL_SIZE);
+        const gx1 = Math.floor(cMaxX / CELL_SIZE);
+        const gy1 = Math.floor(cMaxY / CELL_SIZE);
+        for (let gy = gy0; gy <= gy1; gy++) {
+          for (let gx = gx0; gx <= gx1; gx++) {
+            if (occupied.has(`${gx},${gy}`)) return false;
+          }
+        }
+        return true;
+      }
+
+      // Mark existing buildings from other wards
+      for (const b of allBuildings) {
+        markOccupied(b.x, b.y, b.width, b.height, b.angle);
+      }
+
+      // Find nearest road direction for building alignment
+      function getNearestRoadAngle(px, py) {
+        let bestAngle = 0;
+        let bestDist = Infinity;
+        for (const road of roads) {
+          for (let i = 0; i < road.points.length - 1; i++) {
+            const p1 = road.points[i], p2 = road.points[i + 1];
+            const dist = cityGen_pointToSegmentDist(px, py, p1.x, p1.y, p2.x, p2.y);
+            if (dist < bestDist) {
+              bestDist = dist;
+              bestAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            }
+          }
+        }
+        return bestAngle;
+      }
+
       let placed = 0;
       let attempts = 0;
-      const maxAttempts = targetCount * 15;
-      
+      const maxAttempts = targetCount * 25;
+
       while (placed < targetCount && attempts < maxAttempts) {
         attempts++;
-        
-        // Random position within ward
-        const angle = Math.random() * Math.PI * 2;
-        const dist = Math.random() * radius;
-        const x = centerX + Math.cos(angle) * dist;
-        const y = centerY + Math.sin(angle) * dist;
-        
-        // Must be in boundary and not on road
-        if (!cityGen_pointInPolygon(x, y, boundary) || cityGen_isPointOnRoad(x, y, roads, 2)) {
-          continue;
+
+        // Sample position within ward polygon
+        const rx = minX + Math.random() * (maxX - minX);
+        const ry = minY + Math.random() * (maxY - minY);
+
+        if (!cityGen_pointInPolygon(rx, ry, buildZone)) continue;
+        if (!cityGen_pointInPolygon(rx, ry, boundary)) continue;
+        if (cityGen_isPointOnRoad(rx, ry, roads, 10)) continue;
+
+        // Building size with variation based on ward type
+        const sizeRand = Math.random() * Math.random(); // Bias toward smaller
+        const baseSize = minSize + sizeRand * (maxSize - minSize);
+        const aspectRatio = 0.5 + Math.random() * 1.0;
+        const width = baseSize * (aspectRatio > 1 ? aspectRatio : 1);
+        const height = baseSize * (aspectRatio < 1 ? 1 / aspectRatio : 1);
+
+        // Align building angle to nearest road
+        const roadAngle = getNearestRoadAngle(rx, ry);
+        const angle = roadAngle + (Math.random() - 0.5) * 0.15; // Small jitter
+
+        if (!canPlace(rx, ry, width, height, angle)) continue;
+
+        // Color variation within ward palette
+        const rgb = cityGen_hexToRgb(ward.color);
+        const shade = 0.88 + Math.random() * 0.12;
+        const warmth = (Math.random() - 0.5) * 10;
+        const color = `rgb(${cityGen_clamp(Math.floor(rgb.r * shade + warmth), 0, 255)},${cityGen_clamp(Math.floor(rgb.g * shade), 0, 255)},${cityGen_clamp(Math.floor(rgb.b * shade - warmth * 0.5), 0, 255)})`;
+
+        const building = {
+          x: rx, y: ry,
+          width, height,
+          angle,
+          color,
+          outlineColor: '#3d2817',
+          wardType: ward.type,
+          // Building shape variation
+          shape: Math.random() < 0.15 ? 'L' : (Math.random() < 0.1 ? 'T' : 'rect')
+        };
+
+        buildings.push(building);
+        markOccupied(rx, ry, width, height, angle);
+        placed++;
+      }
+
+      return buildings;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // OPEN SPACE GENERATOR (Plazas, courtyards, gardens)
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_generateOpenSpaces(wards, roads, cx, cy, radius, boundary) {
+      const spaces = [];
+
+      // Place plazas at road intersections near ward centers
+      const mainRoads = roads.filter(r => r.type === 'main');
+      for (let i = 0; i < mainRoads.length; i++) {
+        for (let j = i + 1; j < mainRoads.length; j++) {
+          // Find approximate intersection
+          for (let pi = 0; pi < mainRoads[i].points.length - 1; pi += 3) {
+            for (let pj = 0; pj < mainRoads[j].points.length - 1; pj += 3) {
+              const ix = cityGen_segIntersect(
+                mainRoads[i].points[pi], mainRoads[i].points[pi + 1],
+                mainRoads[j].points[pj], mainRoads[j].points[pj + 1]
+              );
+              if (ix && cityGen_pointInPolygon(ix.x, ix.y, boundary)) {
+                // Don't place too close to existing plazas
+                const tooClose = spaces.some(s => Math.hypot(s.x - ix.x, s.y - ix.y) < 60);
+                if (!tooClose) {
+                  spaces.push({
+                    x: ix.x, y: ix.y,
+                    radius: 18 + Math.random() * 14,
+                    type: 'plaza',
+                    shape: Math.random() < 0.5 ? 'circle' : 'rect'
+                  });
+                }
+              }
+            }
+          }
         }
-        
-        // Random size, smaller sizes more common
-        const size = minSize + Math.random() * Math.random() * (maxSize - minSize);
-        const width = 5 + size + Math.random() * size * 0.5;
-        const height = 5 + size + Math.random() * size * 0.5;
-        
-        // Check occupancy grid
-        const gridX = Math.floor(x / gridSize);
-        const gridY = Math.floor(y / gridSize);
-        let canPlace = true;
-        
-        for (let dy = -2; dy <= 2; dy++) {
-          for (let dx = -2; dx <= 2; dx++) {
-            if (occupancy.has(`${gridX + dx},${gridY + dy}`)) {
-              canPlace = false;
+      }
+
+      // Add market squares near market wards
+      wards.filter(w => w.type === 'market').forEach(w => {
+        const existing = spaces.some(s => Math.hypot(s.x - w.site.x, s.y - w.site.y) < 40);
+        if (!existing) {
+          spaces.push({
+            x: w.site.x + (Math.random() - 0.5) * 20,
+            y: w.site.y + (Math.random() - 0.5) * 20,
+            radius: 22 + Math.random() * 12,
+            type: 'market_square',
+            shape: 'rect'
+          });
+        }
+      });
+
+      // Add gardens/parks in garden wards
+      wards.filter(w => w.type === 'garden').forEach(w => {
+        const wardC = cityGen_centroid(w.polygon);
+        spaces.push({
+          x: wardC.x, y: wardC.y,
+          radius: 30 + Math.random() * 20,
+          type: 'garden',
+          shape: 'organic'
+        });
+      });
+
+      // Add courtyards in noble and temple wards
+      wards.filter(w => w.type === 'noble' || w.type === 'temple').forEach(w => {
+        if (Math.random() < 0.6) {
+          spaces.push({
+            x: w.site.x + (Math.random() - 0.5) * 25,
+            y: w.site.y + (Math.random() - 0.5) * 25,
+            radius: 14 + Math.random() * 10,
+            type: 'courtyard',
+            shape: 'circle'
+          });
+        }
+      });
+
+      return spaces;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // AI AGENT — Multi-pass Refinement Pipeline
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_aiAgent(wards, roads, buildings, openSpaces, boundary, cx, cy, radius) {
+      const report = { passes: 0, removals: 0, adjustments: 0, additions: 0 };
+
+      // ── PASS 1: Overlap Detection & Resolution ──
+      report.passes++;
+      for (let i = buildings.length - 1; i >= 0; i--) {
+        const b = buildings[i];
+        for (let j = 0; j < i; j++) {
+          const other = buildings[j];
+          const dist = Math.hypot(b.x - other.x, b.y - other.y);
+          const minDist = (b.width + other.width) / 2 + 5;
+          if (dist < minDist) {
+            // Remove the smaller building
+            if (b.width * b.height < other.width * other.height) {
+              buildings.splice(i, 1);
+              report.removals++;
               break;
             }
           }
-          if (!canPlace) break;
         }
-        
-        if (!canPlace) continue;
-        
-        // Mark occupancy
-        for (let dy = -2; dy <= 3; dy++) {
-          for (let dx = -2; dx <= 3; dx++) {
-            occupancy.add(`${gridX + dx},${gridY + dy}`);
+      }
+
+      // ── PASS 2: Road Clearance ──
+      report.passes++;
+      for (let i = buildings.length - 1; i >= 0; i--) {
+        const b = buildings[i];
+        if (cityGen_isPointOnRoad(b.x, b.y, roads, b.width / 2 + 8)) {
+          buildings.splice(i, 1);
+          report.removals++;
+        }
+      }
+
+      // ── PASS 3: Open Space Clearance ──
+      report.passes++;
+      for (let i = buildings.length - 1; i >= 0; i--) {
+        const b = buildings[i];
+        for (const space of openSpaces) {
+          const dist = Math.hypot(b.x - space.x, b.y - space.y);
+          if (dist < space.radius + b.width / 2 + 4) {
+            buildings.splice(i, 1);
+            report.removals++;
+            break;
           }
         }
-        
-        // Slight color variation
-        const rgb = cityGen_hexToRgb(ward.color);
-        const shade = 0.92 + Math.random() * 0.08;
-        const color = `rgb(${Math.floor(rgb.r * shade)},${Math.floor(rgb.g * shade)},${Math.floor(rgb.b * shade)})`;
-        
-        buildings.push({
-          x, y,
-          width, height,
-          angle: (Math.random() - 0.5) * 0.4,
-          color: color,
-          outlineColor: '#3d2817'
-        });
-        
-        placed++;
       }
-      
-      return buildings;
+
+      // ── PASS 4: Boundary Enforcement ──
+      report.passes++;
+      for (let i = buildings.length - 1; i >= 0; i--) {
+        const b = buildings[i];
+        if (!cityGen_pointInPolygon(b.x, b.y, boundary)) {
+          buildings.splice(i, 1);
+          report.removals++;
+        }
+      }
+
+      // ── PASS 5: Density Balance ──
+      report.passes++;
+      // Check each ward's building density and thin out overcrowded areas
+      for (const ward of wards) {
+        const wardBuildings = buildings.filter(b =>
+          cityGen_pointInPolygon(b.x, b.y, ward.polygon)
+        );
+        const wardArea = cityGen_polyArea(ward.polygon);
+        const actualDensity = wardBuildings.length / (wardArea || 1);
+        const maxDensity = ward.density * 0.003;
+
+        if (actualDensity > maxDensity) {
+          // Remove random excess buildings, keeping larger ones
+          const excess = Math.floor(wardBuildings.length * 0.2);
+          const sorted = wardBuildings.sort((a, b) => (a.width * a.height) - (b.width * b.height));
+          for (let i = 0; i < excess; i++) {
+            const idx = buildings.indexOf(sorted[i]);
+            if (idx !== -1) {
+              buildings.splice(idx, 1);
+              report.removals++;
+            }
+          }
+        }
+      }
+
+      // ── PASS 6: Landmark Placement Optimization ──
+      report.passes++;
+      for (const ward of wards) {
+        // Clear buildings around landmark positions
+        ward.landmarks.forEach(lm => {
+          for (let i = buildings.length - 1; i >= 0; i--) {
+            const b = buildings[i];
+            if (Math.hypot(b.x - lm.x, b.y - lm.y) < 18) {
+              buildings.splice(i, 1);
+              report.removals++;
+            }
+          }
+        });
+      }
+
+      // ── PASS 7: Visual Quality Check ──
+      report.passes++;
+      // Ensure no building clusters are too tight
+      const spatialGrid = {};
+      const gridRes = 30;
+      for (const b of buildings) {
+        const gx = Math.floor(b.x / gridRes);
+        const gy = Math.floor(b.y / gridRes);
+        const key = `${gx},${gy}`;
+        if (!spatialGrid[key]) spatialGrid[key] = [];
+        spatialGrid[key].push(b);
+      }
+
+      for (const key in spatialGrid) {
+        const cell = spatialGrid[key];
+        if (cell.length > 4) {
+          // Too many buildings in this grid cell - thin out
+          const removeCount = cell.length - 3;
+          for (let i = 0; i < removeCount; i++) {
+            const idx = buildings.indexOf(cell[i]);
+            if (idx !== -1) {
+              buildings.splice(idx, 1);
+              report.removals++;
+              report.adjustments++;
+            }
+          }
+        }
+      }
+
+      return report;
     }
-    
-    // ── Convert hex to RGB ──
-    function cityGen_hexToRgb(hex) {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : { r: 200, g: 180, b: 160 };
-    }
-    
-    // ── Draw landmark symbols ──
+
+    // ══════════════════════════════════════════════════════════════
+    // LANDMARK DRAWING FUNCTIONS
+    // ══════════════════════════════════════════════════════════════
+
     function drawBlacksmith(ctx, x, y, size) {
-      ctx.fillStyle = '#7a200d';
-      ctx.fillRect(x - size * 0.4, y - size * 0.3, size * 0.8, size * 0.5);
-      ctx.beginPath();
-      ctx.moveTo(x - size * 0.3, y - size * 0.3);
-      ctx.lineTo(x + size * 0.3, y - size * 0.3);
-      ctx.lineTo(x, y - size * 0.6);
-      ctx.closePath();
-      ctx.fill();
-    }
-    
-    function drawTavern(ctx, x, y, size) {
-      ctx.fillStyle = '#7a200d';
-      ctx.fillRect(x - size * 0.3, y - size * 0.4, size * 0.6, size * 0.6);
-      ctx.beginPath();
-      ctx.arc(x + size * 0.3, y - size * 0.2, size * 0.15, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    
-    function drawChurch(ctx, x, y, size) {
-      ctx.strokeStyle = '#7a200d';
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      // Anvil shape
+      ctx.fillRect(x - size * 0.35, y - size * 0.1, size * 0.7, size * 0.3);
+      ctx.fillRect(x - size * 0.2, y - size * 0.25, size * 0.4, size * 0.15);
+      // Hammer
+      ctx.strokeStyle = '#5a1a0a';
       ctx.lineWidth = 1.5;
-      ctx.fillStyle = '#7a200d';
-      // Cross shape
-      ctx.fillRect(x - size * 0.15, y - size * 0.4, size * 0.3, size * 0.8);
-      ctx.fillRect(x - size * 0.4, y - size * 0.15, size * 0.8, size * 0.3);
+      ctx.beginPath();
+      ctx.moveTo(x + size * 0.1, y - size * 0.4);
+      ctx.lineTo(x + size * 0.1, y - size * 0.15);
+      ctx.stroke();
+      ctx.fillRect(x - size * 0.05, y - size * 0.5, size * 0.3, size * 0.12);
+      ctx.restore();
+    }
+
+    function drawTavern(ctx, x, y, size) {
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      // Building
+      ctx.fillRect(x - size * 0.3, y - size * 0.25, size * 0.6, size * 0.5);
       // Roof
       ctx.beginPath();
-      ctx.moveTo(x - size * 0.35, y - size * 0.4);
-      ctx.lineTo(x, y - size * 0.65);
-      ctx.lineTo(x + size * 0.35, y - size * 0.4);
-      ctx.closePath();
-      ctx.fill();
-    }
-    
-    function drawCastleIcon(ctx, x, y, size) {
-      ctx.fillStyle = '#7a200d';
-      ctx.fillRect(x - size * 0.4, y - size * 0.3, size * 0.8, size * 0.5);
-      for (let i = 0; i < 4; i++) {
-        const sx = x - size * 0.3 + i * size * 0.2;
-        ctx.fillRect(sx - size * 0.1, y - size * 0.5, size * 0.2, size * 0.25);
-      }
-    }
-    
-    function drawMarketStall(ctx, x, y, size) {
-      ctx.fillStyle = '#7a200d';
-      ctx.fillRect(x - size * 0.4, y - size * 0.2, size * 0.8, size * 0.3);
-      ctx.beginPath();
-      ctx.moveTo(x - size * 0.4, y - size * 0.2);
+      ctx.moveTo(x - size * 0.4, y - size * 0.25);
       ctx.lineTo(x, y - size * 0.5);
-      ctx.lineTo(x + size * 0.4, y - size * 0.2);
+      ctx.lineTo(x + size * 0.4, y - size * 0.25);
       ctx.closePath();
       ctx.fill();
-    }
-    
-    function drawLibrary(ctx, x, y, size) {
-      ctx.fillStyle = '#7a200d';
-      ctx.fillRect(x - size * 0.3, y - size * 0.4, size * 0.6, size * 0.7);
-      ctx.strokeStyle = '#7a200d';
+      // Mug symbol
+      ctx.strokeStyle = '#e8dcc8';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(x - size * 0.05, y - size * 0.4);
-      ctx.lineTo(x - size * 0.05, y + size * 0.3);
+      ctx.arc(x, y + size * 0.05, size * 0.1, 0, Math.PI);
       ctx.stroke();
-      for (let i = 0; i < 3; i++) {
-        ctx.beginPath();
-        ctx.moveTo(x - size * 0.3, y - size * 0.2 + i * size * 0.2);
-        ctx.lineTo(x + size * 0.3, y - size * 0.2 + i * size * 0.2);
-        ctx.stroke();
-      }
+      ctx.restore();
     }
-    
-    function drawShop(ctx, x, y, size) {
-      ctx.fillStyle = '#7a200d';
-      ctx.fillRect(x - size * 0.35, y - size * 0.3, size * 0.7, size * 0.5);
-      ctx.fillRect(x - size * 0.35, y + size * 0.2, size * 0.7, size * 0.15);
-    }
-    
-    function drawStables(ctx, x, y, size) {
-      ctx.strokeStyle = '#7a200d';
-      ctx.lineWidth = 1.5;
+
+    function drawChurch(ctx, x, y, size) {
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      // Cross
+      ctx.fillRect(x - size * 0.06, y - size * 0.5, size * 0.12, size * 0.65);
+      ctx.fillRect(x - size * 0.22, y - size * 0.35, size * 0.44, size * 0.12);
+      // Building base
+      ctx.fillRect(x - size * 0.3, y + size * 0.0, size * 0.6, size * 0.35);
+      // Roof
       ctx.beginPath();
-      ctx.arc(x - size * 0.15, y, size * 0.2, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(x + size * 0.15, y, size * 0.2, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = '#7a200d';
-      ctx.beginPath();
-      ctx.moveTo(x - size * 0.35, y - size * 0.1);
-      ctx.lineTo(x - size * 0.05, y - size * 0.1);
-      ctx.lineTo(x - size * 0.05, y + size * 0.3);
-      ctx.lineTo(x - size * 0.35, y + size * 0.3);
+      ctx.moveTo(x - size * 0.35, y + size * 0.0);
+      ctx.lineTo(x, y - size * 0.15);
+      ctx.lineTo(x + size * 0.35, y + size * 0.0);
       ctx.closePath();
       ctx.fill();
+      ctx.restore();
     }
-    
+
+    function drawCastleIcon(ctx, x, y, size) {
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      // Main wall
+      ctx.fillRect(x - size * 0.4, y - size * 0.2, size * 0.8, size * 0.45);
+      // Towers
+      const towerW = size * 0.15;
+      for (let i = 0; i < 3; i++) {
+        const tx = x - size * 0.35 + i * size * 0.35;
+        ctx.fillRect(tx - towerW / 2, y - size * 0.45, towerW, size * 0.25);
+        // Battlement
+        ctx.fillRect(tx - towerW * 0.3, y - size * 0.52, towerW * 0.2, size * 0.08);
+        ctx.fillRect(tx + towerW * 0.1, y - size * 0.52, towerW * 0.2, size * 0.08);
+      }
+      // Gate
+      ctx.fillStyle = '#e8dcc8';
+      ctx.beginPath();
+      ctx.arc(x, y + size * 0.1, size * 0.08, Math.PI, 0);
+      ctx.fillRect(x - size * 0.08, y + size * 0.1, size * 0.16, size * 0.15);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawMarketStall(ctx, x, y, size) {
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      // Table
+      ctx.fillRect(x - size * 0.35, y, size * 0.7, size * 0.15);
+      // Legs
+      ctx.fillRect(x - size * 0.3, y + size * 0.15, size * 0.06, size * 0.2);
+      ctx.fillRect(x + size * 0.24, y + size * 0.15, size * 0.06, size * 0.2);
+      // Awning
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.4, y);
+      ctx.lineTo(x, y - size * 0.35);
+      ctx.lineTo(x + size * 0.4, y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawLibrary(ctx, x, y, size) {
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      // Building
+      ctx.fillRect(x - size * 0.3, y - size * 0.3, size * 0.6, size * 0.6);
+      // Columns
+      ctx.strokeStyle = '#e8dcc8';
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < 3; i++) {
+        const lx = x - size * 0.15 + i * size * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(lx, y - size * 0.25);
+        ctx.lineTo(lx, y + size * 0.2);
+        ctx.stroke();
+      }
+      // Pediment
+      ctx.fillStyle = '#5a1a0a';
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.35, y - size * 0.3);
+      ctx.lineTo(x, y - size * 0.5);
+      ctx.lineTo(x + size * 0.35, y - size * 0.3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawShop(ctx, x, y, size) {
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      ctx.fillRect(x - size * 0.3, y - size * 0.25, size * 0.6, size * 0.45);
+      // Awning
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.35, y - size * 0.25);
+      ctx.lineTo(x - size * 0.35, y - size * 0.1);
+      ctx.lineTo(x + size * 0.35, y - size * 0.1);
+      ctx.lineTo(x + size * 0.35, y - size * 0.25);
+      ctx.closePath();
+      ctx.fill();
+      // Sign
+      ctx.strokeStyle = '#5a1a0a';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x + size * 0.35, y - size * 0.15);
+      ctx.lineTo(x + size * 0.5, y - size * 0.15);
+      ctx.lineTo(x + size * 0.5, y + size * 0.05);
+      ctx.lineTo(x + size * 0.35, y + size * 0.05);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawStables(ctx, x, y, size) {
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      // Barn shape
+      ctx.fillRect(x - size * 0.35, y - size * 0.15, size * 0.7, size * 0.4);
+      // Roof
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.4, y - size * 0.15);
+      ctx.lineTo(x, y - size * 0.4);
+      ctx.lineTo(x + size * 0.4, y - size * 0.15);
+      ctx.closePath();
+      ctx.fill();
+      // Fence lines
+      ctx.strokeStyle = '#5a1a0a';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.5, y + size * 0.25);
+      ctx.lineTo(x + size * 0.5, y + size * 0.25);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     function drawBarracks(ctx, x, y, size) {
-      ctx.strokeStyle = '#7a200d';
-      ctx.lineWidth = 1.5;
+      ctx.save();
+      ctx.fillStyle = '#5a1a0a';
+      // Shield shape
       ctx.beginPath();
-      ctx.moveTo(x - size * 0.3, y - size * 0.3);
-      ctx.lineTo(x + size * 0.3, y + size * 0.3);
+      ctx.moveTo(x - size * 0.25, y - size * 0.35);
+      ctx.lineTo(x + size * 0.25, y - size * 0.35);
+      ctx.lineTo(x + size * 0.25, y + size * 0.05);
+      ctx.lineTo(x, y + size * 0.3);
+      ctx.lineTo(x - size * 0.25, y + size * 0.05);
+      ctx.closePath();
+      ctx.fill();
+      // Crossed swords
+      ctx.strokeStyle = '#e8dcc8';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.12, y - size * 0.2);
+      ctx.lineTo(x + size * 0.12, y + size * 0.1);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(x + size * 0.3, y - size * 0.3);
-      ctx.lineTo(x - size * 0.3, y + size * 0.3);
+      ctx.moveTo(x + size * 0.12, y - size * 0.2);
+      ctx.lineTo(x - size * 0.12, y + size * 0.1);
       ctx.stroke();
+      ctx.restore();
     }
-    
+
     function drawGardenSymbol(ctx, x, y, size) {
-      ctx.fillStyle = '#7a8c3a';
+      ctx.save();
+      ctx.fillStyle = '#5a7a2a';
+      // Tree cluster
       for (let i = 0; i < 5; i++) {
         const angle = (i / 5) * Math.PI * 2;
-        const px = x + Math.cos(angle) * size * 0.2;
-        const py = y + Math.sin(angle) * size * 0.2;
+        const px = x + Math.cos(angle) * size * 0.18;
+        const py = y + Math.sin(angle) * size * 0.18;
         ctx.beginPath();
         ctx.arc(px, py, size * 0.1, 0, Math.PI * 2);
         ctx.fill();
       }
+      // Center tree
+      ctx.fillStyle = '#4a6a22';
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
-    
-    // ── Draw compass rose ──
+
+    function drawFountain(ctx, x, y, size) {
+      ctx.save();
+      ctx.strokeStyle = '#5a1a0a';
+      ctx.fillStyle = '#8bb8c4';
+      ctx.lineWidth = 1.5;
+      // Basin
+      ctx.beginPath();
+      ctx.ellipse(x, y + size * 0.1, size * 0.3, size * 0.15, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Center pillar
+      ctx.fillStyle = '#5a1a0a';
+      ctx.fillRect(x - size * 0.04, y - size * 0.25, size * 0.08, size * 0.35);
+      // Water drops
+      ctx.strokeStyle = '#6d9aa8';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y - size * 0.25, size * 0.12, Math.PI + 0.5, Math.PI * 2 - 0.5);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawWell(ctx, x, y, size) {
+      ctx.save();
+      ctx.strokeStyle = '#5a1a0a';
+      ctx.lineWidth = 1.5;
+      // Circle
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.2, 0, Math.PI * 2);
+      ctx.stroke();
+      // Inner circle (water)
+      ctx.fillStyle = '#8bb8c4';
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+      // Cross bar
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.25, y - size * 0.05);
+      ctx.lineTo(x + size * 0.25, y - size * 0.05);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // COMPASS ROSE & SCALE BAR
+    // ══════════════════════════════════════════════════════════════
+
     function cityGen_drawCompassRose(ctx, x, y, size) {
       ctx.save();
       ctx.translate(x, y);
-      
+
+      // Outer ring
       ctx.strokeStyle = '#2c1810';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(0, 0, size, 0, Math.PI * 2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.arc(0, 0, size * 0.92, 0, Math.PI * 2);
+      ctx.arc(0, 0, size * 0.9, 0, Math.PI * 2);
       ctx.stroke();
-      
+
+      // 8-pointed star
       for (let i = 0; i < 8; i++) {
         const angle = (i / 8) * Math.PI * 2 - Math.PI / 2;
-        const len = i % 2 === 0 ? size * 0.8 : size * 0.5;
+        const len = i % 2 === 0 ? size * 0.8 : size * 0.45;
         const tipX = Math.cos(angle) * len;
         const tipY = Math.sin(angle) * len;
-        
+        const spread = i % 2 === 0 ? 0.14 : 0.2;
+
+        // Dark half
         ctx.fillStyle = '#2c1810';
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(Math.cos(angle - 0.12) * size * 0.2, Math.sin(angle - 0.12) * size * 0.2);
+        ctx.lineTo(Math.cos(angle - spread) * size * 0.18, Math.sin(angle - spread) * size * 0.18);
+        ctx.lineTo(tipX, tipY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Light half
+        ctx.fillStyle = '#a89070';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(angle + spread) * size * 0.18, Math.sin(angle + spread) * size * 0.18);
         ctx.lineTo(tipX, tipY);
         ctx.closePath();
         ctx.fill();
       }
-      
+
+      // Labels
       ctx.fillStyle = '#2c1810';
       ctx.font = 'bold 12px Georgia, serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('N', 0, -size - 8);
-      ctx.font = '10px Georgia, serif';
-      ctx.fillText('S', 0, size + 8);
-      ctx.fillText('E', size + 8, 0);
-      ctx.fillText('W', -size - 8, 0);
-      
+      ctx.fillText('N', 0, -size - 9);
+      ctx.font = '9px Georgia, serif';
+      ctx.fillText('S', 0, size + 9);
+      ctx.fillText('E', size + 9, 0);
+      ctx.fillText('W', -size - 9, 0);
+
+      // Center dot
       ctx.fillStyle = '#2c1810';
       ctx.beginPath();
-      ctx.arc(0, 0, 3, 0, Math.PI * 2);
+      ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
       ctx.fill();
-      
+
       ctx.restore();
     }
-    
-    // ── Draw scale bar ──
+
     function cityGen_drawScaleBar(ctx, x, y) {
       const barWidth = 120;
       ctx.strokeStyle = '#2c1810';
       ctx.fillStyle = '#2c1810';
       ctx.lineWidth = 1.5;
-      
+
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.lineTo(x + barWidth, y);
       ctx.stroke();
-      
+
       for (let i = 0; i <= 2; i++) {
         const tx = x + (i / 2) * barWidth;
         ctx.beginPath();
@@ -6838,9 +7683,9 @@
         ctx.lineTo(tx, y + 4);
         ctx.stroke();
       }
-      
+
       ctx.fillRect(x, y - 2, barWidth / 2, 4);
-      
+
       ctx.font = '10px Georgia, serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
@@ -6848,304 +7693,591 @@
       ctx.fillText('100', x + barWidth / 2, y + 6);
       ctx.fillText('200 m', x + barWidth, y + 6);
     }
-    
-    // ── Main city generator ──
-    function generateCityMap() {
-      const canvas = document.getElementById('cityMapCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      
-      const citySize = document.getElementById('citySize').value;
-      const hasWalls = document.getElementById('cityWalls').checked;
-      const hasCastle = document.getElementById('cityCastle').checked;
-      const hasRiver = document.getElementById('cityRiver').checked;
-      
-      const cw = 900, ch = 900;
-      canvas.width = cw;
-      canvas.height = ch;
-      
-      // Parchment background
-      const grad = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, cw * 0.7);
+
+    // ══════════════════════════════════════════════════════════════
+    // RENDERING ENGINE
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_renderMap(ctx, cw, ch, data) {
+      const { boundary, wards, roads, buildings, openSpaces, riverPath,
+              hasWalls, hasCastle, cityName, cx, cy, radius, templateKey } = data;
+
+      // ── Parchment background ──
+      const grad = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, cw * 0.72);
       grad.addColorStop(0, '#ece4d4');
-      grad.addColorStop(0.7, '#e4d9c5');
+      grad.addColorStop(0.6, '#e6dbc8');
       grad.addColorStop(1, '#ddd0b8');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, cw, ch);
-      
-      // Subtle grid
-      ctx.strokeStyle = 'rgba(139, 119, 101, 0.07)';
-      ctx.lineWidth = 0.5;
-      for (let gx = 0; gx < cw; gx += 25) {
+
+      // Subtle paper texture
+      ctx.globalAlpha = 0.035;
+      for (let i = 0; i < 400; i++) {
+        ctx.fillStyle = `rgba(139, 111, 78, ${Math.random() * 0.6})`;
         ctx.beginPath();
-        ctx.moveTo(gx, 0);
-        ctx.lineTo(gx, ch);
-        ctx.stroke();
-      }
-      for (let gy = 0; gy < ch; gy += 25) {
-        ctx.beginPath();
-        ctx.moveTo(0, gy);
-        ctx.lineTo(cw, gy);
-        ctx.stroke();
-      }
-      
-      // Paper texture
-      for (let i = 0; i < 300; i++) {
-        ctx.fillStyle = `rgba(139, 111, 78, ${Math.random() * 0.03})`;
-        ctx.beginPath();
-        ctx.arc(Math.random() * cw, Math.random() * ch, Math.random() * 4 + 0.5, 0, Math.PI * 2);
+        ctx.arc(Math.random() * cw, Math.random() * ch, Math.random() * 3 + 0.5, 0, Math.PI * 2);
         ctx.fill();
       }
-      
-      // City parameters
-      const mapMargin = 80;
-      const mapCx = cw / 2;
-      const mapCy = ch / 2 + 15;
-      const cityRadius = { hamlet: 120, village: 180, town: 250, city: 320, metropolis: 380 }[citySize] || 250;
-      
-      // City name
-      const cityNames = ['Wolfheart', 'Silverspire', 'Thornhaven', 'Deephold', 'Rivermark',
-        'Eastwatch', 'Goldwick', 'Stormford', 'Ironholt', 'Ashenmere', 'Ravenfall', 'Whitecliff',
-        'Blackstone', 'Greymarch', 'Sunhaven', 'Moonshadow', 'Starholt', 'Dragonrest'];
-      const cityName = cityNames[Math.floor(Math.random() * cityNames.length)];
-      
+      ctx.globalAlpha = 1;
+
+      // ── Ward fills (subtle district coloring) ──
+      for (const ward of wards) {
+        if (ward.polygon.length < 3) continue;
+        ctx.fillStyle = ward.color;
+        ctx.globalAlpha = 0.25;
+        ctx.beginPath();
+        ctx.moveTo(ward.polygon[0].x, ward.polygon[0].y);
+        for (let i = 1; i < ward.polygon.length; i++) {
+          ctx.lineTo(ward.polygon[i].x, ward.polygon[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // ── Terrain outside city ──
+      ctx.fillStyle = '#c8be9a';
+      ctx.globalAlpha = 0.15;
+      const noise = cityGen_makeNoise();
+      for (let i = 0; i < 1500; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = radius * 1.05 + Math.random() * radius * 0.6;
+        const tx = cx + Math.cos(angle) * dist;
+        const ty = cy + Math.sin(angle) * dist;
+        if (tx > 60 && tx < cw - 60 && ty > 60 && ty < ch - 60 &&
+            !cityGen_pointInPolygon(tx, ty, boundary)) {
+          const size = 1 + Math.random() * 2.5;
+          ctx.beginPath();
+          ctx.arc(tx, ty, size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      // ── Trees outside walls ──
+      ctx.fillStyle = '#8a9a5a';
+      ctx.globalAlpha = 0.2;
+      for (let i = 0; i < 120; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = radius * 1.1 + Math.random() * radius * 0.5;
+        const tx = cx + Math.cos(angle) * dist;
+        const ty = cy + Math.sin(angle) * dist;
+        if (tx > 70 && tx < cw - 70 && ty > 70 && ty < ch - 70 &&
+            !cityGen_pointInPolygon(tx, ty, boundary)) {
+          const size = 3 + Math.random() * 4;
+          ctx.beginPath();
+          ctx.arc(tx, ty, size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      // ── River ──
+      if (riverPath && riverPath.length > 1) {
+        // River shadow
+        ctx.strokeStyle = '#6d9aa8';
+        ctx.lineWidth = 32;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.globalAlpha = 0.25;
+        ctx.beginPath();
+        ctx.moveTo(riverPath[0].x, riverPath[0].y);
+        for (let i = 1; i < riverPath.length; i++) ctx.lineTo(riverPath[i].x, riverPath[i].y);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // River body
+        ctx.strokeStyle = '#8bb8c4';
+        ctx.lineWidth = 26;
+        ctx.beginPath();
+        ctx.moveTo(riverPath[0].x, riverPath[0].y);
+        for (let i = 1; i < riverPath.length; i++) ctx.lineTo(riverPath[i].x, riverPath[i].y);
+        ctx.stroke();
+
+        // River highlight
+        ctx.strokeStyle = '#a8d4e0';
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.moveTo(riverPath[0].x, riverPath[0].y);
+        for (let i = 1; i < riverPath.length; i++) ctx.lineTo(riverPath[i].x, riverPath[i].y);
+        ctx.stroke();
+      }
+
+      // ── Roads ──
+      // Road outlines (dark edges)
+      for (const road of roads) {
+        if (road.points.length < 2) continue;
+        ctx.strokeStyle = '#b8a888';
+        ctx.lineWidth = road.width + 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(road.points[0].x, road.points[0].y);
+        for (let i = 1; i < road.points.length; i++) ctx.lineTo(road.points[i].x, road.points[i].y);
+        ctx.stroke();
+      }
+      // Road fills (light center)
+      for (const road of roads) {
+        if (road.points.length < 2) continue;
+        ctx.strokeStyle = '#ede5d5';
+        ctx.lineWidth = road.width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(road.points[0].x, road.points[0].y);
+        for (let i = 1; i < road.points.length; i++) ctx.lineTo(road.points[i].x, road.points[i].y);
+        ctx.stroke();
+      }
+
+      // ── Open spaces ──
+      for (const space of openSpaces) {
+        if (space.type === 'garden') {
+          ctx.fillStyle = '#b5c89a';
+          ctx.globalAlpha = 0.4;
+          ctx.beginPath();
+          ctx.arc(space.x, space.y, space.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          // Trees
+          ctx.fillStyle = '#7a9a4a';
+          for (let t = 0; t < 8; t++) {
+            const ta = Math.random() * Math.PI * 2;
+            const td = Math.random() * space.radius * 0.7;
+            ctx.beginPath();
+            ctx.arc(space.x + Math.cos(ta) * td, space.y + Math.sin(ta) * td, 2 + Math.random() * 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else if (space.type === 'plaza' || space.type === 'market_square') {
+          ctx.fillStyle = '#ddd5c0';
+          if (space.shape === 'rect') {
+            ctx.fillRect(space.x - space.radius, space.y - space.radius * 0.7, space.radius * 2, space.radius * 1.4);
+            ctx.strokeStyle = '#b8a888';
+            ctx.lineWidth = 0.8;
+            ctx.strokeRect(space.x - space.radius, space.y - space.radius * 0.7, space.radius * 2, space.radius * 1.4);
+          } else {
+            ctx.beginPath();
+            ctx.arc(space.x, space.y, space.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#b8a888';
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        } else if (space.type === 'courtyard') {
+          ctx.fillStyle = '#dbd3be';
+          ctx.beginPath();
+          ctx.arc(space.x, space.y, space.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#b8a888';
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+
+      // ── Buildings ──
+      for (const b of buildings) {
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.rotate(b.angle);
+
+        // Shadow
+        ctx.fillStyle = 'rgba(50, 35, 15, 0.1)';
+        ctx.fillRect(-b.width / 2 + 1.5, -b.height / 2 + 1.5, b.width, b.height);
+
+        if (b.shape === 'L') {
+          // L-shaped building
+          ctx.fillStyle = b.color;
+          ctx.fillRect(-b.width / 2, -b.height / 2, b.width, b.height * 0.6);
+          ctx.fillRect(-b.width / 2, -b.height / 2, b.width * 0.5, b.height);
+          ctx.strokeStyle = b.outlineColor;
+          ctx.lineWidth = 0.7;
+          ctx.beginPath();
+          ctx.moveTo(-b.width / 2, -b.height / 2);
+          ctx.lineTo(b.width / 2, -b.height / 2);
+          ctx.lineTo(b.width / 2, -b.height / 2 + b.height * 0.6);
+          ctx.lineTo(-b.width / 2 + b.width * 0.5, -b.height / 2 + b.height * 0.6);
+          ctx.lineTo(-b.width / 2 + b.width * 0.5, b.height / 2);
+          ctx.lineTo(-b.width / 2, b.height / 2);
+          ctx.closePath();
+          ctx.stroke();
+        } else if (b.shape === 'T') {
+          // T-shaped building
+          ctx.fillStyle = b.color;
+          ctx.fillRect(-b.width / 2, -b.height / 2, b.width, b.height * 0.4);
+          ctx.fillRect(-b.width * 0.2, -b.height / 2, b.width * 0.4, b.height);
+          ctx.strokeStyle = b.outlineColor;
+          ctx.lineWidth = 0.7;
+          ctx.strokeRect(-b.width / 2, -b.height / 2, b.width, b.height * 0.4);
+          ctx.strokeRect(-b.width * 0.2, -b.height / 2, b.width * 0.4, b.height);
+        } else {
+          // Standard rectangular building
+          ctx.fillStyle = b.color;
+          ctx.fillRect(-b.width / 2, -b.height / 2, b.width, b.height);
+          ctx.strokeStyle = b.outlineColor;
+          ctx.lineWidth = 0.7;
+          ctx.strokeRect(-b.width / 2, -b.height / 2, b.width, b.height);
+        }
+
+        ctx.restore();
+      }
+
+      // ── Walls ──
+      if (hasWalls) {
+        // Wall shadow
+        ctx.strokeStyle = 'rgba(44, 24, 16, 0.15)';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(boundary[0].x + 1, boundary[0].y + 1);
+        for (let i = 1; i < boundary.length; i++) ctx.lineTo(boundary[i].x + 1, boundary[i].y + 1);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Main wall
+        ctx.strokeStyle = '#2c1810';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(boundary[0].x, boundary[0].y);
+        for (let i = 1; i < boundary.length; i++) ctx.lineTo(boundary[i].x, boundary[i].y);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Towers
+        ctx.fillStyle = '#2c1810';
+        const towerInterval = Math.max(1, Math.floor(boundary.length / (10 + Math.floor(Math.random() * 6))));
+        for (let i = 0; i < boundary.length - 1; i += towerInterval) {
+          const point = boundary[i];
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+          // Tower battlement
+          ctx.strokeStyle = '#2c1810';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 7, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Gates where main roads meet walls
+        const mainRoads = roads.filter(r => r.type === 'main');
+        for (const road of mainRoads) {
+          for (const pt of [road.points[0], road.points[road.points.length - 1]]) {
+            // Find nearest wall point
+            let nearestDist = Infinity, nearestPoint = null;
+            for (const bp of boundary) {
+              const d = Math.hypot(pt.x - bp.x, pt.y - bp.y);
+              if (d < nearestDist) { nearestDist = d; nearestPoint = bp; }
+            }
+            if (nearestPoint && nearestDist < 40) {
+              ctx.fillStyle = '#e8dcc8';
+              ctx.beginPath();
+              ctx.arc(nearestPoint.x, nearestPoint.y, 8, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#2c1810';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(nearestPoint.x, nearestPoint.y, 8, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      // ── Castle ──
+      if (hasCastle) {
+        // Place castle at a strategic position
+        const castleAngle = Math.random() * Math.PI * 2;
+        const castleR = radius * (0.15 + Math.random() * 0.2);
+        const castleX = cx + Math.cos(castleAngle) * castleR;
+        const castleY = cy + Math.sin(castleAngle) * castleR;
+
+        // Castle compound
+        ctx.fillStyle = '#4a3020';
+        ctx.fillRect(castleX - 35, castleY - 30, 70, 60);
+        ctx.strokeStyle = '#1a0e06';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(castleX - 35, castleY - 30, 70, 60);
+
+        // Inner keep
+        ctx.fillStyle = '#3d2817';
+        ctx.fillRect(castleX - 20, castleY - 18, 40, 36);
+        ctx.strokeStyle = '#1a0e06';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(castleX - 20, castleY - 18, 40, 36);
+
+        // Towers at corners
+        ctx.fillStyle = '#2c1810';
+        const towerPositions = [[-35, -30], [35, -30], [-35, 30], [35, 30]];
+        for (const [tx, ty] of towerPositions) {
+          ctx.beginPath();
+          ctx.arc(castleX + tx, castleY + ty, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#1a0e06';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Gate
+        ctx.fillStyle = '#e8dcc8';
+        ctx.beginPath();
+        ctx.arc(castleX, castleY + 30, 6, Math.PI, 0);
+        ctx.fillRect(castleX - 6, castleY + 30, 12, 4);
+        ctx.fill();
+
+        // Label
+        ctx.fillStyle = '#e8dcc8';
+        ctx.font = 'bold 8px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('CASTLE', castleX, castleY);
+      }
+
+      // ── Landmarks ──
+      for (const ward of wards) {
+        for (const lm of ward.landmarks) {
+          const drawFn = {
+            drawBlacksmith, drawTavern, drawChurch, drawCastleIcon, drawMarketStall,
+            drawLibrary, drawShop, drawStables, drawBarracks, drawGardenSymbol,
+            drawFountain, drawWell
+          }[lm.symbol];
+          if (drawFn) drawFn(ctx, lm.x, lm.y, lm.size);
+        }
+      }
+
+      // ── Ward labels ──
+      for (const ward of wards) {
+        if (ward.type === 'garden') continue;
+        const c = cityGen_centroid(ward.polygon);
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate((Math.random() - 0.5) * 0.3);
+        ctx.fillStyle = 'rgba(44, 24, 16, 0.35)';
+        ctx.font = 'italic 600 11px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(ward.name.toUpperCase(), 0, 0);
+        ctx.restore();
+      }
+
+      // ── Outer roads leading away ──
+      ctx.strokeStyle = '#b8a88c';
+      ctx.lineWidth = 3;
+      const mainRoads = roads.filter(r => r.type === 'main');
+      for (const road of mainRoads) {
+        if (road.points.length < 2) continue;
+        const lastPt = road.points[road.points.length - 1];
+        const prevPt = road.points[road.points.length - 2];
+        const angle = Math.atan2(lastPt.y - prevPt.y, lastPt.x - prevPt.x);
+        ctx.beginPath();
+        ctx.moveTo(lastPt.x, lastPt.y);
+        ctx.lineTo(lastPt.x + Math.cos(angle) * 100, lastPt.y + Math.sin(angle) * 100);
+        ctx.stroke();
+
+        // First point too
+        const firstPt = road.points[0];
+        const secondPt = road.points[1];
+        const angle2 = Math.atan2(firstPt.y - secondPt.y, firstPt.x - secondPt.x);
+        ctx.beginPath();
+        ctx.moveTo(firstPt.x, firstPt.y);
+        ctx.lineTo(firstPt.x + Math.cos(angle2) * 100, firstPt.y + Math.sin(angle2) * 100);
+        ctx.stroke();
+      }
+
+      // ── City name title ──
       ctx.fillStyle = '#2c1810';
       ctx.font = 'bold 32px Georgia, serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.fillText(cityName, cw / 2, 18);
-      
-      // Generate city boundary
-      const templateKey = Object.keys(CITY_TEMPLATES)[Math.floor(Math.random() * Object.keys(CITY_TEMPLATES).length)];
+      ctx.fillText(cityName, cw / 2, 16);
+
+      // Subtitle
+      ctx.font = 'italic 14px Georgia, serif';
+      ctx.fillStyle = '#5a4030';
+      const sizeLabel = { hamlet: 'Hamlet', village: 'Village', town: 'Town', city: 'City', metropolis: 'Metropolis' }[data.citySize] || 'Settlement';
+      ctx.fillText(`A ${sizeLabel} of the Realm`, cw / 2, 50);
+
+      // ── Compass & Scale ──
+      cityGen_drawCompassRose(ctx, cw - 65, ch - 65, 28);
+      cityGen_drawScaleBar(ctx, 85, ch - 55);
+
+      // ── Map border ──
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(10, 10, cw - 20, ch - 20);
+      ctx.strokeStyle = '#8a7a60';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(15, 15, cw - 30, ch - 30);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // LANDMARK PLACEMENT
+    // ══════════════════════════════════════════════════════════════
+
+    function cityGen_placeLandmarks(wards, roads, boundary, buildings) {
+      const landmarkTypeKeys = Object.keys(LANDMARK_TYPES);
+
+      for (const ward of wards) {
+        if (ward.type === 'garden') {
+          // Garden gets garden symbols
+          if (Math.random() < 0.7) {
+            const c = cityGen_centroid(ward.polygon);
+            ward.landmarks.push({
+              x: c.x, y: c.y,
+              symbol: 'drawGardenSymbol',
+              size: 16,
+              name: 'Garden'
+            });
+          }
+          continue;
+        }
+
+        // Find matching landmark types for this ward
+        const matching = landmarkTypeKeys.filter(k => LANDMARK_TYPES[k].ward === ward.type);
+        if (matching.length === 0) continue;
+
+        // Place 1-2 landmarks per ward
+        const count = 1 + (Math.random() < 0.3 ? 1 : 0);
+        for (let i = 0; i < count; i++) {
+          const typeKey = matching[Math.floor(Math.random() * matching.length)];
+          const lmType = LANDMARK_TYPES[typeKey];
+
+          // Find a good position: near ward center, not on a road or building
+          let placed = false;
+          for (let attempt = 0; attempt < 20; attempt++) {
+            const c = cityGen_centroid(ward.polygon);
+            const px = c.x + (Math.random() - 0.5) * 40;
+            const py = c.y + (Math.random() - 0.5) * 40;
+
+            if (!cityGen_pointInPolygon(px, py, ward.polygon)) continue;
+            if (!cityGen_pointInPolygon(px, py, boundary)) continue;
+            if (cityGen_isPointOnRoad(px, py, roads, 12)) continue;
+
+            // Check not overlapping existing landmarks
+            const tooClose = ward.landmarks.some(l => Math.hypot(l.x - px, l.y - py) < 25);
+            if (tooClose) continue;
+
+            ward.landmarks.push({
+              x: px, y: py,
+              symbol: lmType.symbol,
+              size: 14 + Math.random() * 6,
+              name: lmType.name
+            });
+            placed = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // MAIN ENTRY POINT
+    // ══════════════════════════════════════════════════════════════
+
+    function generateCityMap() {
+      const canvas = document.getElementById('cityMapCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const citySize = document.getElementById('citySize').value;
+      const hasWalls = document.getElementById('cityWalls').checked;
+      const hasCastle = document.getElementById('cityCastle').checked;
+      const hasRiver = document.getElementById('cityRiver').checked;
+
+      const cw = 900, ch = 900;
+      canvas.width = cw;
+      canvas.height = ch;
+
+      // City parameters
+      const cx = cw / 2;
+      const cy = ch / 2 + 10;
+      const cityRadius = { hamlet: 130, village: 190, town: 260, city: 330, metropolis: 390 }[citySize] || 260;
+
+      // City name
+      const cityNames = [
+        'Wolfheart', 'Silverspire', 'Thornhaven', 'Deephold', 'Rivermark',
+        'Eastwatch', 'Goldwick', 'Stormford', 'Ironholt', 'Ashenmere',
+        'Ravenfall', 'Whitecliff', 'Blackstone', 'Greymarch', 'Sunhaven',
+        'Moonshadow', 'Starholt', 'Dragonrest', 'Highcross', 'Dawnkeep',
+        'Shadowfen', 'Crowspeak', 'Brightvale', 'Irongate', 'Misthollow',
+        'Stonehearth', 'Windmere', 'Nighthollow', 'Thornwall', 'Emberglen'
+      ];
+      const cityName = cityNames[Math.floor(Math.random() * cityNames.length)];
+
+      // Choose template
+      const templateKeys = Object.keys(CITY_TEMPLATES);
+      const templateKey = templateKeys[Math.floor(Math.random() * templateKeys.length)];
       const template = CITY_TEMPLATES[templateKey];
-      const boundary = cityGen_generateCityBoundary(mapCx, mapCy, cityRadius, template);
-      
-      // Generate river if enabled
+
+      // ── Step 1: Generate boundary ──
+      const boundary = cityGen_generateCityBoundary(cx, cy, cityRadius, template);
+
+      // ── Step 2: Generate river ──
       let riverPath = null;
       if (hasRiver) {
         const riverDir = Math.random() > 0.5;
         riverPath = [];
-        const riverSteps = 50;
+        const noise = cityGen_makeNoise();
         const riverAngle = Math.random() * Math.PI * 2;
-        
-        for (let i = 0; i <= riverSteps; i++) {
-          const t = i / riverSteps;
+        const steps = 50;
+
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
           const baseX = riverDir
-            ? mapCx + (t - 0.5) * cityRadius * 2.5
-            : mapCx + Math.sin(riverAngle) * cityRadius * 0.8;
+            ? cx + (t - 0.5) * cityRadius * 2.8
+            : cx + Math.sin(riverAngle) * cityRadius * 0.6 + noise(t * 3, 0) * 30;
           const baseY = riverDir
-            ? mapCy + Math.sin(riverAngle) * cityRadius * 0.8
-            : mapCy + (t - 0.5) * cityRadius * 2.5;
-          
-          const wobble = Math.sin(t * Math.PI * 3) * 20 + Math.sin(t * 8 + Math.random() * Math.PI) * 10;
+            ? cy + Math.sin(riverAngle) * cityRadius * 0.6 + noise(0, t * 3) * 30
+            : cy + (t - 0.5) * cityRadius * 2.8;
+
+          const wobble = noise(t * 5, riverAngle) * 25 + noise(t * 10, riverAngle * 2) * 10;
           const perpAngle = riverAngle + Math.PI / 2;
-          
+
           riverPath.push({
             x: baseX + Math.cos(perpAngle) * wobble,
             y: baseY + Math.sin(perpAngle) * wobble
           });
         }
       }
-      
-      // Generate roads
-      const mainRoads = cityGen_generateMainRoads(boundary, mapCx, mapCy, cityRadius);
-      const ringRoads = cityGen_generateRingRoads(mapCx, mapCy, cityRadius, boundary);
-      const allRoads = [...mainRoads, ...ringRoads];
-      
-      // Generate wards
-      const wards = cityGen_generateWards(boundary, citySize, mapCx, mapCy);
-      
-      // Generate all buildings
+
+      // ── Step 3: Generate road network ──
+      const roads = cityGen_generateRoadNetwork(boundary, cx, cy, cityRadius, template, hasRiver, riverPath);
+
+      // ── Step 4: Generate wards ──
+      const wards = cityGen_generateWards(boundary, citySize, cx, cy, cityRadius);
+
+      // ── Step 5: Generate buildings in each ward ──
       let allBuildings = [];
-      wards.forEach(ward => {
-        const buildings = cityGen_generateBuildingsInWard(ward, ward.x, ward.y, 50 + Math.random() * 40, allRoads, boundary);
+      for (const ward of wards) {
+        const buildings = cityGen_generateBuildingsInWard(ward, roads, boundary, allBuildings);
         ward.buildings = buildings;
         allBuildings = allBuildings.concat(buildings);
+      }
+
+      // ── Step 6: Generate open spaces ──
+      const openSpaces = cityGen_generateOpenSpaces(wards, roads, cx, cy, cityRadius, boundary);
+
+      // ── Step 7: Place landmarks ──
+      cityGen_placeLandmarks(wards, roads, boundary, allBuildings);
+
+      // ── Step 8: AI Agent refinement ──
+      const agentReport = cityGen_aiAgent(wards, roads, allBuildings, openSpaces, boundary, cx, cy, cityRadius);
+
+      // ── Step 9: Render ──
+      cityGen_renderMap(ctx, cw, ch, {
+        boundary, wards, roads, buildings: allBuildings, openSpaces, riverPath,
+        hasWalls, hasCastle, cityName, cx, cy, radius: cityRadius, templateKey, citySize
       });
-      
-      // Draw terrain outside city
-      ctx.fillStyle = '#d6ceab';
-      ctx.globalAlpha = 0.3;
-      for (let i = 0; i < 2000; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = cityRadius * 1.1 + Math.random() * cityRadius * 0.5;
-        const tx = mapCx + Math.cos(angle) * dist;
-        const ty = mapCy + Math.sin(angle) * dist;
-        if (tx > mapMargin && tx < cw - mapMargin && ty > mapMargin && ty < ch - mapMargin) {
-          ctx.beginPath();
-          ctx.arc(tx, ty, 1 + Math.random() * 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      ctx.globalAlpha = 1;
-      
-      // Draw river
-      if (riverPath && riverPath.length > 1) {
-        ctx.strokeStyle = '#8bb8c4';
-        ctx.lineWidth = 28;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.beginPath();
-        ctx.moveTo(riverPath[0].x, riverPath[0].y);
-        for (let i = 1; i < riverPath.length; i++) {
-          ctx.lineTo(riverPath[i].x, riverPath[i].y);
-        }
-        ctx.stroke();
-        
-        ctx.strokeStyle = '#6d9aa8';
-        ctx.lineWidth = 30;
-        ctx.globalAlpha = 0.3;
-        ctx.beginPath();
-        ctx.moveTo(riverPath[0].x, riverPath[0].y);
-        for (let i = 1; i < riverPath.length; i++) {
-          ctx.lineTo(riverPath[i].x, riverPath[i].y);
-        }
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-        
-        ctx.strokeStyle = '#a8d4e0';
-        ctx.lineWidth = 16;
-        ctx.beginPath();
-        ctx.moveTo(riverPath[0].x, riverPath[0].y);
-        for (let i = 1; i < riverPath.length; i++) {
-          ctx.lineTo(riverPath[i].x, riverPath[i].y);
-        }
-        ctx.stroke();
-      }
-      
-      // Draw roads
-      allRoads.forEach(road => {
-        if (road.points.length < 2) return;
-        ctx.strokeStyle = '#ede5d5';
-        ctx.lineWidth = road.width + 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.beginPath();
-        ctx.moveTo(road.points[0].x, road.points[0].y);
-        for (let i = 1; i < road.points.length; i++) {
-          ctx.lineTo(road.points[i].x, road.points[i].y);
-        }
-        ctx.stroke();
-      });
-      
-      // Draw buildings
-      allBuildings.forEach(b => {
-        ctx.save();
-        ctx.translate(b.x, b.y);
-        ctx.rotate(b.angle);
-        
-        // Shadow
-        ctx.fillStyle = 'rgba(60, 40, 20, 0.08)';
-        ctx.fillRect(-b.width / 2 + 1, -b.height / 2 + 1, b.width, b.height);
-        
-        // Building fill
-        ctx.fillStyle = b.color;
-        ctx.fillRect(-b.width / 2, -b.height / 2, b.width, b.height);
-        
-        // Outline
-        ctx.strokeStyle = b.outlineColor;
-        ctx.lineWidth = 0.6;
-        ctx.strokeRect(-b.width / 2, -b.height / 2, b.width, b.height);
-        
-        ctx.restore();
-      });
-      
-      // Draw walls
-      if (hasWalls) {
-        ctx.strokeStyle = '#2c1810';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(boundary[0].x, boundary[0].y);
-        for (let i = 1; i < boundary.length; i++) {
-          ctx.lineTo(boundary[i].x, boundary[i].y);
-        }
-        ctx.closePath();
-        ctx.stroke();
-        
-        // Towers along walls
-        ctx.fillStyle = '#2c1810';
-        const towerSpacing = Math.PI * 2 / (12 + Math.floor(Math.random() * 8));
-        const centerX = mapCx, centerY = mapCy;
-        
-        for (let i = 0; i < boundary.length; i += Math.max(1, Math.floor(boundary.length / 12))) {
-          const point = boundary[i];
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      
-      // Draw castle
-      if (hasCastle) {
-        const castleAngle = Math.random() * Math.PI * 2;
-        const castleR = cityRadius * (0.25 + Math.random() * 0.2);
-        const castleX = mapCx + Math.cos(castleAngle) * castleR;
-        const castleY = mapCy + Math.sin(castleAngle) * castleR;
-        
-        ctx.fillStyle = '#3d2817';
-        ctx.fillRect(castleX - 30, castleY - 25, 60, 50);
-        ctx.strokeStyle = '#1a0e06';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(castleX - 30, castleY - 25, 60, 50);
-        
-        ctx.fillStyle = '#2c1810';
-        for (let i = 0; i < 4; i++) {
-          const tx = castleX - 20 + i * 13;
-          ctx.fillRect(tx - 4, castleY - 30, 8, 10);
-        }
-        
-        ctx.fillStyle = '#e8dcc8';
-        ctx.font = 'bold 9px Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('CASTLE', castleX, castleY);
-      }
-      
-      // Draw ward labels
-      wards.forEach(ward => {
-        ctx.save();
-        ctx.translate(ward.x, ward.y);
-        ctx.rotate((Math.random() - 0.5) * 0.4);
-        ctx.fillStyle = 'rgba(44, 24, 16, 0.45)';
-        ctx.font = 'italic 600 12px Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(ward.name.toUpperCase(), 0, 0);
-        ctx.restore();
-      });
-      
-      // Outer roads leading away
-      ctx.strokeStyle = '#b8a88c';
-      ctx.lineWidth = 3;
-      for (let i = 0; i < mainRoads.length; i++) {
-        const road = mainRoads[i];
-        const lastPoint = road.points[road.points.length - 1];
-        const secondLastPoint = road.points[road.points.length - 2];
-        const angle = Math.atan2(lastPoint.y - secondLastPoint.y, lastPoint.x - secondLastPoint.x);
-        
-        ctx.beginPath();
-        ctx.moveTo(lastPoint.x, lastPoint.y);
-        ctx.lineTo(
-          lastPoint.x + Math.cos(angle) * 100,
-          lastPoint.y + Math.sin(angle) * 100
-        );
-        ctx.stroke();
-      }
-      
-      // Compass and scale
-      cityGen_drawCompassRose(ctx, cw - 70, ch - 70, 30);
-      cityGen_drawScaleBar(ctx, mapMargin + 10, ch - mapMargin + 25);
-      
+
       // Store data
       cityMapData.name = cityName;
       cityMapData.buildings = allBuildings;
       cityMapData.wards = wards.map(w => ({ name: w.name, type: w.type }));
-      cityMapData.roads = allRoads;
-      
+      cityMapData.roads = roads;
+      cityMapData.landmarks = wards.flatMap(w => w.landmarks);
+
       document.getElementById('cityMapContainer').style.display = 'flex';
       document.getElementById('cityMapLegend').style.display = 'grid';
       generateCityMapInfo(citySize);
     }
-    
+
     function generateCityMapInfo(citySize) {
       const populations = { hamlet: '50-200', village: '200-1,000', town: '1,000-5,000', city: '5,000-20,000', metropolis: '20,000+' };
       let html = '<div class="gen-result">';
@@ -7157,10 +8289,14 @@
         html += '<div class="gen-result-item"><div class="gen-result-label">Districts</div>';
         html += '<div class="gen-result-value">' + cityMapData.wards.map(w => w.name).join(', ') + '</div></div>';
       }
+      if (cityMapData.landmarks && cityMapData.landmarks.length > 0) {
+        html += '<div class="gen-result-item"><div class="gen-result-label">Notable Landmarks</div>';
+        html += '<div class="gen-result-value">' + cityMapData.landmarks.map(l => l.name).join(', ') + '</div></div>';
+      }
       html += '</div>';
       document.getElementById('cityMapOutput').innerHTML = html;
     }
-    
+
     function downloadCityMap() {
       const canvas = document.getElementById('cityMapCanvas');
       const link = document.createElement('a');
