@@ -7567,16 +7567,28 @@ function cityGen_generateMarketSquare(wardTypes, boundary, plazaRadius) {
 
     plazaRadius = plazaRadius || (25 + Math.random() * 15);
     var stalls = [];
+    var numStalls = 8 + Math.floor(Math.random() * 5);
 
-    for (var i = 0; i < 8 + Math.floor(Math.random() * 4); i++) {
-        var angle = (i / 12) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
-        var dist = plazaRadius * 0.75;
-        stalls.push({
-            x: marketWard.x + Math.cos(angle) * dist,
-            y: marketWard.y + Math.sin(angle) * dist,
-            width: 4 + Math.random() * 3,
-            height: 4 + Math.random() * 3
-        });
+    // Arrange stalls in rows/clusters around the fountain
+    // Two arcs of stalls on opposite sides
+    for (var row = 0; row < 2; row++) {
+        var baseAngle = row * Math.PI + (Math.random() - 0.5) * 0.4;
+        var stallsInRow = Math.floor(numStalls / 2) + (row === 0 ? numStalls % 2 : 0);
+        var arcSpread = Math.PI * 0.6;
+        for (var s = 0; s < stallsInRow; s++) {
+            var t = stallsInRow > 1 ? (s / (stallsInRow - 1)) - 0.5 : 0;
+            var angle = baseAngle + t * arcSpread;
+            var dist = plazaRadius * (0.6 + Math.random() * 0.15);
+            var stallW = 3 + Math.random() * 3;
+            var stallH = 2.5 + Math.random() * 2;
+            stalls.push({
+                x: marketWard.x + Math.cos(angle) * dist,
+                y: marketWard.y + Math.sin(angle) * dist,
+                width: stallW,
+                height: stallH,
+                rotation: angle + Math.PI / 2
+            });
+        }
     }
 
     return {
@@ -7835,9 +7847,27 @@ function cityGen_drawWalls(ctx, wallPoly, wallTowers, gates) {
 }
 
 function cityGen_drawCastle(ctx, castle) {
-    // Fill castle courtyard with parchment (clear area)
-    ctx.fillStyle = COLOR_PALETTE.cream;
+    var cx = castle.center.x, cy = castle.center.y;
+
+    // 1. Moat/cleared ground ring around castle
+    ctx.fillStyle = '#c8b898';
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath();
+    ctx.arc(cx, cy, castle.radius * 1.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+
+    // Moat water ring
+    ctx.strokeStyle = '#6a9fb5';
+    ctx.lineWidth = 3;
     ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, castle.radius * 1.2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+
+    // 2. Fill castle courtyard with a warm stone ground
+    ctx.fillStyle = '#e8d8b8';
     ctx.beginPath();
     ctx.moveTo(castle.polygon[0].x, castle.polygon[0].y);
     for (var i = 1; i < castle.polygon.length; i++) {
@@ -7845,25 +7875,51 @@ function cityGen_drawCastle(ctx, castle) {
     }
     ctx.closePath();
     ctx.fill();
+
+    // Subtle cobblestone texture on courtyard
+    ctx.strokeStyle = '#d0c0a0';
+    ctx.lineWidth = 0.3;
+    ctx.globalAlpha = 0.4;
+    for (var tx = -castle.radius; tx < castle.radius; tx += 6) {
+        for (var ty = -castle.radius; ty < castle.radius; ty += 6) {
+            var px = cx + tx + (Math.random() - 0.5) * 2;
+            var py = cy + ty + (Math.random() - 0.5) * 2;
+            if (cityGen_pointInPolygon({ x: px, y: py }, castle.polygon)) {
+                ctx.strokeRect(px, py, 4 + Math.random() * 2, 4 + Math.random() * 2);
+            }
+        }
+    }
     ctx.globalAlpha = 1.0;
 
-    // Inner courtyard buildings
+    // 3. Inner courtyard buildings (larger, with shadows)
     for (var i = 0; i < castle.innerBuildings.length; i++) {
         var ib = castle.innerBuildings[i];
         ctx.save();
         ctx.translate(ib.x, ib.y);
         ctx.rotate(ib.rotation || 0);
-        ctx.fillStyle = COLOR_PALETTE.buildingBase;
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        ctx.fillRect(-ib.width / 2 + 2, -ib.height / 2 + 2, ib.width, ib.height);
+        // Building body
+        ctx.fillStyle = '#b8956a';
         ctx.fillRect(-ib.width / 2, -ib.height / 2, ib.width, ib.height);
         ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
-        ctx.lineWidth = 0.8;
+        ctx.lineWidth = 1;
         ctx.strokeRect(-ib.width / 2, -ib.height / 2, ib.width, ib.height);
+        // Roof detail line
+        ctx.strokeStyle = '#8b6f47';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(-ib.width / 2, -ib.height / 2 + 2);
+        ctx.lineTo(ib.width / 2, -ib.height / 2 + 2);
+        ctx.stroke();
         ctx.restore();
     }
 
-    // Outer curtain wall (thick dark line)
-    ctx.strokeStyle = COLOR_PALETTE.wallDark;
-    ctx.lineWidth = 3.5;
+    // 4. Outer curtain wall — double line for thickness
+    // Inner fill of wall
+    ctx.strokeStyle = '#4a5568';
+    ctx.lineWidth = 6;
     ctx.lineJoin = 'miter';
     ctx.beginPath();
     ctx.moveTo(castle.polygon[0].x, castle.polygon[0].y);
@@ -7872,55 +7928,164 @@ function cityGen_drawCastle(ctx, castle) {
     }
     ctx.closePath();
     ctx.stroke();
+    // Outer edge of wall
+    ctx.strokeStyle = '#1a2530';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(castle.polygon[0].x, castle.polygon[0].y);
+    for (var i = 1; i < castle.polygon.length; i++) {
+        ctx.lineTo(castle.polygon[i].x, castle.polygon[i].y);
+    }
+    ctx.closePath();
+    ctx.stroke();
 
-    // Corner and wall towers
+    // Crenellations along walls
+    ctx.fillStyle = '#2c3e50';
+    for (var i = 0; i < castle.polygon.length; i++) {
+        var p1 = castle.polygon[i];
+        var p2 = castle.polygon[(i + 1) % castle.polygon.length];
+        var segDx = p2.x - p1.x, segDy = p2.y - p1.y;
+        var segLen = Math.sqrt(segDx * segDx + segDy * segDy);
+        if (segLen < 8) continue;
+        var nx = -segDy / segLen, ny = segDx / segLen;
+        var crenelCount = Math.floor(segLen / 5);
+        for (var c = 0; c < crenelCount; c += 2) {
+            var t = (c + 0.5) / crenelCount;
+            var px = p1.x + segDx * t;
+            var py = p1.y + segDy * t;
+            ctx.fillRect(px + nx * 3 - 1.5, py + ny * 3 - 1.5, 3, 3);
+        }
+    }
+
+    // 5. Corner and wall towers (larger, with crenellations)
     for (var t = 0; t < castle.towers.length; t++) {
         var tower = castle.towers[t];
-        ctx.fillStyle = COLOR_PALETTE.towerColor;
+        var tr = tower.radius * 1.3;
+        // Tower shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.beginPath();
-        ctx.arc(tower.x, tower.y, tower.radius, 0, Math.PI * 2);
+        ctx.arc(tower.x + 1.5, tower.y + 1.5, tr, 0, Math.PI * 2);
+        ctx.fill();
+        // Tower body
+        ctx.fillStyle = '#3a4a5a';
+        ctx.beginPath();
+        ctx.arc(tower.x, tower.y, tr, 0, Math.PI * 2);
+        ctx.fill();
+        // Tower inner circle
+        ctx.fillStyle = '#4a5a6a';
+        ctx.beginPath();
+        ctx.arc(tower.x, tower.y, tr * 0.6, 0, Math.PI * 2);
         ctx.fill();
         // Tower outline
         ctx.strokeStyle = '#1a2530';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(tower.x, tower.y, tr, 0, Math.PI * 2);
         ctx.stroke();
     }
 
-    // Central keep
+    // 6. Central keep — larger and more prominent
     var keep = castle.keep;
+    var kw = keep.width * 1.3, kh = keep.height * 1.3;
     ctx.save();
     ctx.translate(keep.x, keep.y);
     ctx.rotate(keep.rotation || 0);
-    // Keep body
-    ctx.fillStyle = '#3a4f5f';
-    ctx.fillRect(-keep.width / 2, -keep.height / 2, keep.width, keep.height);
+    // Keep shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(-kw / 2 + 2, -kh / 2 + 2, kw, kh);
+    // Keep outer wall
+    ctx.fillStyle = '#2c3e50';
+    ctx.fillRect(-kw / 2, -kh / 2, kw, kh);
+    // Keep inner floor
+    ctx.fillStyle = '#4a5f70';
+    ctx.fillRect(-kw / 2 + 3, -kh / 2 + 3, kw - 6, kh - 6);
     // Keep outline
     ctx.strokeStyle = '#1a2530';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(-keep.width / 2, -keep.height / 2, keep.width, keep.height);
-    // Crenellations on keep
-    var crenelW = keep.width / 5;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-kw / 2, -kh / 2, kw, kh);
+    // Crenellations on keep (all 4 sides)
+    var crenelW = kw / 7;
     ctx.fillStyle = '#2c3e50';
-    for (var c = 0; c < 5; c += 2) {
-        ctx.fillRect(-keep.width / 2 + c * crenelW, -keep.height / 2 - 2, crenelW, 2);
-        ctx.fillRect(-keep.width / 2 + c * crenelW, keep.height / 2, crenelW, 2);
+    for (var c = 0; c < 7; c += 2) {
+        ctx.fillRect(-kw / 2 + c * crenelW, -kh / 2 - 3, crenelW, 3);
+        ctx.fillRect(-kw / 2 + c * crenelW, kh / 2, crenelW, 3);
     }
+    var crenelH = kh / 7;
+    for (var c = 0; c < 7; c += 2) {
+        ctx.fillRect(-kw / 2 - 3, -kh / 2 + c * crenelH, 3, crenelH);
+        ctx.fillRect(kw / 2, -kh / 2 + c * crenelH, 3, crenelH);
+    }
+    // Small window/arrow slits on keep
+    ctx.fillStyle = '#1a2530';
+    ctx.fillRect(-kw * 0.15, -kh * 0.2, 2, 5);
+    ctx.fillRect(kw * 0.1, -kh * 0.2, 2, 5);
+    ctx.fillRect(-kw * 0.15, kh * 0.05, 2, 5);
+    ctx.fillRect(kw * 0.1, kh * 0.05, 2, 5);
     ctx.restore();
 
-    // Gatehouse (arched opening)
+    // 7. Gatehouse — more prominent with twin towers
     var gh = castle.gatehouse;
     ctx.save();
     ctx.translate(gh.x, gh.y);
     ctx.rotate(gh.rotation || 0);
-    ctx.fillStyle = COLOR_PALETTE.buildingBase;
-    ctx.fillRect(-gh.size / 2, -gh.size / 2, gh.size, gh.size);
-    ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
+    var gs = gh.size * 1.2;
+    // Gatehouse body
+    ctx.fillStyle = '#3a4a5a';
+    ctx.fillRect(-gs * 0.7, -gs / 2, gs * 1.4, gs);
+    ctx.strokeStyle = '#1a2530';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-gs * 0.7, -gs / 2, gs * 1.4, gs);
+    // Gate opening (arch)
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(-gs * 0.2, -gs / 2 - 1, gs * 0.4, gs + 2);
+    // Portcullis lines
+    ctx.strokeStyle = '#4a4a4a';
+    ctx.lineWidth = 0.5;
+    for (var pl = 0; pl < 3; pl++) {
+        var px = -gs * 0.15 + pl * gs * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(px, -gs / 2);
+        ctx.lineTo(px, gs / 2);
+        ctx.stroke();
+    }
+    // Twin gatehouse towers
+    ctx.fillStyle = '#2c3e50';
+    ctx.beginPath();
+    ctx.arc(-gs * 0.55, 0, gs * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(gs * 0.55, 0, gs * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#1a2530';
     ctx.lineWidth = 1;
-    ctx.strokeRect(-gh.size / 2, -gh.size / 2, gh.size, gh.size);
-    // Gate opening
-    ctx.fillStyle = COLOR_PALETTE.cream;
-    ctx.fillRect(-gh.size / 4, -gh.size / 2 - 1, gh.size / 2, gh.size + 2);
+    ctx.beginPath();
+    ctx.arc(-gs * 0.55, 0, gs * 0.3, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(gs * 0.55, 0, gs * 0.3, 0, Math.PI * 2);
+    ctx.stroke();
     ctx.restore();
+
+    // 8. Banner/pennant on the tallest tower (first corner tower)
+    if (castle.towers.length > 0) {
+        var flagTower = castle.towers[0];
+        var fx = flagTower.x, fy = flagTower.y - flagTower.radius * 1.3 - 8;
+        // Flag pole
+        ctx.strokeStyle = '#3d2817';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(fx, fy + 12);
+        ctx.lineTo(fx, fy - 4);
+        ctx.stroke();
+        // Pennant
+        ctx.fillStyle = '#8b2020';
+        ctx.beginPath();
+        ctx.moveTo(fx, fy - 4);
+        ctx.lineTo(fx + 7, fy);
+        ctx.lineTo(fx, fy + 4);
+        ctx.closePath();
+        ctx.fill();
+    }
 }
 
 function cityGen_drawMarketSquare(ctx, plaza) {
@@ -7970,34 +8135,80 @@ function cityGen_drawParchmentTexture(ctx, noise, width, height) {
 // ============================================================================
 
 function cityGen_drawBakery(ctx, x, y, size) {
-    ctx.fillStyle = '#d4a574';
+    // Bread loaf shape
+    ctx.fillStyle = '#c8956a';
     ctx.beginPath();
-    ctx.ellipse(x, y, size / 2, size / 2.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y + size * 0.05, size * 0.38, size * 0.28, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#c4956a';
-    ctx.fillRect(x - size / 4, y - size / 4, size / 2, size / 2);
+    // Score lines on top
+    ctx.strokeStyle = '#8b6f47';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.15, y - size * 0.1);
+    ctx.lineTo(x + size * 0.15, y + size * 0.1);
+    ctx.moveTo(x + size * 0.15, y - size * 0.1);
+    ctx.lineTo(x - size * 0.15, y + size * 0.1);
+    ctx.stroke();
+    // Steam wisps
+    ctx.strokeStyle = '#a09080';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.08, y - size * 0.2);
+    ctx.quadraticCurveTo(x - size * 0.12, y - size * 0.35, x - size * 0.05, y - size * 0.4);
+    ctx.moveTo(x + size * 0.08, y - size * 0.2);
+    ctx.quadraticCurveTo(x + size * 0.12, y - size * 0.35, x + size * 0.05, y - size * 0.4);
+    ctx.stroke();
 }
 
 function cityGen_drawApothecary(ctx, x, y, size) {
-    ctx.fillStyle = '#6b4423';
+    // Mortar and pestle
+    ctx.fillStyle = '#8a7a6a';
+    // Mortar bowl
     ctx.beginPath();
-    ctx.arc(x, y, size * 0.35, 0, Math.PI * 2);
+    ctx.arc(x, y + size * 0.05, size * 0.32, 0, Math.PI);
     ctx.fill();
-    ctx.strokeStyle = '#3d2817';
-    ctx.lineWidth = 1;
+    ctx.fillRect(x - size * 0.32, y + size * 0.05, size * 0.64, size * 0.08);
+    // Pestle (diagonal stick)
+    ctx.strokeStyle = '#5a4a3a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.1, y + size * 0.05);
+    ctx.lineTo(x + size * 0.3, y - size * 0.35);
     ctx.stroke();
-    ctx.fillStyle = '#f5ead0';
-    ctx.fillRect(x - size * 0.15, y - size * 0.15, size * 0.3, size * 0.3);
+    // Cross symbol (pharmacy)
+    ctx.fillStyle = '#2a8040';
+    ctx.fillRect(x - size * 0.06, y - size * 0.35, size * 0.12, size * 0.22);
+    ctx.fillRect(x - size * 0.12, y - size * 0.28, size * 0.24, size * 0.1);
 }
 
 function cityGen_drawJeweler(ctx, x, y, size) {
+    // Diamond/gem shape
     ctx.fillStyle = '#d4af37';
+    // Top facet (inverted triangle)
     ctx.beginPath();
-    ctx.moveTo(x, y - size / 2);
-    ctx.lineTo(x + size / 2, y + size / 2.5);
-    ctx.lineTo(x - size / 2, y + size / 2.5);
+    ctx.moveTo(x - size * 0.35, y - size * 0.1);
+    ctx.lineTo(x + size * 0.35, y - size * 0.1);
+    ctx.lineTo(x, y + size * 0.4);
     ctx.closePath();
     ctx.fill();
+    // Crown (trapezoid top)
+    ctx.fillStyle = '#e0c050';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.25, y - size * 0.35);
+    ctx.lineTo(x + size * 0.25, y - size * 0.35);
+    ctx.lineTo(x + size * 0.35, y - size * 0.1);
+    ctx.lineTo(x - size * 0.35, y - size * 0.1);
+    ctx.closePath();
+    ctx.fill();
+    // Sparkle
+    ctx.strokeStyle = '#fff8d0';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.1, y - size * 0.1);
+    ctx.lineTo(x + size * 0.1, y - size * 0.1);
+    ctx.moveTo(x, y - size * 0.2);
+    ctx.lineTo(x, y);
+    ctx.stroke();
 }
 
 function cityGen_drawTanner(ctx, x, y, size) {
@@ -8010,18 +8221,28 @@ function cityGen_drawTanner(ctx, x, y, size) {
 }
 
 function cityGen_drawAlchemist(ctx, x, y, size) {
+    // Flask/potion bottle
+    // Bottle body (round bottom)
     ctx.fillStyle = '#6a5acd';
     ctx.beginPath();
-    ctx.moveTo(x, y - size / 2);
-    ctx.lineTo(x + size / 3, y);
-    ctx.lineTo(x + size / 3, y + size / 2);
-    ctx.lineTo(x - size / 3, y + size / 2);
-    ctx.lineTo(x - size / 3, y);
-    ctx.closePath();
+    ctx.arc(x, y + size * 0.1, size * 0.3, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#9d8ac6';
+    // Neck
+    ctx.fillRect(x - size * 0.08, y - size * 0.35, size * 0.16, size * 0.35);
+    // Cork
+    ctx.fillStyle = '#8b6f47';
+    ctx.fillRect(x - size * 0.1, y - size * 0.42, size * 0.2, size * 0.1);
+    // Liquid highlight
+    ctx.fillStyle = '#9d8ae0';
+    ctx.globalAlpha = 0.6;
     ctx.beginPath();
-    ctx.arc(x, y + size / 3, size * 0.15, 0, Math.PI * 2);
+    ctx.arc(x - size * 0.08, y + size * 0.05, size * 0.1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+    // Bubbles
+    ctx.fillStyle = '#b8a8e0';
+    ctx.beginPath();
+    ctx.arc(x + size * 0.08, y - size * 0.05, size * 0.05, 0, Math.PI * 2);
     ctx.fill();
 }
 
@@ -8135,37 +8356,69 @@ function cityGen_drawLighthouse(ctx, x, y, size) {
 
 // Original landmark functions
 function cityGen_drawBlacksmith(ctx, x, y, size) {
-    ctx.fillStyle = '#3d2817';
-    ctx.fillRect(x - size / 2, y - size / 2, size, size);
-    ctx.fillStyle = '#f5ead0';
-    ctx.fillRect(x - size / 3, y - size / 3, size * 0.66, size * 0.66);
+    // Anvil shape
+    ctx.fillStyle = '#3d3d3d';
+    // Anvil base
+    ctx.fillRect(x - size * 0.35, y + size * 0.05, size * 0.7, size * 0.2);
+    // Anvil top (wider)
+    ctx.fillRect(x - size * 0.4, y - size * 0.2, size * 0.8, size * 0.25);
+    // Anvil horn
+    ctx.beginPath();
+    ctx.moveTo(x + size * 0.4, y - size * 0.2);
+    ctx.lineTo(x + size * 0.5, y - size * 0.1);
+    ctx.lineTo(x + size * 0.4, y + size * 0.05);
+    ctx.fill();
+    // Hammer
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.1, y - size * 0.45);
+    ctx.lineTo(x + size * 0.15, y - size * 0.15);
+    ctx.stroke();
+    ctx.fillStyle = '#4a4a4a';
+    ctx.fillRect(x - size * 0.2, y - size * 0.5, size * 0.2, size * 0.12);
 }
 
 function cityGen_drawTavern(ctx, x, y, size) {
+    // Tankard/mug shape
     ctx.fillStyle = '#8b5a3c';
-    ctx.fillRect(x - size / 2, y - size / 2, size, size);
-    ctx.fillStyle = '#f4a460';
+    // Mug body
+    ctx.fillRect(x - size * 0.25, y - size * 0.3, size * 0.45, size * 0.55);
+    // Handle
+    ctx.strokeStyle = '#6b4a2c';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.arc(x, y, size * 0.3, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.arc(x + size * 0.25, y - size * 0.05, size * 0.15, -Math.PI * 0.5, Math.PI * 0.5);
+    ctx.stroke();
+    // Foam top (rounded rectangle instead of ellipse)
+    ctx.fillStyle = '#e8d8b8';
+    ctx.fillRect(x - size * 0.28, y - size * 0.35, size * 0.52, size * 0.12);
 }
 
 function cityGen_drawChurch(ctx, x, y, size) {
-    ctx.fillStyle = '#4a4a4a';
+    // Church building body
+    ctx.fillStyle = '#7a7a7a';
+    ctx.fillRect(x - size * 0.3, y - size * 0.05, size * 0.6, size * 0.45);
+    // Steeple/roof
+    ctx.fillStyle = '#5a5a5a';
     ctx.beginPath();
-    ctx.moveTo(x, y - size * 0.6);
-    ctx.lineTo(x + size / 2, y + size / 2);
-    ctx.lineTo(x - size / 2, y + size / 2);
+    ctx.moveTo(x, y - size * 0.5);
+    ctx.lineTo(x + size * 0.35, y - size * 0.05);
+    ctx.lineTo(x - size * 0.35, y - size * 0.05);
     ctx.closePath();
     ctx.fill();
+    // Cross on top (taller, more visible)
     ctx.strokeStyle = '#3d2817';
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
-    ctx.moveTo(x, y - size * 0.8);
-    ctx.lineTo(x, y - size * 0.4);
-    ctx.moveTo(x - size * 0.15, y - size * 0.65);
-    ctx.lineTo(x + size * 0.15, y - size * 0.65);
+    ctx.moveTo(x, y - size * 0.7);
+    ctx.lineTo(x, y - size * 0.45);
+    ctx.moveTo(x - size * 0.12, y - size * 0.6);
+    ctx.lineTo(x + size * 0.12, y - size * 0.6);
     ctx.stroke();
+    // Door
+    ctx.fillStyle = '#4a3020';
+    ctx.fillRect(x - size * 0.06, y + size * 0.15, size * 0.12, size * 0.25);
 }
 
 function cityGen_drawCastleLandmark(ctx, x, y, size) {
@@ -8187,25 +8440,60 @@ function cityGen_drawMarket(ctx, x, y, size) {
 }
 
 function cityGen_drawLibrary(ctx, x, y, size) {
-    ctx.fillStyle = '#6b4423';
-    for (var i = 0; i < 3; i++) {
-        ctx.fillRect(x - size / 3 + i * size / 3, y - size / 2, size / 4, size);
+    // Book spines on a shelf
+    var colors = ['#6b4423', '#8b5a3c', '#4a3020', '#7a6040'];
+    var numBooks = 4;
+    var bw = size * 0.18;
+    var startX = x - (numBooks * bw) / 2;
+    for (var i = 0; i < numBooks; i++) {
+        ctx.fillStyle = colors[i % colors.length];
+        var bh = size * (0.7 + Math.random() * 0.2);
+        ctx.fillRect(startX + i * bw, y + size * 0.4 - bh, bw - 1, bh);
     }
+    // Shelf line
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.45, y + size * 0.4);
+    ctx.lineTo(x + size * 0.45, y + size * 0.4);
+    ctx.stroke();
 }
 
 function cityGen_drawShop(ctx, x, y, size) {
+    // Shop with awning
     ctx.fillStyle = '#c4956a';
-    ctx.fillRect(x - size / 2, y - size / 2, size, size);
-    ctx.fillStyle = '#f5ead0';
-    ctx.fillRect(x - size / 3, y - size / 3, size * 0.66, size * 0.66);
+    ctx.fillRect(x - size * 0.35, y - size * 0.15, size * 0.7, size * 0.5);
+    // Awning
+    ctx.fillStyle = '#a87850';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.4, y - size * 0.15);
+    ctx.lineTo(x + size * 0.4, y - size * 0.15);
+    ctx.lineTo(x + size * 0.35, y - size * 0.35);
+    ctx.lineTo(x - size * 0.35, y - size * 0.35);
+    ctx.closePath();
+    ctx.fill();
+    // Door
+    ctx.fillStyle = '#6b4a2c';
+    ctx.fillRect(x - size * 0.08, y + size * 0.05, size * 0.16, size * 0.3);
 }
 
 function cityGen_drawStables(ctx, x, y, size) {
+    // Barn/stable with pitched roof
     ctx.fillStyle = '#8b6f47';
-    ctx.fillRect(x - size / 2, y - size / 2, size, size);
-    ctx.fillStyle = '#f5ead0';
+    ctx.fillRect(x - size * 0.4, y - size * 0.15, size * 0.8, size * 0.45);
+    // Pitched roof
+    ctx.fillStyle = '#6b4f27';
     ctx.beginPath();
-    ctx.arc(x, y, size * 0.25, 0, Math.PI * 2);
+    ctx.moveTo(x - size * 0.45, y - size * 0.15);
+    ctx.lineTo(x, y - size * 0.45);
+    ctx.lineTo(x + size * 0.45, y - size * 0.15);
+    ctx.closePath();
+    ctx.fill();
+    // Barn door (large arch)
+    ctx.fillStyle = '#5a3f20';
+    ctx.fillRect(x - size * 0.12, y - size * 0.05, size * 0.24, size * 0.35);
+    ctx.beginPath();
+    ctx.arc(x, y - size * 0.05, size * 0.12, Math.PI, 0);
     ctx.fill();
 }
 
@@ -8284,11 +8572,30 @@ function cityGen_drawLandmarks(ctx, landmarks) {
         lighthouse: cityGen_drawLighthouse
     };
 
+    // Types that don't need a background halo (already large/area-based)
+    var noHalo = { garden_area: true, fountain: true };
+
     for (var i = 0; i < landmarks.length; i++) {
         var landmark = landmarks[i];
         var drawFunc = drawFunctions[landmark.type];
         if (drawFunc) {
-            drawFunc(ctx, landmark.x, landmark.y, landmark.size);
+            var sz = landmark.size * 1.15; // slightly larger icons
+            // Draw background halo for readability
+            if (!noHalo[landmark.type]) {
+                ctx.fillStyle = '#f5ead0';
+                ctx.globalAlpha = 0.85;
+                ctx.beginPath();
+                ctx.arc(landmark.x, landmark.y, sz * 0.75, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                // Subtle outline ring
+                ctx.strokeStyle = '#c0b090';
+                ctx.lineWidth = 0.6;
+                ctx.beginPath();
+                ctx.arc(landmark.x, landmark.y, sz * 0.75, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            drawFunc(ctx, landmark.x, landmark.y, sz);
         }
     }
 }
@@ -8513,11 +8820,52 @@ function cityGen_render(canvas, data) {
 
     // Draw market square ground BEFORE buildings
     if (data.marketSquare) {
-        ctx.fillStyle = COLOR_PALETTE.cream;
-        ctx.globalAlpha = 0.4;
+        var msc = data.marketSquare.center;
+        var msr = data.marketSquare.radius;
+        // Outer ring — subtle border
+        ctx.fillStyle = '#c8b898';
+        ctx.globalAlpha = 0.5;
         ctx.beginPath();
-        ctx.arc(data.marketSquare.center.x, data.marketSquare.center.y, data.marketSquare.radius, 0, Math.PI * 2);
+        ctx.arc(msc.x, msc.y, msr + 4, 0, Math.PI * 2);
         ctx.fill();
+        // Plaza ground — warm stone
+        ctx.fillStyle = '#e8dcc0';
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.arc(msc.x, msc.y, msr, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+        // Cobblestone texture
+        ctx.strokeStyle = '#d0c4a8';
+        ctx.lineWidth = 0.3;
+        ctx.globalAlpha = 0.35;
+        for (var tx = -msr; tx < msr; tx += 5) {
+            for (var ty = -msr; ty < msr; ty += 5) {
+                if (tx * tx + ty * ty < msr * msr * 0.9) {
+                    ctx.strokeRect(msc.x + tx + Math.random() * 2, msc.y + ty + Math.random() * 2, 3.5, 3.5);
+                }
+            }
+        }
+        ctx.globalAlpha = 1.0;
+    }
+
+    // Draw street/road surface under buildings (slightly darker than parchment)
+    if (data.cells) {
+        ctx.fillStyle = '#ddd4b8';
+        ctx.globalAlpha = 0.6;
+        for (var i = 0; i < data.cells.length; i++) {
+            var cell = data.cells[i];
+            if (!cell.polygon || cell.polygon.length < 3) continue;
+            var wt = cell.wardType;
+            if (wt === 'garden' || wt === 'grove' || wt === 'cemetery') continue;
+            ctx.beginPath();
+            ctx.moveTo(cell.polygon[0].x, cell.polygon[0].y);
+            for (var j = 1; j < cell.polygon.length; j++) {
+                ctx.lineTo(cell.polygon[j].x, cell.polygon[j].y);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
         ctx.globalAlpha = 1.0;
     }
 
@@ -8569,20 +8917,47 @@ function cityGen_render(canvas, data) {
 
     // Draw market square stalls and fountain (now that buildings are excluded)
     if (data.marketSquare) {
-        // Market stalls
-        ctx.fillStyle = '#d4a574';
+        // Market stalls — rotated rectangles with awning detail
         for (var s = 0; s < data.marketSquare.stalls.length; s++) {
             var stall = data.marketSquare.stalls[s];
-            ctx.fillRect(stall.x - stall.width / 2, stall.y - stall.height / 2, stall.width, stall.height);
+            ctx.save();
+            ctx.translate(stall.x, stall.y);
+            ctx.rotate(stall.rotation || 0);
+            // Stall body
+            ctx.fillStyle = '#c8956a';
+            ctx.fillRect(-stall.width / 2, -stall.height / 2, stall.width, stall.height);
+            // Awning stripe
+            ctx.fillStyle = '#a87850';
+            ctx.fillRect(-stall.width / 2, -stall.height / 2, stall.width, stall.height * 0.3);
+            // Outline
             ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
-            ctx.lineWidth = 0.5;
-            ctx.strokeRect(stall.x - stall.width / 2, stall.y - stall.height / 2, stall.width, stall.height);
+            ctx.lineWidth = 0.6;
+            ctx.strokeRect(-stall.width / 2, -stall.height / 2, stall.width, stall.height);
+            ctx.restore();
         }
 
-        // Fountain/well in center
-        ctx.fillStyle = '#4a8fa0';
+        // Fountain — larger, with basin and water
+        var ftn = data.marketSquare.fountain;
+        var ftnR = Math.max(5, data.marketSquare.radius * 0.12);
+        // Outer basin
+        ctx.fillStyle = '#8a8a7a';
         ctx.beginPath();
-        ctx.arc(data.marketSquare.fountain.x, data.marketSquare.fountain.y, 4, 0, Math.PI * 2);
+        ctx.arc(ftn.x, ftn.y, ftnR + 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#5a5a4a';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // Water
+        ctx.fillStyle = '#6a9fb5';
+        ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.arc(ftn.x, ftn.y, ftnR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+        // Center spout
+        ctx.fillStyle = '#8a8a7a';
+        ctx.beginPath();
+        ctx.arc(ftn.x, ftn.y, ftnR * 0.3, 0, Math.PI * 2);
         ctx.fill();
     }
 
