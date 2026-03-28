@@ -6388,27 +6388,27 @@ const SIZE_CONFIG = {
 
 const WARD_TYPES = {
     market:      { color: '#d4a574', label: 'Market Square',    density: 0.35 },
-    residential: { color: '#c4956a', label: 'Residential',      density: 0.40 },
-    noble:       { color: '#dbb88a', label: 'Noble Quarter',    density: 0.28 },
-    slums:       { color: '#b8956a', label: 'Slums',            density: 0.45 },
-    docks:       { color: '#c9a87c', label: 'Docks',            density: 0.32 },
-    temple:      { color: '#d4b896', label: 'Temple Ward',      density: 0.25 },
-    military:    { color: '#bfa07a', label: 'Barracks',         density: 0.30 },
+    residential: { color: '#c9b08a', label: 'Residential',      density: 0.40 },
+    noble:       { color: '#e8d5a8', label: 'Noble Quarter',    density: 0.28 },
+    slums:       { color: '#8b7d6b', label: 'Slums',            density: 0.45 },
+    docks:       { color: '#7a9aaa', label: 'Docks',            density: 0.32 },
+    temple:      { color: '#c8b8d8', label: 'Temple Ward',      density: 0.25 },
+    military:    { color: '#8a9a78', label: 'Barracks',         density: 0.30 },
     craftsmen:   { color: '#c8a070', label: 'Craftsmen',        density: 0.38 },
-    garden:      { color: '#b8d4a0', label: 'Gardens',          density: 0.05 },
-    academic:    { color: '#d4c4a8', label: 'Academy',          density: 0.32 },
-    warehouse:   { color: '#a89878', label: 'Warehouse',        density: 0.30 },
-    thieves:     { color: '#9a8468', label: "Thieves' Quarter",  density: 0.48 },
-    foreign:     { color: '#c8b088', label: 'Foreign Quarter',  density: 0.36 },
-    brewery:     { color: '#c4a050', label: "Brewers' Row",     density: 0.35 },
-    cemetery:    { color: '#b8b8a0', label: 'The Boneyards',    density: 0.08 },
-    entertainment: { color: '#c89090', label: 'Pleasure District', density: 0.38 },
-    fishery:     { color: '#88aab0', label: "Fishmonger's Wharf", density: 0.32 },
-    tannery:     { color: '#987050', label: "Tanners' Alley",    density: 0.40 },
-    magic:       { color: '#a898c0', label: 'Arcane Ward',       density: 0.22 },
-    grove:       { color: '#80b870', label: 'Sacred Grove',      density: 0.06 },
-    mercenary:   { color: '#b09878', label: 'Sellsword Camp',    density: 0.33 },
-    embassy:     { color: '#c8b8a0', label: 'Embassy Row',       density: 0.20 }
+    garden:      { color: '#8abf6a', label: 'Gardens',          density: 0.05 },
+    academic:    { color: '#a8b8c8', label: 'Academy',          density: 0.32 },
+    warehouse:   { color: '#9a8868', label: 'Warehouse',        density: 0.30 },
+    thieves:     { color: '#6a6a5a', label: "Thieves' Quarter",  density: 0.48 },
+    foreign:     { color: '#c09870', label: 'Foreign Quarter',  density: 0.36 },
+    brewery:     { color: '#b89840', label: "Brewers' Row",     density: 0.35 },
+    cemetery:    { color: '#a0a890', label: 'The Boneyards',    density: 0.08 },
+    entertainment: { color: '#c87878', label: 'Pleasure District', density: 0.38 },
+    fishery:     { color: '#68a0a8', label: "Fishmonger's Wharf", density: 0.32 },
+    tannery:     { color: '#8a6040', label: "Tanners' Alley",    density: 0.40 },
+    magic:       { color: '#9080b8', label: 'Arcane Ward',       density: 0.22 },
+    grove:       { color: '#60a850', label: 'Sacred Grove',      density: 0.06 },
+    mercenary:   { color: '#a08868', label: 'Sellsword Camp',    density: 0.33 },
+    embassy:     { color: '#b0a890', label: 'Embassy Row',       density: 0.20 }
 };
 
 const LANDMARK_TYPES = {
@@ -6738,6 +6738,8 @@ function cityGen_createBoundary(centerX, centerY, radius, noise, cityStyle) {
                 y: centerY + Math.sin(angle) * r
             });
         }
+        // Store oceanAngle on boundary for rendering
+        points.oceanAngle = oceanAngle;
     } else {
         // Organic (default)
         for (var i = 0; i < pointCount; i++) {
@@ -6758,10 +6760,11 @@ function cityGen_createBoundary(centerX, centerY, radius, noise, cityStyle) {
 // SEED SCATTERING (Poisson-like distribution)
 // ============================================================================
 
-function cityGen_scatterSeeds(boundary, count, centerX, centerY, radius, riverPoints, riverWidth, cityStyle) {
+function cityGen_scatterSeeds(boundary, count, centerX, centerY, radius, riverPoints, riverWidth, cityStyle, exclusionZones) {
     var seeds = [];
     var minDist = (radius * 2) / Math.sqrt(count * 1.8);
     var style = cityStyle || 'organic';
+    exclusionZones = exclusionZones || [];
 
     if (style === 'grid') {
         // Generate ALL grid positions first, then filter
@@ -6782,7 +6785,15 @@ function cityGen_scatterSeeds(boundary, count, centerX, centerY, radius, riverPo
                             }
                         }
                     }
-                    if (!nearRiver) candidates.push({ x: x, y: y });
+                    if (!nearRiver) {
+                        var inExclusion = false;
+                        for (var ez = 0; ez < exclusionZones.length; ez++) {
+                            if (cityGen_distance(x, y, exclusionZones[ez].center.x, exclusionZones[ez].center.y) < exclusionZones[ez].radius) {
+                                inExclusion = true; break;
+                            }
+                        }
+                        if (!inExclusion) candidates.push({ x: x, y: y });
+                    }
                 }
             }
         }
@@ -6814,6 +6825,13 @@ function cityGen_scatterSeeds(boundary, count, centerX, centerY, radius, riverPo
                     }
                 }
                 if (nearRiver) continue;
+                var inExclusion = false;
+                for (var ez = 0; ez < exclusionZones.length; ez++) {
+                    if (cityGen_distance(x, y, exclusionZones[ez].center.x, exclusionZones[ez].center.y) < exclusionZones[ez].radius) {
+                        inExclusion = true; break;
+                    }
+                }
+                if (inExclusion) continue;
                 seeds.push({ x: x, y: y, id: seeds.length });
             }
         }
@@ -6837,6 +6855,13 @@ function cityGen_scatterSeeds(boundary, count, centerX, centerY, radius, riverPo
                 }
                 if (nearRiver) continue;
             }
+            var inExclusion = false;
+            for (var ez = 0; ez < exclusionZones.length; ez++) {
+                if (cityGen_distance(x, y, exclusionZones[ez].center.x, exclusionZones[ez].center.y) < exclusionZones[ez].radius) {
+                    inExclusion = true; break;
+                }
+            }
+            if (inExclusion) continue;
             var tooClose = false;
             for (var s = 0; s < seeds.length; s++) {
                 if (cityGen_distance(x, y, seeds[s].x, seeds[s].y) < minDist) {
@@ -7030,11 +7055,12 @@ function cityGen_assignWards(cells, numWards, centerX, centerY, radius, citySize
 // BUILDING GENERATION
 // ============================================================================
 
-function cityGen_generateBuildings(cells, sizeConfig) {
+function cityGen_generateBuildings(cells, sizeConfig, exclusionZones) {
     var buildings = [];
     var streetWidth = sizeConfig.streetWidth;
     var lotDepth = sizeConfig.lotDepth;
     var minLotArea = sizeConfig.minLotArea;
+    exclusionZones = exclusionZones || [];
 
     for (var c = 0; c < cells.length; c++) {
         var cell = cells[c];
@@ -7042,6 +7068,16 @@ function cityGen_generateBuildings(cells, sizeConfig) {
         var wardConfig = WARD_TYPES[wardType] || WARD_TYPES.residential;
 
         if (wardType === 'garden' || wardType === 'grove' || wardType === 'cemetery') continue;
+
+        // Skip cells in exclusion zones
+        var centroid = cityGen_polygonCentroid(cell.polygon);
+        var inExclusion = false;
+        for (var ez = 0; ez < exclusionZones.length; ez++) {
+            if (cityGen_distance(centroid.x, centroid.y, exclusionZones[ez].center.x, exclusionZones[ez].center.y) < exclusionZones[ez].radius) {
+                inExclusion = true; break;
+            }
+        }
+        if (inExclusion) continue;
 
         var block = cityGen_insetPolygon(cell.polygon, streetWidth);
         if (block.length < 3) continue;
@@ -7494,6 +7530,23 @@ function cityGen_generateMarketSquare(wardTypes, boundary) {
         stalls: stalls,
         fountain: { x: marketWard.x, y: marketWard.y }
     };
+}
+
+// ============================================================================
+// OCEAN RENDERING (for coastal style)
+// ============================================================================
+
+function cityGen_drawOcean(ctx, centerX, centerY, radius, oceanAngle) {
+    if (!oceanAngle && oceanAngle !== 0) return;
+
+    ctx.fillStyle = '#a8c8d8';
+    ctx.globalAlpha = 0.4;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius * 1.2, oceanAngle - Math.PI * 0.5, oceanAngle + Math.PI * 0.5);
+    ctx.lineTo(centerX, centerY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
 }
 
 // ============================================================================
@@ -8098,6 +8151,73 @@ function cityGen_drawLandmarks(ctx, landmarks) {
     }
 }
 
+function cityGen_drawDistrictLabels(ctx, wardTypes, cells, sizeLabel) {
+    if (!cells || cells.length === 0) return;
+
+    // Group cells by ward type and calculate centroids
+    var wardCentroids = {};
+    var wardCounts = {};
+
+    for (var i = 0; i < cells.length; i++) {
+        var wardType = cells[i].wardType;
+        if (!wardType) continue;
+
+        if (!wardCentroids[wardType]) {
+            wardCentroids[wardType] = { x: 0, y: 0 };
+            wardCounts[wardType] = 0;
+        }
+
+        var centroid = cityGen_polygonCentroid(cells[i].polygon);
+        wardCentroids[wardType].x += centroid.x;
+        wardCentroids[wardType].y += centroid.y;
+        wardCounts[wardType]++;
+    }
+
+    // Calculate average centroid for each ward
+    for (var wType in wardCentroids) {
+        if (wardCounts[wType] > 0) {
+            wardCentroids[wType].x /= wardCounts[wType];
+            wardCentroids[wType].y /= wardCounts[wType];
+        }
+    }
+
+    // Determine font size based on city size
+    var fontSize = '10px Georgia, serif';
+    if (sizeLabel && sizeLabel.indexOf('Town') !== -1) {
+        fontSize = '11px Georgia, serif';
+    } else if (sizeLabel && (sizeLabel.indexOf('City') !== -1 || sizeLabel.indexOf('Metropolis') !== -1)) {
+        fontSize = '12px Georgia, serif';
+    }
+
+    // Draw labels
+    for (var wType in wardCentroids) {
+        var wardInfo = WARD_TYPES[wType];
+        if (!wardInfo) continue;
+
+        var x = wardCentroids[wType].x;
+        var y = wardCentroids[wType].y;
+
+        // Draw cream color halo/shadow
+        ctx.fillStyle = '#f5ead0';
+        ctx.globalAlpha = 0.3;
+        ctx.font = 'italic ' + fontSize;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for (var dx = -1; dx <= 1; dx++) {
+            for (var dy = -1; dy <= 1; dy++) {
+                if (dx === 0 && dy === 0) continue;
+                ctx.fillText(wardInfo.label, x + dx, y + dy);
+            }
+        }
+
+        // Draw dark text on top
+        ctx.fillStyle = '#2c1810';
+        ctx.globalAlpha = 0.6;
+        ctx.fillText(wardInfo.label, x, y);
+        ctx.globalAlpha = 1.0;
+    }
+}
+
 function cityGen_drawCityName(ctx, name, x, y) {
     ctx.fillStyle = COLOR_PALETTE.buildingOutline;
     ctx.font = 'bold 18px Georgia, serif';
@@ -8122,6 +8242,11 @@ function cityGen_render(canvas, data) {
         cityGen_drawParchmentTexture(ctx, data.noise, canvas.width, canvas.height);
     }
 
+    // Draw ocean for coastal style (if oceanAngle is present)
+    if (data.boundary && data.boundary.oceanAngle !== undefined) {
+        cityGen_drawOcean(ctx, 450, 450, data.boundary.length > 0 ? 390 : 330, data.boundary.oceanAngle);
+    }
+
     if (data.farms) {
         cityGen_drawFarms(ctx, data.farms);
     }
@@ -8138,6 +8263,16 @@ function cityGen_render(canvas, data) {
             ctx.fill();
             ctx.globalAlpha = 1.0;
         }
+    }
+
+    // Draw market square ground BEFORE buildings
+    if (data.marketSquare) {
+        ctx.fillStyle = COLOR_PALETTE.cream;
+        ctx.globalAlpha = 0.4;
+        ctx.beginPath();
+        ctx.arc(data.marketSquare.center.x, data.marketSquare.center.y, data.marketSquare.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
     }
 
     for (var i = 0; i < data.buildings.length; i++) {
@@ -8186,12 +8321,32 @@ function cityGen_render(canvas, data) {
         cityGen_drawCastle(ctx, data.castle);
     }
 
+    // Draw market square stalls and fountain (now that buildings are excluded)
     if (data.marketSquare) {
-        cityGen_drawMarketSquare(ctx, data.marketSquare);
+        // Market stalls
+        ctx.fillStyle = '#d4a574';
+        for (var s = 0; s < data.marketSquare.stalls.length; s++) {
+            var stall = data.marketSquare.stalls[s];
+            ctx.fillRect(stall.x - stall.width / 2, stall.y - stall.height / 2, stall.width, stall.height);
+            ctx.strokeStyle = COLOR_PALETTE.buildingOutline;
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(stall.x - stall.width / 2, stall.y - stall.height / 2, stall.width, stall.height);
+        }
+
+        // Fountain/well in center
+        ctx.fillStyle = '#4a8fa0';
+        ctx.beginPath();
+        ctx.arc(data.marketSquare.fountain.x, data.marketSquare.fountain.y, 4, 0, Math.PI * 2);
+        ctx.fill();
     }
 
     if (data.landmarks) {
         cityGen_drawLandmarks(ctx, data.landmarks);
+    }
+
+    // Draw district labels
+    if (data.cells) {
+        cityGen_drawDistrictLabels(ctx, data.wards, data.cells, data.sizeLabel);
     }
 
     if (data.name) {
@@ -8244,13 +8399,29 @@ function generateCityMap() {
         riverWidth = river.width;
     }
 
-    // 3. Scatter block seeds (style-aware)
-    var seeds = cityGen_scatterSeeds(boundary, sizeConfig.seeds, centerX, centerY, radius, riverPoints, riverWidth, cityStyle);
+    // 3. Generate castle zone FIRST (if enabled) - for exclusion from seeds and buildings
+    var castleZone = null;
+    if (includeCastle) {
+        var castleTemp = cityGen_generateCastle(centerX, centerY, radius, boundary);
+        castleZone = {
+            center: castleTemp.center,
+            radius: castleTemp.radius + 5 // Add small buffer around castle
+        };
+    }
 
-    // 4. Compute Voronoi cells
+    // Build exclusion zones list for seed scattering
+    var seedExclusionZones = [];
+    if (castleZone) {
+        seedExclusionZones.push(castleZone);
+    }
+
+    // 4. Scatter block seeds (style-aware, with exclusion zones)
+    var seeds = cityGen_scatterSeeds(boundary, sizeConfig.seeds, centerX, centerY, radius, riverPoints, riverWidth, cityStyle, seedExclusionZones);
+
+    // 5. Compute Voronoi cells
     var cells = cityGen_computeVoronoiCells(seeds, boundary);
 
-    // 5. Assign wards
+    // 6. Assign wards
     var wardTypes = cityGen_assignWards(cells, sizeConfig.wards, centerX, centerY, radius, size);
 
     // Override ward types based on UI
@@ -8274,7 +8445,34 @@ function generateCityMap() {
         }
     }
 
-    // 6. Collect garden areas
+    // 7. Determine market square zone (if enabled) - from market ward center
+    var marketZone = null;
+    if (includeMarket) {
+        var marketWard = null;
+        for (var i = 0; i < wardTypes.length; i++) {
+            if (wardTypes[i].type === 'market') {
+                marketWard = wardTypes[i];
+                break;
+            }
+        }
+        if (marketWard) {
+            marketZone = {
+                center: { x: marketWard.x, y: marketWard.y },
+                radius: 25 + Math.random() * 15 // Same as plaza radius in generateMarketSquare
+            };
+        }
+    }
+
+    // Build exclusion zones list for building generation
+    var buildingExclusionZones = [];
+    if (castleZone) {
+        buildingExclusionZones.push(castleZone);
+    }
+    if (marketZone) {
+        buildingExclusionZones.push(marketZone);
+    }
+
+    // 8. Collect garden areas
     var gardenAreas = [];
     for (var c = 0; c < cells.length; c++) {
         if (cells[c].wardType === 'garden' || cells[c].wardType === 'grove' || cells[c].wardType === 'cemetery') {
@@ -8282,26 +8480,20 @@ function generateCityMap() {
         }
     }
 
-    // 7. Generate buildings
-    var buildings = cityGen_generateBuildings(cells, sizeConfig);
+    // 9. Generate buildings (with castle+market exclusion zones)
+    var buildings = cityGen_generateBuildings(cells, sizeConfig, buildingExclusionZones);
 
-    // 8. Generate suburbs
+    // 10. Generate suburbs
     var suburbs = cityGen_generateSuburbs(boundary, centerX, centerY, radius, wardTypes);
     var allBuildings = buildings.concat(suburbs);
 
-    // 9. Generate farms
+    // 11. Generate farms
     var farms = cityGen_generateFarms(boundary, centerX, centerY, radius);
 
-    // 10. Generate landmarks
+    // 12. Generate landmarks
     var landmarks = cityGen_generateLandmarks(wardTypes, boundary);
 
-    // 11. Generate market square (if enabled)
-    var marketSquare = null;
-    if (includeMarket) {
-        marketSquare = cityGen_generateMarketSquare(wardTypes, boundary);
-    }
-
-    // 12. Walls
+    // 13. Generate walls/gates
     var walls = null;
     var gates = [];
     if (includeWalls) {
@@ -8309,22 +8501,28 @@ function generateCityMap() {
         gates = cityGen_generateGates(boundary, centerX, centerY);
     }
 
-    // 13. Castle
-    var castle = null;
-    if (includeCastle) {
-        castle = cityGen_generateCastle(centerX, centerY, radius, boundary);
-    }
-
-    // 14. Bridges
+    // 14. Generate bridges
     var bridges = [];
     if (river) {
         bridges = cityGen_generateBridges(river, boundary);
     }
 
-    // 15. City name
+    // 15. Generate full castle details (from the zone we created earlier)
+    var castle = null;
+    if (includeCastle && castleZone) {
+        castle = cityGen_generateCastle(centerX, centerY, radius, boundary);
+    }
+
+    // 16. Generate full market square details
+    var marketSquare = null;
+    if (includeMarket) {
+        marketSquare = cityGen_generateMarketSquare(wardTypes, boundary);
+    }
+
+    // 17. City name
     var cityName = CITY_NAMES[Math.floor(Math.random() * CITY_NAMES.length)];
 
-    // Store global data
+    // 18. Store global data
     cityMapData = {
         name: cityName,
         wards: wardTypes,
@@ -8343,10 +8541,11 @@ function generateCityMap() {
         gardenAreas: gardenAreas,
         noise: noise,
         marketSquare: marketSquare,
+        cells: cells,
         sizeLabel: 'A ' + sizeConfig.label + ' of the Realm'
     };
 
-    // Render
+    // 19. Render
     cityGen_render(canvas, cityMapData);
 
     // Update info panel
