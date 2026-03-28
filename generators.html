@@ -6398,28 +6398,38 @@ const SIZE_CONFIG = {
 };
 
 const WARD_TYPES = {
-    market:      { color: '#d4a574', label: 'Market Square',    density: 0.35 },
-    residential: { color: '#c9b08a', label: 'Residential',      density: 0.40 },
-    noble:       { color: '#e8d5a8', label: 'Noble Quarter',    density: 0.28 },
-    slums:       { color: '#8b7d6b', label: 'Slums',            density: 0.45 },
-    docks:       { color: '#7a9aaa', label: 'Docks',            density: 0.32 },
-    temple:      { color: '#c8b8d8', label: 'Temple Ward',      density: 0.25 },
-    military:    { color: '#8a9a78', label: 'Barracks',         density: 0.30 },
-    craftsmen:   { color: '#c8a070', label: 'Craftsmen',        density: 0.38 },
-    garden:      { color: '#8abf6a', label: 'Gardens',          density: 0.05 },
-    academic:    { color: '#a8b8c8', label: 'Academy',          density: 0.32 },
-    warehouse:   { color: '#9a8868', label: 'Warehouse',        density: 0.30 },
-    thieves:     { color: '#6a6a5a', label: "Thieves' Quarter",  density: 0.48 },
-    foreign:     { color: '#c09870', label: 'Foreign Quarter',  density: 0.36 },
-    brewery:     { color: '#b89840', label: "Brewers' Row",     density: 0.35 },
-    cemetery:    { color: '#a0a890', label: 'The Boneyards',    density: 0.08 },
-    entertainment: { color: '#c87878', label: 'Pleasure District', density: 0.38 },
-    fishery:     { color: '#68a0a8', label: "Fishmonger's Wharf", density: 0.32 },
-    tannery:     { color: '#8a6040', label: "Tanners' Alley",    density: 0.40 },
-    magic:       { color: '#9080b8', label: 'Arcane Ward',       density: 0.22 },
-    grove:       { color: '#60a850', label: 'Sacred Grove',      density: 0.06 },
-    mercenary:   { color: '#a08868', label: 'Sellsword Camp',    density: 0.33 },
-    embassy:     { color: '#b0a890', label: 'Embassy Row',       density: 0.20 }
+    market:        { color: '#d4a574', label: 'Market Square',       density: 0.35 },
+    residential:   { color: '#c9b08a', label: 'Residential',         density: 0.40 },
+    noble:         { color: '#e8d5a8', label: 'Noble Quarter',       density: 0.28 },
+    slums:         { color: '#8b7d6b', label: 'Slums',               density: 0.45 },
+    docks:         { color: '#7a9aaa', label: 'Docks',               density: 0.32 },
+    temple:        { color: '#c8b8d8', label: 'Temple Ward',         density: 0.25 },
+    military:      { color: '#8a9a78', label: 'Barracks',            density: 0.30 },
+    craftsmen:     { color: '#c8a070', label: 'Craftsmen',           density: 0.38 },
+    garden:        { color: '#8abf6a', label: 'Gardens',             density: 0.05 },
+    academic:      { color: '#a8b8c8', label: 'Academy',             density: 0.32 },
+    warehouse:     { color: '#9a8868', label: 'Warehouse',           density: 0.30 },
+    thieves:       { color: '#6a6a5a', label: "Thieves' Quarter",    density: 0.48 },
+    foreign:       { color: '#c09870', label: 'Foreign Quarter',     density: 0.36 },
+    brewery:       { color: '#b89840', label: "Brewers' Row",        density: 0.35 },
+    cemetery:      { color: '#a0a890', label: 'The Boneyards',       density: 0.08 },
+    entertainment: { color: '#c87878', label: 'Pleasure District',   density: 0.38 },
+    fishery:       { color: '#68a0a8', label: "Fishmonger's Wharf",  density: 0.32 },
+    tannery:       { color: '#8a6040', label: "Tanners' Alley",      density: 0.40 },
+    magic:         { color: '#9080b8', label: 'Arcane Ward',         density: 0.22 },
+    grove:         { color: '#60a850', label: 'Sacred Grove',        density: 0.06 },
+    mercenary:     { color: '#a08868', label: 'Sellsword Camp',      density: 0.33 },
+    embassy:       { color: '#b0a890', label: 'Embassy Row',         density: 0.20 },
+    guild:         { color: '#b8a078', label: 'Guild Row',           density: 0.34 },
+    hospital:      { color: '#c8c0b0', label: 'Healers Ward',       density: 0.22 },
+    prison:        { color: '#5a5a5a', label: 'The Gaol',           density: 0.18 },
+    arena:         { color: '#c8886a', label: 'The Colosseum',      density: 0.15 },
+    harbor:        { color: '#5a8a9a', label: 'Harbor District',    density: 0.28 },
+    university:    { color: '#98a8c0', label: 'University Quarter', density: 0.26 },
+    artisan:       { color: '#c8a888', label: 'Artisan Quarter',    density: 0.36 },
+    shanty:        { color: '#7a7060', label: 'Shantytown',         density: 0.50 },
+    monastic:      { color: '#b8b0c8', label: 'Monastery Row',     density: 0.15 },
+    foundry:       { color: '#8a7060', label: 'Foundry District',   density: 0.30 }
 };
 
 const LANDMARK_TYPES = {
@@ -6447,18 +6457,76 @@ const LANDMARK_TYPES = {
     chandler:      { label: 'Chandler',      symbol: 'candle' },
     cartographer:  { label: 'Cartographer',  symbol: 'compass' },
     enchanter:     { label: 'Enchanter',     symbol: 'star' },
-    lighthouse:    { label: 'Lighthouse',    symbol: 'lighthouse' }
+    lighthouse:    { label: 'Lighthouse',    symbol: 'lighthouse' },
+    guildhall:     { label: 'Guild Hall',    symbol: 'banner' },
+    bathhouse:     { label: 'Bathhouse',     symbol: 'water' },
+    arena:         { label: 'Arena',         symbol: 'colosseum' },
+    prison:        { label: 'Prison',        symbol: 'chains' },
+    graveyard:     { label: 'Graveyard',     symbol: 'tombstone' },
+    monument:      { label: 'Monument',      symbol: 'pillar' },
+    windmill:      { label: 'Windmill',      symbol: 'mill' },
+    warehouse:     { label: 'Warehouse',     symbol: 'crate' },
+    shrine:        { label: 'Shrine',        symbol: 'shrine' },
+    theater:       { label: 'Theater',       symbol: 'mask' },
+    clocktower:    { label: 'Clock Tower',   symbol: 'clock' },
+    inn:           { label: 'Inn',           symbol: 'bed' },
+    bank:          { label: 'Bank',          symbol: 'vault' },
+    dyer:          { label: 'Dyer',          symbol: 'cloth' },
+    brewer:        { label: 'Brewery',       symbol: 'barrel' },
+    mason:         { label: 'Stonemason',    symbol: 'stone' },
+    scribe:        { label: 'Scribe',        symbol: 'quill' },
+    potter:        { label: 'Potter',        symbol: 'pot' },
+    glassblower:   { label: 'Glassblower',   symbol: 'glass' },
+    shipwright:    { label: 'Shipwright',    symbol: 'ship' },
+    woodcarver:    { label: 'Woodcarver',    symbol: 'chisel' },
+    tattooist:     { label: 'Tattooist',     symbol: 'needle' },
+    fortuneteller: { label: 'Fortune Teller',symbol: 'crystal' }
 };
 
+const CITY_NAME_PREFIXES = [
+    'Grey', 'Silver', 'Thorn', 'Dust', 'Stone', 'Ember', 'Winter', 'Rose', 'Black', 'Golden',
+    'Shadow', 'Bright', 'Deep', 'Iron', 'Sun', 'Moon', 'Ash', 'Crimson', 'Dusk', 'East',
+    'Fair', 'Gray', 'Helm', 'Jasper', 'King', 'Long', 'Myst', 'North', 'Old', 'Peak',
+    'Raven', 'Star', 'Under', 'Vale', 'West', 'Wyld', 'Briar', 'Cold', 'Drake', 'Elder',
+    'Fox', 'Gold', 'High', 'Red', 'White', 'Storm', 'Frost', 'Copper', 'Amber', 'Hawk',
+    'Wolf', 'Bear', 'Oak', 'Elm', 'Pine', 'Willow', 'Crow', 'Falcon', 'Heron', 'Otter',
+    'Marten', 'Lynx', 'Moss', 'Flint', 'Slate', 'Brass', 'Bronze', 'Jade', 'Opal', 'Garnet',
+    'Coral', 'Pearl', 'Ivory', 'Ebony', 'Russet', 'Tawny', 'Sable', 'Verdant', 'Azure', 'Scarlet',
+    'Hollow', 'Whist', 'Crag', 'Glen', 'Dell', 'Fern', 'Bramble', 'Nettle', 'Wren', 'Lark',
+    'Swift', 'Kestrel', 'Osprey', 'Badger', 'Hare', 'Stag', 'Ram', 'Bull', 'Drake', 'Wyrm'
+];
+const CITY_NAME_SUFFIXES = [
+    'hold', 'peak', 'haven', 'brook', 'watch', 'fall', 'mere', 'gate', 'well', 'hall',
+    'mire', 'shore', 'ford', 'ridge', 'vale', 'step', 'holm', 'field', 'stad', 'port',
+    'stead', 'mark', 'moor', 'grove', 'tower', 'wood', 'wick', 'hill', 'dale', 'bridge',
+    'reach', 'stone', 'ton', 'bury', 'mouth', 'crest', 'hollow', 'marsh', 'keep', 'spire',
+    'cliff', 'crossing', 'landing', 'point', 'bluff', 'bend', 'hearth', 'rest', 'barrow', 'thorne'
+];
 const CITY_NAMES = [
     'Greyhold', 'Silverpeak', 'Thornhaven', 'Dustbrook', 'Stonewatch', 'Emberfall', 'Wintermere', 'Rosegate',
     'Blackwell', 'Goldenhall', 'Shadowmire', 'Brightshore', 'Deepforest', 'Ironridge', 'Sunvale', 'Moonstep',
     'Ashbrook', 'Crimsonhall', 'Duskholm', 'Easthaven', 'Fairfield', 'Graystone', 'Helmstad', 'Ironport',
     'Jasperhold', 'Kingstead', 'Longmere', 'Mysthaven', 'Northmark', 'Oldstone', 'Peakwood', 'Quarrytown',
-    'Ravensford', 'Starhaven', 'Thornwick', 'Underhill', 'Valesmith', 'Westmark', 'Wyldmoor', 'Xanthium',
-    'Yellowstone', 'Zephyrhaven', 'Anthelm', 'Briarton', 'Coldreach', 'Drakenholm', 'Eldergrove', 'Foxtail',
-    'Goldthorne', 'Hightower', 'Ironwood', 'Justhold'
+    'Ravensford', 'Starhaven', 'Thornwick', 'Underhill', 'Valesmith', 'Westmark', 'Wyldmoor', 'Zephyrhaven',
+    'Anthelm', 'Briarton', 'Coldreach', 'Drakenholm', 'Eldergrove', 'Foxtail', 'Goldthorne', 'Hightower',
+    'Ironwood', 'Justhold', 'Coppervale', 'Stormcrest', 'Frosthollow', 'Ambergate', 'Hawkridge', 'Wolfmere',
+    'Bearhold', 'Oakfield', 'Elmhaven', 'Pinewood', 'Willowbrook', 'Crowstone', 'Falconkeep', 'Heronport',
+    'Mossdale', 'Flintmark', 'Slatebridge', 'Brassmoor', 'Jadewell', 'Opalspire', 'Garnethold', 'Coralreach',
+    'Pearlhaven', 'Ivoryhall', 'Rustgate', 'Verdanthollow', 'Scarletmere', 'Wrenfield', 'Larkstead'
 ];
+function cityGen_generateName() {
+    // 60% chance to use a hand-crafted name, 40% chance to generate one
+    if (Math.random() < 0.6) {
+        return CITY_NAMES[Math.floor(Math.random() * CITY_NAMES.length)];
+    }
+    var prefix = CITY_NAME_PREFIXES[Math.floor(Math.random() * CITY_NAME_PREFIXES.length)];
+    var suffix = CITY_NAME_SUFFIXES[Math.floor(Math.random() * CITY_NAME_SUFFIXES.length)];
+    // Avoid doubled letters at join point
+    if (prefix.slice(-1).toLowerCase() === suffix.charAt(0).toLowerCase()) {
+        suffix = suffix.substring(1);
+    }
+    return prefix + suffix;
+}
 
 const COLOR_PALETTE = {
     background:     '#f5ead0',
@@ -7009,8 +7077,17 @@ function cityGen_assignWards(cells, numWards, centerX, centerY, radius, citySize
         });
     }
 
-    var allWardTypes = Object.keys(WARD_TYPES);
     var wardTypes = [];
+    var usedTypes = {};
+
+    // Helper to pick a type not yet used (if possible), from a weighted pool
+    function pickUnique(pool) {
+        var available = pool.filter(function(t) { return !usedTypes[t]; });
+        if (available.length === 0) available = pool;
+        var pick = available[Math.floor(Math.random() * available.length)];
+        usedTypes[pick] = true;
+        return pick;
+    }
 
     for (var i = 0; i < wardSeeds.length; i++) {
         var d = cityGen_distance(centerX, centerY, wardSeeds[i].x, wardSeeds[i].y);
@@ -7019,20 +7096,25 @@ function cityGen_assignWards(cells, numWards, centerX, centerY, radius, citySize
 
         if (i === 0) {
             type = 'market';
-        } else if (ratio < 0.3) {
-            var opts = ['noble', 'temple', 'magic', 'academic'];
-            type = opts[Math.floor(Math.random() * opts.length)];
-        } else if (ratio < 0.55) {
-            var opts2 = ['residential', 'craftsmen', 'academic', 'brewery', 'foreign'];
-            if (citySize === 'metropolis' || citySize === 'city') opts2.push('embassy', 'entertainment');
-            type = opts2[Math.floor(Math.random() * opts2.length)];
-        } else {
-            var opts3 = ['residential', 'slums', 'military', 'docks', 'warehouse'];
+        } else if (ratio < 0.25) {
+            // Inner core: wealthy and powerful districts
+            var opts = ['noble', 'temple', 'magic', 'academic', 'embassy', 'monastic', 'university'];
+            type = pickUnique(opts);
+        } else if (ratio < 0.5) {
+            // Middle ring: commerce and skilled trades
+            var opts2 = ['residential', 'craftsmen', 'academic', 'brewery', 'foreign', 'artisan', 'guild', 'hospital', 'entertainment'];
             if (citySize === 'metropolis' || citySize === 'city') {
-                opts3.push('thieves', 'tannery', 'fishery', 'mercenary');
+                opts2.push('arena', 'university', 'bathhouse');
             }
-            if (Math.random() > 0.7) opts3.push('cemetery', 'grove');
-            type = opts3[Math.floor(Math.random() * opts3.length)];
+            type = pickUnique(opts2);
+        } else {
+            // Outer ring: industry, military, lower classes
+            var opts3 = ['residential', 'slums', 'military', 'docks', 'warehouse', 'foundry', 'shanty'];
+            if (citySize === 'metropolis' || citySize === 'city') {
+                opts3.push('thieves', 'tannery', 'fishery', 'mercenary', 'prison', 'harbor');
+            }
+            if (Math.random() > 0.65) opts3.push('cemetery', 'grove');
+            type = pickUnique(opts3);
         }
 
         wardTypes.push({
@@ -7486,44 +7568,100 @@ function cityGen_generateGates(wallPoly, centerX, centerY) {
 // LANDMARK GENERATION (enhanced with ward-appropriate types)
 // ============================================================================
 
+// Ward-to-landmark mapping: each ward type has a pool of primary and secondary landmark types
+var WARD_LANDMARK_POOLS = {
+    market:        { primary: ['market', 'shop', 'inn'], secondary: ['fountain', 'well', 'tavern', 'jeweler', 'clothier', 'potter', 'dyer'] },
+    residential:   { primary: ['well', 'fountain', 'bakery'], secondary: ['tavern', 'shop', 'shrine', 'herbalist', 'chandler'] },
+    noble:         { primary: ['fountain', 'monument', 'garden_area'], secondary: ['jeweler', 'clothier', 'library', 'bathhouse', 'scribe'] },
+    slums:         { primary: ['tavern', 'well'], secondary: ['shop', 'fortuneteller', 'tattooist'] },
+    docks:         { primary: ['tavern', 'lighthouse', 'shipwright'], secondary: ['warehouse', 'inn', 'shop', 'cartographer', 'cooper'] },
+    temple:        { primary: ['church', 'shrine', 'fountain'], secondary: ['library', 'monument', 'garden_area', 'herbalist', 'scribe'] },
+    military:      { primary: ['barracks', 'stables'], secondary: ['blacksmith', 'bowyer', 'arena', 'well'] },
+    craftsmen:     { primary: ['blacksmith', 'shop'], secondary: ['bakery', 'cooper', 'tanner', 'woodcarver', 'mason', 'potter', 'dyer', 'glassblower'] },
+    garden:        { primary: ['garden_area', 'fountain'], secondary: ['shrine', 'well', 'monument'] },
+    academic:      { primary: ['library', 'scribe'], secondary: ['cartographer', 'alchemist', 'enchanter', 'monument', 'clocktower'] },
+    warehouse:     { primary: ['warehouse', 'shop'], secondary: ['tavern', 'cooper', 'well'] },
+    thieves:       { primary: ['tavern', 'fortuneteller'], secondary: ['shop', 'tattooist', 'well'] },
+    foreign:       { primary: ['inn', 'shop', 'shrine'], secondary: ['tavern', 'bathhouse', 'herbalist', 'dyer', 'jeweler'] },
+    brewery:       { primary: ['tavern', 'brewer'], secondary: ['cooper', 'inn', 'bakery', 'well'] },
+    cemetery:      { primary: ['graveyard', 'shrine'], secondary: ['monument', 'well', 'church'] },
+    entertainment: { primary: ['tavern', 'theater', 'inn'], secondary: ['bathhouse', 'fortuneteller', 'tattooist', 'fountain'] },
+    fishery:       { primary: ['lighthouse', 'tavern'], secondary: ['shop', 'shipwright', 'well', 'cooper'] },
+    tannery:       { primary: ['tanner', 'shop'], secondary: ['well', 'tavern', 'cooper'] },
+    magic:         { primary: ['enchanter', 'alchemist'], secondary: ['herbalist', 'library', 'fortuneteller', 'scribe', 'glassblower'] },
+    grove:         { primary: ['garden_area', 'shrine'], secondary: ['fountain', 'monument', 'herbalist'] },
+    mercenary:     { primary: ['tavern', 'blacksmith'], secondary: ['stables', 'bowyer', 'tanner', 'barracks'] },
+    embassy:       { primary: ['monument', 'fountain', 'guildhall'], secondary: ['library', 'garden_area', 'bathhouse', 'inn'] },
+    guild:         { primary: ['guildhall', 'shop'], secondary: ['tavern', 'bank', 'scribe', 'inn'] },
+    hospital:      { primary: ['apothecary', 'herbalist'], secondary: ['church', 'fountain', 'well', 'shrine'] },
+    prison:        { primary: ['prison', 'barracks'], secondary: ['well', 'blacksmith'] },
+    arena:         { primary: ['arena', 'tavern'], secondary: ['blacksmith', 'stables', 'inn', 'bathhouse'] },
+    harbor:        { primary: ['lighthouse', 'shipwright'], secondary: ['tavern', 'warehouse', 'inn', 'cartographer'] },
+    university:    { primary: ['library', 'scribe'], secondary: ['alchemist', 'cartographer', 'clocktower', 'monument', 'bookshop'] },
+    artisan:       { primary: ['shop', 'potter'], secondary: ['glassblower', 'woodcarver', 'dyer', 'jeweler', 'clothier', 'mason'] },
+    shanty:        { primary: ['well', 'tavern'], secondary: ['shop', 'fortuneteller'] },
+    monastic:      { primary: ['church', 'shrine'], secondary: ['library', 'garden_area', 'herbalist', 'well', 'bakery'] },
+    foundry:       { primary: ['blacksmith', 'mason'], secondary: ['warehouse', 'well', 'tavern', 'shop'] }
+};
+
 function cityGen_generateLandmarks(wardTypes, boundary) {
     var landmarks = [];
-    var defaultTypes = ['church', 'tavern', 'market', 'fountain', 'well', 'blacksmith', 'library'];
+    var occupiedPositions = [];
+    var minLandmarkSpacing = 18;
+
+    function isPositionClear(x, y) {
+        for (var i = 0; i < occupiedPositions.length; i++) {
+            if (cityGen_distance(x, y, occupiedPositions[i].x, occupiedPositions[i].y) < minLandmarkSpacing) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function placeLandmark(cx, cy, type, distMin, distMax) {
+        var attempts = 0;
+        while (attempts < 8) {
+            var angle = Math.random() * Math.PI * 2;
+            var dist = distMin + Math.random() * (distMax - distMin);
+            var x = cx + Math.cos(angle) * dist;
+            var y = cy + Math.sin(angle) * dist;
+            if (cityGen_pointInPolygon({ x: x, y: y }, boundary) && isPositionClear(x, y)) {
+                var lm = { x: x, y: y, type: type, size: 7 + Math.random() * 4 };
+                landmarks.push(lm);
+                occupiedPositions.push({ x: x, y: y });
+                return true;
+            }
+            attempts++;
+        }
+        return false;
+    }
 
     for (var w = 0; w < wardTypes.length; w++) {
-        if (Math.random() > 0.55) continue;
-
         var ward = wardTypes[w];
         var wardType = ward.type;
-        var type = defaultTypes[Math.floor(Math.random() * defaultTypes.length)];
+        var pool = WARD_LANDMARK_POOLS[wardType] || WARD_LANDMARK_POOLS.residential;
 
-        // Ward-appropriate landmark types
-        if (wardType === 'market') type = 'market';
-        else if (wardType === 'temple') type = 'church';
-        else if (wardType === 'docks') type = Math.random() > 0.5 ? 'tavern' : 'lighthouse';
-        else if (wardType === 'military') type = 'barracks';
-        else if (wardType === 'craftsmen') type = Math.random() > 0.4 ? 'blacksmith' : 'shop';
-        else if (wardType === 'academic') type = 'library';
-        else if (wardType === 'brewery') type = 'tavern';
-        else if (wardType === 'bakery') type = 'bakery';
-        else if (wardType === 'tannery') type = 'tanner';
-        else if (wardType === 'magic') type = 'enchanter';
-        else if (wardType === 'fishery') type = 'lighthouse';
-        else if (wardType === 'entertainment') type = 'tavern';
-        else if (wardType === 'cemetery') { if (Math.random() > 0.5) continue; type = 'well'; }
-        else if (wardType === 'grove') { if (Math.random() > 0.5) continue; type = 'garden_area'; }
+        // Always place 1 primary landmark
+        var primaryType = pool.primary[Math.floor(Math.random() * pool.primary.length)];
+        placeLandmark(ward.x, ward.y, primaryType, 10, 30);
 
-        var angle = Math.random() * Math.PI * 2;
-        var dist = 20 + Math.random() * 25;
-        var x = ward.x + Math.cos(angle) * dist;
-        var y = ward.y + Math.sin(angle) * dist;
+        // 70% chance for a second primary or secondary
+        if (Math.random() < 0.70) {
+            var secondPool = Math.random() < 0.4 ? pool.primary : pool.secondary;
+            var secondType = secondPool[Math.floor(Math.random() * secondPool.length)];
+            placeLandmark(ward.x, ward.y, secondType, 15, 40);
+        }
 
-        if (cityGen_pointInPolygon({ x: x, y: y }, boundary)) {
-            landmarks.push({
-                x: x, y: y,
-                type: type,
-                size: 7 + Math.random() * 4
-            });
+        // 40% chance for a third (always secondary)
+        if (Math.random() < 0.40 && pool.secondary.length > 0) {
+            var thirdType = pool.secondary[Math.floor(Math.random() * pool.secondary.length)];
+            placeLandmark(ward.x, ward.y, thirdType, 20, 45);
+        }
+
+        // Metropolis/city: 25% chance for a fourth landmark
+        if (Math.random() < 0.25 && pool.secondary.length > 1) {
+            var fourthType = pool.secondary[Math.floor(Math.random() * pool.secondary.length)];
+            placeLandmark(ward.x, ward.y, fourthType, 25, 50);
         }
     }
 
@@ -8673,6 +8811,500 @@ function cityGen_drawWell(ctx, x, y, size) {
 }
 
 // ============================================================================
+// NEW LANDMARK DRAWING FUNCTIONS
+// ============================================================================
+
+function cityGen_drawGuildhall(ctx, x, y, size) {
+    // Large building with banner
+    ctx.fillStyle = '#8b6f47';
+    ctx.fillRect(x - size * 0.4, y - size * 0.2, size * 0.8, size * 0.5);
+    ctx.fillStyle = '#6b4f27';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.45, y - size * 0.2);
+    ctx.lineTo(x, y - size * 0.5);
+    ctx.lineTo(x + size * 0.45, y - size * 0.2);
+    ctx.closePath();
+    ctx.fill();
+    // Banner
+    ctx.fillStyle = '#c83030';
+    ctx.fillRect(x - size * 0.06, y - size * 0.5, size * 0.12, size * 0.25);
+    // Door
+    ctx.fillStyle = '#4a3020';
+    ctx.fillRect(x - size * 0.08, y + size * 0.05, size * 0.16, size * 0.25);
+}
+
+function cityGen_drawBathhouse(ctx, x, y, size) {
+    // Round pool with steam
+    ctx.fillStyle = '#7a9aaa';
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    ctx.arc(x, y + size * 0.05, size * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = '#5a7a8a';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Steam wisps
+    ctx.strokeStyle = '#b0c0d0';
+    ctx.lineWidth = 0.8;
+    ctx.globalAlpha = 0.5;
+    for (var i = -1; i <= 1; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x + i * size * 0.12, y - size * 0.1);
+        ctx.quadraticCurveTo(x + i * size * 0.12 + size * 0.05, y - size * 0.25, x + i * size * 0.12 - size * 0.03, y - size * 0.4);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1.0;
+}
+
+function cityGen_drawArena(ctx, x, y, size) {
+    // Oval colosseum shape
+    ctx.strokeStyle = '#8a7060';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.ellipse(x, y, size * 0.45, size * 0.35, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = '#a08868';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.ellipse(x, y, size * 0.3, size * 0.2, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    // Crossed swords
+    ctx.strokeStyle = '#5a4a3a';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.12, y - size * 0.12);
+    ctx.lineTo(x + size * 0.12, y + size * 0.12);
+    ctx.moveTo(x + size * 0.12, y - size * 0.12);
+    ctx.lineTo(x - size * 0.12, y + size * 0.12);
+    ctx.stroke();
+}
+
+function cityGen_drawPrison(ctx, x, y, size) {
+    // Dark building with bars
+    ctx.fillStyle = '#4a4a4a';
+    ctx.fillRect(x - size * 0.35, y - size * 0.3, size * 0.7, size * 0.6);
+    ctx.strokeStyle = '#2a2a2a';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x - size * 0.35, y - size * 0.3, size * 0.7, size * 0.6);
+    // Window bars
+    ctx.strokeStyle = '#3d3d3d';
+    ctx.lineWidth = 1;
+    for (var i = 0; i < 3; i++) {
+        var bx = x - size * 0.15 + i * size * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(bx, y - size * 0.2);
+        ctx.lineTo(bx, y + size * 0.1);
+        ctx.stroke();
+    }
+}
+
+function cityGen_drawGraveyard(ctx, x, y, size) {
+    // Tombstones
+    ctx.fillStyle = '#7a7a7a';
+    for (var i = -1; i <= 1; i++) {
+        var tx = x + i * size * 0.22;
+        var th = size * (0.2 + Math.random() * 0.15);
+        ctx.fillRect(tx - size * 0.06, y + size * 0.1 - th, size * 0.12, th);
+        // Rounded top
+        ctx.beginPath();
+        ctx.arc(tx, y + size * 0.1 - th, size * 0.06, Math.PI, 0);
+        ctx.fill();
+    }
+    // Cross on center tombstone
+    ctx.strokeStyle = '#5a5a5a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, y - size * 0.3);
+    ctx.lineTo(x, y - size * 0.15);
+    ctx.moveTo(x - size * 0.06, y - size * 0.25);
+    ctx.lineTo(x + size * 0.06, y - size * 0.25);
+    ctx.stroke();
+}
+
+function cityGen_drawMonument(ctx, x, y, size) {
+    // Stone pillar/obelisk
+    ctx.fillStyle = '#9a9a8a';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.12, y + size * 0.3);
+    ctx.lineTo(x + size * 0.12, y + size * 0.3);
+    ctx.lineTo(x + size * 0.08, y - size * 0.3);
+    ctx.lineTo(x, y - size * 0.45);
+    ctx.lineTo(x - size * 0.08, y - size * 0.3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#6a6a5a';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    // Base
+    ctx.fillStyle = '#8a8a7a';
+    ctx.fillRect(x - size * 0.18, y + size * 0.25, size * 0.36, size * 0.1);
+}
+
+function cityGen_drawWindmill(ctx, x, y, size) {
+    // Tower
+    ctx.fillStyle = '#b8a888';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.15, y + size * 0.35);
+    ctx.lineTo(x + size * 0.15, y + size * 0.35);
+    ctx.lineTo(x + size * 0.1, y - size * 0.2);
+    ctx.lineTo(x - size * 0.1, y - size * 0.2);
+    ctx.closePath();
+    ctx.fill();
+    // Blades
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1.5;
+    var bladeCenterY = y - size * 0.15;
+    for (var b = 0; b < 4; b++) {
+        var ba = b * Math.PI * 0.5 + 0.3;
+        ctx.beginPath();
+        ctx.moveTo(x, bladeCenterY);
+        ctx.lineTo(x + Math.cos(ba) * size * 0.35, bladeCenterY + Math.sin(ba) * size * 0.35);
+        ctx.stroke();
+    }
+    // Hub
+    ctx.fillStyle = '#5d4a3d';
+    ctx.beginPath();
+    ctx.arc(x, bladeCenterY, size * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function cityGen_drawWarehouse(ctx, x, y, size) {
+    ctx.fillStyle = '#9a8868';
+    ctx.fillRect(x - size * 0.4, y - size * 0.2, size * 0.8, size * 0.45);
+    ctx.fillStyle = '#7a6848';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.45, y - size * 0.2);
+    ctx.lineTo(x, y - size * 0.4);
+    ctx.lineTo(x + size * 0.45, y - size * 0.2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#5a4830';
+    ctx.fillRect(x - size * 0.15, y, size * 0.3, size * 0.25);
+}
+
+function cityGen_drawShrine(ctx, x, y, size) {
+    // Small shrine with arch
+    ctx.fillStyle = '#b8b0a0';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.2, y + size * 0.3);
+    ctx.lineTo(x - size * 0.2, y - size * 0.1);
+    ctx.arc(x, y - size * 0.1, size * 0.2, Math.PI, 0);
+    ctx.lineTo(x + size * 0.2, y + size * 0.3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#8a8070';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    // Flame inside
+    ctx.fillStyle = '#e0a030';
+    ctx.beginPath();
+    ctx.arc(x, y + size * 0.05, size * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function cityGen_drawTheater(ctx, x, y, size) {
+    // Comedy/tragedy masks
+    ctx.fillStyle = '#e8d8b8';
+    // Happy mask
+    ctx.beginPath();
+    ctx.arc(x - size * 0.12, y, size * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#5a4a3a';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x - size * 0.12, y + size * 0.04, size * 0.08, 0, Math.PI);
+    ctx.stroke();
+    // Sad mask
+    ctx.fillStyle = '#d8c8a8';
+    ctx.beginPath();
+    ctx.arc(x + size * 0.12, y, size * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#5a4a3a';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x + size * 0.12, y + size * 0.08, size * 0.08, Math.PI, 0);
+    ctx.stroke();
+}
+
+function cityGen_drawClocktower(ctx, x, y, size) {
+    // Tall tower with clock face
+    ctx.fillStyle = '#8a7a6a';
+    ctx.fillRect(x - size * 0.12, y - size * 0.15, size * 0.24, size * 0.55);
+    // Spire
+    ctx.fillStyle = '#6a5a4a';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.15, y - size * 0.15);
+    ctx.lineTo(x, y - size * 0.5);
+    ctx.lineTo(x + size * 0.15, y - size * 0.15);
+    ctx.closePath();
+    ctx.fill();
+    // Clock face
+    ctx.fillStyle = '#f0e8d0';
+    ctx.beginPath();
+    ctx.arc(x, y + size * 0.05, size * 0.1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#3a3a3a';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    // Clock hands
+    ctx.beginPath();
+    ctx.moveTo(x, y + size * 0.05);
+    ctx.lineTo(x, y - size * 0.02);
+    ctx.moveTo(x, y + size * 0.05);
+    ctx.lineTo(x + size * 0.06, y + size * 0.08);
+    ctx.stroke();
+}
+
+function cityGen_drawInn(ctx, x, y, size) {
+    // Building with hanging sign
+    ctx.fillStyle = '#b89068';
+    ctx.fillRect(x - size * 0.35, y - size * 0.15, size * 0.7, size * 0.5);
+    ctx.fillStyle = '#8b6f47';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.4, y - size * 0.15);
+    ctx.lineTo(x, y - size * 0.4);
+    ctx.lineTo(x + size * 0.4, y - size * 0.15);
+    ctx.closePath();
+    ctx.fill();
+    // Hanging sign
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + size * 0.35, y - size * 0.05);
+    ctx.lineTo(x + size * 0.5, y - size * 0.05);
+    ctx.stroke();
+    ctx.fillStyle = '#d4a574';
+    ctx.fillRect(x + size * 0.38, y - size * 0.02, size * 0.15, size * 0.12);
+    // Door
+    ctx.fillStyle = '#5a3f20';
+    ctx.fillRect(x - size * 0.07, y + size * 0.1, size * 0.14, size * 0.25);
+}
+
+function cityGen_drawBank(ctx, x, y, size) {
+    // Pillared building
+    ctx.fillStyle = '#c8c0b0';
+    ctx.fillRect(x - size * 0.35, y - size * 0.1, size * 0.7, size * 0.4);
+    // Pediment
+    ctx.fillStyle = '#b8b0a0';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.4, y - size * 0.1);
+    ctx.lineTo(x, y - size * 0.35);
+    ctx.lineTo(x + size * 0.4, y - size * 0.1);
+    ctx.closePath();
+    ctx.fill();
+    // Pillars
+    ctx.fillStyle = '#a8a090';
+    for (var p = -1; p <= 1; p++) {
+        ctx.fillRect(x + p * size * 0.2 - size * 0.03, y - size * 0.1, size * 0.06, size * 0.4);
+    }
+}
+
+function cityGen_drawDyer(ctx, x, y, size) {
+    // Colorful vats
+    var colors = ['#8b2020', '#204080', '#806020', '#206030'];
+    for (var i = 0; i < 3; i++) {
+        ctx.fillStyle = colors[i];
+        ctx.beginPath();
+        ctx.arc(x - size * 0.2 + i * size * 0.2, y + size * 0.05, size * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#5d4a3d';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+    }
+}
+
+function cityGen_drawBrewer(ctx, x, y, size) {
+    // Large barrel
+    ctx.fillStyle = '#7a5a37';
+    ctx.beginPath();
+    ctx.ellipse(x, y, size * 0.35, size * 0.28, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.ellipse(x, y, size * 0.35, size * 0.28, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    // Bands
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.ellipse(x, y, size * 0.25, size * 0.18, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    // Tap
+    ctx.fillStyle = '#4a3020';
+    ctx.fillRect(x + size * 0.3, y - size * 0.05, size * 0.1, size * 0.1);
+}
+
+function cityGen_drawMason(ctx, x, y, size) {
+    // Stone blocks
+    ctx.fillStyle = '#9a9a8a';
+    ctx.fillRect(x - size * 0.3, y - size * 0.05, size * 0.25, size * 0.2);
+    ctx.fillStyle = '#8a8a7a';
+    ctx.fillRect(x + size * 0.05, y - size * 0.15, size * 0.2, size * 0.3);
+    ctx.fillStyle = '#a0a090';
+    ctx.fillRect(x - size * 0.15, y - size * 0.3, size * 0.3, size * 0.2);
+    // Chisel
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + size * 0.15, y - size * 0.35);
+    ctx.lineTo(x + size * 0.3, y - size * 0.15);
+    ctx.stroke();
+}
+
+function cityGen_drawScribe(ctx, x, y, size) {
+    // Scroll
+    ctx.fillStyle = '#e8d8b8';
+    ctx.fillRect(x - size * 0.25, y - size * 0.2, size * 0.5, size * 0.4);
+    // Roll ends
+    ctx.fillStyle = '#c8b898';
+    ctx.beginPath();
+    ctx.arc(x - size * 0.25, y, size * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + size * 0.25, y, size * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+    // Writing lines
+    ctx.strokeStyle = '#8b7355';
+    ctx.lineWidth = 0.5;
+    for (var i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x - size * 0.15, y - size * 0.1 + i * size * 0.1);
+        ctx.lineTo(x + size * 0.15, y - size * 0.1 + i * size * 0.1);
+        ctx.stroke();
+    }
+}
+
+function cityGen_drawPotter(ctx, x, y, size) {
+    // Pot/vase shape
+    ctx.fillStyle = '#b87040';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.15, y + size * 0.3);
+    ctx.quadraticCurveTo(x - size * 0.3, y, x - size * 0.1, y - size * 0.15);
+    ctx.quadraticCurveTo(x, y - size * 0.25, x + size * 0.1, y - size * 0.15);
+    ctx.quadraticCurveTo(x + size * 0.3, y, x + size * 0.15, y + size * 0.3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#8a5030';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+}
+
+function cityGen_drawGlassblower(ctx, x, y, size) {
+    // Glowing orb on pipe
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.4, y);
+    ctx.lineTo(x + size * 0.1, y);
+    ctx.stroke();
+    // Glass bubble
+    ctx.fillStyle = '#a0d0e0';
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+    ctx.arc(x + size * 0.2, y, size * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = '#70a0b0';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    // Highlight
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.arc(x + size * 0.15, y - size * 0.08, size * 0.05, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+}
+
+function cityGen_drawShipwright(ctx, x, y, size) {
+    // Boat hull shape
+    ctx.fillStyle = '#7a5a37';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.35, y + size * 0.1);
+    ctx.quadraticCurveTo(x, y + size * 0.35, x + size * 0.35, y + size * 0.1);
+    ctx.lineTo(x + size * 0.4, y - size * 0.05);
+    ctx.lineTo(x - size * 0.3, y - size * 0.05);
+    ctx.closePath();
+    ctx.fill();
+    // Mast
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, y - size * 0.05);
+    ctx.lineTo(x, y - size * 0.45);
+    ctx.stroke();
+    // Flag
+    ctx.fillStyle = '#c83030';
+    ctx.beginPath();
+    ctx.moveTo(x, y - size * 0.45);
+    ctx.lineTo(x + size * 0.15, y - size * 0.38);
+    ctx.lineTo(x, y - size * 0.3);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function cityGen_drawWoodcarver(ctx, x, y, size) {
+    // Wood block with chisel marks
+    ctx.fillStyle = '#b89068';
+    ctx.fillRect(x - size * 0.2, y - size * 0.25, size * 0.4, size * 0.5);
+    ctx.strokeStyle = '#8a6848';
+    ctx.lineWidth = 0.6;
+    // Wood grain
+    for (var i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x - size * 0.15, y - size * 0.2 + i * size * 0.15);
+        ctx.quadraticCurveTo(x, y - size * 0.15 + i * size * 0.15, x + size * 0.15, y - size * 0.2 + i * size * 0.15);
+        ctx.stroke();
+    }
+}
+
+function cityGen_drawTattooist(ctx, x, y, size) {
+    // Needle and ink
+    ctx.strokeStyle = '#3a3a3a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.3, y + size * 0.2);
+    ctx.lineTo(x + size * 0.2, y - size * 0.3);
+    ctx.stroke();
+    // Ink pot
+    ctx.fillStyle = '#2a2a3a';
+    ctx.beginPath();
+    ctx.arc(x + size * 0.15, y + size * 0.1, size * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function cityGen_drawFortuneTeller(ctx, x, y, size) {
+    // Crystal ball
+    ctx.fillStyle = '#8060b0';
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+    ctx.arc(x, y - size * 0.05, size * 0.25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = '#6040a0';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Glow highlight
+    ctx.fillStyle = '#c0a0e0';
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.arc(x - size * 0.08, y - size * 0.12, size * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+    // Stand
+    ctx.fillStyle = '#5d4a3d';
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.15, y + size * 0.3);
+    ctx.lineTo(x + size * 0.15, y + size * 0.3);
+    ctx.lineTo(x + size * 0.05, y + size * 0.15);
+    ctx.lineTo(x - size * 0.05, y + size * 0.15);
+    ctx.closePath();
+    ctx.fill();
+}
+
+// ============================================================================
 // LANDMARK RENDERER
 // ============================================================================
 
@@ -8702,7 +9334,30 @@ function cityGen_drawLandmarks(ctx, landmarks) {
         chandler: cityGen_drawChandler,
         cartographer: cityGen_drawCartographer,
         enchanter: cityGen_drawEnchanter,
-        lighthouse: cityGen_drawLighthouse
+        lighthouse: cityGen_drawLighthouse,
+        guildhall: cityGen_drawGuildhall,
+        bathhouse: cityGen_drawBathhouse,
+        arena: cityGen_drawArena,
+        prison: cityGen_drawPrison,
+        graveyard: cityGen_drawGraveyard,
+        monument: cityGen_drawMonument,
+        windmill: cityGen_drawWindmill,
+        warehouse: cityGen_drawWarehouse,
+        shrine: cityGen_drawShrine,
+        theater: cityGen_drawTheater,
+        clocktower: cityGen_drawClocktower,
+        inn: cityGen_drawInn,
+        bank: cityGen_drawBank,
+        dyer: cityGen_drawDyer,
+        brewer: cityGen_drawBrewer,
+        mason: cityGen_drawMason,
+        scribe: cityGen_drawScribe,
+        potter: cityGen_drawPotter,
+        glassblower: cityGen_drawGlassblower,
+        shipwright: cityGen_drawShipwright,
+        woodcarver: cityGen_drawWoodcarver,
+        tattooist: cityGen_drawTattooist,
+        fortuneteller: cityGen_drawFortuneTeller
     };
 
     // Types that don't need a background halo (already large/area-based)
@@ -8820,7 +9475,6 @@ function cityGen_generateRoads(wardTypes, centerX, centerY, boundary) {
         var ward = wardTypes[i];
         if (!cityGen_pointInPolygon({ x: ward.x, y: ward.y }, boundary)) continue;
 
-        // Create a slightly curved road from center to ward
         var dx = ward.x - centerX;
         var dy = ward.y - centerY;
         var dist = Math.sqrt(dx * dx + dy * dy);
@@ -8832,7 +9486,6 @@ function cityGen_generateRoads(wardTypes, centerX, centerY, boundary) {
             var t = s / segments;
             var x = centerX + dx * t;
             var y = centerY + dy * t;
-            // Add slight curve/wobble
             var perpX = -dy / dist;
             var perpY = dx / dist;
             var wobble = Math.sin(t * Math.PI) * (8 + Math.random() * 12) * (Math.random() - 0.5) * 2;
@@ -8843,7 +9496,7 @@ function cityGen_generateRoads(wardTypes, centerX, centerY, boundary) {
 
         roads.push({
             points: roadPoints,
-            width: 2 + Math.random() * 1.5,
+            width: 2.5 + Math.random() * 1.5,
             type: 'main'
         });
     }
@@ -8853,7 +9506,7 @@ function cityGen_generateRoads(wardTypes, centerX, centerY, boundary) {
         for (var j = i + 1; j < wardTypes.length; j++) {
             var d = cityGen_distance(wardTypes[i].x, wardTypes[i].y, wardTypes[j].x, wardTypes[j].y);
             if (d > 120) continue;
-            if (Math.random() > 0.4) continue; // Only some cross-connections
+            if (Math.random() > 0.45) continue;
 
             var rdx = wardTypes[j].x - wardTypes[i].x;
             var rdy = wardTypes[j].y - wardTypes[i].y;
@@ -8880,6 +9533,82 @@ function cityGen_generateRoads(wardTypes, centerX, centerY, boundary) {
         }
     }
 
+    // Alleys: short branching paths from main/cross roads
+    var alleyCount = Math.floor(roads.length * 1.5);
+    for (var a = 0; a < alleyCount; a++) {
+        var parentRoad = roads[Math.floor(Math.random() * roads.length)];
+        var parentPts = parentRoad.points;
+        if (parentPts.length < 3) continue;
+
+        var ptIdx = 1 + Math.floor(Math.random() * (parentPts.length - 2));
+        var startPt = parentPts[ptIdx];
+
+        // Branch perpendicular to road direction
+        var prevPt = parentPts[ptIdx - 1];
+        var nextPt = parentPts[ptIdx + 1];
+        var rdx = nextPt.x - prevPt.x;
+        var rdy = nextPt.y - prevPt.y;
+        var rdLen = Math.sqrt(rdx * rdx + rdy * rdy) || 1;
+        var perpX = -rdy / rdLen;
+        var perpY = rdx / rdLen;
+
+        // Random direction (left or right)
+        var side = Math.random() < 0.5 ? 1 : -1;
+        var alleyLen = 15 + Math.random() * 30;
+        var alleyPts = [];
+        var segs = 3;
+        for (var s = 0; s <= segs; s++) {
+            var t = s / segs;
+            alleyPts.push({
+                x: startPt.x + perpX * side * alleyLen * t + (Math.random() - 0.5) * 3,
+                y: startPt.y + perpY * side * alleyLen * t + (Math.random() - 0.5) * 3
+            });
+        }
+
+        // Only add if endpoint is inside boundary
+        var endPt = alleyPts[alleyPts.length - 1];
+        if (cityGen_pointInPolygon(endPt, boundary)) {
+            roads.push({
+                points: alleyPts,
+                width: 0.8 + Math.random() * 0.6,
+                type: 'alley'
+            });
+        }
+    }
+
+    // Gate roads: extend main roads outside the city boundary
+    for (var i = 0; i < Math.min(4, wardTypes.length); i++) {
+        var ward = wardTypes[i];
+        var dx = ward.x - centerX;
+        var dy = ward.y - centerY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 20) continue;
+
+        var dirX = dx / dist;
+        var dirY = dy / dist;
+
+        // Start from boundary edge and extend outward
+        var startDist = dist * 1.1;
+        var gateRoadPts = [];
+        var gateLen = 40 + Math.random() * 40;
+        for (var s = 0; s <= 4; s++) {
+            var t = s / 4;
+            gateRoadPts.push({
+                x: centerX + dirX * (startDist + gateLen * t) + (Math.random() - 0.5) * 3,
+                y: centerY + dirY * (startDist + gateLen * t) + (Math.random() - 0.5) * 3
+            });
+        }
+
+        var endPt = gateRoadPts[gateRoadPts.length - 1];
+        if (endPt.x > 20 && endPt.x < 880 && endPt.y > 20 && endPt.y < 880) {
+            roads.push({
+                points: gateRoadPts,
+                width: 2 + Math.random(),
+                type: 'gate'
+            });
+        }
+    }
+
     return roads;
 }
 
@@ -8891,12 +9620,26 @@ function cityGen_drawRoads(ctx, roads) {
         var pts = road.points;
         if (pts.length < 2) continue;
 
-        // Draw road as a subtle line (slightly lighter than buildings)
-        ctx.strokeStyle = '#c8b898';
+        var color, alpha;
+        if (road.type === 'main') {
+            color = '#c8b898';
+            alpha = 0.45;
+        } else if (road.type === 'gate') {
+            color = '#c8b898';
+            alpha = 0.35;
+        } else if (road.type === 'alley') {
+            color = '#d0c8a8';
+            alpha = 0.25;
+        } else {
+            color = '#c8b898';
+            alpha = 0.35;
+        }
+
+        ctx.strokeStyle = color;
         ctx.lineWidth = road.width;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.globalAlpha = 0.35;
+        ctx.globalAlpha = alpha;
         ctx.beginPath();
         ctx.moveTo(pts[0].x, pts[0].y);
         for (var p = 1; p < pts.length; p++) {
@@ -9188,8 +9931,302 @@ var SHOP_DATA = {
         ]
     },
     garden_area: { names: ['Public Garden'], desc: 'A peaceful green space within the city walls.', inventory: [] },
-    fountain: { names: ['City Fountain'], desc: 'An ornate fountain at a public square.', inventory: [] }
+    fountain: { names: ['City Fountain'], desc: 'An ornate fountain at a public square.', inventory: [] },
+    guildhall: {
+        names: ['Merchant Guild Hall', 'Craftsmen Guild Hall', 'Adventurer Guild', 'Trade Guild'],
+        desc: 'A grand hall where skilled craftsmen and traders gather to conduct business and share knowledge.',
+        inventory: [
+            { name: 'Guild Charter', desc: 'Official certification of membership', price: '50 gp' },
+            { name: 'Trade Ledger', desc: 'Bound book for recording transactions', price: '15 gp' },
+            { name: 'Brass Seal', desc: 'Official guild seal for marking documents', price: '25 gp' },
+            { name: 'Quality Assessment Scroll', desc: 'Detailed rating of crafted goods', price: '5 gp' },
+            { name: 'Guild Map', desc: 'Locations of all guild chapters in the realm', price: '20 gp' },
+            { name: 'Apprentice Certificate', desc: 'Proof of training completion', price: '10 gp' }
+        ]
+    },
+    bathhouse: {
+        names: ['The Steaming Basin', 'Public Baths', 'The Luxe Pools', 'Thermal Springs House'],
+        desc: 'A sprawling establishment featuring hot pools, cold plunges, and massage chambers.',
+        inventory: [
+            { name: 'Silk Bathing Robe', desc: 'Fine cloth garment, luxuriously soft', price: '12 gp' },
+            { name: 'Scented Bath Salts', desc: 'Aromatic minerals for soothing relaxation', price: '8 gp' },
+            { name: 'Pumice Stone', desc: 'Volcanic rock for scrubbing away dirt', price: '3 gp' },
+            { name: 'Herbal Soap Bar', desc: 'Cleanses skin with forest botanicals', price: '4 gp' },
+            { name: 'Oil Ointment', desc: 'Moisturizes and heals weathered skin', price: '6 gp' },
+            { name: 'Towel Kit', desc: 'Bundle of thick absorbent cloth', price: '10 gp' }
+        ]
+    },
+    arena: {
+        names: ['The Grand Arena', 'Combat Coliseum', 'The Fighting Pit', 'Warrior Stadium'],
+        desc: 'A massive open-air arena where gladiators and warriors compete for glory and coin.',
+        inventory: [
+            { name: 'Training Dummy Repair Kit', desc: 'Replacement straw and binding for practice targets', price: '7 gp' },
+            { name: 'Combat Wager Ticket', desc: 'Entry pass for spectating matches', price: '5 gp' },
+            { name: 'Warrior Registration', desc: 'Sign-up for tournament participation', price: '25 gp' },
+            { name: 'Champion Wreath', desc: 'Laurel crown symbolizing victory', price: '30 gp' },
+            { name: 'Sand Bag', desc: 'Leather pouch of sand for training grounds', price: '4 gp' }
+        ]
+    },
+    prison: {
+        names: ['The Gaol', 'City Lock-Up', 'The Dungeons', 'Holding Chambers'],
+        desc: 'A fortified structure holding criminals and political prisoners under heavy guard.',
+        inventory: []
+    },
+    graveyard: {
+        names: ['The Necropolis', 'Eternal Rest Cemetery', 'The Silent Grounds', 'Bone Gardens'],
+        desc: 'A solemn burial ground consecrated to honor the dead, surrounded by weathered monuments.',
+        inventory: []
+    },
+    monument: {
+        names: ['Stone Memorial', 'Hero Monument', 'Historical Marker', 'Commemorative Obelisk'],
+        desc: 'A grand carved stone structure erected to memorialize important historical events or figures.',
+        inventory: []
+    },
+    windmill: {
+        names: ['The Turning Miller', 'Westwind Mill', 'The Grain Grinder', 'Merchant Mill'],
+        desc: 'A tall wooden structure with great sails that grind grain into flour and meal.',
+        inventory: [
+            { name: 'Sack of Flour', desc: 'Fine white flour for baking', price: '3 gp' },
+            { name: 'Ground Grain', desc: 'Coarse meal for porridge and bread', price: '2 gp' },
+            { name: 'Miller\'s Scale', desc: 'Balance scale for measuring grain', price: '8 gp' },
+            { name: 'Grindstone Wheel', desc: 'Replacement wheel for milling', price: '45 gp' },
+            { name: 'Chaff Basket', desc: 'Woven container for grain husks', price: '5 gp' }
+        ]
+    },
+    warehouse: {
+        names: ['Merchant Warehouse', 'The Great Storehouse', 'Trading Post Store', 'Commodity House'],
+        desc: 'A sprawling structure packed with goods from across the realm, managed by merchant guilds.',
+        inventory: [
+            { name: 'Standard Rope Coil', desc: '50 feet of quality hemp rope', price: '8 gp' },
+            { name: 'Canvas Bolt', desc: 'Bolt of sturdy canvas fabric', price: '12 gp' },
+            { name: 'Wooden Crate', desc: 'Reinforced storage box for goods', price: '6 gp' },
+            { name: 'Barrels and Kegs', desc: 'Sealed containers for liquids', price: '10 gp' },
+            { name: 'Storage Manifest', desc: 'Detailed inventory scroll', price: '3 gp' },
+            { name: 'Bulk Goods Order', desc: 'Access to wholesale purchasing', price: '25 gp' }
+        ]
+    },
+    shrine: {
+        names: ['Sacred Shrine', 'Hallowed Chapel', 'Divine Altar', 'Blessed Sanctuary'],
+        desc: 'A small, peaceful sanctuary dedicated to the gods and the spiritual devotion of the faithful.',
+        inventory: [
+            { name: 'Blessed Candles', desc: 'Sacred wax candles infused with prayer', price: '4 gp' },
+            { name: 'Holy Water Vial', desc: 'Water blessed by clerics', price: '8 gp' },
+            { name: 'Prayer Beads', desc: 'Carved beads for meditation', price: '6 gp' },
+            { name: 'Offering Plate', desc: 'Donation vessel for the faithful', price: '5 gp' },
+            { name: 'Sacred Text', desc: 'Copied religious scripture', price: '15 gp' },
+            { name: 'Devotional Amulet', desc: 'Blessed charm for divine protection', price: '12 gp' }
+        ]
+    },
+    theater: {
+        names: ['The Grand Theater', 'The Playhouse', 'The Stage Hall', 'Bardic Theater'],
+        desc: 'An impressive building with a grand stage where actors, bards, and performers entertain audiences.',
+        inventory: [
+            { name: 'Theater Ticket', desc: 'Admission to an evening performance', price: '3 gp' },
+            { name: 'Costume Rental', desc: 'Elaborate stage costume for actors', price: '8 gp' },
+            { name: 'Stage Paint Set', desc: 'Pigments for makeup and scenery', price: '6 gp' },
+            { name: 'Script Scroll', desc: 'Published dramatic work', price: '10 gp' },
+            { name: 'Torch Sconce', desc: 'Stage lighting equipment', price: '7 gp' },
+            { name: 'Playbill', desc: 'Printed program for performances', price: '1 gp' }
+        ]
+    },
+    clocktower: {
+        names: ['The Grand Clock', 'The Time Tower', 'Chiming Tower', 'Mechanical Clock House'],
+        desc: 'A towering structure housing massive mechanical timepieces, marking the hours for all to hear.',
+        inventory: [
+            { name: 'Pocket Hourglass', desc: 'Portable sand-timer for precise duration', price: '6 gp' },
+            { name: 'Mechanical Watch', desc: 'Small precise timepiece', price: '35 gp' },
+            { name: 'Clock Repair Manual', desc: 'Guide to maintaining time devices', price: '12 gp' },
+            { name: 'Chiming Bell', desc: 'Bronze bell for hourly announcements', price: '20 gp' },
+            { name: 'Brass Cogwheel', desc: 'Replacement gear for clock mechanisms', price: '8 gp' }
+        ]
+    },
+    inn: {
+        names: ['The Wanderer\'s Rest', 'The Golden Griffin', 'The Hearth & Hoof', 'The Safe Harbor'],
+        desc: 'A welcoming establishment offering warm beds, hot meals, and company for weary travelers.',
+        inventory: [
+            { name: 'Room Lodging', desc: 'One night of comfortable accommodation', price: '5 gp' },
+            { name: 'Warm Meal', desc: 'Hearty stew and fresh bread', price: '2 gp' },
+            { name: 'Hot Drink', desc: 'Mulled wine or hot cider', price: '1 gp' },
+            { name: 'Laundry Service', desc: 'Cleaning and mending of clothes', price: '3 gp' },
+            { name: 'Stable Lodging', desc: 'Care for riding animals overnight', price: '4 gp' },
+            { name: 'Private Room Premium', desc: 'Secure luxury chamber for nobles', price: '15 gp' }
+        ]
+    },
+    bank: {
+        names: ['The Merchant\'s Bank', 'Goldsmith\'s Vaults', 'The Royal Treasury Branch', 'Coin House'],
+        desc: 'A secure facility where merchants and nobles deposit their wealth under heavy guard and magical wards.',
+        inventory: [
+            { name: 'Safety Deposit Box', desc: 'Secure storage for valuables', price: '5 gp/month' },
+            { name: 'Letter of Credit', desc: 'Banknote for transferring funds', price: '20 gp' },
+            { name: 'Coin Scales', desc: 'Precision balance for weighing currency', price: '10 gp' },
+            { name: 'Ledger Record', desc: 'Account documentation scroll', price: '3 gp' },
+            { name: 'Seal Wax', desc: 'Official bank sealing wax', price: '2 gp' }
+        ]
+    },
+    dyer: {
+        names: ['The Color House', 'Master Dyer\'s Shop', 'The Rainbow Dyes', 'Vibrant Fabrics Dyer'],
+        desc: 'A colorful establishment where fabrics are dyed in brilliant hues using rare pigments and plant extracts.',
+        inventory: [
+            { name: 'Silk Dye Pot', desc: 'Pot of vibrant color for fine fabrics', price: '8 gp' },
+            { name: 'Cotton Dye Bundle', desc: 'Dyes for common cloth', price: '4 gp' },
+            { name: 'Rare Pigment', desc: 'Exotic dye extracted from distant lands', price: '25 gp' },
+            { name: 'Madder Root', desc: 'Plant-based red dye ingredient', price: '6 gp' },
+            { name: 'Indigo Powder', desc: 'Deep blue dye from tropical plant', price: '12 gp' },
+            { name: 'Dyed Sample Cloth', desc: 'Preview of color options', price: '3 gp' }
+        ]
+    },
+    brewer: {
+        names: ['The Golden Barrel', 'Master Brewer\'s House', 'The Ale House', 'Brewing Kettle'],
+        desc: 'A fragrant facility where master brewers craft ales, meads, and spirits using traditional recipes.',
+        inventory: [
+            { name: 'Barrel of Ale', desc: 'Standard quality brewing ale', price: '12 gp' },
+            { name: 'Mead Flask', desc: 'Honey-sweetened fermented beverage', price: '8 gp' },
+            { name: 'Brewing Yeast Culture', desc: 'Starter culture for fermentation', price: '5 gp' },
+            { name: 'Hops Bundle', desc: 'Dried hops for flavor and preservation', price: '4 gp' },
+            { name: 'Distilled Spirit Bottle', desc: 'Strong spirit for seasoning', price: '15 gp' },
+            { name: 'Brewing Recipe Book', desc: 'Traditional ale and mead recipes', price: '10 gp' }
+        ]
+    },
+    mason: {
+        names: ['The Stone Craftsman', 'Master Mason Hall', 'Quarried Stone Works', 'The Marble Lodge'],
+        desc: 'A workshop where skilled stonemasons cut, shape, and finish stone for construction and decoration.',
+        inventory: [
+            { name: 'Marble Block', desc: 'Fine white marble for sculpture', price: '30 gp' },
+            { name: 'Granite Stone', desc: 'Durable grey stone for construction', price: '15 gp' },
+            { name: 'Mason\'s Chisel Set', desc: 'Set of five stone-working chisels', price: '20 gp' },
+            { name: 'Limestone Brick', desc: 'Lightweight building stone', price: '8 gp' },
+            { name: 'Stone Mortar Mix', desc: 'Binding agent for masonry', price: '5 gp' }
+        ]
+    },
+    scribe: {
+        names: ['The Scribe\'s Desk', 'Illuminated Letters', 'Parchment House', 'The Scholar\'s Study'],
+        desc: 'A scholarly workshop where scribes copy manuscripts, create legal documents, and illuminate texts.',
+        inventory: [
+            { name: 'Parchment Sheets', desc: 'Fine writing surface of treated animal skin', price: '5 gp' },
+            { name: 'Ink Vial', desc: 'Rich black ink for writing', price: '3 gp' },
+            { name: 'Quill Pen', desc: 'Finely trimmed feather pen', price: '2 gp' },
+            { name: 'Gold Leaf', desc: 'For illuminating manuscript margins', price: '8 gp' },
+            { name: 'Binding Cord', desc: 'Cord for binding pages together', price: '2 gp' },
+            { name: 'Copying Commission', desc: 'Professional copying service', price: '25 gp' }
+        ]
+    },
+    potter: {
+        names: ['The Clay House', 'Master Potter\'s Workshop', 'Earthenware Kiln', 'The Potter\'s Wheel'],
+        desc: 'A workshop filled with clay dust and ceramic goods, where potters craft vessels and decorative pieces.',
+        inventory: [
+            { name: 'Clay Ball', desc: 'Prepared clay ready for sculpting', price: '4 gp' },
+            { name: 'Ceramic Vase', desc: 'Decorative pottery vessel', price: '8 gp' },
+            { name: 'Potter\'s Wheel Tool', desc: 'Specialized tool for shaping clay', price: '12 gp' },
+            { name: 'Glazing Pigment', desc: 'Colored glaze for finishing pottery', price: '6 gp' },
+            { name: 'Storage Jar', desc: 'Sealed ceramic container', price: '5 gp' },
+            { name: 'Decorative Tile', desc: 'Patterned tile for walls', price: '7 gp' }
+        ]
+    },
+    glassblower: {
+        names: ['The Glass Furnace', 'Blown Glass Workshop', 'The Crystal House', 'Master Glassworks'],
+        desc: 'A hot workshop where skilled artisans blow and shape molten glass into beautiful vessels and ornaments.',
+        inventory: [
+            { name: 'Glass Vial', desc: 'Small decorative glass vessel', price: '6 gp' },
+            { name: 'Stained Glass Panel', desc: 'Colored glass pane for windows', price: '15 gp' },
+            { name: 'Glass Bead String', desc: 'Decorative beads strung together', price: '4 gp' },
+            { name: 'Glassblowing Pipe', desc: 'Tool for shaping molten glass', price: '20 gp' },
+            { name: 'Glass Lamp Shade', desc: 'Shaped glass for oil lamps', price: '10 gp' },
+            { name: 'Mirror Glass', desc: 'Silvered glass for reflection', price: '25 gp' }
+        ]
+    },
+    shipwright: {
+        names: ['The Shipyard', 'Master Shipwright\'s Hall', 'The Keel House', 'Naval Vessel Works'],
+        desc: 'A bustling waterside workshop where skilled craftsmen design and construct seaworthy vessels.',
+        inventory: [
+            { name: 'Ship\'s Timber', desc: 'Treated wood suitable for hull construction', price: '20 gp' },
+            { name: 'Nautical Rope', desc: 'High-quality rope for rigging and sails', price: '10 gp' },
+            { name: 'Sail Canvas', desc: 'Heavy canvas for ship sails', price: '15 gp' },
+            { name: 'Anchor', desc: 'Metal anchor for secure mooring', price: '30 gp' },
+            { name: 'Navigation Chart', desc: 'Detailed coastal and sea map', price: '12 gp' }
+        ]
+    },
+    woodcarver: {
+        names: ['The Woodcarving Workshop', 'Master Carver\'s Lodge', 'Carved Timber House', 'Fine Wood Arts'],
+        desc: 'A workshop fragrant with wood shavings, where artisans carve intricate designs into wooden pieces.',
+        inventory: [
+            { name: 'Carved Wooden Box', desc: 'Decoratively carved storage container', price: '8 gp' },
+            { name: 'Carving Chisel Set', desc: 'Assorted chisels for detailed work', price: '15 gp' },
+            { name: 'Wood Stain', desc: 'Pigment for coloring wood', price: '4 gp' },
+            { name: 'Wooden Figurine', desc: 'Intricately carved small statue', price: '10 gp' },
+            { name: 'Decorative Walking Staff', desc: 'Carved wood staff with ornamental handle', price: '25 gp' },
+            { name: 'Furniture Panel', desc: 'Carved wood panel for furniture', price: '12 gp' }
+        ]
+    },
+    tattooist: {
+        names: ['The Needle Mark', 'Ink Master\'s Parlor', 'The Marked House', 'Tribal Tattoo Studio'],
+        desc: 'A specialized shop where skilled artists permanently mark the skin with inks and magical pigments.',
+        inventory: [
+            { name: 'Tattoo Service', desc: 'Professional tattooing with magical dyes', price: '50 gp' },
+            { name: 'Ink Vial Set', desc: 'Assorted magical tattooing inks', price: '20 gp' },
+            { name: 'Design Template', desc: 'Pattern sheet for common tattoo designs', price: '5 gp' },
+            { name: 'Healing Balm', desc: 'Potion to aid tattoo healing', price: '8 gp' },
+            { name: 'Silver Needle', desc: 'Sterile silver needle for tattooing', price: '10 gp' }
+        ]
+    },
+    fortuneteller: {
+        names: ['The Crystal Gaze', 'Mystic\'s Reading Room', 'The Fortune House', 'Diviner\'s Chamber'],
+        desc: 'A mysterious establishment draped in silks and incense, where seers read fates and reveal hidden truths.',
+        inventory: [
+            { name: 'Tarot Reading', desc: 'Professional divination by cards', price: '15 gp' },
+            { name: 'Crystal Ball', desc: 'Orb for scrying and future-sight', price: '40 gp' },
+            { name: 'Divination Rune Set', desc: 'Set of carved fate-stones', price: '12 gp' },
+            { name: 'Palm Reading', desc: 'Consultation with fortune teller', price: '10 gp' },
+            { name: 'Mystical Incense', desc: 'Aromatic preparation for ceremonies', price: '4 gp' },
+            { name: 'Astrological Chart', desc: 'Star chart for reading destinies', price: '8 gp' }
+        ]
+    }
 };
+
+// NPC name generation data
+var NPC_FIRST_NAMES = {
+    male: ['Aldric', 'Bram', 'Cedric', 'Dorian', 'Edmund', 'Finn', 'Gareth', 'Hugo', 'Ivan', 'Jasper',
+           'Klaus', 'Leander', 'Magnus', 'Nolan', 'Osric', 'Piers', 'Quinn', 'Roland', 'Silas', 'Theron',
+           'Ulric', 'Vance', 'Willem', 'Yorick', 'Zephyr', 'Alaric', 'Baldric', 'Corwin', 'Darius', 'Eamon'],
+    female: ['Astrid', 'Brynn', 'Celeste', 'Dahlia', 'Elara', 'Freya', 'Gwendolyn', 'Helga', 'Iris', 'Juniper',
+             'Kira', 'Luna', 'Mira', 'Nessa', 'Oona', 'Petra', 'Rowena', 'Sybil', 'Thea', 'Una',
+             'Vesta', 'Willa', 'Yara', 'Zelda', 'Agatha', 'Beatrix', 'Clara', 'Daphne', 'Esme', 'Flora']
+};
+var NPC_LAST_NAMES = ['Ashworth', 'Blackthorn', 'Copperfield', 'Dunmore', 'Elderkin', 'Fairweather', 'Grimshaw',
+    'Hartwood', 'Ironforge', 'Jasperstone', 'Kettleburn', 'Longbottom', 'Moorland', 'Nightingale', 'Oakshield',
+    'Pendleton', 'Quicksilver', 'Ravenscroft', 'Stonebridge', 'Thornwood', 'Underhill', 'Valewind', 'Whitmore',
+    'Yarrow', 'Bronzemantle', 'Deepwell', 'Frostbeard', 'Goldweaver', 'Hammerstrike', 'Silvervein'];
+
+var NPC_TRAITS = ['jovial and rotund', 'stern but fair', 'eccentric and talkative', 'quiet and observant',
+    'gruff with a heart of gold', 'shrewd and calculating', 'warm and motherly', 'scarred and mysterious',
+    'elderly and wise', 'young and ambitious', 'retired adventurer', 'missing two fingers',
+    'speaks with a thick accent', 'always humming a tune', 'perpetually dusty', 'impeccably dressed',
+    'heavily tattooed', 'wears an eyepatch', 'surprisingly strong', 'walks with a limp',
+    'carries a lucky charm', 'has a pet raven', 'tells tall tales', 'whispers when angry',
+    'laughs at their own jokes', 'obsessed with cleanliness', 'collects oddities', 'former soldier',
+    'has a twin sibling nearby', 'known for fair prices', 'drives a hard bargain', 'gives discounts to regulars'];
+
+var NPC_HOOKS = [
+    'has heard rumors of bandits on the north road',
+    'is looking for a rare ingredient and will pay well',
+    'overheard a suspicious conversation last night',
+    'warns about strange lights in the nearby ruins',
+    'knows about a hidden entrance to the sewers',
+    'has a missing shipment they need recovered',
+    'saw something strange near the city walls at dawn',
+    'is in debt to a local crime boss',
+    'has a map piece they acquired from a dead traveler',
+    'suspects their competitor is using dark magic',
+    'is secretly a retired adventurer with useful knowledge',
+    'has been receiving threatening letters',
+    'knows the real identity of a local noble',
+    'has a key that belonged to a previous owner',
+    'witnessed a murder but is afraid to speak',
+    'is searching for an apprentice to take over the shop',
+    'recently discovered a secret room beneath the shop',
+    'has a valuable item hidden away for safekeeping',
+    'has connections with smugglers who can acquire rare goods',
+    'is planning to leave town and needs help with one last task'
+];
 
 function cityGen_generateShopDetails(landmarks) {
     if (!landmarks) return;
@@ -9201,6 +10238,24 @@ function cityGen_generateShopDetails(landmarks) {
         lm.shopDesc = shopInfo.desc;
         lm.shopInventory = shopInfo.inventory || [];
         lm.shopLabel = LANDMARK_TYPES[lm.type] ? LANDMARK_TYPES[lm.type].label : lm.type;
+
+        // Generate NPC shopkeeper
+        if (shopInfo.inventory && shopInfo.inventory.length > 0) {
+            var isMale = Math.random() < 0.5;
+            var firstName = isMale ?
+                NPC_FIRST_NAMES.male[Math.floor(Math.random() * NPC_FIRST_NAMES.male.length)] :
+                NPC_FIRST_NAMES.female[Math.floor(Math.random() * NPC_FIRST_NAMES.female.length)];
+            var lastName = NPC_LAST_NAMES[Math.floor(Math.random() * NPC_LAST_NAMES.length)];
+            var trait = NPC_TRAITS[Math.floor(Math.random() * NPC_TRAITS.length)];
+            var hook = NPC_HOOKS[Math.floor(Math.random() * NPC_HOOKS.length)];
+
+            lm.shopkeeper = {
+                name: firstName + ' ' + lastName,
+                gender: isMale ? 'Male' : 'Female',
+                trait: trait,
+                hook: hook
+            };
+        }
     }
 }
 
@@ -9310,6 +10365,17 @@ function cityGen_showShopModal(landmark) {
 
     html += '<div style="padding:16px 20px;">';
     html += '<p style="font-style:italic;color:#5a4030;margin:0 0 16px 0;line-height:1.5;font-size:14px;">' + desc + '</p>';
+
+    // Shopkeeper info
+    if (landmark.shopkeeper) {
+        var sk = landmark.shopkeeper;
+        html += '<div style="background:rgba(60,40,25,0.08);border-radius:6px;padding:10px 12px;margin-bottom:12px;">';
+        html += '<div style="font-weight:bold;font-size:13px;color:#3d2817;margin-bottom:4px;">Shopkeeper</div>';
+        html += '<div style="font-size:14px;font-weight:bold;color:#5a4030;">' + sk.name + '</div>';
+        html += '<div style="font-size:12px;color:#7a6050;font-style:italic;margin-top:2px;">' + sk.trait + '</div>';
+        html += '<div style="font-size:12px;color:#8a7060;margin-top:6px;border-left:2px solid #c8b898;padding-left:8px;">' + sk.hook + '</div>';
+        html += '</div>';
+    }
 
     if (inv.length > 0) {
         html += '<div style="border-top:1px solid #c8b898;padding-top:12px;margin-top:8px;">';
@@ -9533,6 +10599,212 @@ function cityGen_showZoomIndicator(canvas, zoom) {
 }
 
 // ============================================================================
+// TREE GENERATION AND RENDERING
+// ============================================================================
+
+function cityGen_generateTrees(boundary, centerX, centerY, radius, cells) {
+    var trees = [];
+    // Trees outside the city walls
+    var outerTreeCount = 25 + Math.floor(Math.random() * 20);
+    for (var i = 0; i < outerTreeCount; i++) {
+        var angle = Math.random() * Math.PI * 2;
+        var dist = radius + 30 + Math.random() * 80;
+        var x = centerX + Math.cos(angle) * dist;
+        var y = centerY + Math.sin(angle) * dist;
+        if (cityGen_pointInPolygon({ x: x, y: y }, boundary)) continue;
+        if (x < 40 || x > 860 || y < 40 || y > 860) continue;
+        trees.push({
+            x: x, y: y,
+            size: 3 + Math.random() * 5,
+            type: Math.random() < 0.6 ? 'deciduous' : 'conifer'
+        });
+    }
+    // Trees in grove/garden wards
+    if (cells) {
+        for (var c = 0; c < cells.length; c++) {
+            if (cells[c].wardType === 'grove' || cells[c].wardType === 'garden') {
+                var centroid = cityGen_polygonCentroid(cells[c].polygon);
+                var treesInWard = 4 + Math.floor(Math.random() * 6);
+                for (var t = 0; t < treesInWard; t++) {
+                    var tx = centroid.x + (Math.random() - 0.5) * 50;
+                    var ty = centroid.y + (Math.random() - 0.5) * 50;
+                    if (cityGen_pointInPolygon({ x: tx, y: ty }, cells[c].polygon)) {
+                        trees.push({
+                            x: tx, y: ty,
+                            size: 2.5 + Math.random() * 4,
+                            type: Math.random() < 0.7 ? 'deciduous' : 'conifer'
+                        });
+                    }
+                }
+            }
+        }
+    }
+    return trees;
+}
+
+function cityGen_drawTrees(ctx, trees) {
+    for (var i = 0; i < trees.length; i++) {
+        var tree = trees[i];
+        var s = tree.size;
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+        ctx.beginPath();
+        ctx.arc(tree.x + 1, tree.y + 1, s, 0, Math.PI * 2);
+        ctx.fill();
+        if (tree.type === 'conifer') {
+            // Pine tree: triangle
+            ctx.fillStyle = '#4a7a3a';
+            ctx.beginPath();
+            ctx.moveTo(tree.x, tree.y - s * 1.2);
+            ctx.lineTo(tree.x + s * 0.8, tree.y + s * 0.5);
+            ctx.lineTo(tree.x - s * 0.8, tree.y + s * 0.5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#3a6a2a';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        } else {
+            // Deciduous: round canopy
+            ctx.fillStyle = '#5a8a3a';
+            ctx.beginPath();
+            ctx.arc(tree.x, tree.y, s, 0, Math.PI * 2);
+            ctx.fill();
+            // Highlight
+            ctx.fillStyle = '#6a9a4a';
+            ctx.beginPath();
+            ctx.arc(tree.x - s * 0.2, tree.y - s * 0.2, s * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#4a7a2a';
+            ctx.lineWidth = 0.4;
+            ctx.beginPath();
+            ctx.arc(tree.x, tree.y, s, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+}
+
+function cityGen_drawCompassRose(ctx, x, y, size) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Outer circle
+    ctx.strokeStyle = '#8b7355';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, size, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Inner circle
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cardinal points (N, S, E, W)
+    var cardinalLen = size * 0.85;
+    var cardinalWidth = size * 0.15;
+    var directions = [
+        { angle: -Math.PI / 2, label: 'N', primary: true },
+        { angle: Math.PI / 2, label: 'S', primary: false },
+        { angle: 0, label: 'E', primary: false },
+        { angle: Math.PI, label: 'W', primary: false }
+    ];
+
+    for (var d = 0; d < directions.length; d++) {
+        var dir = directions[d];
+        ctx.save();
+        ctx.rotate(dir.angle);
+
+        // Arrow point
+        ctx.fillStyle = dir.primary ? '#2c1810' : '#8b7355';
+        ctx.beginPath();
+        ctx.moveTo(0, -cardinalLen);
+        ctx.lineTo(-cardinalWidth, 0);
+        ctx.lineTo(0, -cardinalLen * 0.3);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#c8b898';
+        ctx.beginPath();
+        ctx.moveTo(0, -cardinalLen);
+        ctx.lineTo(cardinalWidth, 0);
+        ctx.lineTo(0, -cardinalLen * 0.3);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+
+        // Label
+        ctx.fillStyle = '#2c1810';
+        ctx.font = (dir.primary ? 'bold ' : '') + Math.round(size * 0.35) + 'px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        var labelDist = size + size * 0.35;
+        ctx.fillText(dir.label, Math.cos(dir.angle) * labelDist, Math.sin(dir.angle) * labelDist);
+    }
+
+    // Intercardinal ticks
+    for (var i = 0; i < 4; i++) {
+        var angle = Math.PI / 4 + i * Math.PI / 2;
+        ctx.save();
+        ctx.rotate(angle);
+        ctx.fillStyle = '#a09070';
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 0.6);
+        ctx.lineTo(-size * 0.06, 0);
+        ctx.lineTo(0, -size * 0.15);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#d0c0a0';
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 0.6);
+        ctx.lineTo(size * 0.06, 0);
+        ctx.lineTo(0, -size * 0.15);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // Center dot
+    ctx.fillStyle = '#2c1810';
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+}
+
+function cityGen_drawMapBorder(ctx, w, h) {
+    // Double-line border
+    ctx.strokeStyle = '#5d4a3d';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(8, 8, w - 16, h - 16);
+    ctx.strokeStyle = '#8b7355';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(14, 14, w - 28, h - 28);
+
+    // Corner flourishes
+    var cornerSize = 20;
+    var corners = [
+        { x: 14, y: 14 },
+        { x: w - 14, y: 14 },
+        { x: w - 14, y: h - 14 },
+        { x: 14, y: h - 14 }
+    ];
+    ctx.strokeStyle = '#8b7355';
+    ctx.lineWidth = 1.5;
+    for (var c = 0; c < corners.length; c++) {
+        var cx = corners[c].x;
+        var cy = corners[c].y;
+        var sx = (c === 0 || c === 3) ? 1 : -1;
+        var sy = (c === 0 || c === 1) ? 1 : -1;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + sy * cornerSize);
+        ctx.quadraticCurveTo(cx + sx * cornerSize * 0.3, cy + sy * cornerSize * 0.3, cx + sx * cornerSize, cy);
+        ctx.stroke();
+    }
+}
+
+// ============================================================================
 // MAIN RENDER FUNCTION
 // ============================================================================
 
@@ -9564,6 +10836,10 @@ function cityGen_render(canvas, data) {
 
     if (data.farms) {
         cityGen_drawFarms(ctx, data.farms);
+    }
+
+    if (data.trees) {
+        cityGen_drawTrees(ctx, data.trees);
     }
 
     if (data.gardenAreas) {
@@ -9651,6 +10927,20 @@ function cityGen_render(canvas, data) {
             ctx.fill();
         }
         ctx.globalAlpha = 1.0;
+    }
+
+    // Building shadows
+    ctx.fillStyle = 'rgba(0,0,0,0.10)';
+    for (var i = 0; i < data.buildings.length; i++) {
+        var b = data.buildings[i];
+        if (!b.polygon || b.polygon.length < 3) continue;
+        ctx.beginPath();
+        ctx.moveTo(b.polygon[0].x + 2, b.polygon[0].y + 2);
+        for (var j = 1; j < b.polygon.length; j++) {
+            ctx.lineTo(b.polygon[j].x + 2, b.polygon[j].y + 2);
+        }
+        ctx.closePath();
+        ctx.fill();
     }
 
     for (var i = 0; i < data.buildings.length; i++) {
@@ -9814,8 +11104,14 @@ function cityGen_render(canvas, data) {
         cityGen_drawCityName(ctx, data.name, canvas.width / 2, canvas.height);
     }
 
+    // Compass rose (bottom-right area)
+    cityGen_drawCompassRose(ctx, canvas.width - 55, canvas.height - 55, 22);
+
     // Restore from zoom/pan transform
     ctx.restore();
+
+    // Map border (drawn in screen space, not world space)
+    cityGen_drawMapBorder(ctx, canvas.width, canvas.height);
 }
 
 // ============================================================================
@@ -9956,6 +11252,9 @@ function generateCityMap() {
     // 11. Generate farms
     var farms = cityGen_generateFarms(boundary, centerX, centerY, radius);
 
+    // 11a. Generate trees
+    var trees = cityGen_generateTrees(boundary, centerX, centerY, radius, cells);
+
     // 12. Generate landmarks
     var landmarks = cityGen_generateLandmarks(wardTypes, boundary);
 
@@ -9988,8 +11287,8 @@ function generateCityMap() {
         marketSquare = cityGen_generateMarketSquare(wardTypes, boundary, marketPlazaRadius);
     }
 
-    // 17. City name
-    var cityName = CITY_NAMES[Math.floor(Math.random() * CITY_NAMES.length)];
+    // 17. City name (procedural generation)
+    var cityName = cityGen_generateName();
 
     // 18. Store global data
     cityMapData = {
@@ -10005,6 +11304,7 @@ function generateCityMap() {
         wardAssignments: wardTypes,
         suburbs: suburbs,
         farms: farms,
+        trees: trees,
         gates: gates,
         bridges: bridges,
         gardenAreas: gardenAreas,
@@ -10046,10 +11346,60 @@ function generateCityMapInfo(size, sizeConfig) {
     var sizeConfigData = sizeConfig || SIZE_CONFIG[size] || SIZE_CONFIG.town;
     var population = Math.floor(cityMapData.buildings.length * (3 + Math.random() * 5));
 
+    // Generate city motto
+    var mottoStarts = ['Where', 'In', 'By', 'Through', 'Under', 'Beyond'];
+    var mottoMiddles = ['steel meets stone', 'gold flows freely', 'the brave find fortune', 'all roads converge',
+        'shadows whisper secrets', 'the hearth burns eternal', 'trade winds blow fair', 'dawn breaks golden',
+        'swords are forged true', 'the old ways endure', 'the crown stands firm', 'merchants prosper'];
+    var motto = mottoStarts[Math.floor(Math.random() * mottoStarts.length)] + ' ' +
+        mottoMiddles[Math.floor(Math.random() * mottoMiddles.length)];
+
+    // Determine trade goods from ward composition
+    var tradeGoods = [];
+    var wardCounts = {};
+    for (var i = 0; i < cityMapData.wardAssignments.length; i++) {
+        var type = cityMapData.wardAssignments[i].type;
+        wardCounts[type] = (wardCounts[type] || 0) + 1;
+    }
+    if (wardCounts.craftsmen || wardCounts.artisan) tradeGoods.push('Fine crafts');
+    if (wardCounts.brewery) tradeGoods.push('Ales and spirits');
+    if (wardCounts.fishery || wardCounts.docks || wardCounts.harbor) tradeGoods.push('Fresh seafood');
+    if (wardCounts.tannery) tradeGoods.push('Leather goods');
+    if (wardCounts.magic || wardCounts.enchanter) tradeGoods.push('Magical components');
+    if (wardCounts.academic || wardCounts.university) tradeGoods.push('Books and scrolls');
+    if (wardCounts.foundry) tradeGoods.push('Metals and ore');
+    if (wardCounts.foreign) tradeGoods.push('Exotic imports');
+    if (tradeGoods.length === 0) tradeGoods.push('General provisions', 'Agricultural produce');
+
+    // Generate adventure hooks
+    var cityHooks = [
+        'A series of mysterious disappearances has the watch on edge.',
+        'A noble house is secretly funding a rebellion against the ruling lord.',
+        'Strange noises echo from the sewers beneath the ' + (wardCounts.slums ? 'Slums' : 'Market') + '.',
+        'A traveling merchant claims to sell genuine artifacts from the Age of Heroes.',
+        'The price of iron has tripled overnight, and nobody knows why.',
+        'A reward has been posted for information about a hooded figure seen at night.',
+        'An old map found in a demolished building hints at buried treasure.',
+        'Two rival guilds are on the verge of open conflict in the streets.',
+        'A prophet in the square warns that the city will fall within a fortnight.',
+        'Ships arriving at port carry tales of a sea monster in the bay.'
+    ];
+    var selectedHooks = [];
+    var hookCount = 2 + Math.floor(Math.random() * 2);
+    var hookIndices = [];
+    while (selectedHooks.length < hookCount && selectedHooks.length < cityHooks.length) {
+        var idx = Math.floor(Math.random() * cityHooks.length);
+        if (hookIndices.indexOf(idx) === -1) {
+            hookIndices.push(idx);
+            selectedHooks.push(cityHooks[idx]);
+        }
+    }
+
     var html = '<div class="gen-result">';
     html += '<div class="gen-result-item"><div class="gen-result-label">Settlement Name</div><div class="gen-result-value">' + cityMapData.name + '</div></div>';
+    html += '<div class="gen-result-item"><div class="gen-result-label">Motto</div><div class="gen-result-value" style="font-style:italic;">"' + motto + '"</div></div>';
     html += '<div class="gen-result-item"><div class="gen-result-label">Size</div><div class="gen-result-value">' + sizeConfigData.label + '</div></div>';
-    html += '<div class="gen-result-item"><div class="gen-result-label">Population</div><div class="gen-result-value">~' + population + ' souls</div></div>';
+    html += '<div class="gen-result-item"><div class="gen-result-label">Population</div><div class="gen-result-value">~' + population.toLocaleString() + ' souls</div></div>';
     html += '<div class="gen-result-item"><div class="gen-result-label">Wards</div><div class="gen-result-value">' + cityMapData.wards.length + '</div></div>';
     html += '<div class="gen-result-item"><div class="gen-result-label">Buildings</div><div class="gen-result-value">' + cityMapData.buildings.length + '</div></div>';
     html += '<div class="gen-result-item"><div class="gen-result-label">Landmarks</div><div class="gen-result-value">' + cityMapData.landmarks.length + '</div></div>';
@@ -10058,11 +11408,9 @@ function generateCityMapInfo(size, sizeConfig) {
     if (cityMapData.castle) html += '<div class="gen-result-item"><div class="gen-result-label">Castle</div><div class="gen-result-value">Yes</div></div>';
     if (cityMapData.river) html += '<div class="gen-result-item"><div class="gen-result-label">River</div><div class="gen-result-value">Yes</div></div>';
 
-    var wardCounts = {};
-    for (var i = 0; i < cityMapData.wardAssignments.length; i++) {
-        var type = cityMapData.wardAssignments[i].type;
-        wardCounts[type] = (wardCounts[type] || 0) + 1;
-    }
+    // Trade goods
+    html += '<div class="gen-result-item"><div class="gen-result-label">Trade Goods</div><div class="gen-result-value">' + tradeGoods.join(', ') + '</div></div>';
+
     var wardList = Object.keys(wardCounts).map(function(t) {
         return (WARD_TYPES[t] ? WARD_TYPES[t].label : t) + ' (' + wardCounts[t] + ')';
     }).join(', ');
@@ -10074,6 +11422,25 @@ function generateCityMapInfo(size, sizeConfig) {
     if (landmarkList) {
         html += '<div class="gen-result-item"><div class="gen-result-label">Notable Locations</div><div class="gen-result-value">' + landmarkList + '</div></div>';
     }
+
+    // Notable NPCs (from shops with shopkeepers)
+    var npcs = [];
+    for (var i = 0; i < cityMapData.landmarks.length && npcs.length < 5; i++) {
+        var lm = cityMapData.landmarks[i];
+        if (lm.shopkeeper && lm.shopName) {
+            npcs.push(lm.shopkeeper.name + ' (' + (lm.shopLabel || lm.type) + ' at ' + lm.shopName + ')');
+        }
+    }
+    if (npcs.length > 0) {
+        html += '<div class="gen-result-item"><div class="gen-result-label">Notable NPCs</div><div class="gen-result-value">' + npcs.join('; ') + '</div></div>';
+    }
+
+    // Adventure hooks
+    html += '<div class="gen-result-item"><div class="gen-result-label">Adventure Hooks</div><div class="gen-result-value">';
+    for (var h = 0; h < selectedHooks.length; h++) {
+        html += (h > 0 ? '<br>' : '') + selectedHooks[h];
+    }
+    html += '</div></div>';
 
     html += '</div>';
     output.innerHTML = html;
