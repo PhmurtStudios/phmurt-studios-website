@@ -1,9 +1,9 @@
 const DND_DATA = {
 races: {
-  human: { name:"Human", asi:{str:1,dex:1,con:1,int:1,wis:1,cha:1}, speed:30, size:"Medium", languages:["Common","One of your choice"], traits:[{name:"Extra Language",desc:"You can speak, read, and write one extra language of your choice."},{name:"Ability Score Increase",desc:"Your ability scores each increase by 1."}], subraces:[] },
+  human: { name:"Human", asi:{str:1,dex:1,con:1,int:1,wis:1,cha:1}, speed:30, size:"Medium", languages:["Common"], extraLanguages:1, traits:[{name:"Extra Language",desc:"You can speak, read, and write one extra language of your choice."},{name:"Ability Score Increase",desc:"Your ability scores each increase by 1."}], subraces:[] },
   elf: { name:"Elf", asi:{dex:2}, speed:30, size:"Medium", languages:["Common","Elvish"], traits:[{name:"Darkvision",desc:"60 ft. darkvision."},{name:"Keen Senses",desc:"Proficiency in Perception."},{name:"Fey Ancestry",desc:"Advantage on saving throws against being charmed, and magic can't put you to sleep."},{name:"Trance",desc:"Elves don't need to sleep. You can finish a long rest in 4 hours."}],
     subraces:[
-      {id:"high-elf", name:"High Elf", asi:{int:1}, traits:[{name:"Cantrip",desc:"You know one wizard cantrip of your choice."},{name:"Extra Language",desc:"You can read, speak, and write one extra language."}]},
+      {id:"high-elf", name:"High Elf", asi:{int:1}, extraLanguages:1, traits:[{name:"Cantrip",desc:"You know one wizard cantrip of your choice."},{name:"Extra Language",desc:"You can read, speak, and write one extra language."}]},
       {id:"wood-elf", name:"Wood Elf", asi:{wis:1}, speed:35, traits:[{name:"Fleet of Foot",desc:"Your base walking speed increases to 35 feet."},{name:"Mask of the Wild",desc:"You can attempt to hide even when only lightly obscured by natural phenomena."}]},
       {id:"dark-elf", name:"Dark Elf (Drow)", asi:{cha:1}, traits:[{name:"Superior Darkvision",desc:"120 ft. darkvision."},{name:"Sunlight Sensitivity",desc:"Disadvantage on attack rolls and Perception checks in direct sunlight."},{name:"Drow Magic",desc:"You know the Dancing Lights cantrip. At 3rd level, Faerie Fire. At 5th level, Darkness."}]}
     ]
@@ -26,7 +26,7 @@ races: {
       {id:"rock-gnome", name:"Rock Gnome", asi:{con:1}, traits:[{name:"Artificer's Lore",desc:"Double proficiency on History checks related to magic items, alchemical objects, or tech."},{name:"Tinker",desc:"You can spend 1 hour to construct a Tiny clockwork device."}]}
     ]
   },
-  halfelf: { name:"Half-Elf", asi:{cha:2}, asiChoice:2, speed:30, size:"Medium", languages:["Common","Elvish","One of your choice"], traits:[{name:"Darkvision",desc:"60 ft. darkvision."},{name:"Fey Ancestry",desc:"Advantage on saving throws against being charmed."},{name:"Skill Versatility",desc:"You gain proficiency in two skills of your choice."},{name:"Ability Score Increase",desc:"+2 Charisma, +1 to two ability scores of your choice."}], subraces:[] },
+  halfelf: { name:"Half-Elf", asi:{cha:2}, asiChoice:2, speed:30, size:"Medium", languages:["Common","Elvish"], extraLanguages:1, traits:[{name:"Darkvision",desc:"60 ft. darkvision."},{name:"Fey Ancestry",desc:"Advantage on saving throws against being charmed."},{name:"Skill Versatility",desc:"You gain proficiency in two skills of your choice."},{name:"Ability Score Increase",desc:"+2 Charisma, +1 to two ability scores of your choice."}], subraces:[] },
   halforc: { name:"Half-Orc", asi:{str:2,con:1}, speed:30, size:"Medium", languages:["Common","Orc"], traits:[{name:"Darkvision",desc:"60 ft. darkvision."},{name:"Menacing",desc:"Proficiency in Intimidation."},{name:"Relentless Endurance",desc:"When reduced to 0 HP but not killed, drop to 1 HP instead. Once per long rest."},{name:"Savage Attacks",desc:"On a critical hit with a melee weapon, add one extra damage die."}], subraces:[] },
   tiefling: { name:"Tiefling", asi:{int:1,cha:2}, speed:30, size:"Medium", languages:["Common","Infernal"], traits:[{name:"Darkvision",desc:"60 ft. darkvision."},{name:"Hellish Resistance",desc:"Resistance to fire damage."},{name:"Infernal Legacy",desc:"You know Thaumaturgy. At 3rd level, Hellish Rebuke. At 5th level, Darkness."}], subraces:[] },
   dragonborn: { name:"Dragonborn", asi:{str:2,cha:1}, speed:30, size:"Medium", languages:["Common","Draconic"], traits:[{name:"Breath Weapon",desc:"You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation. Each creature in the area must make a saving throw (DC = 8 + your Constitution modifier + your proficiency bonus). A creature takes 2d6 damage on a failed save, and half as much on a success. The damage increases to 3d6 at 6th level, 4d6 at 11th level, and 5d6 at 16th level. You can use this once per short or long rest."},{name:"Damage Resistance",desc:"You have resistance to the damage type associated with your draconic ancestry."}],
@@ -47,10 +47,12 @@ races: {
 
 classes: {
   barbarian: { name:"Barbarian", hitDie:12, saves:["str","con"], primaryAbility:"str", armorProf:["Light armor","Medium armor","Shields"], weaponProf:["Simple weapons","Martial weapons"], skillCount:2, skillOptions:["Animal Handling","Athletics","Intimidation","Nature","Perception","Survival"],
+    subclasses:["Berserker","Totem Warrior"],
     features:[{level:1,name:"Rage",desc:"Enter a rage as a bonus action. Advantage on Str checks/saves, bonus melee damage, resistance to bludgeoning/piercing/slashing."},{level:1,name:"Unarmored Defense",desc:"While not wearing armor, AC = 10 + DEX mod + CON mod."}],
     equipment:[["Greataxe","Any martial melee weapon"],["Two handaxes","Any simple weapon"],["Explorer's pack"]]
   },
   bard: { name:"Bard", hitDie:8, saves:["dex","cha"], primaryAbility:"cha", spellcastingAbility:"cha", armorProf:["Light armor"], weaponProf:["Simple weapons","Hand crossbows","Longswords","Rapiers","Shortswords"], skillCount:3, skillOptions:["Any three skills"],
+    subclasses:["Lore","Valor"],
     features:[{level:1,name:"Spellcasting",desc:"Cha-based spellcasting. You know 2 cantrips and 4 spells. Spell slots start at 2 first-level slots."},{level:1,name:"Bardic Inspiration",desc:"Bonus action: grant a creature a d6 Bardic Inspiration die to add to one check/save/attack. Uses = CHA mod."}],
     equipment:[["Rapier","Longsword","Any simple weapon"],["Diplomat's pack","Entertainer's pack"],["Lute","Any musical instrument"],["Leather armor","Dagger"]]
   },
@@ -60,34 +62,42 @@ classes: {
     equipment:[["Mace","Warhammer"],["Scale mail","Leather armor","Chain mail"],["Light crossbow & 20 bolts","Any simple weapon"],["Priest's pack","Explorer's pack"],["Shield","Any simple weapon"]]
   },
   druid: { name:"Druid", hitDie:8, saves:["wis","int"], primaryAbility:"wis", spellcastingAbility:"wis", armorProf:["Light armor","Medium armor","Shields (nonmetal)"], weaponProf:["Clubs","Daggers","Darts","Javelins","Maces","Quarterstaffs","Scimitars","Sickles","Slings","Spears"], skillCount:2, skillOptions:["Arcana","Animal Handling","Insight","Medicine","Nature","Perception","Religion","Survival"],
+    subclasses:["Land","Moon"],
     features:[{level:1,name:"Spellcasting",desc:"Wis-based spellcasting. Prepare spells = Wis mod + Druid level. Ritual Casting."},{level:1,name:"Druidic",desc:"You know Druidic, a secret language. You can speak it and leave hidden messages."}],
     equipment:[["Wooden shield","Any simple weapon"],["Scimitar","Any simple melee weapon"],["Leather armor","Explorer's pack","Druidic focus"]]
   },
   fighter: { name:"Fighter", hitDie:10, saves:["str","con"], primaryAbility:"str", armorProf:["All armor","Shields"], weaponProf:["Simple weapons","Martial weapons"], skillCount:2, skillOptions:["Acrobatics","Animal Handling","Athletics","History","Insight","Intimidation","Perception","Survival"],
+    subclasses:["Champion","Battle Master","Eldritch Knight"],
     features:[{level:1,name:"Fighting Style",desc:"Choose a fighting style: Archery (+2 ranged attack rolls), Defense (+1 AC in armor), Dueling (+2 damage with one weapon), Great Weapon Fighting (reroll 1s and 2s on damage), Protection (impose disadvantage on attacks against allies), Two-Weapon Fighting (add ability mod to second attack)."},{level:1,name:"Second Wind",desc:"Bonus action: regain 1d10 + Fighter level HP. Recharges on short or long rest."}],
     equipment:[["Chain mail","Leather armor + longbow + 20 arrows"],["Martial weapon + shield","Two martial weapons"],["Light crossbow + 20 bolts","Two handaxes"],["Dungeoneer's pack","Explorer's pack"]]
   },
   monk: { name:"Monk", hitDie:8, saves:["str","dex"], primaryAbility:"dex", armorProf:[], weaponProf:["Simple weapons","Shortswords"], skillCount:2, skillOptions:["Acrobatics","Athletics","History","Insight","Religion","Stealth"],
+    subclasses:["Open Hand","Shadow"],
     features:[{level:1,name:"Unarmored Defense",desc:"AC = 10 + DEX mod + WIS mod while not wearing armor or wielding a shield."},{level:1,name:"Martial Arts",desc:"Use DEX instead of STR for unarmed strikes and monk weapons. Unarmed strike = 1d4. Bonus action unarmed strike after attack."}],
     equipment:[["Shortsword","Any simple weapon"],["Dungeoneer's pack","Explorer's pack"],["10 darts"]]
   },
   paladin: { name:"Paladin", hitDie:10, saves:["wis","cha"], primaryAbility:"cha", spellcastingAbility:"cha", armorProf:["All armor","Shields"], weaponProf:["Simple weapons","Martial weapons"], skillCount:2, skillOptions:["Athletics","Insight","Intimidation","Medicine","Persuasion","Religion"],
+    subclasses:["Devotion","Vengeance"],
     features:[{level:1,name:"Divine Sense",desc:"Action: know the location of celestials, fiends, undead within 60 ft. Uses = 1 + CHA mod per long rest."},{level:1,name:"Lay on Hands",desc:"Touch to restore HP from a pool of 5 × Paladin level. Or expend 5 to cure one disease or poison."}],
     equipment:[["Martial weapon + shield","Two martial weapons"],["Five javelins","Any simple melee weapon"],["Priest's pack","Explorer's pack"],["Chain mail","Leather armor + longbow + 20 arrows"]]
   },
   ranger: { name:"Ranger", hitDie:10, saves:["str","dex"], primaryAbility:"dex", spellcastingAbility:"wis", armorProf:["Light armor","Medium armor","Shields"], weaponProf:["Simple weapons","Martial weapons"], skillCount:3, skillOptions:["Animal Handling","Athletics","Insight","Investigation","Nature","Perception","Stealth","Survival"],
+    subclasses:["Hunter","Beast Master"],
     features:[{level:1,name:"Favored Enemy",desc:"Choose a type of enemy. Advantage on Survival checks to track them, advantage on Intelligence checks to recall info about them."},{level:1,name:"Natural Explorer",desc:"Choose a favored terrain. Bonuses to travel, foraging, tracking, and navigation in that terrain."}],
     equipment:[["Scale mail","Leather armor"],["Two shortswords","Two simple melee weapons"],["Dungeoneer's pack","Explorer's pack"],["Longbow + 20 arrows"]]
   },
   rogue: { name:"Rogue", hitDie:8, saves:["dex","int"], primaryAbility:"dex", armorProf:["Light armor"], weaponProf:["Simple weapons","Hand crossbows","Longswords","Rapiers","Shortswords"], skillCount:4, skillOptions:["Acrobatics","Athletics","Deception","Insight","Intimidation","Investigation","Perception","Performance","Persuasion","Sleight of Hand","Stealth"],
+    subclasses:["Thief","Assassin","Arcane Trickster"],
     features:[{level:1,name:"Expertise",desc:"Choose 2 proficient skills. Your proficiency bonus is doubled for those skills."},{level:1,name:"Sneak Attack",desc:"Once per turn, deal extra 1d6 damage when you have advantage or an ally is adjacent to target."},{level:1,name:"Thieves' Cant",desc:"A secret mix of dialect, jargon, and code used by rogues and criminals."}],
     equipment:[["Rapier","Shortsword"],["Shortbow + 20 arrows","Shortsword"],["Burglar's pack","Dungeoneer's pack","Explorer's pack"],["Leather armor","Daggers x2","Thieves' tools"]]
   },
   sorcerer: { name:"Sorcerer", hitDie:6, saves:["con","cha"], primaryAbility:"cha", spellcastingAbility:"cha", armorProf:[], weaponProf:["Daggers","Darts","Slings","Quarterstaffs","Light crossbows"], skillCount:2, skillOptions:["Arcana","Deception","Insight","Intimidation","Persuasion","Religion"],
+    subclasses:["Draconic Bloodline","Wild Magic"],
     features:[{level:1,name:"Spellcasting",desc:"Cha-based spellcasting. Know 4 spells, 2 cantrips. 2 first-level spell slots."},{level:1,name:"Sorcerous Origin",desc:"Choose your magical origin: Draconic Bloodline or Wild Magic."}],
     equipment:[["Light crossbow + 20 bolts","Any simple weapon"],["Component pouch","Arcane focus"],["Dungeoneer's pack","Explorer's pack"],["Two daggers"]]
   },
   warlock: { name:"Warlock", hitDie:8, saves:["wis","cha"], primaryAbility:"cha", spellcastingAbility:"cha", armorProf:["Light armor"], weaponProf:["Simple weapons"], skillCount:2, skillOptions:["Arcana","Deception","History","Intimidation","Investigation","Nature","Religion"],
+    subclasses:["Archfey","Fiend","Great Old One"],
     features:[{level:1,name:"Otherworldly Patron",desc:"Choose your patron: Archfey, Fiend, or Great Old One. Grants expanded spell list and bonus features."},{level:1,name:"Pact Magic",desc:"Cha-based spellcasting. Spell slots recharge on short rest. 1 cantrip known, 2 spells known, 1 first-level slot."}],
     equipment:[["Light crossbow + 20 bolts","Any simple weapon"],["Component pouch","Arcane focus"],["Scholar's pack","Dungeoneer's pack"],["Leather armor","Any simple weapon","Two daggers"]]
   },
@@ -1106,6 +1116,11 @@ DND_DATA.spells.druid.level9 = [
 ];
 
 // ── PALADIN (max 5th level slots) ───────────────────────────
+DND_DATA.spells.paladin.level1 = [
+  "Bless","Command","Compelled Duel","Cure Wounds","Detect Evil and Good","Detect Magic",
+  "Detect Poison and Disease","Divine Favor","Heroism","Protection from Evil and Good",
+  "Purify Food and Drink","Searing Smite","Shield of Faith","Thunderous Smite","Wrathful Smite"
+];
 DND_DATA.spells.paladin.level2 = [
   "Aid","Branding Smite","Find Steed","Gentle Repose","Lesser Restoration",
   "Locate Object","Magic Weapon","Prayer of Healing","Protection from Poison",
@@ -1125,6 +1140,11 @@ DND_DATA.spells.paladin.level5 = [
 ];
 
 // ── RANGER (max 5th level slots, first slot at level 2) ─────
+DND_DATA.spells.ranger.level1 = [
+  "Alarm","Animal Friendship","Cure Wounds","Detect Magic","Detect Poison and Disease",
+  "Ensnaring Strike","Fog Cloud","Goodberry","Hail of Thorns","Hunter's Mark",
+  "Jump","Longstrider","Speak with Animals"
+];
 DND_DATA.spells.ranger.level2 = [
   "Animal Messenger","Beast Sense","Cordon of Arrows","Darkvision",
   "Find Traps","Gust of Wind","Lesser Restoration","Locate Animals or Plants",
@@ -1146,6 +1166,10 @@ DND_DATA.spells.ranger.level5 = [
 ];
 
 // ── WARLOCK ─────────────────────────────────────────────────
+DND_DATA.spells.warlock.level1 = [
+  "Armor of Agathys","Arms of Hadar","Charm Person","Comprehend Languages","Expeditious Retreat",
+  "Hellish Rebuke","Hex","Illusory Script","Protection from Evil and Good","Unseen Servant","Witch Bolt"
+];
 DND_DATA.spells.warlock.level2 = [
   "Cloud of Daggers","Crown of Madness","Darkness","Enthrall","Hold Person",
   "Invisibility","Mirror Image","Misty Step","Ray of Enfeeblement",
@@ -1531,4 +1555,345 @@ DND_DATA.multiclassPrereqs = {
   sorcerer:  { cha:13 },
   warlock:   { cha:13 },
   wizard:    { int:13 }
+};
+
+// ── ALL D&D LANGUAGES ──
+DND_DATA.featLanguages = [
+  'Common', 'Dwarvish', 'Elvish', 'Giant', 'Gnomish', 'Goblin',
+  'Halfling', 'Orc', 'Abyssal', 'Celestial', 'Draconic',
+  'Deep Speech', 'Infernal', 'Primordial', 'Sylvan', 'Undercommon'
+];
+
+// ── ABILITY DESCRIPTIONS ──
+DND_DATA.abilityDescriptions = {
+  str: 'Measures natural athleticism and bodily power. Affects melee attacks, carrying capacity, and physical feats.',
+  dex: 'Measures agility, reflexes, and balance. Affects ranged attacks, AC, and initiative.',
+  con: 'Measures health, stamina, and vital force. Affects HP, concentration saves, and death saves.',
+  int: 'Measures mental acuity, information recall, and analytical skill. Affects investigation, nature knowledge, and spell attacks for wizards.',
+  wis: 'Measures awareness, intuition, and insight. Affects perception, survival, and spell attacks for clerics/druids.',
+  cha: 'Measures confidence, eloquence, and leadership. Affects persuasion, deception, and spell attacks for bards/sorcerers/warlocks.'
+};
+
+// ── SKILL DESCRIPTIONS ──
+DND_DATA.skillDescriptions = {
+  'Acrobatics': 'Your ability to stay on your feet in tricky situations. Used for tumbling, balancing, and dodging. (DEX)',
+  'Animal Handling': 'Calm down a domesticated animal or intuit an animal\'s intentions and moods. (WIS)',
+  'Arcana': 'Your ability to recall lore about spells, magic items, planes of existence, and other arcane matters. (INT)',
+  'Athletics': 'Covers difficult situations you encounter while climbing, jumping, or swimming. (STR)',
+  'Deception': 'Your ability to convincingly hide the truth, whether verbally or through your actions. (CHA)',
+  'History': 'Your ability to recall lore about historical events, legendary people, ancient kingdoms, and similar matters. (INT)',
+  'Insight': 'Your ability to determine the true intentions of a creature, such as when searching out a lie. (WIS)',
+  'Intimidation': 'When you attempt to influence someone through overt threats, hostile actions, and physical violence. (CHA)',
+  'Investigation': 'When you look around for clues and make deductions based on those clues. You might search an area for hidden objects or machinery. (INT)',
+  'Medicine': 'The Medicine skill lets you try to stabilize a dying companion or diagnose an illness. (WIS)',
+  'Nature': 'Your ability to recall lore about terrain, plants and animals, seasons, and weather. (INT)',
+  'Perception': 'Your ability to spot, hear, or otherwise detect the presence of something. It measures your awareness of your surroundings. (WIS)',
+  'Performance': 'Your ability to delight an audience with music, dance, acting, storytelling, or some other form of entertainment. (CHA)',
+  'Persuasion': 'When you attempt to influence someone or a group of people with tact, social graces, or good nature. (CHA)',
+  'Religion': 'Your ability to recall lore about gods, rites and prayers, religious hierarchies, holy symbols, and the practices of secret cults. (INT)',
+  'Sleight of Hand': 'Whenever you attempt an act of legerdemain or manual trickery, such as planting something on someone else or concealing an object. (DEX)',
+  'Stealth': 'Make a Stealth check when you attempt to hide from notice, slip away without being seen or heard, or sneak past guards. (DEX)',
+  'Survival': 'Your ability to track other creatures and to hunt wild animals for food, to find shelter, to navigate by the stars, and to know which plants are edible. (WIS)'
+};
+
+// ── FEAT TOOLS (from tool proficiencies) ──
+DND_DATA.featTools = [
+  'Thieves\' tools', 'Climbing kit', 'Forgery kit', 'Disguise kit', 'Herbalism kit',
+  'Alchemist\'s supplies', 'Brewer\'s supplies', 'Calligrapher\'s supplies', 'Carpenter\'s tools',
+  'Cartographer\'s tools', 'Cobbler\'s tools', 'Cook\'s utensils', 'Glassblower\'s tools',
+  'Jeweler\'s tools', 'Leatherworker\'s tools', 'Mason\'s tools', 'Painter\'s supplies',
+  'Potter\'s tools', 'Smith\'s tools', 'Tinker\'s tools', 'Weaver\'s tools',
+  'Lute', 'Horn', 'Violin', 'Flute', 'Drum', 'Bagpipe', 'Viol', 'Mandolin',
+  'Gaming set', 'Dice set', 'Playing cards', 'Navigator\'s tools', 'Vehicles (land)', 'Vehicles (water)'
+];
+
+// ── SUBCLASS DATA ──
+DND_DATA.subclassLevel = {
+  barbarian: 3,
+  bard: 3,
+  cleric: 1,
+  druid: 2,
+  fighter: 3,
+  monk: 3,
+  paladin: 3,
+  ranger: 3,
+  rogue: 3,
+  sorcerer: 1,
+  warlock: 1,
+  wizard: 2
+};
+
+DND_DATA.subclasses = {
+  fighter: [
+    { id:'champion', name:'Champion', flavorText:'The archetypal knight, with martial prowess and physical resilience.', features:[
+      {level:3, name:'Improved Critical', desc:'Your weapon attacks score a critical hit on a roll of 19 or 20.'},
+      {level:7, name:'Remarkable Athlete', desc:'Whenever you make an Athletics, Acrobatics, or Sleight of Hand check using STR, DEX, or INT, add a d4 bonus.'},
+      {level:10, name:'Additional Magical Item', desc:'You gain an additional magical item of your choice.'},
+      {level:15, name:'Superior Critical', desc:'Your weapon attacks now score a critical hit on a roll of 18-20.'},
+      {level:18, name:'Survivor', desc:'At the start of each of your turns, regain 5 HP if you have at least 1 HP and weren\'t incapacitated.'}
+    ]},
+    { id:'battle-master', name:'Battle Master', flavorText:'A tactician who uses maneuvers and superiority dice to control the battlefield.', features:[
+      {level:3, name:'Combat Superiority', desc:'You learn maneuvers. You gain superiority dice equal to 4 d8s. Use them to fuel maneuvers.'},
+      {level:7, name:'Know Your Enemy', desc:'Action: learn target\'s ability scores after seeing them attack.'},
+      {level:10, name:'Improved Combat Superiority', desc:'Your superiority dice change to d10s.'},
+      {level:15, name:'Relentless', desc:'When you roll initiative and have no superiority dice remaining, regain 1.'},
+      {level:18, name:'Master of Combat', desc:'Your superiority dice change to d12s.'}
+    ]},
+    { id:'eldritch-knight', name:'Eldritch Knight', flavorText:'A martial spellcaster who blends sword and sorcery for devastating effect.', features:[
+      {level:3, name:'Spellcasting', desc:'You gain spellcasting ability, learning Abjuration or Evocation spells.'},
+      {level:7, name:'War Magic', desc:'When you use the Attack action on your turn, you can cast a cantrip using a bonus action.'},
+      {level:10, name:'Eldritch Strike', desc:'When you hit with a weapon attack, add your spell damage on top.'},
+      {level:15, name:'Arcane Charge', desc:'When you cast a spell, use Bonus Action to move 30 feet in a straight line.'},
+      {level:18, name:'Improved War Magic', desc:'Attacks do not provoke opportunity attacks when you teleport or dash via spells.'}
+    ]}
+  ],
+  rogue: [
+    { id:'thief', name:'Thief', flavorText:'A criminal operative who relies on cunning and stealth to pursue their goals.', features:[
+      {level:3, name:'Fast Hands', desc:'Use a bonus action to take the Use an Object action, disarm a trap, or pick a lock.'},
+      {level:9, name:'Second-Story Work', desc:'You gain advantage on Strength (Athletics) checks and don\'t take damage from a fall under 30 ft.'},
+      {level:13, name:'Supreme Sneak', desc:'Advantage on Stealth checks if you move no more than half your speed.'},
+      {level:17, name:'Use Magic Device', desc:'You can use any magical item regardless of class, race, and ability score requirements.'}
+    ]},
+    { id:'assassin', name:'Assassin', flavorText:'A master of poisons, infiltration, and sudden death.', features:[
+      {level:3, name:'Assassinate', desc:'You have advantage on attack rolls against creatures that haven\'t taken a turn.'},
+      {level:9, name:'Evasion', desc:'When you\'re subjected to an effect that allows a DEX save for half damage, take no damage on success.'},
+      {level:13, name:'Infiltration Expertise', desc:'Gain advantage on Deception and Stealth checks to pass yourself off as someone or something else.'},
+      {level:17, name:'Death Strike', desc:'When you hit with your assassinate attack, target must make a CON save or take 6d6 poison damage.'}
+    ]},
+    { id:'arcane-trickster', name:'Arcane Trickster', flavorText:'A mage-rogue blend wielding enchantment and illusion magic.', features:[
+      {level:3, name:'Spellcasting', desc:'You learn Enchantment and Illusion spells using Intelligence as your spellcasting ability.'},
+      {level:9, name:'Magical Ambush', desc:'If you\'re hidden, creatures can\'t see you when you cast a spell. You have advantage on the attack roll.'},
+      {level:13, name:'Versatile Trickster', desc:'Use Mage Hand Legerdemain to cast any spell that has a range of self on a target wearing the hand.'},
+      {level:17, name:'Master Trickster', desc:'Use your Mage Hand Legerdemain action bonus action. Can use the hand to use a Magic Wand.'}
+    ]}
+  ],
+  wizard: [
+    { id:'abjuration', name:'Abjuration', flavorText:'Masters of protection and warding magic who shield allies and banish foes.', features:[
+      {level:2, name:'Abjuration Savant', desc:'Abjuration spells cost 25% less to copy into your spellbook. Learn more cantrips.'},
+      {level:6, name:'Arcane Ward', desc:'Create a protective ward with HP = your wizard level + INT mod. Damaged ward regains 1 HP/turn you cast abjuration spell.'},
+      {level:10, name:'Projected Ward', desc:'Your Arcane Ward can protect a creature within 30 feet that you can see.'},
+      {level:14, name:'Improved Abjuration', desc:'When creatures you can see within 60 ft fail a save vs your spell, they gain disadvantage on the next save.'}
+    ]},
+    { id:'conjuration', name:'Conjuration', flavorText:'Specialists in summoning creatures, objects, and teleportation.', features:[
+      {level:2, name:'Conjuration Savant', desc:'Conjuration spells cost 25% less to copy into your spellbook.'},
+      {level:6, name:'Minor Conjuration', desc:'You can use an action to conjure nonmagical object (< 1 lb, < 1 ft). It vanishes after 1 hour or when damaged.'},
+      {level:10, name:'Benign Transposition', desc:'You can use an action to teleport up to 30 ft to an unoccupied space you can see.'},
+      {level:14, name:'Focused Conjuration', desc:'Conjured creatures don\'t require concentration and can\'t be dismissed.'}
+    ]},
+    { id:'divination', name:'Divination', flavorText:'Seers and scriers who pierce the veil of the future and discern hidden truths.', features:[
+      {level:2, name:'Divination Savant', desc:'Divination spells cost 25% less to copy into your spellbook.'},
+      {level:6, name:'Portent', desc:'When you finish a long rest, roll 2d20. You can use these rolls to replace ability checks, attacks, or saves you see being made.'},
+      {level:10, name:'Expert Divination', desc:'Casting divination spells doesn\'t require concentration. You gain an additional Portent roll.'},
+      {level:14, name:'Greater Portent', desc:'You gain 3 Portent rolls instead of 2. They refresh on a long rest.'}
+    ]},
+    { id:'enchantment', name:'Enchantment', flavorText:'Masters of charm and mind magic who bend wills to their own.', features:[
+      {level:2, name:'Enchantment Savant', desc:'Enchantment spells cost 25% less to copy into your spellbook.'},
+      {level:6, name:'Hypnotic Gaze', desc:'When a creature within 5 ft makes an attack vs you, use reaction to impose disadvantage.'},
+      {level:10, name:'Instinctive Charm', desc:'When a creature you can see damages you, use reaction to make it save vs charm or be charmed.'},
+      {level:14, name:'Split Enchantment', desc:'When you cast an enchantment spell affecting one creature, you can affect two creatures instead.'}
+    ]},
+    { id:'evocation', name:'Evocation', flavorText:'Destructive specialists who harness raw elemental force.', features:[
+      {level:2, name:'Evocation Savant', desc:'Evocation spells cost 25% less to copy into your spellbook.'},
+      {level:6, name:'Sculpt Spells', desc:'When you cast an evocation spell, you can choose creatures in the area equal to 1 + spell level. They automatically succeed on saves.'},
+      {level:10, name:'Potent Cantrip', desc:'Your damaging cantrips don\'t deal reduced damage to creatures that make a successful save.'},
+      {level:14, name:'Empowered Evocation', desc:'Add your INT mod to evocation spell damage rolls. Usable once per turn.'}
+    ]},
+    { id:'illusion', name:'Illusion', flavorText:'Masters of deception and misdirection who weave false realities.', features:[
+      {level:2, name:'Illusion Savant', desc:'Illusion spells cost 25% less to copy into your spellbook.'},
+      {level:6, name:'Improved Minor Illusion', desc:'You can create minor illusions without material components and as a bonus action.'},
+      {level:10, name:'Malleable Illusions', desc:'You can use an action to change an illusion\'s image as long as you can see it and stay within range.'},
+      {level:14, name:'Illusory Self', desc:'When a creature targets you with an attack, use reaction to impose disadvantage. You create decoy image.'}
+    ]},
+    { id:'necromancy', name:'Necromancy', flavorText:'Dark practitioners who command death and undeath.', features:[
+      {level:2, name:'Necromancy Savant', desc:'Necromancy spells cost 25% less to copy into your spellbook.'},
+      {level:6, name:'Grim Harvest', desc:'Creatures killed by necromancy spells grant you temp HP = spell level + INT mod.'},
+      {level:10, name:'Undead Thralls', desc:'Zombies and skeletons you animate gain additional benefits and ability score increases.'},
+      {level:14, name:'Inured to Undeath', desc:'Necrotic damage can\'t reduce your HP below 1, and undead creatures can\'t sense you if you are invisible.'}
+    ]},
+    { id:'transmutation', name:'Transmutation', flavorText:'Shifters and changers who reshape matter and living flesh.', features:[
+      {level:2, name:'Transmutation Savant', desc:'Transmutation spells cost 25% less to copy into your spellbook.'},
+      {level:6, name:'Minor Alchemy', desc:'You can transmute raw materials: wood to stone, copper to silver, etc. Limited to 1 sq ft per level.'},
+      {level:10, name:'Magical Dabbling', desc:'You can cast transmutation spells using sorcery points. Gain additional spell slots.'},
+      {level:14, name:'Master Transmuter', desc:'Spend 1-6 sorcery points to transmute yourself or a creature: change appearance, gain resistance, enhance speed.'}
+    ]}
+  ],
+  cleric: [
+    { id:'life', name:'Life Domain', flavorText:'Gods of healing and vitality. Bonus healing and protection for allies.', features:[
+      {level:1, name:'Life Domain Spells', desc:'Bless, Cure Wounds, Lesser Restoration, Spiritual Weapon gain bonus spells.'},
+      {level:1, name:'Disciple of Life', desc:'When you cast a healing spell, add your WIS mod to the HP regained.'},
+      {level:6, name:'Blessed Healer', desc:'When you cast a healing spell on another, you regain HP = half the healing given.'},
+      {level:8, name:'Divine Strike', desc:'Once per turn, your weapon attacks deal extra 1d8 radiant damage.'},
+      {level:17, name:'Supreme Healing', desc:'When you use a spell slot to cast a healing spell, roll all dice twice and use highest.'}
+    ]},
+    { id:'light', name:'Light Domain', flavorText:'Gods of sun and knowledge. Fire spells and divine blasts.', features:[
+      {level:1, name:'Light Domain Spells', desc:'Burning Hands, Faerie Fire, Flaming Sphere, Fireball gain bonus spells.'},
+      {level:1, name:'Warding Flare', desc:'When a creature within 30 ft attacks you, impose disadvantage using your reaction.'},
+      {level:6, name:'Potent Spellcasting', desc:'Add your WIS mod to damage rolls for light domain spells.'},
+      {level:8, name:'Divine Strike', desc:'Once per turn, your weapon attacks deal extra 1d8 radiant damage.'},
+      {level:17, name:'Corona of Light', desc:'Enemies attacking you get disadvantage. Allies gain advantage on saves vs spells.'}
+    ]},
+    { id:'trickery', name:'Trickery Domain', flavorText:'Gods of deception and theft. Shadow magic and duplicity.', features:[
+      {level:1, name:'Trickery Domain Spells', desc:'Charm Person, Invisibility, Mirror Image, Polymorph gain bonus spells.'},
+      {level:1, name:'Blessing of the Trickster', desc:'You can use an action to grant a creature advantage on Stealth checks.'},
+      {level:6, name:'Invoke Duplicity', desc:'Create an illusory duplicate of yourself that you can use for attacks and spells.'},
+      {level:8, name:'Divine Strike', desc:'Once per turn, your weapon attacks deal extra 1d8 psychic damage.'},
+      {level:17, name:'Improved Duplicity', desc:'You can create 2 duplicates instead of 1 and make ranged spell attacks from them.'}
+    ]},
+    { id:'war', name:'War Domain', flavorText:'Gods of battle and conflict. Extra attacks and martial prowess.', features:[
+      {level:1, name:'War Domain Spells', desc:'Divine Favor, Shield, Spiritual Weapon, Wrathful Smite gain bonus spells.'},
+      {level:1, name:'War Priest', desc:'Bonus action to make weapon attack when you take the Dodge or Disengage action.'},
+      {level:6, name:'Blessing of the War God', desc:'You add your WIS mod to weapon attack damage rolls.'},
+      {level:8, name:'Divine Strike', desc:'Once per turn, your weapon attacks deal extra 1d8 damage of your domain type.'},
+      {level:17, name:'Avatar of Battle', desc:'You have advantage on attack rolls in combat and can\'t be slowed.'}
+    ]},
+    { id:'nature', name:'Nature Domain', flavorText:'Gods of wilderness and natural forces. Command of plants and animals.', features:[
+      {level:1, name:'Nature Domain Spells', desc:'Animal Friendship, Entangle, Barkskin, Plant Growth gain bonus spells.'},
+      {level:1, name:'Acolyte of Nature', desc:'Learn one druid cantrip. Gain proficiency in WIS (Animal Handling).'},
+      {level:6, name:'Dampen Elements', desc:'Use Channel Divinity to grant resistance to acid, cold, fire, lightning, or thunder.'},
+      {level:8, name:'Divine Strike', desc:'Once per turn, your weapon attacks deal extra 1d8 cold, fire, or lightning damage.'},
+      {level:17, name:'Master of Nature', desc:'Control weather patterns, gain immunity to poison, resistance to poison damage.'}
+    ]},
+    { id:'tempest', name:'Tempest Domain', flavorText:'Gods of storms and the sea. Thunder and lightning magic.', features:[
+      {level:1, name:'Tempest Domain Spells', desc:'Fog Cloud, Thunderwave, Lightning Bolt, Destructive Wave gain bonus spells.'},
+      {level:1, name:'Wrath of the Storm', desc:'When attacked while standing, use reaction to stun the attacker if you damage them.'},
+      {level:6, name:'Thunderbolt Strike', desc:'Use reaction to cause a creature you damage to make a STR save or fall prone.'},
+      {level:8, name:'Divine Strike', desc:'Once per turn, your weapon attacks deal extra 1d8 thunder damage.'},
+      {level:17, name:'Stormborn', desc:'You gain immunity to lightning and thunder, and fly without wings using air currents.'}
+    ]},
+    { id:'knowledge', name:'Knowledge Domain', flavorText:'Gods of knowledge and magic. Extra skill proficiency and spellcasting power.', features:[
+      {level:1, name:'Knowledge Domain Spells', desc:'Identify, Detect Thoughts, Suggest, Confusion gain bonus spells.'},
+      {level:1, name:'Blessings of Knowledge', desc:'Gain proficiency in two skills and three languages of your choice.'},
+      {level:6, name:'Channel Divinity: Potent Spellcasting', desc:'Add your WIS mod to spell attack rolls and saving throw DCs.'},
+      {level:8, name:'Divine Strike', desc:'Once per turn, your weapon attacks deal extra 1d8 psychic damage.'},
+      {level:17, name:'Visions of Mastery', desc:'When you finish a long rest, choose one spell you can cast. You can cast it at will.'}
+    ]}
+  ],
+  sorcerer: [
+    { id:'draconic-bloodline', name:'Draconic Bloodline', flavorText:'Dragon blood flows through your veins, granting draconic power.', features:[
+      {level:1, name:'Draconic Resilience', desc:'AC = 13 + DEX mod (if not wearing armor). You have darkvision 60 ft. You resist damage type of your draconic ancestor.'},
+      {level:6, name:'Elemental Affinity', desc:'When you cast a spell of damage type matching your ancestry, add CHA mod to damage once per turn.'},
+      {level:14, name:'Dragon Wings', desc:'You can use an action to conjure spectral draconic wings. Gain fly speed = movement speed.'},
+      {level:18, name:'Draconic Presence', desc:'Enemies within 60 ft make WIS saves or be frightened. Allies gain advantage on saves.'}
+    ]},
+    { id:'wild-magic', name:'Wild Magic', flavorText:'Your magic is chaotic and unpredictable, surging with primal forces.', features:[
+      {level:1, name:'Wild Magic Surge', desc:'When you cast a sorcerer spell, roll d20. On 1, roll Wild Magic Surge table.'},
+      {level:6, name:'Tides of Chaos', desc:'Gain advantage on attack roll, ability check, or save. Initiative rolls benefit from spell bonus.'},
+      {level:14, name:'Spell Bombardment', desc:'When you roll damage for sorcerer spell, roll d6. If you roll 4+, add 2d6 extra damage.'},
+      {level:18, name:'Controlled Chaos', desc:'You can use an action to reroll d20s instead of surging. You gain 2 tides per long rest.'}
+    ]}
+  ],
+  warlock: [
+    { id:'archfey', name:'The Archfey', flavorText:'Your patron is a powerful fey creature offering otherworldly power.', features:[
+      {level:1, name:'Expanded Spell List', desc:'Dimension Door, Faerie Fire, Phantasmal Force, Sleep, Suggestion gain bonus spells.'},
+      {level:1, name:'One with Shadows', desc:'In darkness, you are invisible. You can sense creatures within 30 ft even if invisible.'},
+      {level:6, name:'Misty Escape', desc:'When you take damage, use reaction to teleport up to 60 ft and become invisible.'},
+      {level:10, name:'Bewitching Strike', desc:'Your attack spells charm targets on hit. They have disadvantage on saves vs charm.'},
+      {level:14, name:'Master of Shadows', desc:'You can cast Invisibility at will. You are invisible while casting spells in darkness.'}
+    ]},
+    { id:'fiend', name:'The Fiend', flavorText:'You have made a bargain with a demon, devil, or dark entity.', features:[
+      {level:1, name:'Expanded Spell List', desc:'Burning Hands, Command, Hellish Rebuke, Scorching Ray, Fireball gain bonus spells.'},
+      {level:1, name:'Dark One\'s Blessing', desc:'When you reduce a creature to 0 HP, gain temporary HP = CHA mod + warlock level.'},
+      {level:6, name:'Dark One\'s Own Luck', desc:'Use reaction to add d10 to an ability check or save. Recharges on short rest.'},
+      {level:10, name:'Fiendish Resilience', desc:'Choose resistance type at end of long rest. You gain that resistance.'},
+      {level:14, name:'Hurl Through Hell', desc:'When you damage a creature, teleport it to hell and back on next turn taking damage.'}
+    ]},
+    { id:'great-old-one', name:'The Great Old One', flavorText:'Your patron is an ancient cosmic entity of unknowable power.', features:[
+      {level:1, name:'Expanded Spell List', desc:'Armor of Agathys, Disguise Self, Phantasmal Force, Telekinesis gain bonus spells.'},
+      {level:1, name:'Awakened Mind', desc:'You can telepathically communicate with creatures you see within 30 ft.'},
+      {level:6, name:'Entropic Ward', desc:'When a creature attacks you, use reaction to impose disadvantage. Range extends to 60 ft.'},
+      {level:10, name:'Thought Shield', desc:'Creatures taking psychic damage from you have disadvantage on save. You are immune to psychic damage.'},
+      {level:14, name:'Create Thrall', desc:'When you reduce a creature to 0 HP, it rises as thrall obeying your commands telepathically.'}
+    ]}
+  ],
+  bard: [
+    { id:'lore', name:'College of Lore', flavorText:'Master of knowledge and skill, master of others\' tricks.', features:[
+      {level:3, name:'Bonus Proficiencies', desc:'Gain proficiency with any three skills of your choice.'},
+      {level:6, name:'Peerless Skill', desc:'Add Bardic Inspiration die to ability checks you make once per short rest.'},
+      {level:14, name:'Magical Secrets', desc:'Learn any two spells from any class. Gain spell slots for them.'},
+      {level:20, name:'Superior Inspiration', desc:'Regain all Bardic Inspiration dice on short rests. Once per turn, you can give a die to a creature.'}
+    ]},
+    { id:'valor', name:'College of Valor', flavorText:'A master of martial arts as well as magical arts, blending combat and spellcasting.', features:[
+      {level:3, name:'Bonus Proficiencies', desc:'Gain proficiency with medium armor, shields, and martial weapons.'},
+      {level:6, name:'Extra Attack', desc:'Make two weapon attacks when you take the Attack action.'},
+      {level:14, name:'Battle Magic', desc:'When you attack with weapon, cast cantrip using bonus action.'},
+      {level:20, name:'Superior Inspiration', desc:'Regain all Bardic Inspiration dice on short rests. Bonus action attacks gain extra damage.'}
+    ]}
+  ],
+  druid: [
+    { id:'land', name:'Circle of the Land', flavorText:'Master of nature magic and a keeper of the natural balance.', features:[
+      {level:2, name:'Bonus Cantrip', desc:'Learn one bonus cantrip of your choice.'},
+      {level:2, name:'Natural Recovery', desc:'Regain spell slots on short rest equal to half druid level (rounded up).'},
+      {level:6, name:'Land\'s Stride', desc:'Difficult terrain doesn\'t slow you. You are immune to being restrained by terrain/plants.'},
+      {level:14, name:'Nature\'s Sanctuary', desc:'Beasts and plants won\'t willingly harm you. You have advantage on saves vs plant spells.'}
+    ]},
+    { id:'moon', name:'Circle of the Moon', flavorText:'Master of Wild Shape, a shapeshifter and predator of the night.', features:[
+      {level:2, name:'Combat Wild Shape', desc:'Use Wild Shape as bonus action. Wild Shape HP = druid HP.'},
+      {level:6, name:'Improved Wild Shape', desc:'Wild Shape forms get +1 to AC and dexterity saves.'},
+      {level:10, name:'Elemental Wild Shape', desc:'Gain ability to Wild Shape into elemental forms.'},
+      {level:14, name:'Thousand Forms', desc:'You can cast Alter Self at will without spell slots.'}
+    ]}
+  ],
+  monk: [
+    { id:'open-hand', name:'Way of the Open Hand', flavorText:'Master of weaponless martial arts and unarmed combat.', features:[
+      {level:3, name:'Martial Arts', desc:'Unarmed strike damage increases to 1d6. You can use DEX for unarmed attacks instead of STR.'},
+      {level:3, name:'Flurry of Blows', desc:'After attacking, use bonus action for two unarmed strikes. Costs 1 ki point.'},
+      {level:6, name:'Dedicated Weapon', desc:'Choose a martial weapon. You can use it with martial arts die instead of its damage die.'},
+      {level:11, name:'Quivering Palm', desc:'Spend 3 ki to inflict curse: creature makes CON save or takes 10d10 damage instantly.'},
+      {level:17, name:'Quivering Palm Master', desc:'Quivering Palm damage increases to 20d10. You can spend ki to heal instead of damage.'}
+    ]},
+    { id:'shadow', name:'Way of Shadow', flavorText:'Master of stealth and shadow, a living assassin.', features:[
+      {level:3, name:'Shadow Arts', desc:'Spend ki points: cast invisibility, darkvision, silence, or pass without trace without spells.'},
+      {level:6, name:'Shadow Step', desc:'Teleport 60 ft to shadow you can see as bonus action. Gain advantage on next melee attack.'},
+      {level:11, name:'Cloak of Shadows', desc:'In dim light or darkness, you are invisible to creatures that rely on sight.'},
+      {level:17, name:'Opportunist', desc:'Use reaction to make unarmed strike when creature within 5 ft takes action.'}
+    ]}
+  ],
+  paladin: [
+    { id:'devotion', name:'Oath of Devotion', flavorText:'Knights of virtue and light sworn to protect the innocent.', features:[
+      {level:3, name:'Channel Divinity: Sacred Weapon', desc:'Use action to gain +CHA to weapon attack rolls for 1 minute.'},
+      {level:3, name:'Channel Divinity: Sanctuary', desc:'Creature makes WIS save or can\'t attack you or your allies for 1 minute.'},
+      {level:7, name:'Aura of Protection', desc:'Allies within 10 ft gain bonus to saves and attack rolls = CHA mod.'},
+      {level:15, name:'Peerless Athlete', desc:'Add CHA mod to Athletics checks.'},
+      {level:20, name:'Holy Aura', desc:'Enemies that start turn within 10 ft make save or take 2d6 radiant damage.'}
+    ]},
+    { id:'vengeance', name:'Oath of Vengeance', flavorText:'Knights of retribution sworn to smite evil and injustice.', features:[
+      {level:3, name:'Channel Divinity: Abjure Enemy', desc:'Creature makes save or speed becomes 0 for 1 minute.'},
+      {level:3, name:'Channel Divinity: Vow of Enmity', desc:'Gain advantage on next attack against one creature you choose.'},
+      {level:7, name:'Relentless Avenger', desc:'After hitting with melee attack, use bonus action to move 30 ft toward target.'},
+      {level:15, name:'Soul of Vengeance', desc:'Use reaction to make weapon attack when target damages you.'},
+      {level:20, name:'Avenging Angel', desc:'Gain wings and fly speed. Gain advantage on attacks.'}
+    ]}
+  ],
+  ranger: [
+    { id:'hunter', name:'Hunter Archetype', flavorText:'A skilled tracker and skilled slayer of dangerous creatures.', features:[
+      {level:3, name:'Colossus Slayer', desc:'Once per turn on hit, add 1d8 damage to weapon attack.'},
+      {level:7, name:'Multiattack', desc:'Make two weapon attacks when you take the Attack action.'},
+      {level:11, name:'Volley', desc:'Action: ranged attack against all creatures in 10 ft radius.'},
+      {level:15, name:'Evasion', desc:'When you take damage, use reaction to take half damage with DEX save.'},
+      {level:20, name:'Superior Hunter\'s Defense', desc:'Gain multiple ways to improve defense, damage, and hit chance.'}
+    ]},
+    { id:'beast-master', name:'Beast Master Archetype', flavorText:'A ranger bonded with an animal companion in battle.', features:[
+      {level:3, name:'Ranger\'s Companion', desc:'Gain an animal companion that acts on your initiative and obeys your commands.'},
+      {level:7, name:'Exceptional Training', desc:'Your beast gains proficiency in DEX and WIS saves, and two skills.'},
+      {level:11, name:'Bestial Fury', desc:'Your beast makes two attacks when you take the Attack action.'},
+      {level:15, name:'Share Spells', desc:'When you cast a spell with a range of self, your beast gains the benefit.'},
+      {level:20, name:'Unbreakable Bond', desc:'Your beast gains proficiency in all saves and resistance to all damage.'}
+    ]}
+  ],
+  barbarian: [
+    { id:'berserker', name:'Path of the Berserker', flavorText:'Channeling rage into devastating melee attacks.', features:[
+      {level:3, name:'Frenzy', desc:'During rage, use bonus action to make weapon attack. Can happen each turn.'},
+      {level:6, name:'Mindless Rage', desc:'Immunity to charm and fear while raging. Can\'t be charmed or frightened.'},
+      {level:10, name:'Intimidating Presence', desc:'Enemies within 30 ft make WIS save or be frightened when you rage.'},
+      {level:14, name:'Retaliation', desc:'Use reaction to make weapon attack when a creature damages you.'},
+      {level:20, name:'Primal Champion', desc:'STR and CON each increase by 4. Max increases to 24.'}
+    ]},
+    { id:'totem-warrior', name:'Path of the Totem Warrior', flavorText:'Calling on animal spirits for primal power.', features:[
+      {level:3, name:'Totem Spirit', desc:'Choose bear, eagle, or wolf. Gain benefits while raging based on choice.'},
+      {level:6, name:'Aspect of the Beast', desc:'Gain permanent benefit from your totem spirit outside of rage.'},
+      {level:11, name:'Spirit Walker', desc:'You can cast commune with nature and beast sense without material components.'},
+      {level:14, name:'Totemic Attunement', desc:'Gain additional benefits and attacks from your totem in rage.'},
+      {level:20, name:'Primal Champion', desc:'STR and CON each increase by 4. Max increases to 24.'}
+    ]}
+  ]
 };

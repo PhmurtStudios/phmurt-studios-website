@@ -1,6 +1,14 @@
 (function () {
+  // ── HTML sanitizer for user content ──
+  window.psEscapeHtml = function(str) {
+    if (!str) return '';
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  };
+
   // ── Admin email list (must match phmurt-auth.js) ──────────────────────
-  var SHELL_ADMIN_EMAILS = ['dreverad18@gmail.com'];
+  var SHELL_ADMIN_EMAILS = ['dreverad@icloud.com', 'dreverad18@gmail.com'];
   function _shellIsAdmin() {
     try {
       var raw = localStorage.getItem('phmurt_auth_session');
@@ -212,6 +220,17 @@
       <nav class="ps-nav" role="navigation" aria-label="Main navigation">
         <div class="ps-nav-links">${links}<a href="admin.html" id="nav-admin-link" style="display:none">Admin</a></div>
         <div class="ps-nav-right">
+          <div class="ps-dice-wrapper">
+            <button class="ps-dice-btn" title="Roll d20" onclick="PhmurtDice.quickRoll()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+                <line x1="12" y1="2" x2="12" y2="22"/>
+                <line x1="2" y1="8.5" x2="22" y2="8.5"/>
+                <text x="12" y="17" text-anchor="middle" fill="currentColor" stroke="none" font-size="8" font-family="Cinzel">20</text>
+              </svg>
+            </button>
+            <div class="ps-dice-popup" id="dicePopup"></div>
+          </div>
           <button class="ps-theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" onclick="toggleTheme()">☽</button>
           <div class="nav-auth-wrap">
             <button id="nav-auth-btn" type="button">Sign In</button>
@@ -534,6 +553,7 @@
     });
   }
 
+
   window.psToast = function(message, duration) {
     duration = duration || 3000;
     const existing = document.getElementById('ps-toast');
@@ -568,6 +588,45 @@
     } catch(e) {}
   }
 
+  // ── Dice Roller ──
+  window.PhmurtDice = {
+    quickRoll: function() {
+      var result = Math.floor(Math.random() * 20) + 1;
+      var popup = document.getElementById('dicePopup');
+      if (!popup) return;
+
+      var cls = '';
+      if (result === 20) cls = ' nat20';
+      else if (result === 1) cls = ' nat1';
+
+      popup.innerHTML = '<div class="ps-dice-popup-num' + cls + '">' + result + '</div><div class="ps-dice-popup-label">1d20</div>';
+      popup.classList.add('visible');
+
+      // Add roll animation to button
+      var btn = document.querySelector('.ps-dice-btn');
+      if (btn) {
+        btn.classList.add('rolling');
+        setTimeout(function() { btn.classList.remove('rolling'); }, 500);
+      }
+
+      clearTimeout(PhmurtDice._timer);
+      PhmurtDice._timer = setTimeout(function() {
+        popup.classList.remove('visible');
+      }, 3000);
+    },
+    _timer: null,
+    init: function() {
+      // Close popup on outside click
+      document.addEventListener('click', function(e) {
+        var wrapper = document.querySelector('.ps-dice-wrapper');
+        if (wrapper && !wrapper.contains(e.target)) {
+          var popup = document.getElementById('dicePopup');
+          if (popup) popup.classList.remove('visible');
+        }
+      });
+    }
+  };
+
   document.addEventListener('DOMContentLoaded', function () {
     ensureShell();
     updateAuthNav();
@@ -577,6 +636,7 @@
     setupPageTransitions();
     setupReveal();
     setupAuthDropdownClose();
+    PhmurtDice.init();
     window.addEventListener('phmurt-auth-change', updateAuthNav);
 
     if ('serviceWorker' in navigator) {

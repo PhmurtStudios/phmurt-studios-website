@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';" />
   <title>How to Play D&D · Phmurt Studios</title>
   <meta name="description" content="Learn how to play Dungeons & Dragons with our interactive step-by-step tutorial. From character creation to combat, master the fundamentals of tabletop RPGs." />
   <meta property="og:title" content="How to Play D&D · Phmurt Studios" />
@@ -53,12 +53,109 @@
       transition: width 0.3s ease;
     }
 
+    /* Back to Top Button */
+    .learn-back-to-top {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      width: 48px;
+      height: 48px;
+      background: var(--crimson);
+      border: 1px solid var(--crimson-border);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.2s ease;
+      z-index: 299;
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      color: var(--white);
+    }
+
+    .learn-back-to-top.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .learn-back-to-top:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(192, 57, 43, 0.3);
+    }
+
+    /* Side Navigation */
+    .learn-side-nav {
+      position: fixed;
+      left: 0;
+      top: 100px;
+      width: 200px;
+      max-height: calc(100vh - 120px);
+      background: var(--bg-card);
+      border-right: 1px solid var(--crimson-border);
+      padding: 24px 0;
+      overflow-y: auto;
+      z-index: 200;
+      display: none;
+    }
+
+    @media (min-width: 1200px) {
+      .learn-side-nav {
+        display: block;
+      }
+    }
+
+    .learn-nav-item {
+      padding: 12px 24px;
+      border-left: 2px solid transparent;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+      font-family: 'Spectral', serif;
+    }
+
+    .learn-nav-item:hover {
+      color: var(--text);
+      background: var(--bg-mid);
+    }
+
+    .learn-nav-item.active {
+      border-left-color: var(--crimson);
+      color: var(--crimson);
+      background: var(--bg-mid);
+      font-weight: 500;
+    }
+
+    /* Adjust content margin for side nav */
+    .learn-content {
+      margin-left: 200px;
+    }
+
+    @media (max-width: 1200px) {
+      .learn-content {
+        margin-left: 0;
+      }
+    }
+
     /* Page Hero */
     .learn-hero {
       text-align: center;
       padding: 80px 56px 40px;
       position: relative;
       overflow: hidden;
+      animation: heroFadeIn 0.8s ease-out;
+    }
+
+    @keyframes heroFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     .learn-hero::before {
@@ -72,6 +169,24 @@
       pointer-events: none;
     }
 
+    .learn-hero::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(192, 57, 43, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .learn-hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
     .learn-hero-eyebrow {
       font-family: 'Cinzel', serif;
       font-size: 10px;
@@ -83,6 +198,18 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
+      animation: slideDown 0.6s ease-out 0.1s both;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .learn-hero-eyebrow::before {
@@ -101,12 +228,13 @@
 
     .learn-hero-title {
       font-family: 'Cinzel', serif;
-      font-size: 48px;
+      font-size: 64px;
       font-weight: 400;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       color: var(--text);
       margin-bottom: 12px;
       line-height: 1.2;
+      animation: slideDown 0.6s ease-out 0.2s both;
     }
 
     .learn-hero-subtitle {
@@ -117,6 +245,7 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+      animation: slideDown 0.6s ease-out 0.3s both;
     }
 
     .learn-stats {
@@ -125,17 +254,29 @@
       gap: 48px;
       flex-wrap: wrap;
       margin-top: 40px;
+      animation: slideDown 0.6s ease-out 0.4s both;
     }
 
     .learn-stat {
       text-align: center;
+      padding: 24px;
+      background: rgba(192, 57, 43, 0.05);
+      border: 1px solid var(--crimson-border);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .learn-stat:hover {
+      background: rgba(192, 57, 43, 0.1);
+      transform: translateY(-4px);
     }
 
     .learn-stat-number {
       font-family: 'Cinzel', serif;
-      font-size: 36px;
+      font-size: 42px;
       color: var(--crimson);
-      margin-bottom: 4px;
+      margin-bottom: 8px;
+      font-weight: 700;
     }
 
     .learn-stat-label {
@@ -169,7 +310,6 @@
       align-items: center;
       gap: 20px;
       margin-bottom: 32px;
-      cursor: pointer;
     }
 
     .learn-section-number {
@@ -188,33 +328,43 @@
       font-weight: 400;
       letter-spacing: 1px;
       flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .learn-section-toggle {
+    .learn-section-icon {
+      font-size: 28px;
+      margin-right: 8px;
+    }
+
+    .learn-section-status {
       width: 24px;
       height: 24px;
+      border-radius: 50%;
+      background: var(--bg-mid);
+      border: 2px solid var(--crimson-border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 12px;
       color: var(--crimson);
-      transition: transform 0.3s ease;
-      flex-shrink: 0;
+      margin-left: auto;
+      margin-right: 12px;
     }
 
-    .learn-section.collapsed .learn-section-toggle {
-      transform: rotate(-90deg);
+    .learn-section-status.completed {
+      background: var(--crimson);
+      color: var(--white);
+      border-color: var(--crimson);
+    }
+
+    .learn-section-status.completed::after {
+      content: '✓';
     }
 
     .learn-section-content {
-      max-height: 2000px;
-      overflow: hidden;
-      transition: max-height 0.5s ease;
       padding-left: 60px;
-    }
-
-    .learn-section.collapsed .learn-section-content {
-      max-height: 0;
     }
 
     .learn-section-divider {
@@ -314,7 +464,7 @@
 
     .learn-choice-btn.selected {
       background: var(--crimson);
-      color: #f5f0e8;
+      color: var(--white);
       border-color: var(--crimson);
     }
 
@@ -343,6 +493,369 @@
         opacity: 1;
         transform: translateY(0);
       }
+    }
+
+    /* Ability Score Calculator */
+    .learn-ability-calculator {
+      background: var(--bg-card);
+      border: 1px solid var(--crimson-border);
+      padding: 32px;
+      margin: 32px 0;
+      border-radius: 2px;
+    }
+
+    .learn-calc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin: 24px 0;
+    }
+
+    .learn-calc-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .learn-calc-label {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .learn-calc-input {
+      padding: 10px;
+      background: var(--bg-mid);
+      border: 1px solid var(--crimson-border);
+      color: var(--text);
+      font-family: 'Spectral', serif;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .learn-calc-result {
+      font-size: 24px;
+      font-family: 'Cinzel', serif;
+      color: var(--crimson);
+      font-weight: 700;
+      padding: 12px;
+      background: var(--bg-mid);
+      border-left: 3px solid var(--crimson);
+      margin-top: 8px;
+    }
+
+    /* Skill Check Simulator */
+    .learn-skill-simulator {
+      background: var(--bg-card);
+      border: 1px solid var(--crimson-border);
+      padding: 32px;
+      margin: 32px 0;
+      border-radius: 2px;
+    }
+
+    .learn-skill-picker {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .learn-skill-btn {
+      padding: 12px;
+      background: var(--bg-mid);
+      border: 1px solid var(--crimson-border);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: 'Spectral', serif;
+      font-size: 13px;
+      transition: all 0.3s ease;
+      border-radius: 0;
+    }
+
+    .learn-skill-btn:hover {
+      background: var(--crimson-soft);
+      color: var(--text);
+      border-color: var(--crimson);
+    }
+
+    .learn-skill-btn.active {
+      background: var(--crimson);
+      color: var(--white);
+      border-color: var(--crimson);
+    }
+
+    .learn-roll-section {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .learn-dc-input {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .learn-dc-label {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .learn-dc-value {
+      padding: 12px;
+      background: var(--bg-mid);
+      border: 1px solid var(--crimson-border);
+      color: var(--text);
+      font-family: 'Spectral', serif;
+      font-size: 14px;
+      min-width: 100px;
+    }
+
+    .learn-sim-roll-btn {
+      padding: 12px 28px;
+      background: var(--crimson);
+      border: 1px solid var(--crimson);
+      color: var(--white);
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      align-self: flex-end;
+    }
+
+    .learn-sim-roll-btn:hover {
+      background: var(--crimson);
+      transform: translateY(-2px);
+    }
+
+    .learn-sim-result {
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--bg-mid);
+      border-left: 3px solid var(--crimson);
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .learn-sim-result.success {
+      border-left-color: #27ae60;
+    }
+
+    .learn-sim-result.fail {
+      border-left-color: #e74c3c;
+    }
+
+    /* Combat Simulator */
+    .learn-combat-simulator {
+      background: var(--bg-card);
+      border: 1px solid var(--crimson-border);
+      padding: 32px;
+      margin: 32px 0;
+      border-radius: 2px;
+    }
+
+    .learn-combat-phase {
+      margin: 24px 0;
+      padding: 16px;
+      background: rgba(192, 57, 43, 0.1);
+      border-left: 3px solid var(--crimson);
+    }
+
+    .learn-combat-phase-title {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--crimson);
+      margin-bottom: 12px;
+    }
+
+    .learn-combat-phase-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .learn-combat-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .learn-combat-btn {
+      padding: 10px 16px;
+      background: var(--bg-mid);
+      border: 1px solid var(--crimson-border);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: 'Spectral', serif;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .learn-combat-btn:hover {
+      background: var(--crimson-soft);
+      border-color: var(--crimson);
+      color: var(--text);
+    }
+
+    .learn-combat-btn.next {
+      background: var(--crimson);
+      color: var(--white);
+      border-color: var(--crimson);
+    }
+
+    .learn-combat-btn.next:hover {
+      background: var(--crimson);
+    }
+
+    /* Quiz */
+    .learn-quiz {
+      background: var(--bg-card);
+      border: 1px solid var(--crimson-border);
+      padding: 32px;
+      margin: 32px 0;
+      border-radius: 2px;
+    }
+
+    .learn-quiz-question {
+      margin-bottom: 24px;
+    }
+
+    .learn-quiz-title {
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      letter-spacing: 1px;
+      color: var(--text);
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .learn-quiz-options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .learn-quiz-option {
+      padding: 12px;
+      background: var(--bg-mid);
+      border: 1px solid var(--crimson-border);
+      cursor: pointer;
+      font-family: 'Spectral', serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      transition: all 0.3s ease;
+      border-radius: 0;
+      text-align: left;
+    }
+
+    .learn-quiz-option:hover {
+      background: var(--crimson-soft);
+      border-color: var(--crimson);
+      color: var(--text);
+    }
+
+    .learn-quiz-option.selected {
+      background: var(--crimson);
+      color: var(--white);
+      border-color: var(--crimson);
+    }
+
+    .learn-quiz-option.correct {
+      background: #27ae60;
+      color: var(--white);
+      border-color: #27ae60;
+    }
+
+    .learn-quiz-option.incorrect {
+      background: #e74c3c;
+      color: var(--white);
+      border-color: #e74c3c;
+    }
+
+    .learn-quiz-feedback {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--bg-mid);
+      border-left: 3px solid var(--crimson);
+      font-size: 13px;
+      color: var(--text-dim);
+      display: none;
+    }
+
+    .learn-quiz-feedback.visible {
+      display: block;
+    }
+
+    .learn-quiz-result {
+      margin-top: 24px;
+      padding: 24px;
+      background: var(--bg-mid);
+      border: 1px solid var(--crimson-border);
+      text-align: center;
+      display: none;
+    }
+
+    .learn-quiz-result.visible {
+      display: block;
+    }
+
+    .learn-quiz-score {
+      font-family: 'Cinzel', serif;
+      font-size: 32px;
+      color: var(--crimson);
+      margin-bottom: 12px;
+    }
+
+    /* Navigation buttons */
+    .learn-section-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--crimson-border);
+    }
+
+    .learn-nav-btn {
+      padding: 12px 24px;
+      background: var(--bg-mid);
+      border: 1px solid var(--crimson-border);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      flex: 1;
+      text-align: center;
+    }
+
+    .learn-nav-btn:hover {
+      background: var(--crimson-soft);
+      border-color: var(--crimson);
+      color: var(--text);
+    }
+
+    .learn-nav-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
     }
 
     /* Dice roller */
@@ -484,7 +997,6 @@
     }
 
     .learn-ability {
-      cursor: pointer;
       padding: 16px;
       background: var(--bg-card);
       border: 1px solid var(--crimson-border);
@@ -532,13 +1044,6 @@
       font-size: 13px;
       line-height: 1.6;
       color: var(--text-dim);
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-
-    .learn-ability.active .learn-ability-detail {
-      max-height: 200px;
     }
 
     /* Card grids */
@@ -761,7 +1266,7 @@
 
     .learn-check-box::after {
       content: '✓';
-      color: #f5f0e8;
+      color: var(--white);
       font-weight: bold;
       opacity: 0;
       transition: opacity 0.3s ease;
@@ -800,7 +1305,7 @@
       margin-top: 24px;
       padding: 12px 28px;
       background: var(--crimson);
-      color: #f5f0e8;
+      color: var(--white);
       font-family: 'Cinzel', serif;
       font-size: 10px;
       letter-spacing: 3px;
@@ -812,7 +1317,7 @@
 
     .learn-cta:hover {
       background: var(--crimson-dim);
-      color: #f5f0e8;
+      color: var(--white);
     }
 
     .learn-cta-link {
@@ -941,24 +1446,34 @@
 
   <!-- HERO SECTION -->
   <div class="learn-hero">
-    <div class="learn-hero-eyebrow">Begin Your Adventure</div>
-    <h1 class="learn-hero-title">How to Play D&D</h1>
-    <p class="learn-hero-subtitle">Master the fundamentals of tabletop roleplaying with our interactive step-by-step tutorial</p>
-    <div class="learn-stats">
-      <div class="learn-stat">
-        <div class="learn-stat-number">7</div>
-        <div class="learn-stat-label">Sections</div>
-      </div>
-      <div class="learn-stat">
-        <div class="learn-stat-number">∞</div>
-        <div class="learn-stat-label">Adventures</div>
-      </div>
-      <div class="learn-stat">
-        <div class="learn-stat-number">1</div>
-        <div class="learn-stat-label">Journey</div>
+    <div class="learn-hero-content">
+      <div class="learn-hero-eyebrow">Begin Your Adventure</div>
+      <h1 class="learn-hero-title">How to Play D&D</h1>
+      <p class="learn-hero-subtitle">Master the fundamentals of tabletop roleplaying with our interactive step-by-step tutorial</p>
+      <div class="learn-stats">
+        <div class="learn-stat">
+          <div class="learn-stat-number">8</div>
+          <div class="learn-stat-label">Sections</div>
+        </div>
+        <div class="learn-stat">
+          <div class="learn-stat-number">∞</div>
+          <div class="learn-stat-label">Adventures</div>
+        </div>
+        <div class="learn-stat">
+          <div class="learn-stat-number">1</div>
+          <div class="learn-stat-label">Journey</div>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- SIDE NAVIGATION -->
+  <div class="learn-side-nav" id="sideNav">
+    <!-- Generated by JavaScript -->
+  </div>
+
+  <!-- BACK TO TOP BUTTON -->
+  <div class="learn-back-to-top" id="backToTop">↑</div>
 
   <!-- DIVIDER -->
   <div class="learn-section-divider-full">
@@ -976,8 +1491,7 @@
     <div class="learn-section reveal">
       <div class="learn-section-header">
         <div class="learn-section-number">1</div>
-        <h2 class="learn-section-title">What is D&D?</h2>
-        <div class="learn-section-toggle">▼</div>
+        <h2 class="learn-section-title"><span class="learn-section-icon">🎲</span>What is D&D?</h2>
       </div>
 
       <div class="learn-section-content">
@@ -1010,8 +1524,7 @@
     <div class="learn-section reveal">
       <div class="learn-section-header">
         <div class="learn-section-number">2</div>
-        <h2 class="learn-section-title">The Core Mechanic: Rolling Dice</h2>
-        <div class="learn-section-toggle">▼</div>
+        <h2 class="learn-section-title"><span class="learn-section-icon">🎯</span>The Core Mechanic: Rolling Dice</h2>
       </div>
 
       <div class="learn-section-content">
@@ -1081,6 +1594,18 @@
             <div class="learn-dice-desc">Percentile die (d10×10)</div>
           </div>
         </div>
+
+        <span class="learn-label" style="margin-top: 32px;">Ability Modifier Calculator</span>
+        <div class="learn-ability-calculator">
+          <p style="margin: 0 0 24px 0; color: var(--text-dim); font-size: 14px;">Enter an ability score below to see its modifier. Each ability contributes to different checks and attacks.</p>
+          <div class="learn-calc-grid">
+            <div class="learn-calc-item">
+              <div class="learn-calc-label">Enter Score</div>
+              <input type="number" class="learn-calc-input" id="abilityScoreInput" min="1" max="20" value="10" placeholder="Enter 1-20">
+              <div class="learn-calc-result" id="modifierResult">Modifier: +0</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1095,8 +1620,7 @@
     <div class="learn-section reveal">
       <div class="learn-section-header">
         <div class="learn-section-number">3</div>
-        <h2 class="learn-section-title">Creating Your Character</h2>
-        <div class="learn-section-toggle">▼</div>
+        <h2 class="learn-section-title"><span class="learn-section-icon">👤</span>Creating Your Character</h2>
       </div>
 
       <div class="learn-section-content">
@@ -1127,8 +1651,7 @@
     <div class="learn-section reveal">
       <div class="learn-section-header">
         <div class="learn-section-number">4</div>
-        <h2 class="learn-section-title">How Combat Works</h2>
-        <div class="learn-section-toggle">▼</div>
+        <h2 class="learn-section-title"><span class="learn-section-icon">⚔️</span>How Combat Works</h2>
       </div>
 
       <div class="learn-section-content">
@@ -1176,6 +1699,46 @@
             <div class="learn-combat-log-entry">Goblin 1 is wounded but still standing!</div>
           </div>
         </div>
+
+        <span class="learn-label" style="margin-top: 32px;">Step-by-Step Breakdown</span>
+        <p class="learn-intro">Here's a detailed walkthrough of each phase in combat:</p>
+
+        <div class="learn-combat-simulator">
+          <div class="learn-combat-phase active" id="combatPhase0">
+            <div class="learn-combat-phase-title">Phase 1: Initiative</div>
+            <div class="learn-combat-phase-desc">When combat starts, each creature rolls for initiative using a d20 + DEX modifier. Higher rolls go first!</div>
+          </div>
+
+          <div class="learn-combat-phase active" id="combatPhase1">
+            <div class="learn-combat-phase-title">Phase 2: Your Turn - Movement</div>
+            <div class="learn-combat-phase-desc">On your turn, you move up to your speed. You could walk 30 feet, climb 15 feet, or mix movement types. Movement doesn't have to be straight!</div>
+          </div>
+
+          <div class="learn-combat-phase active" id="combatPhase2">
+            <div class="learn-combat-phase-title">Phase 3: Your Turn - Action</div>
+            <div class="learn-combat-phase-desc">You take one action. Common actions: Attack, Cast a Spell, Dash, Disengage, Dodge, Help, Hide, Ready. Your class determines what actions you can take!</div>
+          </div>
+
+          <div class="learn-combat-phase active" id="combatPhase3">
+            <div class="learn-combat-phase-title">Phase 4: Attack Roll</div>
+            <div class="learn-combat-phase-desc">Roll a d20 and add your attack modifier. You add your STR or DEX modifier plus your proficiency bonus if you're trained with the weapon.</div>
+          </div>
+
+          <div class="learn-combat-phase active" id="combatPhase4">
+            <div class="learn-combat-phase-title">Phase 5: Damage Roll</div>
+            <div class="learn-combat-phase-desc">If your attack hits (meets or exceeds the target's AC), roll damage! A longsword does 1d8 + STR modifier. On a critical hit (d20 roll of 20), roll twice the dice!</div>
+          </div>
+
+          <div class="learn-combat-phase active" id="combatPhase5">
+            <div class="learn-combat-phase-title">Phase 6: Bonus Action & Reaction</div>
+            <div class="learn-combat-phase-desc">Some abilities let you take a bonus action (different from your action). Reactions happen on anyone's turn and are usually triggered by something happening.</div>
+          </div>
+
+          <div class="learn-combat-phase active" id="combatPhase6">
+            <div class="learn-combat-phase-title">Phase 7: End of Turn</div>
+            <div class="learn-combat-phase-desc">Your turn ends. The next creature in initiative order now takes their turn. Combat continues until one side surrenders, flees, or is defeated!</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1190,8 +1753,7 @@
     <div class="learn-section reveal">
       <div class="learn-section-header">
         <div class="learn-section-number">5</div>
-        <h2 class="learn-section-title">Magic & Spellcasting</h2>
-        <div class="learn-section-toggle">▼</div>
+        <h2 class="learn-section-title"><span class="learn-section-icon">✨</span>Magic & Spellcasting</h2>
       </div>
 
       <div class="learn-section-content">
@@ -1233,6 +1795,27 @@
           </div>
         </div>
 
+        <span class="learn-label">How to Cast a Spell</span>
+        <div class="learn-scenario">
+          <div class="learn-scenario-text">
+            A wizard wants to cast Fireball, a 3rd-level spell. They need to know the spell, be able to cast 3rd-level spells, and have a spell slot available. They cast it as their action, targeting a point they can see within 150 feet. Enemies in that area roll DEX saves; those who fail take 8d6 fire damage.
+          </div>
+        </div>
+
+        <span class="learn-label">Spell Slots and Cantrips</span>
+        <div class="learn-scenario">
+          <div class="learn-scenario-text">
+            Spellcasters have "spell slots"—they can only cast so many spells of each level per day. Once a spell slot is used, they can't cast that spell again until they rest. <strong>Cantrips</strong> are special—they never use spell slots and can be cast unlimited times!
+          </div>
+        </div>
+
+        <span class="learn-label">Spell Saving Throws</span>
+        <div class="learn-scenario">
+          <div class="learn-scenario-text">
+            Some spells don't require an attack roll. Instead, the target makes a saving throw—they roll a d20 and add their save modifier. If the total meets or exceeds your Spell Save DC, they resist the spell's effect. Your spell save DC = 8 + Spellcasting Ability modifier + Proficiency Bonus.
+          </div>
+        </div>
+
         <p style="margin-top: 32px; text-align: center;">
           <a href="grimoire.html" class="learn-cta">Explore the Grimoire</a>
         </p>
@@ -1243,8 +1826,7 @@
     <div class="learn-section reveal">
       <div class="learn-section-header">
         <div class="learn-section-number">6</div>
-        <h2 class="learn-section-title">The DM's Role</h2>
-        <div class="learn-section-toggle">▼</div>
+        <h2 class="learn-section-title"><span class="learn-section-icon">👑</span>The DM's Role</h2>
       </div>
 
       <div class="learn-section-content">
@@ -1306,12 +1888,42 @@
       <div class="learn-diamond"></div>
     </div>
 
-    <!-- SECTION 7: GETTING STARTED CHECKLIST -->
+    <!-- SECTION 7: SKILL CHECK SIMULATOR -->
     <div class="learn-section reveal">
       <div class="learn-section-header">
         <div class="learn-section-number">7</div>
-        <h2 class="learn-section-title">Getting Started Checklist</h2>
-        <div class="learn-section-toggle">▼</div>
+        <h2 class="learn-section-title">⚔️ Skill Check Simulator</h2>
+      </div>
+
+      <div class="learn-section-content">
+        <p class="learn-intro">Practice skill checks! Pick a skill, set the Difficulty Class, and roll to see if you succeed.</p>
+
+        <div class="learn-skill-simulator">
+          <span class="learn-label">Choose a Skill</span>
+          <div class="learn-skill-picker" id="skillPicker">
+            <!-- Generated by JavaScript -->
+          </div>
+
+          <div class="learn-roll-section">
+            <div class="learn-dc-input">
+              <div class="learn-dc-label">Difficulty Class (DC)</div>
+              <input type="number" class="learn-dc-value" id="dcInput" min="5" max="30" value="12">
+            </div>
+            <button class="learn-sim-roll-btn" id="rollSkillBtn">Roll Check</button>
+          </div>
+
+          <div class="learn-sim-result" id="skillResult" style="display: none;">
+            <!-- Generated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 8: GETTING STARTED CHECKLIST -->
+    <div class="learn-section reveal">
+      <div class="learn-section-header">
+        <div class="learn-section-number">8</div>
+        <h2 class="learn-section-title"><span class="learn-section-icon">✓</span>Getting Started Checklist</h2>
       </div>
 
       <div class="learn-section-content">
@@ -1322,6 +1934,44 @@
         </div>
       </div>
     </div>
+
+    <!-- FINAL QUIZ -->
+    <div class="learn-quiz">
+      <h2 class="learn-section-title" style="margin-bottom: 32px;">Knowledge Check</h2>
+      <p style="margin-bottom: 24px; color: var(--text-dim);">Test your understanding of D&D fundamentals! Answer these questions to see how well you've learned.</p>
+
+      <div class="learn-quiz-question">
+        <div class="learn-quiz-title">Question 1: Which die is used for most skill checks?</div>
+        <div class="learn-quiz-options" id="q1-options">
+          <!-- Generated by JavaScript -->
+        </div>
+        <div class="learn-quiz-feedback" id="q1-feedback"></div>
+      </div>
+
+      <div class="learn-quiz-question">
+        <div class="learn-quiz-title">Question 2: If you have an ability score of 14, what's your modifier?</div>
+        <div class="learn-quiz-options" id="q2-options">
+          <!-- Generated by JavaScript -->
+        </div>
+        <div class="learn-quiz-feedback" id="q2-feedback"></div>
+      </div>
+
+      <div class="learn-quiz-question">
+        <div class="learn-quiz-title">Question 3: What happens when you roll a natural 20?</div>
+        <div class="learn-quiz-options" id="q3-options">
+          <!-- Generated by JavaScript -->
+        </div>
+        <div class="learn-quiz-feedback" id="q3-feedback"></div>
+      </div>
+
+      <button class="learn-sim-roll-btn" id="submitQuiz" style="width: 100%; margin-top: 24px;">Submit Quiz</button>
+
+      <div class="learn-quiz-result" id="quizResult">
+        <div class="learn-quiz-score" id="quizScore">3/3 Correct!</div>
+        <p style="color: var(--text-dim);">Excellent work! You're ready to start your adventure. Head to the Character Builder to create your first character!</p>
+      </div>
+    </div>
+
   </div>
 
   <!-- DIVIDER -->
@@ -1425,12 +2075,11 @@
       initializeRaces();
       initializeClasses();
       initializeChecklist();
-      setupSectionToggle();
       setupDiceRoller();
       setupScenarioChoices();
-      setupAbilityClicks();
       setupProgressBar();
       setupScrollReveal();
+      initializeNewFeatures();
     });
 
     // Abilities grid
@@ -1497,16 +2146,6 @@
       });
     }
 
-    // Section toggle functionality
-    function setupSectionToggle() {
-      document.querySelectorAll('.learn-section-header').forEach(header => {
-        header.addEventListener('click', function() {
-          const section = this.closest('.learn-section');
-          section.classList.toggle('collapsed');
-        });
-      });
-    }
-
     // Dice roller
     function setupDiceRoller() {
       const roller = document.getElementById('diceRoller');
@@ -1567,15 +2206,6 @@
       });
     }
 
-    // Ability click handlers
-    function setupAbilityClicks() {
-      document.querySelectorAll('.learn-ability').forEach(ability => {
-        ability.addEventListener('click', function() {
-          this.classList.toggle('active');
-        });
-      });
-    }
-
     // Progress bar
     function setupProgressBar() {
       window.addEventListener('scroll', updateProgressBar);
@@ -1604,6 +2234,282 @@
         observer.observe(section);
       });
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // NEW FEATURES: Interactive Tools, Quizzes, Navigation
+    // ═══════════════════════════════════════════════════════════════════
+
+    // Skills for skill check simulator
+    const SKILLS = [
+      'Acrobatics', 'Animal Handling', 'Arcana', 'Athletics', 'Deception',
+      'History', 'Insight', 'Intimidation', 'Investigation', 'Medicine',
+      'Nature', 'Perception', 'Performance', 'Persuasion', 'Religion',
+      'Sleight of Hand', 'Stealth', 'Survival'
+    ];
+
+    let selectedSkill = null;
+    let completedSections = JSON.parse(localStorage.getItem('completedSections') || '[]');
+
+    function initializeNewFeatures() {
+      setupAbilityCalculator();
+      setupSkillSimulator();
+      setupQuiz();
+      setupSideNavigation();
+      setupBackToTop();
+      loadCompletedSections();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ABILITY CALCULATOR
+    // ═══════════════════════════════════════════════════════════════════
+    function setupAbilityCalculator() {
+      const input = document.getElementById('abilityScoreInput');
+      const resultDiv = document.getElementById('modifierResult');
+
+      function calculateModifier(score) {
+        const modifier = Math.floor((score - 10) / 2);
+        const sign = modifier >= 0 ? '+' : '';
+        return `Modifier: ${sign}${modifier}`;
+      }
+
+      if (input) {
+        input.addEventListener('input', function() {
+          const score = parseInt(this.value) || 10;
+          resultDiv.textContent = calculateModifier(Math.max(1, Math.min(20, score)));
+        });
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // SKILL CHECK SIMULATOR
+    // ═══════════════════════════════════════════════════════════════════
+    function setupSkillSimulator() {
+      const skillPicker = document.getElementById('skillPicker');
+      const rollBtn = document.getElementById('rollSkillBtn');
+      const resultDiv = document.getElementById('skillResult');
+      const dcInput = document.getElementById('dcInput');
+
+      if (skillPicker) {
+        skillPicker.innerHTML = SKILLS.map(skill =>
+          `<button class="learn-skill-btn" data-skill="${skill}">${skill}</button>`
+        ).join('');
+
+        skillPicker.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', function() {
+            skillPicker.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            selectedSkill = this.dataset.skill;
+          });
+        });
+
+        skillPicker.querySelector('button').click();
+      }
+
+      if (rollBtn) {
+        rollBtn.addEventListener('click', function() {
+          if (!selectedSkill) return;
+          const dc = parseInt(dcInput.value) || 12;
+          const roll = Math.floor(Math.random() * 20) + 1;
+          const modifier = Math.floor(Math.random() * 5);
+          const total = roll + modifier;
+          const success = total >= dc;
+
+          resultDiv.style.display = 'flex';
+          resultDiv.classList.remove('success', 'fail');
+          resultDiv.classList.add(success ? 'success' : 'fail');
+          resultDiv.innerHTML = `
+            <div>
+              <div style="font-family: 'Cinzel', serif; font-size: 18px; margin-bottom: 8px;">
+                <strong>${selectedSkill}</strong>
+              </div>
+              <div style="font-size: 14px; margin-bottom: 12px;">
+                d20: <strong>${roll}</strong> + Modifier: <strong>${modifier}</strong> = <strong>${total}</strong>
+              </div>
+              <div style="font-weight: bold;">
+                ${success ? `✓ Success! (${total} >= ${dc})` : `✗ Failed (${total} < ${dc})`}
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // QUIZ FUNCTIONALITY
+    // ═══════════════════════════════════════════════════════════════════
+    const QUIZ_QUESTIONS = [
+      {
+        id: 'q1',
+        options: [
+          { text: 'd20', correct: true, feedback: 'Correct! The d20 is the most important die in D&D.' },
+          { text: 'd6', correct: false, feedback: 'Not quite. While d6s are common, skill checks use the d20.' },
+          { text: 'd12', correct: false, feedback: 'No, the d20 is used for skill checks.' },
+          { text: 'd4', correct: false, feedback: 'No, the d20 is the king of dice for checks!' }
+        ]
+      },
+      {
+        id: 'q2',
+        options: [
+          { text: '+0', correct: false, feedback: 'Not quite. Use the formula: (14 - 10) / 2 = +2' },
+          { text: '+1', correct: false, feedback: 'Close! But (14 - 10) / 2 = +2' },
+          { text: '+2', correct: true, feedback: 'Correct! (14 - 10) / 2 = +2' },
+          { text: '+4', correct: false, feedback: 'No, that would be for a score of 18!' }
+        ]
+      },
+      {
+        id: 'q3',
+        options: [
+          { text: 'You automatically win', correct: false, feedback: 'Not always auto-win, but it\'s very powerful!' },
+          { text: 'You roll double damage dice (if attacking)', correct: true, feedback: 'Correct! A natural 20 is a critical hit with doubled damage dice!' },
+          { text: 'You gain 20 bonus points', correct: false, feedback: 'No, but it\'s one of the most powerful rolls!' },
+          { text: 'Nothing special happens', correct: false, feedback: 'Wrong! A natural 20 is one of the best things!' }
+        ]
+      }
+    ];
+
+    function setupQuiz() {
+      QUIZ_QUESTIONS.forEach(question => {
+        const container = document.getElementById(`${question.id}-options`);
+        if (container) {
+          container.innerHTML = question.options.map((opt, idx) =>
+            `<button class="learn-quiz-option" data-question="${question.id}" data-index="${idx}">${opt.text}</button>`
+          ).join('');
+
+          container.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const qid = this.dataset.question;
+              const idx = parseInt(this.dataset.index);
+              const qNum = qid.replace('q', '');
+              const options = QUIZ_QUESTIONS[qNum - 1].options;
+              const feedback = document.getElementById(`${qid}-feedback`);
+
+              container.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+              this.classList.add('selected');
+              this.classList.add(options[idx].correct ? 'correct' : 'incorrect');
+
+              feedback.classList.add('visible');
+              feedback.textContent = options[idx].feedback;
+            });
+          });
+        }
+      });
+
+      const submitBtn = document.getElementById('submitQuiz');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+          let correct = 0;
+          QUIZ_QUESTIONS.forEach(question => {
+            const selected = document.querySelector(`[data-question="${question.id}"].correct`);
+            if (selected) correct++;
+          });
+
+          const resultDiv = document.getElementById('quizResult');
+          resultDiv.classList.add('visible');
+          const scoreDiv = document.getElementById('quizScore');
+          scoreDiv.textContent = `${correct}/${QUIZ_QUESTIONS.length} Correct!`;
+
+          if (correct === QUIZ_QUESTIONS.length) {
+            scoreDiv.textContent += ' Perfect Score!';
+          } else if (correct >= 2) {
+            scoreDiv.textContent += ' Great job!';
+          } else {
+            scoreDiv.textContent += ' Keep learning!';
+          }
+
+          markSectionComplete(7);
+          resultDiv.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // SIDE NAVIGATION
+    // ═══════════════════════════════════════════════════════════════════
+    function setupSideNavigation() {
+      const nav = document.getElementById('sideNav');
+      if (!nav) return;
+
+      const sections = document.querySelectorAll('.learn-section');
+      const titles = ['What is D&D?', 'The Core Mechanic: Rolling Dice', 'Creating Your Character',
+                      'How Combat Works', 'Magic & Spellcasting', 'The DM\'s Role', 'Skill Check Simulator',
+                      'Getting Started Checklist'];
+
+      nav.innerHTML = titles.map((title, idx) =>
+        `<div class="learn-nav-item" data-section="${idx}" onclick="scrollToSection(${idx})">${idx + 1}. ${title.split(' ').slice(0, 3).join(' ')}</div>`
+      ).join('');
+
+      window.addEventListener('scroll', updateActiveNavItem);
+    }
+
+    function updateActiveNavItem() {
+      const sections = document.querySelectorAll('.learn-section');
+      const navItems = document.querySelectorAll('.learn-nav-item');
+
+      sections.forEach((section, idx) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+          navItems.forEach(item => item.classList.remove('active'));
+          if (navItems[idx]) navItems[idx].classList.add('active');
+        }
+      });
+    }
+
+    function scrollToSection(idx) {
+      const sections = document.querySelectorAll('.learn-section');
+      if (sections[idx]) {
+        sections[idx].scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // BACK TO TOP BUTTON
+    // ═══════════════════════════════════════════════════════════════════
+    function setupBackToTop() {
+      const btn = document.getElementById('backToTop');
+      if (!btn) return;
+
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 400) {
+          btn.classList.add('visible');
+        } else {
+          btn.classList.remove('visible');
+        }
+      });
+
+      btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // SECTION COMPLETION TRACKING
+    // ═══════════════════════════════════════════════════════════════════
+    function markSectionComplete(sectionNum) {
+      if (!completedSections.includes(sectionNum)) {
+        completedSections.push(sectionNum);
+        localStorage.setItem('completedSections', JSON.stringify(completedSections));
+        updateSectionStatus(sectionNum);
+      }
+    }
+
+    function updateSectionStatus(sectionNum) {
+      const sections = document.querySelectorAll('.learn-section');
+      if (sections[sectionNum]) {
+        const statusDiv = document.createElement('div');
+        statusDiv.className = 'learn-section-status completed';
+        const header = sections[sectionNum].querySelector('.learn-section-header');
+        const existingStatus = header.querySelector('.learn-section-status');
+        if (existingStatus) existingStatus.remove();
+        header.appendChild(statusDiv);
+      }
+    }
+
+    function loadCompletedSections() {
+      completedSections.forEach(sectionNum => {
+        updateSectionStatus(sectionNum);
+      });
+    }
+
   </script>
 </body>
 </html>

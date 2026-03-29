@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';" />
   <title>Character Builder · Phmurt Studios</title>
   <meta name="description" content="Build your D&D 5e character step by step with the Phmurt Studios character builder." />
   <meta property="og:title" content="Character Builder · Phmurt Studios" />
@@ -24,7 +24,7 @@
   <style>
     /* ── BUILDER LAYOUT ── */
     .cb-wrap { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 60px); }
-    .cb-sidebar { background: #0a0809; border-right: 1px solid rgba(192,57,43,0.2); padding: 32px 0; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+    .cb-sidebar { background: var(--bg); border-right: 1px solid rgba(192,57,43,0.2); padding: 32px 0; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
     .cb-main { padding: 48px 56px; }
 
     /* ── SIDEBAR STEPS ── */
@@ -32,7 +32,7 @@
     .cb-step-item:hover { background: rgba(192,57,43,0.06); }
     .cb-step-item.active { background: rgba(192,57,43,0.1); }
     .cb-step-item.active::left { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--crimson); }
-    .cb-step-item.done .cb-step-num { background: var(--crimson); border-color: var(--crimson); color: white; }
+    .cb-step-item.done .cb-step-num { background: var(--crimson); border-color: var(--crimson); color: var(--white); }
     .cb-step-num { width: 28px; height: 28px; border: 1px solid rgba(192,57,43,0.3); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 10px; color:var(--text-muted); flex-shrink: 0; transition: all 0.2s; }
     .cb-step-item.active .cb-step-num { border-color: var(--crimson); color: var(--crimson); }
     .cb-step-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color:var(--text-muted); }
@@ -56,7 +56,7 @@
     /* ── CHOICE CARDS ── */
     .cb-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: rgba(192,57,43,0.12); border: 1px solid rgba(192,57,43,0.18); margin-bottom: 32px; }
     .cb-card { background: var(--black-card); padding: 20px 18px; cursor: pointer; transition: background 0.2s; border: 2px solid transparent; position: relative; }
-    .cb-card:hover { background: #1a1212; }
+    .cb-card:hover { background: var(--bg-hover); }
     .cb-card.selected { background: rgba(192,57,43,0.1); border-color: var(--crimson); }
     .cb-card-name { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; color: var(--white); text-transform: uppercase; margin-bottom: 6px; }
     .cb-card-detail { font-size: 13px; color:var(--text-muted); font-style: italic; line-height: 1.5; }
@@ -89,7 +89,7 @@
     .cb-array-val { font-family: 'Cinzel', serif; font-size: 14px; padding: 8px 14px; border: 1px solid rgba(192,57,43,0.3); color:var(--text-dim); cursor: pointer; transition: all 0.2s; user-select: none; }
     .cb-array-val:hover { border-color: var(--crimson); color: var(--white); }
     .cb-array-val.used { opacity: 0.25; cursor: not-allowed; text-decoration: line-through; }
-    .cb-array-val.selected { background: var(--crimson); border-color: var(--crimson); color: white; }
+    .cb-array-val.selected { background: var(--crimson); border-color: var(--crimson); color: var(--white); }
     .cb-ability-box.selecting { border-color: rgba(255,200,50,0.5); cursor: pointer; }
     .cb-ability-box.selecting::before { background: rgba(255,200,50,0.5); }
     .cb-pb-display { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; color:var(--text-muted); margin-bottom: 16px; }
@@ -101,10 +101,10 @@
     /* ── SKILLS ── */
     .cb-skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid rgba(192,57,43,0.18); margin-bottom: 28px; }
     .cb-skill-row { display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-bottom: 1px solid var(--border-mid); background: var(--black-card); transition: background 0.15s; }
-    .cb-skill-row:hover { background: #1a1212; }
+    .cb-skill-row:hover { background: var(--bg-hover); }
     .cb-skill-check { width: 16px; height: 16px; border: 1px solid rgba(192,57,43,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
     .cb-skill-check.checked { background: var(--crimson); border-color: var(--crimson); }
-    .cb-skill-check.checked::after { content: '✓'; color: white; font-size: 10px; }
+    .cb-skill-check.checked::after { content: '✓'; color: var(--white); font-size: 10px; }
     .cb-skill-check.locked { opacity: 0.5; cursor: not-allowed; }
     .cb-skill-name { font-size: 13px; color:var(--text-dim); flex: 1; }
     .cb-skill-ability { font-family: 'Cinzel', serif; font-size: 8px; color:var(--text-faint); width: 28px; text-transform: uppercase; }
@@ -137,7 +137,7 @@
     .cb-form-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color:var(--text-muted); }
     .cb-form-input { background:var(--bg-input); border: 1px solid rgba(192,57,43,0.2); color: var(--white); font-family: 'Spectral', serif; font-size: 15px; padding: 8px 12px; transition: border-color 0.2s; }
     .cb-form-input:focus { outline: none; border-color: var(--crimson); background: rgba(192,57,43,0.04); }
-    select.cb-form-input option { background: #130f0f; color: var(--white); }
+    select.cb-form-input option { background: var(--bg-card); color: var(--white); }
     .cb-form-textarea { resize: vertical; min-height: 90px; }
 
     /* ── FINAL SHEET ── */
@@ -173,7 +173,7 @@
     /* ── NAV BUTTONS ── */
     .cb-nav-btns { display: flex; gap: 12px; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--border-subtle); }
     .cb-btn { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 12px 28px; cursor: pointer; border: none; transition: all 0.2s; }
-    .cb-btn-primary { background: var(--crimson); color: white; }
+    .cb-btn-primary { background: var(--crimson); color: var(--white); }
     .cb-btn-primary:hover { background: var(--crimson-dim); }
     .cb-btn-secondary { background: transparent; color:var(--text-muted); border: 1px solid var(--border); }
     .cb-btn-secondary:hover { border-color:var(--text-muted); color: var(--white); }
@@ -196,6 +196,18 @@
     /* ── ALERTS ── */
     .cb-alert { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.25); padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color:var(--text-dim); font-style: italic; }
     .cb-alert strong { color: var(--crimson); font-style: normal; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; }
+
+    /* ── INFO TOOLTIPS ── */
+    .cb-info-tip { display: inline-block; width: 16px; height: 16px; border-radius: 50%; background: rgba(192,57,43,0.2); color: var(--crimson); text-align: center; font-size: 10px; line-height: 16px; font-weight: bold; cursor: help; position: relative; margin-left: 6px; vertical-align: middle; transition: background 0.2s; }
+    .cb-info-tip:hover { background: rgba(192,57,43,0.4); }
+    .cb-info-tip::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--bg-nav); color: var(--text); padding: 8px 12px; font-family: 'Spectral', serif; font-size: 12px; white-space: normal; max-width: 280px; border: 1px solid var(--border); z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.4); margin-bottom: 6px; display: none; border-radius: 2px; font-weight: normal; line-height: 1.4; }
+    .cb-info-tip:hover::after { display: block; }
+
+    /* ── CLASS SOURCE LABELS ── */
+    .cb-class-source { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1px; color: var(--text-muted); margin-left: 8px; font-style: italic; }
+
+    /* ── SKILL DESCRIPTION HELPERS ── */
+    .cb-skill-desc-helper { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 2px; }
 
     @media print {
       .cb-sidebar, .ps-nav, .ps-breadcrumb, .cb-nav-btns, .ps-footer, .cb-progress { display: none !important; }
@@ -1652,11 +1664,34 @@ function selectRace(id){
 function renderRaceDetail(id){
   const race=DND_DATA.races[id];
   const d=document.getElementById('raceDetail');
+  var allRaceLanguages = (race.languages||[]).slice();
+  var subrace = C.subrace ? (race.subraces||[]).find(s=>s.id===C.subrace) : null;
+  var subRaceExtraLangs = (subrace && subrace.extraLanguages) ? subrace.extraLanguages : 0;
+  var raceExtraLangs = race.extraLanguages || 0;
+  var totalExtraLangs = raceExtraLangs + subRaceExtraLangs;
+
   let html=`<div class="cb-detail"><div class="cb-detail-title">${escapeHtml(race.name)}</div>
-    <div class="cb-detail-sub">${escapeHtml(race.size)} · ${escapeHtml(race.speed)}ft · ${(race.languages||[]).map(l=>escapeHtml(l)).join(', ')}</div>
+    <div class="cb-detail-sub">${escapeHtml(race.size)} · ${escapeHtml(race.speed)}ft · ${allRaceLanguages.map(l=>escapeHtml(l)).join(', ')}${totalExtraLangs > 0 ? ' + ' + totalExtraLangs + ' language choice' + (totalExtraLangs > 1 ? 's' : '') : ''}</div>
     <div class="cb-asi-badges">${Object.entries(race.asi||{}).map(([k,v])=>`<span class="cb-asi-badge">${DND_DATA.abilityShort[k]} +${v}</span>`).join('')}</div>
     <div class="cb-detail-body">`;
   (race.traits||[]).forEach(t=>html+=`<div class="cb-trait"><div class="cb-trait-name">${escapeHtml(t.name)}</div><div class="cb-trait-desc">${escapeHtml(t.desc)}</div></div>`);
+
+  // Add language selector if race grants extra languages
+  if(totalExtraLangs > 0){
+    html += `<div class="cb-trait"><div class="cb-trait-name">Choose ${totalExtraLangs} Language${totalExtraLangs > 1 ? 's' : ''}</div>`;
+    html += '<div class="cb-trait-desc" style="margin-top:8px;">';
+    var availableLangs = (DND_DATA.featLanguages||[]).filter(l => !allRaceLanguages.includes(l));
+    var selectedLangs = C.raceExtraLanguages || [];
+    availableLangs.forEach(lang => {
+      var isSelected = selectedLangs.includes(lang);
+      var disabled = !isSelected && selectedLangs.length >= totalExtraLangs;
+      var safeL = escapeHtml(lang).replace(/'/g,'&apos;');
+      var onclk = disabled ? '' : "toggleRaceLanguage(&apos;" + safeL + "&apos;," + totalExtraLangs + ")";
+      html += '<div onclick="' + onclk + '" style="padding:5px 11px;font-family:Cinzel,serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:' + (disabled ? 'default' : 'pointer') + ';display:inline-block;margin:4px 4px 4px 0;border:1px solid ' + (isSelected ? 'var(--crimson)' : 'var(--border)') + ';background:' + (isSelected ? 'var(--crimson)' : 'var(--bg-card)') + ';color:' + (isSelected ? 'var(--white)' : 'var(--text-muted)') + ';opacity:' + (disabled ? '0.4' : '1') + ';">' + escapeHtml(lang) + '</div>';
+    });
+    html += '</div></div>';
+  }
+
   html+='</div>';
   if((race.subraces||[]).length){
     html+=`<div class="cb-subrace-section"><div class="cb-subrace-title" style="color:var(--crimson);font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin:20px 0 12px;">⚠ Choose Subrace (Required)</div><div class="cb-cards" style="margin-bottom:12px;">`;
@@ -1672,6 +1707,19 @@ function renderRaceDetail(id){
   html+='</div>'; d.innerHTML=html;
 }
 function selectSubrace(id){ C.subrace=id; renderRaceDetail(C.race); updateAsiNote(); updateMiniSummary(); }
+
+function toggleRaceLanguage(lang, maxCount){
+  if(!C.raceExtraLanguages) C.raceExtraLanguages = [];
+  if(C.raceExtraLanguages.includes(lang)){
+    C.raceExtraLanguages = C.raceExtraLanguages.filter(l => l !== lang);
+  } else {
+    if(C.raceExtraLanguages.length < maxCount){
+      C.raceExtraLanguages.push(lang);
+    }
+  }
+  renderRaceDetail(C.race);
+  updateMiniSummary();
+}
 
 // ══════════════════════════════════════════
 // STEP 2 — CLASS
@@ -1889,8 +1937,9 @@ function renderAbilityGrid(){
     } else {
       inner=`<div class="cb-score-btns"><button class="cb-score-btn" onclick="event.stopPropagation();manualAdjust('${ability}',-1)">−</button><span style="font-size:26px;font-weight:300;color:var(--text);min-width:38px;text-align:center;">${base}</span><button class="cb-score-btn" onclick="event.stopPropagation();manualAdjust('${ability}',1)">+</button></div>`;
     }
+    var abilityDesc = DND_DATA.abilityDescriptions && DND_DATA.abilityDescriptions[ability] ? DND_DATA.abilityDescriptions[ability] : '';
     return `<div class="cb-ability-box ${isSelecting?'selecting':''}" onclick="assignAbility('${ability}')">
-      <div class="cb-ability-name">${DND_DATA.abilityShort[ability]}</div>
+      <div class="cb-ability-name">${DND_DATA.abilityShort[ability]}${abilityDesc?`<span class="cb-info-tip" data-tip="${escapeHtml(abilityDesc)}">ⓘ</span>`:''}</div>
       ${inner}
       <div class="cb-ability-mod">${modStr(total)}</div>
       ${(rAsi+srAsi)>0?`<div class="cb-ability-asi">+${rAsi+srAsi} racial</div>`:''}
@@ -1937,9 +1986,10 @@ function renderSkills(){
     let tag=''; if(isBg) tag=`<span style="font-size:8px;letter-spacing:1px;color:var(--crimson);font-family:'Cinzel',serif;margin-left:4px;">BG</span>`;
     else if(isChosen) tag=`<span style="font-size:8px;letter-spacing:1px;color:var(--crimson);font-family:'Cinzel',serif;margin-left:4px;">CLASS</span>`;
     else if(canPick) tag=`<span style="font-size:9px;color:var(--text-faint);font-style:italic;margin-left:4px;">available</span>`;
+    var skillDesc = DND_DATA.skillDescriptions && DND_DATA.skillDescriptions[skill.name] ? DND_DATA.skillDescriptions[skill.name] : '';
     row.innerHTML=`<div class="cb-skill-check ${isProf?'checked':''} ${!canPick&&!isBg?'locked':''}" onclick="toggleSkill('${key}','${isBg}','${canPick}',${canChoose})"></div>
       <span class="cb-skill-ability">${DND_DATA.abilityShort[skill.ability]}</span>
-      <span class="cb-skill-name">${skill.name}${tag}</span>
+      <span class="cb-skill-name">${skill.name}${skillDesc?`<span class="cb-info-tip" data-tip="${escapeHtml(skillDesc)}">ⓘ</span>`:''}${tag}</span>
       <span class="cb-skill-bonus">${bonus}</span>`;
     grid.appendChild(row);
   });
@@ -2486,7 +2536,8 @@ function buildWeaponCards(){
     const dmgM=isFinesse?Math.max(strM,dexM):isRanged?dexM:strM;
     const dmgStr=w.damage==='—'?'Special':`${w.damage}${dmgM>=0?'+':''}${dmgM}`;
     const dice=w.damage.match(/\d+d\d+/)?w.damage.match(/\d+d\d+/)[0]:null;
-    return `<div class="cb-weapon-card" onclick="rollWeaponAttack('${w.name.replace(/'/g,"\\'")}',${atkM},${dmgM},'${w.damage}')" title="Click to roll attack + damage">
+    var safeName = w.name.replace(/'/g,'&apos;'); var safeDmg = w.damage.replace(/'/g,'&apos;');
+    return `<div class="cb-weapon-card" onclick="rollWeaponAttack('${safeName}',${atkM},${dmgM},'${safeDmg}')" title="Click to roll attack + damage">
       <div class="cb-weapon-top">
         <span class="cb-weapon-name">${w.name}</span>
         <span class="cb-weapon-hint">▸ Roll</span>
@@ -2759,7 +2810,8 @@ function buildActionsTab(){
       const atkM=isFinesse?Math.max(strM,dexM)+pb2:isRanged?dexM+pb2:strM+pb2;
       const dmgM=isFinesse?Math.max(strM,dexM):isRanged?dexM:strM;
       const dmgStr=w.damage==='—'?'Special':`${w.damage}${dmgM>=0?'+':''}${dmgM} ${w.type}`;
-      return `<div class="cs-attack-card" onclick="rollWeaponAttack('${w.name.replace(/'/g,"\'")}',${atkM},${dmgM},'${w.damage}')" title="Click to roll attack + damage">
+      var safeName2 = w.name.replace(/'/g,'&apos;'); var safeDmg2 = w.damage.replace(/'/g,'&apos;');
+      return `<div class="cs-attack-card" onclick="rollWeaponAttack('${safeName2}',${atkM},${dmgM},'${safeDmg2}')" title="Click to roll attack + damage">
         <div><div class="cs-attack-name">${w.name}</div><div style="font-size:11px;color:var(--text-faint);font-style:italic;">${w.props}</div></div>
         <div class="cs-attack-stats">
           <span class="cs-attack-atk">ATK ${atkM>=0?'+':''}${atkM}</span>
@@ -2784,7 +2836,8 @@ function buildActionsTab(){
         const d=DND_DATA.spellDescriptions[sp];
         const isRanged=d.attackRoll==='ranged';
         // Determine damage from desc (simplified — show atk bonus)
-        html+=`<div class="cs-attack-card" onclick="rollCheck('${isRanged?'Ranged Spell Attack':'Melee Spell Attack'}','${sp.replace(/'/g,"\'")}',${spM+pb2})" title="Click to roll" style="margin-top:4px;">
+        var safeSp = sp.replace(/'/g,'&apos;'); var atkLabel = isRanged?'Ranged Spell Attack':'Melee Spell Attack';
+        html+=`<div class="cs-attack-card" onclick="rollCheck('${atkLabel}','${safeSp}',${spM+pb2})" title="Click to roll" style="margin-top:4px;">
           <div><div class="cs-attack-name">${sp}</div><div style="font-size:11px;color:var(--text-faint);font-style:italic;">${d.school} · ${isRanged?'Ranged':'Melee'} · ${d.range}</div></div>
           <div class="cs-attack-stats">
             <span class="cs-attack-atk">ATK +${spM+pb2}</span>
@@ -3142,7 +3195,7 @@ function buildFeaturesTab(){
   const subrace=sheetState.subrace;
   // Collect all features from all classes
   ensureClassesArray();
-  var allLvlFeatures = cls.features.map(function(f){ return Object.assign({},f); });
+  var allLvlFeatures = cls.features.map(function(f){ return Object.assign({},f, {className:cls.name}); });
   C.classes.forEach(function(entry){
     var clsData = DND_DATA.classes[entry.cls];
     if(!clsData) return;
@@ -3162,24 +3215,44 @@ function buildFeaturesTab(){
   // Add subclass features up to current level
   if(C.subclass && DND_DATA.subclasses && DND_DATA.subclasses[C.cls]){
     var subData = DND_DATA.subclasses[C.cls].find(function(sc){ return sc.id===C.subclass; });
-    if(subData){
-      Object.keys(subData.features).forEach(function(lv){
-        var lvNum = parseInt(lv);
-        if(lvNum <= C.level){
-          subData.features[lv].forEach(function(f){
-            allLvlFeatures.push(Object.assign({level:lvNum, subclassFeature:true}, f));
-          });
-        }
-      });
+    if(subData && subData.features){
+      // Handle both array-based and object-based feature structures
+      if(Array.isArray(subData.features)){
+        subData.features.forEach(function(f){
+          if(f.level && f.level <= C.level){
+            allLvlFeatures.push(Object.assign({subclassFeature:true}, f));
+          }
+        });
+      } else {
+        Object.keys(subData.features).forEach(function(lv){
+          var lvNum = parseInt(lv);
+          if(lvNum <= C.level){
+            subData.features[lv].forEach(function(f){
+              allLvlFeatures.push(Object.assign({level:lvNum, subclassFeature:true}, f));
+            });
+          }
+        });
+      }
     }
   }
   // Sort all features by level
   allLvlFeatures.sort(function(a,b){ return a.level - b.level; });
   let html='<div class="cs-action-title">Class Features</div>';
-  html+=allLvlFeatures.map(f=>`<div class="cs-feature-card" style="margin-bottom:8px;${f.subclassFeature?'border-left:3px solid var(--crimson);':''}">
-    <div class="cs-feature-card-top"><span class="cs-feature-card-name">${f.isASI?'★ ':''}Level ${f.level}: ${f.name}${f.subclassFeature?' <span style="font-size:9px;color:var(--crimson);font-family:Cinzel,serif;letter-spacing:1px;">(Subclass)</span>':''}</span></div>
-    <div class="cs-feature-card-desc">${f.desc}</div>
-  </div>`).join('');
+  html+=allLvlFeatures.map(f=>{
+    var classLabel = '';
+    if(f.subclassFeature && C.subclass){
+      var subData = DND_DATA.subclasses[C.cls].find(function(sc){ return sc.id===C.subclass; });
+      if(subData) classLabel = ` <span class="cb-class-source">(${subData.name} ${f.level})</span>`;
+    } else if(f.className){
+      classLabel = ` <span class="cb-class-source">(${f.className} ${f.level})</span>`;
+    } else if(C.classes && C.classes.length > 1){
+      classLabel = ` <span class="cb-class-source">(${DND_DATA.classes[C.cls].name} ${f.level})</span>`;
+    }
+    return `<div class="cs-feature-card" style="margin-bottom:8px;${f.subclassFeature?'border-left:3px solid var(--crimson);':''}">
+      <div class="cs-feature-card-top"><span class="cs-feature-card-name">${f.isASI?'★ ':''}Level ${f.level}: ${f.name}${f.subclassFeature?' <span style="font-size:9px;color:var(--crimson);font-family:Cinzel,serif;letter-spacing:1px;">(Subclass)</span>':''}${classLabel}</span></div>
+      <div class="cs-feature-card-desc">${f.desc}</div>
+    </div>`;
+  }).join('');
   html+='<div class="cs-action-title" style="margin-top:24px;">Racial Traits</div>';
   html+=[...race.traits,...(subrace?subrace.traits:[])].map(t=>`<div class="cs-feature-card" style="margin-bottom:8px;">
     <div class="cs-feature-card-top"><span class="cs-feature-card-name">${t.name}</span></div>
@@ -7831,7 +7904,7 @@ function editHB35Entity(type, id) {
   openHB35EntityModal(type, id);
 }
 
-window.addEventListener('DOMContentLoaded',function(){ loadHomebrewItems(); loadHomebrewEntities(); loadHomebrew35Entities(); init(); injectHomebrewBuilderButtons(); setTimeout(checkLoadCharacter,200); });
+window.addEventListener('DOMContentLoaded',function(){ loadHomebrewItems(); loadHomebrewEntities(); loadHomebrew35Entities(); init(); initHomebrewIntegration(); injectHomebrewBuilderButtons(); setTimeout(checkLoadCharacter,200); });
 
 // ═══════════════════════════════════════
 // EDITION TOGGLE
@@ -9224,6 +9297,73 @@ function init35() {
       <button onclick="closeDicePopup()" style="margin-top:14px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:7px 18px;background:transparent;color:var(--text-muted);border:1px solid var(--border);cursor:pointer;width:100%;">Close</button>
     </div>
   </div>
+  <!-- ── HOMEBREW INTEGRATION SYSTEM ── -->
+  <script>
+  // ══════════════════════════════════════════════════════════════
+  // HOMEBREW INTEGRATION — Load & Inject Homebrew from localStorage
+  // ══════════════════════════════════════════════════════════════
+
+  var HomebrewIntegration = {
+    races: [],
+    classes: [],
+    subclasses: [],
+    backgrounds: [],
+    items: [],
+    spells: {},
+    communitySaved: [],
+
+    init: function() {
+      this.loadHomebrew();
+      this.injectIntoBuilder();
+    },
+
+    loadHomebrew: function() {
+      try {
+        // Load homebrew races, classes, backgrounds, subclasses
+        // These should already be in _homebrewEntities from loadHomebrewEntities()
+        // But also check for spells and community items
+
+        this.races = Object.values(_homebrewEntities.races || {});
+        this.classes = Object.values(_homebrewEntities.classes || {});
+        this.subclasses = Object.values(_homebrewEntities.subclasses || {});
+        this.backgrounds = Object.values(_homebrewEntities.backgrounds || {});
+
+        // Load homebrew spells from separate storage
+        var spellsRaw = localStorage.getItem('phmurt_homebrew_spells');
+        if (spellsRaw) {
+          try {
+            this.spells = JSON.parse(spellsRaw);
+          } catch(e) { console.warn('Homebrew spells parse error:', e); }
+        }
+
+        // Load community saved items
+        var communityRaw = localStorage.getItem('phmurt_community_saved');
+        if (communityRaw) {
+          try {
+            this.communitySaved = JSON.parse(communityRaw);
+          } catch(e) { console.warn('Community saved parse error:', e); }
+        }
+
+        // Note: items are already loaded via loadHomebrewItems() into DND_DATA.homebrewDB
+
+      } catch(e) {
+        console.warn('Homebrew integration load error:', e);
+      }
+    },
+
+    injectIntoBuilder: function() {
+      // Races and classes are automatically injected via DND_DATA by existing systems
+      // renderRaces(), renderClasses(), renderBackgrounds() now display them automatically
+      // This function is a placeholder for future enhancements
+    }
+  };
+
+  // Initialize homebrew integration after page load
+  // This runs after loadHomebrewEntities() in the DOMContentLoaded handler
+  function initHomebrewIntegration() {
+    HomebrewIntegration.init();
+  }
+  </script>
   <!-- ── AUTO-SAVE SYSTEM ── -->
   <script>
   (function(){
