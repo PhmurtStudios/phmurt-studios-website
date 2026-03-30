@@ -766,9 +766,10 @@ def place_settlements(hmap, biomes, coast_dist, rivers, rng, namer,
     # Types and their counts/min distances
     types = [
         ('capital', 3, 50),   # 3 capitals, min 50 cells apart
-        ('city', 8, 30),
-        ('town', 18, 18),
-        ('village', 35, 10),
+        ('city', 8, 28),
+        ('town', 15, 16),
+        ('hamlet', 20, 12),
+        ('village', 25, 8),
     ]
 
     occupied = set()
@@ -807,40 +808,69 @@ def place_settlements(hmap, biomes, coast_dist, rivers, rng, namer,
 # =============================================================================
 
 def generate_roads(hmap, settlements, biomes, rows=GRID_ROWS, cols=GRID_COLS):
-    """Generate roads connecting settlements via A* pathfinding."""
+    """Generate a rich, layered road network connecting settlements.
+
+    Road hierarchy:
+    - King's Roads: thick double-line highways between capitals
+    - Trade Routes: solid lines connecting capitals to cities, city-to-city
+    - Country Roads: thinner lines connecting towns to nearest city/capital
+    - Trails: dotted paths from hamlets/villages to nearest town+
+
+    Roads follow terrain intelligently — preferring valleys, avoiding mountains,
+    following coastlines, with existing roads reducing cost (roads attract roads).
+    """
     import heapq
 
-    roads = []  # list of [(r,c), ...] paths
+    roads = []
     is_land = hmap >= WATER_LEVEL
+
+    # Build a cost map that can be modified as roads are placed
+    # (existing roads reduce cost for future roads — roads follow roads)
+    road_bonus = np.zeros((rows, cols), dtype=np.float32)
 
     def path_cost(r, c, nr, nc):
         if not is_land[nr, nc]:
-            return 999  # avoid water
-        h_diff = abs(hmap[nr, nc] - hmap[r, c])
-        base = 1.0
+            return 999
+        h_diff = abs(float(hmap[nr, nc]) - float(hmap[r, c]))
         b = biomes[nr, nc]
+        # Base terrain cost
         if b == 'mountain':
-            base = 5.0
+            base = 6.0
+        elif b == 'snow_peak':
+            base = 10.0
         elif b == 'dense_forest':
-            base = 2.5
+            base = 2.2
         elif b == 'forest':
-            base = 1.8
+            base = 1.6
         elif b == 'hills':
-            base = 1.5
+            base = 1.4
         elif b == 'desert':
+            base = 1.8
+        elif b == 'tundra':
             base = 2.0
-        return base + h_diff * 10
+        elif b in ('grassland', 'plains'):
+            base = 0.8  # flat open land is cheapest
+        elif b == 'beach':
+            base = 1.0
+        else:
+            base = 1.0
+        # Elevation change penalty
+        cost = base + h_diff * 12
+        # Existing roads reduce cost — roads attract roads
+        cost *= max(0.4, 1.0 - road_bonus[nr, nc] * 0.5)
+        return cost
 
-    def astar(sr, sc, er, ec):
+    def astar(sr, sc, er, ec, max_steps=8000):
         if sr == er and sc == ec:
             return []
-        heap = [(0, sr, sc)]
+        heap = [(0, 0, sr, sc)]  # (f, counter, r, c)
         came_from = {}
         g_score = {(sr, sc): 0}
         visited = set()
+        counter = 0
 
-        while heap:
-            f, r, c = heapq.heappop(heap)
+        while heap and counter < max_steps:
+            f, _, r, c = heapq.heappop(heap)
             if (r, c) in visited:
                 continue
             visited.add((r, c))
@@ -865,69 +895,135 @@ def generate_roads(hmap, settlements, biomes, rows=GRID_ROWS, cols=GRID_COLS):
                         if (nr, nc) not in g_score or new_g < g_score[(nr, nc)]:
                             g_score[(nr, nc)] = new_g
                             h = math.sqrt((nr - er)**2 + (nc - ec)**2)
-                            heapq.heappush(heap, (new_g + h, nr, nc))
+                            counter += 1
+                            heapq.heappush(heap, (new_g + h, counter, nr, nc))
                             came_from[(nr, nc)] = (r, c)
 
-        return []  # no path found
+        return []
 
-    # Connect capitals to each other, cities to nearest capital, towns to nearest city
+    def mark_road(path, strength=1.0):
+        """Mark cells along a road to attract future roads."""
+        for r, c in path:
+            road_bonus[r, c] = min(1.0, road_bonus[r, c] + strength)
+            # Also mark neighbors slightly
+            for dr in [-1, 0, 1]:
+                for dc in [-1, 0, 1]:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < rows and 0 <= nc < cols:
+                        road_bonus[nr, nc] = min(1.0, road_bonus[nr, nc] + strength * 0.3)
+
+    def smooth_path(path, iterations=2):
+        """Smooth a path to remove jagged cell-by-cell steps."""
+        if len(path) < 4:
+            return path
+        for _ in range(iterations):
+            new_path = [path[0]]
+            for i in range(1, len(path) - 1):
+                r = (path[i-1][0] + path[i][0] + path[i+1][0]) / 3.0
+                c = (path[i-1][1] + path[i][1] + path[i+1][1]) / 3.0
+                new_path.append((r, c))
+            new_path.append(path[-1])
+            path = new_path
+        return path
+
+    # Categorize settlements
     capitals = [(r, c) for r, c, t, _ in settlements if t == 'capital']
     cities = [(r, c) for r, c, t, _ in settlements if t == 'city']
     towns = [(r, c) for r, c, t, _ in settlements if t == 'town']
+    hamlets = [(r, c) for r, c, t, _ in settlements if t == 'hamlet']
+    villages = [(r, c) for r, c, t, _ in settlements if t == 'village']
 
-    # Capital-capital connections (all pairs within range)
+    # === TIER 1: King's Roads — capital to capital ===
     for i in range(len(capitals)):
         for j in range(i + 1, len(capitals)):
             r1, c1 = capitals[i]
             r2, c2 = capitals[j]
             dist = math.sqrt((r1 - r2)**2 + (c1 - c2)**2)
-            if dist < 150:
+            if dist < 180:
                 path = astar(r1, c1, r2, c2)
                 if path:
-                    roads.append(('major', path))
+                    path = smooth_path(path, 3)
+                    roads.append(('kings_road', path))
+                    mark_road([(int(r), int(c)) for r, c in path], 1.0)
 
-    # Cities to nearest 2 capitals/cities
+    # === TIER 2: Trade Routes — capital to cities, city to nearest cities ===
     for cr, cc in cities:
-        dists = []
-        for kr, kc in capitals:
-            d = math.sqrt((cr - kr)**2 + (cc - kc)**2)
-            dists.append((d, kr, kc))
+        # Connect to nearest 2 capitals
+        dists = [(math.sqrt((cr - kr)**2 + (cc - kc)**2), kr, kc)
+                 for kr, kc in capitals]
         dists.sort()
         for d, kr, kc in dists[:2]:
-            if d < 100:
+            if d < 120:
                 path = astar(cr, cc, kr, kc)
                 if path:
-                    roads.append(('road', path))
+                    path = smooth_path(path, 2)
+                    roads.append(('trade_route', path))
+                    mark_road([(int(r), int(c)) for r, c in path], 0.7)
 
-    # Cities to nearest other city
+    # City-to-city connections (nearest 2 neighbors)
     for i in range(len(cities)):
-        best_dist = 9999
-        best_j = -1
+        dists = []
         for j in range(len(cities)):
             if i == j:
                 continue
-            d = math.sqrt((cities[i][0] - cities[j][0])**2 + (cities[i][1] - cities[j][1])**2)
-            if d < best_dist:
-                best_dist = d
-                best_j = j
-        if best_j >= 0 and best_dist < 70:
-            path = astar(cities[i][0], cities[i][1], cities[best_j][0], cities[best_j][1])
-            if path:
-                roads.append(('road', path))
+            d = math.sqrt((cities[i][0] - cities[j][0])**2 +
+                          (cities[i][1] - cities[j][1])**2)
+            dists.append((d, j))
+        dists.sort()
+        for d, j in dists[:2]:
+            if d < 80:
+                path = astar(cities[i][0], cities[i][1],
+                             cities[j][0], cities[j][1])
+                if path:
+                    path = smooth_path(path, 2)
+                    roads.append(('trade_route', path))
+                    mark_road([(int(r), int(c)) for r, c in path], 0.5)
 
-    # Towns to nearest city or capital
+    # === TIER 3: Country Roads — towns to nearest city/capital ===
     all_major = capitals + cities
     for tr, tc in towns:
-        best_dist = 9999
-        best_target = None
-        for mr, mc in all_major:
-            d = math.sqrt((tr - mr)**2 + (tc - mc)**2)
-            if d < best_dist:
-                best_dist = d
-                best_target = (mr, mc)
-        if best_target and best_dist < 60:
-            path = astar(tr, tc, best_target[0], best_target[1])
+        dists = [(math.sqrt((tr - mr)**2 + (tc - mc)**2), mr, mc)
+                 for mr, mc in all_major]
+        dists.sort()
+        for d, mr, mc in dists[:1]:
+            if d < 70:
+                path = astar(tr, tc, mr, mc)
+                if path:
+                    path = smooth_path(path, 2)
+                    roads.append(('country_road', path))
+                    mark_road([(int(r), int(c)) for r, c in path], 0.3)
+
+    # Town-to-town connections (nearest neighbor only)
+    for i in range(len(towns)):
+        best_d = 9999
+        best_j = -1
+        for j in range(len(towns)):
+            if i == j:
+                continue
+            d = math.sqrt((towns[i][0] - towns[j][0])**2 +
+                          (towns[i][1] - towns[j][1])**2)
+            if d < best_d:
+                best_d = d
+                best_j = j
+        if best_j >= 0 and best_d < 40:
+            path = astar(towns[i][0], towns[i][1],
+                         towns[best_j][0], towns[best_j][1])
             if path:
+                path = smooth_path(path, 1)
+                roads.append(('country_road', path))
+                mark_road([(int(r), int(c)) for r, c in path], 0.2)
+
+    # === TIER 4: Trails — hamlets/villages to nearest town+ ===
+    all_connected = capitals + cities + towns
+    for hr, hc in hamlets + villages:
+        dists = [(math.sqrt((hr - ar)**2 + (hc - ac)**2), ar, ac)
+                 for ar, ac in all_connected]
+        dists.sort()
+        if dists and dists[0][0] < 40:
+            d, ar, ac = dists[0]
+            path = astar(hr, hc, ar, ac)
+            if path:
+                path = smooth_path(path, 1)
                 roads.append(('trail', path))
 
     return roads
@@ -1045,31 +1141,47 @@ class MapRenderer:
         return x, y
 
     def render_parchment(self, rng):
-        """Draw base parchment texture using numpy for speed."""
+        """Draw rich, aged parchment texture with grain, stains, and weathering."""
         pixels = np.array(self.img, dtype=np.float64)
 
-        # Generate noise fields using numpy for speed
         ys, xs = np.mgrid[0:self.H, 0:self.W]
         nxs = xs / self.W
         nys = ys / self.H
 
-        # Use vectorized random for paper grain
-        grain = rng._np_rng.normal(0, 8, (self.H, self.W))
+        # Fine paper grain
+        grain = rng._np_rng.normal(0, 7, (self.H, self.W))
         grain = ndimage.gaussian_filter(grain, sigma=2)
 
-        # Age stains — large blotches
-        stain_x = np.sin(nxs * 3.7 + nys * 2.3) * np.cos(nxs * 1.8 - nys * 4.1)
-        stain = (stain_x * 12).clip(-15, 15)
+        # Coarse fiber texture — larger scale grain
+        fiber = rng._np_rng.normal(0, 4, (self.H, self.W))
+        fiber = ndimage.gaussian_filter(fiber, sigma=8)
 
-        # Vignette
+        # Age stains — large organic blotches
+        stain_x = np.sin(nxs * 3.7 + nys * 2.3) * np.cos(nxs * 1.8 - nys * 4.1)
+        stain2 = np.sin(nxs * 5.2 - nys * 1.4) * np.cos(nxs * 2.7 + nys * 3.8)
+        stain = ((stain_x + stain2 * 0.5) * 10).clip(-15, 15)
+
+        # Foxing spots — small brown age spots scattered across the surface
+        fox_noise = rng._np_rng.random_sample((self.H // 8, self.W // 8))
+        fox_spots = ndimage.zoom(fox_noise, (self.H / (self.H // 8), self.W / (self.W // 8)), order=1)
+        fox_spots = (fox_spots > 0.92).astype(np.float64) * 8
+        fox_spots = ndimage.gaussian_filter(fox_spots, sigma=3)
+
+        # Edge darkening/weathering — darker toward edges (in addition to vignette)
+        edge_dist_x = np.minimum(nxs, 1 - nxs) * 2  # 0 at edges, 1 at center
+        edge_dist_y = np.minimum(nys, 1 - nys) * 2
+        edge_factor = np.clip(edge_dist_x * edge_dist_y, 0, 1)
+        edge_darken = (1 - edge_factor) * 15  # up to 15 darker at edges
+
+        # Vignette — soft corners
         dx = (nxs - 0.5) * 2
         dy = (nys - 0.5) * 2
-        vignette = np.clip(1.0 - (dx * dx + dy * dy) * 0.15, 0.7, 1.0)
+        vignette = np.clip(1.0 - (dx * dx + dy * dy) * 0.18, 0.68, 1.0)
 
-        # Base parchment colors — warm golden tone (matching C# reference)
-        pixels[:, :, 0] = np.clip((200 + grain + stain) * vignette, 0, 255)
-        pixels[:, :, 1] = np.clip((176 + grain * 0.85 + stain * 0.8) * vignette, 0, 255)
-        pixels[:, :, 2] = np.clip((95 + grain * 0.55 + stain * 0.4) * vignette, 0, 255)
+        # Base parchment colors — warm golden tone
+        pixels[:, :, 0] = np.clip((200 + grain + fiber + stain - fox_spots - edge_darken) * vignette, 0, 255)
+        pixels[:, :, 1] = np.clip((176 + grain * 0.85 + fiber * 0.8 + stain * 0.8 - fox_spots * 0.9 - edge_darken * 0.9) * vignette, 0, 255)
+        pixels[:, :, 2] = np.clip((95 + grain * 0.55 + fiber * 0.5 + stain * 0.4 - fox_spots * 0.5 - edge_darken * 0.6) * vignette, 0, 255)
         pixels[:, :, 3] = 255
 
         self.img = Image.fromarray(pixels.astype(np.uint8))
@@ -1145,7 +1257,8 @@ class MapRenderer:
         self.draw = ImageDraw.Draw(self.img)
 
     def render_coastlines(self, hmap, rng):
-        """Render smooth coastline outlines with hachures using pixel-level contours."""
+        """Render coastlines with a clean bold outline and subtle inner shading —
+        no random hachure lines, just smooth graduated shadow on the land side."""
         overlay = Image.new('RGBA', (self.W, self.H), (0, 0, 0, 0))
         ov_draw = ImageDraw.Draw(overlay)
         ink = (26, 16, 5)
@@ -1157,222 +1270,253 @@ class MapRenderer:
         hmap_px = ndimage.zoom(hmap, (map_h / GRID_ROWS, map_w / GRID_COLS), order=1)
         hmap_smooth = ndimage.gaussian_filter(hmap_px, sigma=4.0)
 
-        # Extract coastline boundary at pixel level
+        # Create land mask and compute distance from coastline into land
         land_mask = hmap_smooth >= WATER_LEVEL
-        # Dilate then XOR to get 1-pixel boundary
-        dilated = ndimage.binary_dilation(land_mask, iterations=1)
-        eroded = ndimage.binary_erosion(land_mask, iterations=1)
-        coast_border = dilated & ~eroded  # coastal zone
+        # Distance from coast INTO land (for inner shadow)
+        land_dist = ndimage.distance_transform_edt(land_mask).astype(np.float32)
+        # Distance from coast INTO water (for outer glow)
+        water_dist = ndimage.distance_transform_edt(~land_mask).astype(np.float32)
 
-        # Draw smooth coastline — thick ink dots along border pixels
-        # Subsample to avoid drawing every single pixel (too dense)
-        coast_pixels = []
-        step = 2  # every 2nd pixel
+        # Inner coast shadow — subtle darkening gradient on land near coast
+        # This creates the smooth shading effect without random lines
+        ov_arr = np.array(overlay)
+        max_shadow_dist = 18  # pixels of shadow into land
+        for py in range(min(land_mask.shape[0], map_h)):
+            sy = py + MARGIN
+            if sy >= self.H:
+                continue
+            for px in range(min(land_mask.shape[1], map_w)):
+                sx = px + MARGIN
+                if sx >= self.W:
+                    continue
+                ld = land_dist[py, px]
+                if land_mask[py, px] and ld < max_shadow_dist and ld > 0:
+                    # Smooth falloff from coast inward
+                    t = 1.0 - (ld / max_shadow_dist)
+                    t = t * t  # quadratic falloff for subtlety
+                    alpha = int(t * 55)  # subtle — max 55 alpha
+                    if alpha > 0:
+                        ov_arr[sy, sx] = (ink[0], ink[1], ink[2], alpha)
+
+        overlay = Image.fromarray(ov_arr, 'RGBA')
+        ov_draw = ImageDraw.Draw(overlay)
+
+        # Extract coastline boundary at pixel level for the bold outline
+        dilated = ndimage.binary_dilation(land_mask, iterations=2)
+        eroded = ndimage.binary_erosion(land_mask, iterations=1)
+        coast_border = dilated & ~eroded
+
+        # Draw clean bold coastline — no hachures, just a strong smooth line
+        step = 1
         for py in range(0, min(land_mask.shape[0], map_h), step):
             for px in range(0, min(land_mask.shape[1], map_w), step):
                 if coast_border[py, px]:
                     sx = px + MARGIN
                     sy = py + MARGIN
-                    coast_pixels.append((sx, sy, px, py))
-
-        # Draw main coastline — bold connected outline
-        for sx, sy, px, py in coast_pixels:
-            ov_draw.ellipse([sx - 1, sy - 1, sx + 2, sy + 2],
-                             fill=ink + (210,))
-
-        # Compute water direction for hachures using gradient
-        # Gradient of heightmap points from water → land (uphill)
-        gy_field, gx_field = np.gradient(hmap_smooth)
-
-        # Draw hachure marks pointing seaward
-        for sx, sy, px, py in coast_pixels:
-            h = _hash2d(sx * 7, sy * 11, rng.seed)
-            if h < 0.4:
-                continue  # skip some for variation
-
-            # Water direction = negative gradient (downhill toward water)
-            if 0 <= py < gy_field.shape[0] and 0 <= px < gx_field.shape[1]:
-                wx = -gx_field[py, px]
-                wy = -gy_field[py, px]
-                length = math.sqrt(wx * wx + wy * wy)
-                if length > 0.001:
-                    wx /= length
-                    wy /= length
-                    hlen = 4 + h * 7
-                    hsx = int(sx + wx * 2)
-                    hsy = int(sy + wy * 2)
-                    hex_ = int(hsx + wx * hlen)
-                    hey = int(hsy + wy * hlen)
-                    alpha = int(80 + h * 70)
-                    ov_draw.line([(hsx, hsy), (hex_, hey)],
-                                  fill=ink + (alpha,), width=1)
-
-        # Parallel shore lines (wave effect)
-        for offset in [6, 12, 19]:
-            for sx, sy, px, py in coast_pixels:
-                h = _hash2d(sx * 5 + offset * 3, sy * 9, rng.seed + offset)
-                if h > 0.45:
-                    continue
-                if 0 <= py < gy_field.shape[0] and 0 <= px < gx_field.shape[1]:
-                    wx = -gx_field[py, px]
-                    wy = -gy_field[py, px]
-                    ln = math.sqrt(wx * wx + wy * wy)
-                    if ln > 0.001:
-                        wx /= ln
-                        wy /= ln
-                        osx = int(sx + wx * offset)
-                        osy = int(sy + wy * offset)
-                        # Perpendicular dash
-                        perp_x = -wy
-                        perp_y = wx
-                        dl = 2 + h * 3
-                        alpha = max(15, int(60 - offset * 2))
-                        ov_draw.line([
-                            (int(osx - perp_x * dl), int(osy - perp_y * dl)),
-                            (int(osx + perp_x * dl), int(osy + perp_y * dl))
-                        ], fill=ink + (alpha,), width=1)
+                    ov_draw.ellipse([sx - 1, sy - 1, sx + 1, sy + 1],
+                                     fill=ink + (200,))
 
         self.img = Image.alpha_composite(self.img, overlay)
         self.draw = ImageDraw.Draw(self.img)
 
-    def _draw_peak(self, ov_draw, x, y, height, is_snow, h_val, ink):
-        """Draw a single mountain peak — large, prominent triangles matching C# reference."""
-        # Very large peaks matching C# reference: base 24-52px wide, 45-85px tall
-        pw = int(24 + h_val * 18 + height * 16)
-        ph = int(45 + h_val * 28 + height * 22)
-        if is_snow:
-            ph += 10
+    def _draw_fantasy_peak(self, ov_draw, x, y, size, is_snow, h_val, ink, facing='left'):
+        """Draw a mountain peak in classic fantasy cartography style.
+        Triangular shape with shadow face, ridge outlines, detailed cross-hatching,
+        and organic irregularity. Inspired by Tolkien and professional D&D cartography.
+        """
+        size = int(max(15, size))
+        hw = int(size * 0.5)    # half-width at base
+        ph = int(size * 1.2)    # peak height
 
-        jx = int(x + (h_val * 100 % 11 - 5))
-        jy = int(y + (h_val * 100 % 7 - 3))
+        jx = int(x + (h_val * 100 % 5 - 2))
+        jy = int(y)
 
-        left = (jx - pw, jy + 3)
-        tip = (jx + int((h_val - 0.5) * 4), jy - ph)
-        right = (jx + pw, jy + 3)
+        # Slight asymmetry
+        tip_x = jx + int((h_val - 0.5) * 4)
+        tip_y = jy - ph
+        left_x = jx - hw - int(h_val * 3)
+        right_x = jx + hw + int((1 - h_val) * 2)
+        base_y = jy + 2
 
-        # Shadow side (left face) — darker fill for prominence
-        ov_draw.polygon([left, tip, (jx, jy + 3)], fill=ink + (90,))
-        # Light side (right face) — subtle fill
-        ov_draw.polygon([(jx, jy + 3), tip, right], fill=ink + (30,))
-        # Strong outline
-        ov_draw.line([left, tip, right], fill=ink + (240,), width=2)
-        # Base line
-        ov_draw.line([left, right], fill=ink + (140,), width=1)
-        # Cross-hatch lines on shadow side — more lines for detail
-        for i in range(3 + int(height * 3)):
-            t = 0.2 + i * 0.15
-            if t > 0.9:
-                break
-            hx1 = int(left[0] + (tip[0] - left[0]) * t)
-            hy1 = int(left[1] + (tip[1] - left[1]) * t)
-            hx2 = int(jx + (tip[0] - jx) * max(0, t - 0.05))
-            hy2 = int(jy + 3 + (tip[1] - jy - 3) * max(0, t - 0.05))
-            ov_draw.line([(hx1, hy1), (hx2, hy2)], fill=ink + (100,), width=1)
+        # Filled shadow face (left side) — clean gradient feel
+        shadow = [(left_x, base_y), (tip_x, tip_y), (jx, base_y)]
+        ov_draw.polygon(shadow, fill=ink + (50,))
 
-        if is_snow:
-            snow_y = int(jy - ph + ph * 0.25)
-            ov_draw.polygon([tip, (jx - int(pw * 0.3), snow_y),
-                             (jx + int(pw * 0.25), snow_y)],
-                            fill=(230, 225, 210, 220))
+        # Ridge outlines — the key structural lines of each peak
+        ov_draw.line([(left_x, base_y), (tip_x, tip_y)],
+                      fill=ink + (210,), width=2)
+        ov_draw.line([(tip_x, tip_y), (right_x, base_y)],
+                      fill=ink + (130,), width=1)
+
+        # A few fine hatch lines on shadow face for larger peaks only
+        if size > 28:
+            num_hatch = max(2, min(4, size // 18))
+            for i in range(num_hatch):
+                t = 0.3 + (i / max(1, num_hatch)) * 0.5
+                sx = int(left_x + (tip_x - left_x) * t)
+                sy = int(base_y + (tip_y - base_y) * t)
+                width_frac = 1.0 - t * 0.6
+                ex = int(sx + hw * width_frac * 0.3)
+                ey = sy + int(2 * width_frac)
+                ov_draw.line([(sx, sy), (ex, ey)], fill=ink + (40,), width=1)
+
+        # Snow cap — subtle highlight, not a white blob
+        if is_snow and ph > 25:
+            snow_line = int(tip_y + ph * 0.15)
+            sw_l = int(hw * 0.18)
+            sw_r = int(hw * 0.12)
+            ov_draw.polygon([(tip_x, tip_y),
+                             (tip_x - sw_l, snow_line),
+                             (tip_x + sw_r, snow_line)],
+                            fill=(215, 210, 195, 110))
+
+    def _draw_hill_bump(self, ov_draw, x, y, size, h_val, ink):
+        """Draw a small rounded hill bump — gentle arc with light shading."""
+        hw = int(size * 0.7)
+        hh = int(size * 0.35)
+        ix, iy = int(x), int(y)
+
+        # Simple arc shape
+        pts = []
+        for i in range(9):
+            t = i / 8.0
+            angle = math.pi * t
+            px = ix - hw + int(2 * hw * t)
+            py = iy - int(math.sin(angle) * hh)
+            pts.append((px, py))
+
+        if len(pts) >= 2:
+            ov_draw.line(pts, fill=ink + (100,), width=1)
+            # Subtle shadow on left
+            shadow_pts = pts[:5]
+            if len(shadow_pts) >= 2:
+                for sp in shadow_pts[1:]:
+                    ov_draw.line([(sp[0], sp[1]), (sp[0], iy)],
+                                  fill=ink + (20,), width=1)
 
     def render_mountains(self, hmap, biomes, ridgelines, rng):
-        """Draw mountain ranges as connected chains along ridgelines."""
+        """Draw mountains as natural hand-drawn fantasy peaks along ridgeline paths.
+        Uses varied sizes, overlapping depth ordering, and organic spacing."""
         overlay = Image.new('RGBA', (self.W, self.H), (0, 0, 0, 0))
         ov_draw = ImageDraw.Draw(overlay)
         ink = (26, 16, 5)
 
-        # Draw mountain peaks along ridgelines — connected ranges
-        drawn_positions = set()  # avoid overlapping peaks
-        min_spacing = 45  # minimum pixels between peak centers (very large peaks)
+        # Collect all peaks to draw, then sort back-to-front (top to bottom)
+        # so peaks in front overlap those behind
+        peaks_to_draw = []
+
+        # 1. Place peaks along ridgelines
+        drawn_grid = set()  # track grid cells used
 
         for ridge in ridgelines:
             if len(ridge) < 2:
                 continue
 
-            # Sample peaks along the ridge at regular intervals
+            # Walk along ridge, placing peaks at natural intervals
             accumulated_dist = 0
-            last_peak_x, last_peak_y = None, None
+            last_x, last_y = None, None
+            ridge_peak_count = 0
 
             for idx in range(len(ridge)):
                 r, c = ridge[idx]
                 x, y = self.cell_to_screen(c, r)
 
-                if last_peak_x is not None:
-                    dx = x - last_peak_x
-                    dy = y - last_peak_y
+                if last_x is not None:
+                    dx = x - last_x
+                    dy = y - last_y
                     accumulated_dist += math.sqrt(dx * dx + dy * dy)
-                    if accumulated_dist < min_spacing:
-                        continue
-
-                # Check not too close to existing peaks
-                too_close = False
-                for px, py in drawn_positions:
-                    if abs(x - px) + abs(y - py) < min_spacing:
-                        too_close = True
-                        break
-                if too_close:
-                    continue
 
                 h_val = _hash2d(int(x * 7), int(y * 13), rng.seed + 50)
-                height_factor = min(1.0, (hmap[r, c] - 0.55) / 0.35) if hmap[r, c] > 0.55 else 0.2
+                height_factor = min(1.0, (hmap[r, c] - 0.52) / 0.38) if hmap[r, c] > 0.52 else 0.15
                 is_snow = biomes[r, c] == 'snow_peak'
 
-                self._draw_peak(ov_draw, x, y, height_factor, is_snow, h_val, ink)
-                drawn_positions.add((x, y))
-                last_peak_x, last_peak_y = x, y
+                # Wide spacing — prominent peaks, not a field of tiny marks
+                base_spacing = 85 + height_factor * 25
+                jitter = h_val * 14 - 7
+                min_spacing = base_spacing + jitter
+
+                if last_x is not None and accumulated_dist < min_spacing:
+                    continue
+
+                # Sized so adjacent peaks don't overlap heavily
+                base_size = 32 + height_factor * 38 + h_val * 12
+                # Peaks at ridge center are larger
+                if len(ridge) > 4:
+                    center_t = abs(idx / len(ridge) - 0.5) * 2
+                    base_size *= (0.75 + (1.0 - center_t) * 0.35)
+
+                peaks_to_draw.append((y, x, y, base_size, is_snow, h_val, r, c))
+                drawn_grid.add((r, c))
+                last_x, last_y = x, y
                 accumulated_dist = 0
+                ridge_peak_count += 1
 
-            # Draw subtle ridge connection lines between peaks along this ridge
-            ridge_screen = [(self.cell_to_screen(c, r)) for r, c in ridge]
-            if len(ridge_screen) > 2:
-                for i in range(1, len(ridge_screen)):
-                    x1, y1 = ridge_screen[i - 1]
-                    x2, y2 = ridge_screen[i]
-                    h = _hash2d(int(x1 * 3), int(y1 * 5), rng.seed + 60)
-                    if h > 0.6:  # subtle broken connection
-                        ov_draw.line([(int(x1), int(y1 + 12)),
-                                       (int(x2), int(y2 + 12))],
-                                      fill=ink + (30,), width=1)
-
-        # Also draw scattered hills from hill biome (not in ridgelines)
+        # 2. Add smaller foothills/scattered peaks in mountain biome cells not on ridges
         for r in range(0, GRID_ROWS, 6):
             for c in range(0, GRID_COLS, 6):
+                if biomes[r, c] not in ('mountain', 'snow_peak'):
+                    continue
+                if (r, c) in drawn_grid:
+                    continue
+                x, y = self.cell_to_screen(c, r)
+                near_ridge = False
+                for _, px, py, *_ in peaks_to_draw:
+                    if abs(x - px) + abs(y - py) < 70:
+                        near_ridge = True
+                        break
+                if near_ridge:
+                    continue
+
+                h_val = _hash2d(int(x * 7), int(y * 13), rng.seed + 55)
+                if h_val < 0.4:
+                    continue
+                height_factor = min(1.0, (hmap[r, c] - 0.52) / 0.38) if hmap[r, c] > 0.52 else 0.1
+                is_snow = biomes[r, c] == 'snow_peak'
+                base_size = 22 + height_factor * 25 + h_val * 8
+                peaks_to_draw.append((y, x, y, base_size, is_snow, h_val, r, c))
+
+        # Sort by y-position (back to front) so closer peaks overlap farther ones
+        peaks_to_draw.sort(key=lambda p: p[0])
+
+        for _, x, y, size, is_snow, h_val, r, c in peaks_to_draw:
+            self._draw_fantasy_peak(ov_draw, x, y, size, is_snow, h_val, ink)
+
+        # 3. Hill bumps for hill biome cells — smaller rounded peaks
+        for r in range(0, GRID_ROWS, 7):
+            for c in range(0, GRID_COLS, 7):
                 if biomes[r, c] != 'hills':
                     continue
                 x, y = self.cell_to_screen(c, r)
-                # Skip if near a ridge peak
-                too_close = False
-                for px, py in drawn_positions:
-                    if abs(x - px) + abs(y - py) < 25:
-                        too_close = True
+                near_peak = False
+                for _, px, py, *_ in peaks_to_draw:
+                    if abs(x - px) + abs(y - py) < 40:
+                        near_peak = True
                         break
-                if too_close:
+                if near_peak:
                     continue
 
-                h = _hash2d(int(x * 7), int(y * 13), rng.seed + 55)
-                if h < 0.4:
+                h = _hash2d(int(x * 7), int(y * 13), rng.seed + 57)
+                if h < 0.45:
                     continue
-                hw = int(6 + h * 5)
-                hh = int(3 + h * 3)
-                ix, iy = int(x), int(y)
-                pts = [
-                    (ix - hw, iy + 2),
-                    (ix - int(hw * 0.3), iy - int(hh * 0.6)),
-                    (ix, iy - hh),
-                    (ix + int(hw * 0.3), iy - int(hh * 0.6)),
-                    (ix + hw, iy + 2),
-                ]
-                ov_draw.line(pts, fill=ink + (90,), width=1)
+                bump_size = 15 + h * 12
+                self._draw_hill_bump(ov_draw, x, y, bump_size, h, ink)
 
         self.img = Image.alpha_composite(self.img, overlay)
         self.draw = ImageDraw.Draw(self.img)
 
     def render_forests(self, hmap, biomes, coast_dist, rng):
-        """Render forest dots — dense near coast, sparse inland. C# reference style."""
+        """Render forest as organic, uneven stipple clusters.
+        Uses a two-level approach: decide cluster density per cell,
+        then scatter dots in irregular clumps within each cell.
+        Dense near coast, sparser inland — organic grouping with gaps."""
         overlay = Image.new('RGBA', (self.W, self.H), (0, 0, 0, 0))
         ov_draw = ImageDraw.Draw(overlay)
         is_land = hmap >= WATER_LEVEL
         ink = (26, 16, 5)
+
+        # Use a noise field to create organic clustering — some cells
+        # get extra dots, some get gaps, regardless of biome regularity
+        cluster_seed = rng.seed + 700
 
         for r in range(GRID_ROWS):
             for c in range(GRID_COLS):
@@ -1385,67 +1529,80 @@ class MapRenderer:
                 x, y = self.cell_to_screen(c, r)
                 cd = coast_dist[r, c]
 
-                # Determine dot density — match C# reference's dense stippling
-                # near coasts creating almost solid dark bands, sparser inland
+                # Cluster noise — creates organic gaps and dense patches
+                cn = _hash2d(c * 3, r * 5, cluster_seed)
+                cluster_mult = 0.4 + cn * 1.2  # 0.4 to 1.6x density
+
+                # Base density by biome and coast distance
                 if b == 'dense_forest':
-                    num_dots = 10 if cd < 3 else 8 if cd < 6 else 6 if cd < 10 else 4 if cd < 18 else 3
-                    dot_alpha = 220 if cd < 3 else 190 if cd < 6 else 160 if cd < 10 else 130
-                    dot_r = 2.2 if cd < 4 else 1.9 if cd < 8 else 1.6
+                    base = 9 if cd < 3 else 7 if cd < 6 else 5 if cd < 10 else 3
+                    alpha = 210 if cd < 3 else 180 if cd < 6 else 150 if cd < 10 else 120
+                    dr = 2.0 if cd < 4 else 1.7
                 elif b == 'forest':
-                    num_dots = 8 if cd < 3 else 6 if cd < 5 else 4 if cd < 10 else 3 if cd < 15 else 2
-                    dot_alpha = 200 if cd < 3 else 170 if cd < 6 else 140 if cd < 10 else 100
-                    dot_r = 2.0 if cd < 4 else 1.7 if cd < 8 else 1.5
+                    base = 7 if cd < 3 else 5 if cd < 5 else 3 if cd < 10 else 2
+                    alpha = 190 if cd < 3 else 160 if cd < 6 else 130 if cd < 10 else 90
+                    dr = 1.8 if cd < 4 else 1.5
                 elif b in ('grassland', 'plains', 'hills'):
                     if cd < 3:
-                        num_dots = 6
-                        dot_alpha = 170
-                        dot_r = 1.8
+                        base, alpha, dr = 5, 160, 1.7
                     elif cd < 5:
-                        num_dots = 4
-                        dot_alpha = 140
-                        dot_r = 1.6
+                        base, alpha, dr = 3, 130, 1.5
                     elif cd < 10:
-                        num_dots = 3
-                        dot_alpha = 90
-                        dot_r = 1.3
+                        base, alpha, dr = 2, 80, 1.2
                     else:
-                        h = _hash2d(c, r, rng.seed + 700)
-                        num_dots = 1 if h > 0.4 else 0
-                        dot_alpha = 50
-                        dot_r = 1.1
+                        base, alpha, dr = 1 if cn > 0.6 else 0, 45, 1.0
                 elif b == 'mountain':
-                    h = _hash2d(c, r, rng.seed + 705)
-                    num_dots = 1 if h > 0.55 else 0
-                    dot_alpha = 55
-                    dot_r = 1.2
+                    base = 1 if cn > 0.7 else 0
+                    alpha, dr = 50, 1.1
                 elif b == 'tundra':
-                    h = _hash2d(c, r, rng.seed + 710)
-                    num_dots = 1 if h > 0.6 else 0
-                    dot_alpha = 55
-                    dot_r = 1.2
+                    base = 1 if cn > 0.75 else 0
+                    alpha, dr = 45, 1.0
                 else:
                     continue
 
-                for i in range(num_dots):
-                    jh = _hash2d(c * 17 + i * 31, r * 23 + i * 47, rng.seed + 720)
-                    jx = x + (jh - 0.5) * CELL_W * 1.5
-                    jy = y + (_hash2d(c * 29 + i * 41, r * 37 + i * 53,
-                                      rng.seed + 730) - 0.5) * CELL_H * 1.5
-                    rr = dot_r + (jh - 0.5) * 0.6
-                    ix, iy = int(jx), int(jy)
+                num_dots = int(base * cluster_mult)
+                if num_dots <= 0:
+                    continue
 
-                    ov_draw.ellipse(
-                        [ix - int(rr), iy - int(rr), ix + int(rr + 0.5), iy + int(rr + 0.5)],
-                        fill=ink + (dot_alpha,)
-                    )
+                # Place dots in organic sub-clusters within the cell
+                # Pick 1-3 cluster centers, then scatter dots around them
+                n_clusters = 1 + (1 if num_dots > 4 else 0) + (1 if num_dots > 7 else 0)
+                dots_per_cluster = max(1, num_dots // n_clusters)
+
+                for ci in range(n_clusters):
+                    # Cluster center — jittered within cell
+                    ch = _hash2d(c * 13 + ci * 37, r * 19 + ci * 43, cluster_seed + 10)
+                    ch2 = _hash2d(c * 23 + ci * 41, r * 29 + ci * 47, cluster_seed + 20)
+                    cx = x + (ch - 0.5) * CELL_W * 1.3
+                    cy = y + (ch2 - 0.5) * CELL_H * 1.3
+
+                    for di in range(dots_per_cluster):
+                        dh = _hash2d(c * 17 + ci * 31 + di * 53, r * 23 + ci * 47 + di * 61,
+                                      cluster_seed + 30)
+                        dh2 = _hash2d(c * 29 + ci * 41 + di * 59, r * 37 + ci * 53 + di * 67,
+                                       cluster_seed + 40)
+                        # Scatter within cluster radius (tighter clustering)
+                        scatter = CELL_W * 0.6
+                        jx = cx + (dh - 0.5) * scatter
+                        jy = cy + (dh2 - 0.5) * scatter
+                        rr = dr + (dh - 0.5) * 0.8
+                        ix, iy = int(jx), int(jy)
+                        da = int(alpha * (0.7 + dh * 0.6))  # vary alpha per dot
+
+                        ov_draw.ellipse(
+                            [ix - int(rr), iy - int(rr),
+                             ix + int(rr + 0.5), iy + int(rr + 0.5)],
+                            fill=ink + (min(255, da),)
+                        )
 
         self.img = Image.alpha_composite(self.img, overlay)
         self.draw = ImageDraw.Draw(self.img)
 
     def render_rivers(self, rivers, hmap):
-        """Render river paths as flowing ink lines."""
+        """Render river paths as flowing ink lines with delta widening at mouths."""
         overlay = Image.new('RGBA', (self.W, self.H), (0, 0, 0, 0))
         ov_draw = ImageDraw.Draw(overlay)
+        is_water = hmap < WATER_LEVEL
 
         # Sort rivers by length (draw short ones first, long ones on top)
         sorted_rivers = sorted(rivers, key=lambda p: len(p))
@@ -1453,18 +1610,29 @@ class MapRenderer:
         for path in sorted_rivers:
             if len(path) < 5:
                 continue
+
+            # Check if river ends at water (mouth/delta)
+            last_r, last_c = path[-1]
+            reaches_water = (0 <= last_r < GRID_ROWS and 0 <= last_c < GRID_COLS
+                             and is_water[last_r, last_c])
+
             # Convert to screen coords
             points = []
             for r, c in path:
                 x, y = self.cell_to_screen(c, r)
                 points.append((int(x), int(y)))
 
-            # Draw river — thin at source, wider at mouth
             n = len(points)
             for i in range(1, n):
                 t = i / n
-                width = max(1, int(1.5 + t * 4.5))  # up to 6px wide at mouth
-                alpha = int(180 + t * 75)
+                # Width: thin at source, wider at mouth
+                base_width = 1.5 + t * 4.0
+                # Delta widening — last 15% of river gets extra wide if it reaches water
+                if reaches_water and t > 0.85:
+                    delta_t = (t - 0.85) / 0.15  # 0→1 in last 15%
+                    base_width += delta_t * 4  # extra 4px widening
+                width = max(1, int(base_width))
+                alpha = int(180 + t * 70)
                 ov_draw.line([points[i - 1], points[i]],
                               fill=(26, 16, 5, min(255, alpha)), width=width)
 
@@ -1472,47 +1640,109 @@ class MapRenderer:
         self.draw = ImageDraw.Draw(self.img)
 
     def render_roads(self, roads):
-        """Render road network with dashed lines."""
-        overlay = Image.new('RGBA', (self.W, self.H), (0, 0, 0, 0))
-        ov_draw = ImageDraw.Draw(overlay)
+        """Render road network with distinct visual styles per road type.
+        Uses separate mask layers per tier so overlapping roads don't compound darkness.
+
+        - King's Roads: bold solid line, the main highways
+        - Trade Routes: solid single line, medium weight
+        - Country Roads: dashed line, lighter
+        - Trails: dotted line, very light
+        """
         ink = (26, 16, 5)
 
+        # Group roads by type, draw each tier to its own mask to prevent
+        # alpha stacking where routes share segments
+        type_order = {'trail': 0, 'country_road': 1, 'trade_route': 2, 'kings_road': 3,
+                      'major': 3, 'road': 2}
+        tiers = {'trail': [], 'country_road': [], 'trade_route': [], 'kings_road': []}
         for road_type, path in roads:
             if len(path) < 2:
                 continue
-            points = []
-            for r, c in path:
-                x, y = self.cell_to_screen(c, r)
-                points.append((int(x), int(y)))
+            # Normalize type
+            if road_type in ('major',):
+                road_type = 'kings_road'
+            elif road_type in ('road',):
+                road_type = 'trade_route'
+            key = road_type if road_type in tiers else 'trail'
+            tiers[key].append(path)
 
-            if road_type == 'major':
-                dash_len, gap_len = 8, 3
-                width = 2
-                alpha = 160
-            elif road_type == 'road':
-                dash_len, gap_len = 6, 4
-                width = 2
-                alpha = 130
-            else:
-                dash_len, gap_len = 4, 5
-                width = 1
-                alpha = 90
+        # Draw each tier to a grayscale mask, then composite as colored overlay
+        for tier_name in ['trail', 'country_road', 'trade_route', 'kings_road']:
+            paths = tiers[tier_name]
+            if not paths:
+                continue
 
-            total_dist = 0
-            for i in range(1, len(points)):
-                dx = points[i][0] - points[i - 1][0]
-                dy = points[i][1] - points[i - 1][1]
-                seg_len = math.sqrt(dx * dx + dy * dy)
-                if seg_len < 0.5:
+            mask = Image.new('L', (self.W, self.H), 0)
+            m_draw = ImageDraw.Draw(mask)
+
+            for path in paths:
+                points = []
+                for r, c in path:
+                    x, y = self.cell_to_screen(c, r)
+                    points.append((int(x), int(y)))
+                deduped = [points[0]]
+                for p in points[1:]:
+                    if p != deduped[-1]:
+                        deduped.append(p)
+                points = deduped
+                if len(points) < 2:
                     continue
-                cycle = dash_len + gap_len
-                pos_in_cycle = total_dist % cycle
-                if pos_in_cycle < dash_len:
-                    ov_draw.line([points[i - 1], points[i]],
-                                  fill=ink + (alpha,), width=width)
-                total_dist += seg_len
 
-        self.img = Image.alpha_composite(self.img, overlay)
+                if tier_name == 'kings_road':
+                    m_draw.line(points, fill=255, width=3)
+
+                elif tier_name == 'trade_route':
+                    m_draw.line(points, fill=255, width=2)
+
+                elif tier_name == 'country_road':
+                    # Dashed line
+                    total_dist = 0
+                    dash_len, gap_len = 10, 5
+                    for i in range(1, len(points)):
+                        dx = points[i][0] - points[i-1][0]
+                        dy = points[i][1] - points[i-1][1]
+                        seg_len = math.sqrt(dx*dx + dy*dy)
+                        if seg_len < 0.5:
+                            continue
+                        total_dist += seg_len
+                        cycle = dash_len + gap_len
+                        if total_dist % cycle < dash_len:
+                            m_draw.line([points[i-1], points[i]], fill=255, width=1)
+
+                else:  # trail
+                    total_dist = 0
+                    dot_spacing = 8
+                    last_dot = -dot_spacing
+                    for i in range(1, len(points)):
+                        dx = points[i][0] - points[i-1][0]
+                        dy = points[i][1] - points[i-1][1]
+                        seg_len = math.sqrt(dx*dx + dy*dy)
+                        total_dist += seg_len
+                        if total_dist - last_dot >= dot_spacing:
+                            cx, cy = points[i]
+                            m_draw.ellipse([cx-1, cy-1, cx+1, cy+1], fill=255)
+                            last_dot = total_dist
+
+            # Choose alpha per tier
+            tier_alpha = {'kings_road': 140, 'trade_route': 110,
+                          'country_road': 85, 'trail': 55}
+            alpha = tier_alpha.get(tier_name, 80)
+
+            # Scale mask to target alpha (mask is 0-255, we want 0-alpha)
+            mask_arr = np.array(mask, dtype=np.float32)
+            mask_arr = (mask_arr / 255.0 * alpha).clip(0, 255).astype(np.uint8)
+
+            overlay = Image.new('RGBA', (self.W, self.H), (0, 0, 0, 0))
+            overlay.putalpha(Image.fromarray(mask_arr))
+            # Set the RGB channels to ink color
+            r_ch, g_ch, b_ch, a_ch = overlay.split()
+            ink_layer = Image.new('L', (self.W, self.H), ink[0])
+            ink_layer_g = Image.new('L', (self.W, self.H), ink[1])
+            ink_layer_b = Image.new('L', (self.W, self.H), ink[2])
+            overlay = Image.merge('RGBA', (ink_layer, ink_layer_g, ink_layer_b,
+                                           Image.fromarray(mask_arr)))
+            self.img = Image.alpha_composite(self.img, overlay)
+
         self.draw = ImageDraw.Draw(self.img)
 
     def render_lakes(self, lakes, hmap, rng):
@@ -1616,59 +1846,130 @@ class MapRenderer:
         self.draw = ImageDraw.Draw(self.img)
 
     def render_settlements(self, settlements, rng):
-        """Render settlement icons and labels."""
-        # Draw on an overlay for proper alpha compositing
+        """Render settlement icons and labels with distinct symbols per type.
+        Includes label overlap prevention — tracks placed label bounds."""
         overlay = Image.new('RGBA', (self.W, self.H), (0, 0, 0, 0))
         ov_draw = ImageDraw.Draw(overlay)
+        parch = (200, 180, 130)
 
-        for r, c, stype, name in settlements:
+        # Track placed labels for overlap prevention
+        placed_labels = []  # list of (x1, y1, x2, y2)
+
+        def label_overlaps(x1, y1, x2, y2):
+            pad = 3  # small padding between labels
+            for lx1, ly1, lx2, ly2 in placed_labels:
+                if (x1 - pad < lx2 and x2 + pad > lx1 and
+                        y1 - pad < ly2 and y2 + pad > ly1):
+                    return True
+            return False
+
+        # Sort by importance — capitals first, then cities, towns, etc.
+        type_priority = {'capital': 0, 'city': 1, 'town': 2, 'hamlet': 3, 'village': 4}
+        sorted_settlements = sorted(settlements, key=lambda s: type_priority.get(s[2], 5))
+
+        for r, c, stype, name in sorted_settlements:
             x, y = self.cell_to_screen(c, r)
             ix, iy = int(x), int(y)
+            ink = (26, 16, 5)
 
             if stype == 'capital':
+                # Star icon — large, prominent
+                s = 8
+                # Outer square
+                ov_draw.rectangle([ix - s, iy - s, ix + s, iy + s],
+                                   outline=ink + (240,), width=2)
+                # Inner square
+                si = s - 3
+                ov_draw.rectangle([ix - si, iy - si, ix + si, iy + si],
+                                   outline=ink + (200,), width=1)
+                # Center cross
+                ov_draw.line([(ix - 3, iy), (ix + 3, iy)], fill=ink + (200,), width=1)
+                ov_draw.line([(ix, iy - 3), (ix, iy + 3)], fill=ink + (200,), width=1)
+                # Corner towers (small squares at corners)
+                for cx, cy in [(ix-s, iy-s), (ix+s, iy-s), (ix-s, iy+s), (ix+s, iy+s)]:
+                    ov_draw.rectangle([cx-2, cy-2, cx+2, cy+2], fill=ink + (180,))
+                font = self.font_capital
+                label_offset = s + 10
+            elif stype == 'city':
+                # Walled city icon — filled square with crenellations
                 s = 6
                 ov_draw.rectangle([ix - s, iy - s, ix + s, iy + s],
-                                   outline=(26, 16, 5, 240), width=2)
-                ov_draw.rectangle([ix - s - 2, iy - s - 2, ix + s + 2, iy + s + 2],
-                                   outline=(26, 16, 5, 180), width=1)
-                font = self.font_capital
-                label_offset = s + 8
-            elif stype == 'city':
-                s = 4
-                ov_draw.rectangle([ix - s, iy - s, ix + s, iy + s],
-                                   outline=(26, 16, 5, 220), width=1,
-                                   fill=(196, 168, 90, 220))
+                                   fill=parch + (230,), outline=ink + (220,), width=2)
+                # Crenellation bumps on top
+                for bx in range(ix - s, ix + s, 4):
+                    ov_draw.rectangle([bx, iy - s - 3, bx + 2, iy - s],
+                                       fill=ink + (180,))
+                # Gate mark on bottom
+                gw = 3
+                ov_draw.rectangle([ix - gw, iy + s - 2, ix + gw, iy + s + 1],
+                                   fill=ink + (160,))
                 font = self.font_city
-                label_offset = s + 6
+                label_offset = s + 8
             elif stype == 'town':
+                # Circle with center dot
+                s = 5
+                ov_draw.ellipse([ix - s, iy - s, ix + s, iy + s],
+                                 outline=ink + (200,), width=2)
+                ov_draw.ellipse([ix - 2, iy - 2, ix + 2, iy + 2],
+                                 fill=ink + (180,))
+                font = self.font_town
+                label_offset = s + 7
+            elif stype == 'hamlet':
+                # Small filled circle
                 s = 3
                 ov_draw.ellipse([ix - s, iy - s, ix + s, iy + s],
-                                 fill=(26, 16, 5, 180))
-                font = self.font_town
+                                 fill=ink + (160,))
+                font = self.font_village  # same small font as village
                 label_offset = s + 5
             else:  # village
+                # Tiny open circle
                 s = 2
                 ov_draw.ellipse([ix - s, iy - s, ix + s, iy + s],
-                                 fill=(26, 16, 5, 140))
+                                 outline=ink + (140,), width=1)
                 font = self.font_village
                 label_offset = s + 4
 
             # Label with parchment halo for readability
+            # Skip labels for villages to reduce clutter
+            if stype == 'village':
+                continue
+
             bbox = font.getbbox(name)
             tw = bbox[2] - bbox[0]
+            th = bbox[3] - bbox[1]
             lx = int(x - tw / 2)
             ly = iy + label_offset
 
+            # Check label overlap — try below, then right, then above
+            label_placed = False
+            offsets = [(0, label_offset), (label_offset + 5, -th // 2),
+                       (0, -label_offset - th), (-tw - 5, -th // 2)]
+            for ox, oy in offsets:
+                test_lx = int(x - tw / 2) if ox == 0 else ix + ox
+                test_ly = iy + oy
+                if not label_overlaps(test_lx, test_ly, test_lx + tw, test_ly + th):
+                    lx, ly = test_lx, test_ly
+                    label_placed = True
+                    break
+
+            if not label_placed:
+                # Force place for capitals/cities, skip for others
+                if stype not in ('capital', 'city'):
+                    continue
+
+            # Record this label's bounds
+            placed_labels.append((lx, ly, lx + tw, ly + th))
+
             # Thick halo
-            halo = (196, 168, 90, 230)
-            for dx in range(-4, 5):
-                for dy in range(-3, 4):
-                    if dx * dx + dy * dy <= 20:
+            halo = parch + (230,)
+            for dx in range(-3, 4):
+                for dy in range(-2, 3):
+                    if dx * dx + dy * dy <= 12:
                         ov_draw.text((lx + dx, ly + dy), name,
                                       fill=halo, font=font)
             # Text
-            ink = (26, 16, 5, 230)
-            ov_draw.text((lx, ly), name, fill=ink, font=font)
+            text_alpha = 240 if stype in ('capital', 'city') else 200
+            ov_draw.text((lx, ly), name, fill=ink + (text_alpha,), font=font)
 
         self.img = Image.alpha_composite(self.img, overlay)
         self.draw = ImageDraw.Draw(self.img)
@@ -1849,8 +2150,8 @@ class MapRenderer:
 
     def render_legend(self, rng):
         """Render legend box in bottom-right."""
-        lw = 190
-        lh = 260
+        lw = 200
+        lh = 330
         lx = self.W - MARGIN - lw - 10
         ly = self.H - MARGIN - lh - 10
 
@@ -1867,14 +2168,17 @@ class MapRenderer:
 
         # Entries
         entries = [
-            ('Capital', 'square_double'),
-            ('City', 'square'),
-            ('Town', 'circle'),
-            ('Village', 'dot'),
+            ('Capital', 'capital'),
+            ('City', 'city'),
+            ('Town', 'town'),
+            ('Hamlet', 'hamlet'),
+            ('Village', 'village'),
             ('Mountain', 'triangle'),
             ('Forest', 'dots'),
             ('River', 'line'),
-            ('Road', 'dashed'),
+            ("King's Road", 'double_line'),
+            ('Trade Route', 'solid_line'),
+            ('Trail', 'dotted'),
         ]
 
         yoff = ly + 30
@@ -1882,36 +2186,49 @@ class MapRenderer:
             ix = lx + 18
             iy = yoff + 7
 
-            if symbol == 'square_double':
+            c = self.ink_color
+            if symbol == 'capital':
+                self.draw.rectangle([ix - 5, iy - 5, ix + 5, iy + 5],
+                                    outline=c + (220,), width=2)
+                self.draw.rectangle([ix - 3, iy - 3, ix + 3, iy + 3],
+                                    outline=c + (160,), width=1)
+                self.draw.line([(ix - 2, iy), (ix + 2, iy)], fill=c + (180,), width=1)
+                self.draw.line([(ix, iy - 2), (ix, iy + 2)], fill=c + (180,), width=1)
+            elif symbol == 'city':
                 self.draw.rectangle([ix - 4, iy - 4, ix + 4, iy + 4],
-                                    outline=self.ink_color + (200,), width=1)
-                self.draw.rectangle([ix - 6, iy - 6, ix + 6, iy + 6],
-                                    outline=self.ink_color + (150,), width=1)
-            elif symbol == 'square':
-                self.draw.rectangle([ix - 4, iy - 4, ix + 4, iy + 4],
-                                    outline=self.ink_color + (180,), width=1)
-            elif symbol == 'circle':
+                                    fill=(200, 180, 130, 220),
+                                    outline=c + (200,), width=1)
+                for bx in range(ix - 4, ix + 4, 3):
+                    self.draw.rectangle([bx, iy - 6, bx + 1, iy - 4], fill=c + (160,))
+            elif symbol == 'town':
+                self.draw.ellipse([ix - 4, iy - 4, ix + 4, iy + 4],
+                                  outline=c + (180,), width=1)
+                self.draw.ellipse([ix - 1, iy - 1, ix + 1, iy + 1], fill=c + (160,))
+            elif symbol == 'hamlet':
                 self.draw.ellipse([ix - 3, iy - 3, ix + 3, iy + 3],
-                                  fill=self.ink_color + (150,))
-            elif symbol == 'dot':
+                                  fill=c + (150,))
+            elif symbol == 'village':
                 self.draw.ellipse([ix - 2, iy - 2, ix + 2, iy + 2],
-                                  fill=self.ink_color + (120,))
+                                  outline=c + (130,), width=1)
             elif symbol == 'triangle':
                 self.draw.polygon([(ix, iy - 6), (ix - 5, iy + 3), (ix + 5, iy + 3)],
-                                  outline=self.ink_color + (180,), width=1)
+                                  outline=c + (180,), width=1)
+                self.draw.line([(ix - 5, iy + 3), (ix - 2, iy - 1)], fill=c + (80,), width=1)
             elif symbol == 'dots':
                 for di in range(4):
                     dx = ix - 4 + di * 3
-                    self.draw.ellipse([dx - 1, iy - 1, dx + 1, iy + 1],
-                                      fill=self.ink_color + (130,))
+                    self.draw.ellipse([dx - 1, iy - 1, dx + 1, iy + 1], fill=c + (130,))
             elif symbol == 'line':
-                self.draw.line([(ix - 6, iy), (ix + 6, iy)],
-                               fill=self.ink_color + (140,), width=1)
-            elif symbol == 'dashed':
-                for di in range(3):
-                    dx = ix - 6 + di * 5
-                    self.draw.line([(dx, iy), (dx + 3, iy)],
-                                   fill=self.ink_color + (100,), width=1)
+                self.draw.line([(ix - 7, iy), (ix + 7, iy)], fill=c + (140,), width=2)
+            elif symbol == 'double_line':
+                self.draw.line([(ix - 7, iy - 2), (ix + 7, iy - 2)], fill=c + (160,), width=1)
+                self.draw.line([(ix - 7, iy + 2), (ix + 7, iy + 2)], fill=c + (160,), width=1)
+            elif symbol == 'solid_line':
+                self.draw.line([(ix - 7, iy), (ix + 7, iy)], fill=c + (140,), width=1)
+            elif symbol == 'dotted':
+                for di in range(5):
+                    dx = ix - 6 + di * 3
+                    self.draw.ellipse([dx, iy - 1, dx + 1, iy + 1], fill=c + (90,))
 
             self.draw.text((lx + 38, yoff), label,
                            fill=self.ink_color + (180,), font=self.font_legend)
