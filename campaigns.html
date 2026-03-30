@@ -1497,6 +1497,7 @@
     // ═══════════════════════════════
     var currentCampaignId = null;
     var campaigns = [];
+    window._campaigns = campaigns;
     var currentInitiativeTurn = 0;
     var currentRound = 1;
     var activeTypeFilters = [];
@@ -1721,7 +1722,7 @@
 
       // Load campaigns the current user belongs to
       var user = getAuthUser();
-      if (!user) { campaigns = []; return; }
+      if (!user) { campaigns = []; window._campaigns = campaigns; return; }
       var myIds = getMyCampaignIds();
       var registry = loadAllCampaignsFromRegistry();
 
@@ -1741,9 +1742,11 @@
       myIds.forEach(function(cid) {
         if (registry[cid]) campaigns.push(registry[cid]);
       });
+      window._campaigns = campaigns;
     }
 
     function saveCampaigns() {
+      window._campaigns = campaigns;
       var registry = loadAllCampaignsFromRegistry();
       campaigns.forEach(function(c) {
         registry[c.id] = c;

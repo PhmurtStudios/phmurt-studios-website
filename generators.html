@@ -5754,162 +5754,328 @@
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
-    function composeTrait(name, element, cr, prof) {
+    // ── CONCEPT-DRIVEN THEMED TRAIT POOLS ──
+    const THEMED_TRAIT_POOLS = {
+      peace: [
+        { name: 'Aura of Tranquility', desc: 'Creatures within 30 feet of {name} must succeed on a DC {dc} Wisdom saving throw at the start of their turn or be unable to take hostile actions until the start of their next turn.' },
+        { name: 'Pacifying Presence', desc: 'When a creature attacks {name}, the attacker must succeed on a DC {dc} Charisma saving throw or the attack automatically misses as overwhelming calm washes over them.' },
+        { name: 'Serene Immortality', desc: '{name} cannot be frightened or charmed. If {name} starts its turn charmed or frightened, it is no longer affected. Additionally, {name} regains {dice} hit points at the start of its turn as long as it hasn\'t taken damage since the end of its last turn.' },
+        { name: 'Soothing Field', desc: 'At the start of each of {name}\'s turns, each creature within 15 feet that is charmed, frightened, poisoned, or stunned makes a DC {dc} Wisdom saving throw, ending the condition on a success.' },
+        { name: 'Gentle Resolve', desc: '{name} cannot be forced to move against its will and gains advantage on saving throws against spells and magical effects.' },
+      ],
+      fire: [
+        { name: 'Molten Core', desc: '{name} sheds bright light in a 30-foot radius. Creatures that touch it or hit it with a melee attack take {dice} fire damage.' },
+        { name: 'Superheated Aura', desc: 'At the start of each of {name}\'s turns, each creature within 10 feet takes {dice} fire damage. Flammable objects in the aura that aren\'t being worn or carried ignite.' },
+        { name: 'Pyrebound', desc: 'If {name} is subjected to cold damage, its speed is reduced by 20 feet until the end of its next turn. If {name} starts its turn in cold water or ice, it takes {dice} cold damage.' },
+        { name: 'Infernal Regeneration', desc: 'If {name} takes cold damage, this trait doesn\'t function at the start of {name}\'s next turn. {name} regains {dice} hit points at the start of each of its turns if it has at least 1 hit point and hasn\'t taken cold damage since the end of its last turn.' },
+        { name: 'Immolating Death', desc: 'When {name} is reduced to 0 hit points, it explodes. Each creature within 20 feet must make a DC {dc} Dexterity saving throw, taking {dice} fire damage on a failed save, or half as much on a successful one.' },
+        { name: 'Heat Shimmer', desc: 'Ranged attack rolls against {name} are made with disadvantage. Any creature that starts its turn within 5 feet of {name} must succeed on a DC {dc} Dexterity saving throw or take {dice} fire damage.' },
+      ],
+      ice: [
+        { name: 'Frozen Aura', desc: 'At the start of each of {name}\'s turns, each creature within 15 feet must make a DC {dc} Constitution saving throw or take {dice} cold damage and have its speed reduced by half until the end of its next turn.' },
+        { name: 'Icebound Regeneration', desc: 'If {name} takes fire damage, this trait doesn\'t function at the start of {name}\'s next turn. {name} regains {dice} hit points at the start of each of its turns if it has at least 1 hit point and hasn\'t taken fire damage since the end of its last turn.' },
+        { name: 'Crystalline Carapace', desc: '{name}\'s body is encased in magical ice. When {name} is hit by an attack that deals fire damage, it takes half the damage. When {name} is hit by a melee attack, the attacker takes {dice} cold damage.' },
+        { name: 'Winter\'s Grasp', desc: 'When a creature the {name} can see within 60 feet moves, {name} can use its reaction to force that creature to make a DC {dc} Dexterity saving throw. On a failed save, the creature\'s speed is reduced to 0 until the end of the current turn.' },
+        { name: 'Frostbound Slickness', desc: 'Any space {name} moves through becomes difficult terrain until the end of the turn. Creatures that start their turn on ground covered by {name}\'s frost must succeed on a DC {dc} Dexterity saving throw or fall prone.' },
+      ],
+      storm: [
+        { name: 'Static Aura', desc: 'At the start of each of {name}\'s turns, each creature within 15 feet takes {dice} lightning damage unless it succeeds on a DC {dc} Dexterity saving throw.' },
+        { name: 'Stormborn Regeneration', desc: 'If {name} takes cold damage, this trait doesn\'t function at the start of {name}\'s next turn. {name} regains {dice} hit points at the start of each of its turns if it has at least 1 hit point and hasn\'t taken cold damage since the end of its last turn.' },
+        { name: 'Thunderous Presence', desc: 'Whenever {name} hits with a melee attack, the attacker can choose to release a thunderous wave. Each creature within 10 feet must make a DC {dc} Constitution saving throw, taking {dice} thunder damage on a failed save and being pushed 5 feet away, or taking half damage and not being pushed on a success.' },
+        { name: 'Magnetic Ward', desc: 'Ranged attack rolls against {name} are made with disadvantage. When {name} is hit by a metal weapon attack, the weapon sticks to {name}, and a creature can use an action to remove it with a successful DC {dc} Strength check.' },
+        { name: 'Chain Reaction', desc: 'When {name} deals lightning damage to a creature, that creature can\'t regain hit points until the start of its next turn.' },
+      ],
+      shadow: [
+        { name: 'Shadowy Form', desc: 'Attacks against {name} have disadvantage if {name} is in dim light or darkness. {name} can move through a space as narrow as 1 inch wide without squeezing when in dim light or darkness.' },
+        { name: 'Shadow Regeneration', desc: '{name} regains {dice} hit points at the start of its turn if it is in dim light or darkness. If {name} takes radiant damage, this trait doesn\'t function at the start of {name}\'s next turn.' },
+        { name: 'Lightless Aura', desc: 'Bright light within 30 feet of {name} is dimmed. A creature that starts its turn in darkness within 30 feet of {name} must succeed on a DC {dc} Wisdom saving throw or be frightened until the end of its turn.' },
+        { name: 'Void Touch', desc: 'Whenever {name} hits a creature with a melee attack, the target takes an additional {dice} necrotic damage and must succeed on a DC {dc} Constitution saving throw or have disadvantage on attack rolls until the end of its next turn.' },
+        { name: 'Tenebrous Escape', desc: 'When {name} is hit by an attack, it can use its reaction to turn invisible until the end of the current turn. It can use this trait a number of times equal to its proficiency bonus, regaining all expended uses when it finishes a long rest.' },
+      ],
+      death: [
+        { name: 'Death Shroud', desc: '{name} is surrounded by an aura of decay. A creature that starts its turn within 10 feet of {name} must make a DC {dc} Constitution saving throw or take {dice} necrotic damage.' },
+        { name: 'Soul Siphon', desc: 'When a creature the {name} can see within 60 feet regains hit points, {name} can use its reaction to reduce the healing by {dice} and regain hit points equal to that amount.' },
+        { name: 'Deathless Resolve', desc: '{name} is immune to exhaustion. If damage reduces {name} to 0 hit points, it can choose to fall unconscious instead. While unconscious this way, {name} regains {dice} hit points at the start of each of its turns.' },
+        { name: 'Grave Touch', desc: 'Whenever {name} hits a creature with a melee attack, the target takes an additional {dice} necrotic damage and must succeed on a DC {dc} Wisdom saving throw or be frightened until the end of its next turn.' },
+        { name: 'Entropic Aura', desc: 'At the start of {name}\'s turn, each creature within 15 feet has disadvantage on attack rolls and saving throws until the start of {name}\'s next turn.' },
+        { name: 'Undying Persistence', desc: 'When a creature within 30 feet of {name} that {name} can see dies, it rises as a zombie under {name}\'s control if it hasn\'t taken radiant damage since the end of {name}\'s last turn.' },
+      ],
+      divine: [
+        { name: 'Holy Radiance', desc: '{name} sheds bright light in a 30-foot radius. Undead and fiends have disadvantage on attack rolls against {name}.' },
+        { name: 'Sacred Inviolability', desc: '{name} is immune to being charmed, frightened, and paralyzed. It cannot be grappled or restrained.' },
+        { name: 'Purifying Light', desc: 'At the start of {name}\'s turn, each undead or fiend within 15 feet must make a DC {dc} Constitution saving throw, taking {dice} radiant damage on a failed save.' },
+        { name: 'Divine Fortitude', desc: '{name} has advantage on saving throws against spells and magical effects. {name} regains {dice} hit points at the start of each of its turns if it has at least 1 hit point.' },
+        { name: 'Smite Aura', desc: 'Whenever {name} hits with a melee attack, the target takes an additional {dice} radiant damage.' },
+      ],
+      nature: [
+        { name: 'Entangling Vines', desc: 'At the start of each of {name}\'s turns, each creature within 15 feet must succeed on a DC {dc} Strength saving throw or have its speed reduced by half until the end of the current turn.' },
+        { name: 'Regeneration (Nature)', desc: '{name} regains {dice} hit points at the start of each of its turns. If {name} takes fire or necrotic damage, this trait doesn\'t function at the start of {name}\'s next turn.' },
+        { name: 'Thorn Aura', desc: 'At the start of {name}\'s turn, each creature within 10 feet takes {dice} piercing damage unless it succeeds on a DC {dc} Dexterity saving throw.' },
+        { name: 'Root Bond', desc: '{name} cannot be moved by any means. If {name} is removed from natural terrain, it takes {dice} damage at the start of each of its turns.' },
+        { name: 'Spore Cloud', desc: 'When {name} is hit by a melee attack, the attacker must succeed on a DC {dc} Constitution saving throw or inhale spores and have disadvantage on attack rolls until the end of its next turn.' },
+      ],
+      psychic: [
+        { name: 'Maddening Presence', desc: 'Any creature that starts its turn within 30 feet of {name} and can see {name} must make a DC {dc} Wisdom saving throw or take {dice} psychic damage.' },
+        { name: 'Telepathic Assault', desc: 'When a creature within 60 feet of {name} that {name} can see tries to cast a spell, {name} can use its reaction to force the creature to make a DC {dc} Intelligence saving throw. On a failed save, the spell is wasted and the creature takes {dice} psychic damage.' },
+        { name: 'Thought Shield', desc: '{name} is immune to the charmed condition and cannot be compelled to lie. {name} has advantage on saving throws against divination magic.' },
+        { name: 'Psychic Feedback', desc: 'Whenever a creature hits {name} with a melee attack, the attacker takes {dice} psychic damage unless it succeeds on a DC {dc} Intelligence saving throw.' },
+        { name: 'Mental Fortress', desc: '{name} has advantage on saving throws against spells that allow an Intelligence or Wisdom save.' },
+      ],
+      corruption: [
+        { name: 'Corrupting Touch', desc: 'Whenever a creature starts its turn within 10 feet of {name}, it must make a DC {dc} Constitution saving throw or take {dice} necrotic damage and have disadvantage on the next attack roll it makes before the end of its turn.' },
+        { name: 'Plague Carrier', desc: 'A creature that touches {name} or hits it with a melee attack must succeed on a DC {dc} Constitution saving throw or be poisoned until the end of the poisoned creature\'s next turn. If the poison damage ever exceeds {dice}, the poisoned creature is also paralyzed while poisoned this way.' },
+        { name: 'Degradation Aura', desc: 'Each creature within 15 feet of {name} has disadvantage on ability checks and saving throws. Objects in the aura take {dice} necrotic damage at the start of {name}\'s turn.' },
+        { name: 'Warped Form', desc: '{name} is immune to petrification. A creature that touches {name} or hits it with a melee attack must succeed on a DC {dc} Charisma saving throw or be unable to see {name} clearly for 1 minute.' },
+        { name: 'Festering Regeneration', desc: '{name} regains {dice} hit points at the start of each of its turns if there is at least one poisoned creature within 30 feet of it.' },
+      ],
+      mechanical: [
+        { name: 'Reinforced Plating', desc: '{name} has resistance to bludgeoning, piercing, and slashing damage from nonmagical attacks.' },
+        { name: 'Mechanical Regeneration', desc: '{name} regains {dice} hit points at the start of each of its turns. If {name} takes lightning or thunder damage, this trait doesn\'t function at the start of {name}\'s next turn.' },
+        { name: 'Automated Reflexes', desc: '{name} has advantage on Dexterity saving throws and initiative rolls.' },
+        { name: 'Arcane Reactor', desc: 'When {name} takes lightning damage, it can redirect that energy as a reaction, forcing a creature within 30 feet that it can see to make a DC {dc} Dexterity saving throw, taking {dice} lightning damage on a failed save.' },
+        { name: 'Unstoppable Machine', desc: '{name} is immune to being charmed, frightened, paralyzed, poisoned, and exhaustion. It cannot be grappled and automatically succeeds on saving throws against spells.' },
+      ],
+      water: [
+        { name: 'Aquatic Regeneration', desc: '{name} regains {dice} hit points at the start of each of its turns if it is in water. If {name} takes cold damage, this trait doesn\'t function at the start of {name}\'s next turn.' },
+        { name: 'Fluid Form', desc: '{name} can enter a hostile creature\'s space and stop there. It can move through a space as narrow as 1 foot wide without squeezing.' },
+        { name: 'Engulfing Body', desc: 'When a creature within 5 feet of {name} casts a spell, the creature takes {dice} cold damage.' },
+        { name: 'Tidal Surge', desc: 'As a bonus action at the start of {name}\'s turn, each creature within 10 feet must succeed on a DC {dc} Strength saving throw or be pushed 10 feet away.' },
+        { name: 'Hydration Dependent', desc: 'If {name} is not in water at the start of its turn, it takes {dice} necrotic damage.' },
+      ],
+      earth: [
+        { name: 'Earthbound', desc: '{name}\'s speed is reduced by 10 feet, but it cannot be moved against its will by nonmagical means. When {name} is on stone or earth, it gains advantage on melee attack rolls.' },
+        { name: 'Stone Regeneration', desc: '{name} regains {dice} hit points at the start of each of its turns if it is touching stone or earth. If {name} takes acid damage, this trait doesn\'t function at the start of {name}\'s next turn.' },
+        { name: 'Tremorsense', desc: '{name} can sense the location of any creature within 60 feet that is in contact with the ground.' },
+        { name: 'Avalanche', desc: 'When {name} moves to a creature\'s space, the creature must succeed on a DC {dc} Strength saving throw or be knocked prone and take {dice} bludgeoning damage.' },
+        { name: 'Petrifying Touch', desc: 'When {name} hits a creature with a melee attack, the target must succeed on a DC {dc} Constitution saving throw or be restrained as its flesh begins to turn to stone. At the end of the creature\'s next turn, it can repeat the save.' },
+      ],
+      arcane: [
+        { name: 'Spell Reflection', desc: 'If {name} is subjected to a spell, it takes half damage and it also casts a spell at the spellcaster (save DC {dc}) using the same spell if able.' },
+        { name: 'Arcane Regeneration', desc: '{name} regains {dice} hit points at the start of each of its turns. If {name} takes necrotic or psychic damage, this trait doesn\'t function at the start of {name}\'s next turn.' },
+        { name: 'Antimagic', desc: 'Each creature within 10 feet of {name} has disadvantage on saving throws against spells.' },
+        { name: 'Mana Shield', desc: 'When {name} takes damage, it can use its reaction to reduce the damage by {dice}. {name} can use this trait a number of times equal to its proficiency bonus, regaining all expended uses when it finishes a long rest.' },
+        { name: 'Spellbane', desc: 'A creature that starts its turn within 30 feet of {name} and tries to cast a spell for the first time on its turn must make a DC {dc} Arcana check. On a failed check, the spell fails to cast and is not expended.' },
+      ],
+      poison: [
+        { name: 'Toxic Aura', desc: 'Any creature that starts its turn within 15 feet of {name} must make a DC {dc} Constitution saving throw or be poisoned until the end of the current turn.' },
+        { name: 'Venom Regeneration', desc: '{name} regains {dice} hit points at the start of each of its turns if there is a poisoned creature within 30 feet of it.' },
+        { name: 'Poison Spray', desc: 'When a creature hits {name} with a melee attack, the attacker takes {dice} poison damage and must succeed on a DC {dc} Constitution saving throw or be poisoned until the end of its next turn.' },
+        { name: 'Toxic Resistance', desc: '{name} is immune to the poisoned condition and has advantage on saving throws against poison.' },
+        { name: 'Infectious Decay', desc: 'When {name} deals poison damage to a creature, the target has disadvantage on ability checks until the end of its next turn.' },
+      ],
+    };
+
+    function composeTrait(name, concept, element, cr, prof) {
       const crData = getCRData(cr);
       const dc = crData.saveDC;
       const dmgType = elementToDamageType(element);
-      const saves = ['Constitution','Wisdom','Dexterity','Charisma','Intelligence','Strength'];
-      const conditions = ['frightened','poisoned','stunned','restrained','blinded','charmed','paralyzed','prone'];
-      const range = [5,10,15,20,30][Math.floor(Math.random() * 5)];
+      const lower = concept.toLowerCase();
+
+      // Analyze concept to determine theme
+      const themes = [];
+      if (/peace|pacif|calm|serene|tranquil|gentle/.test(lower)) themes.push('peace');
+      if (/fire|flame|burn|inferno|scorch|molten|blaze/.test(lower)) themes.push('fire');
+      if (/ice|frost|frozen|cold|freeze|glacial|winter|chill/.test(lower)) themes.push('ice');
+      if (/storm|thunder|lightning|electric|volt|shock|tempest/.test(lower)) themes.push('storm');
+      if (/shadow|dark|void|umbral|darkness|gloom|tenebr/.test(lower)) themes.push('shadow');
+      if (/death|necrotic|undead|decay|grave|lifeless|perish/.test(lower)) themes.push('death');
+      if (/divine|celestial|holy|sacred|god|blessed|radiant|purif/.test(lower)) themes.push('divine');
+      if (/nature|plant|forest|tree|growth|organic|wild|beast/.test(lower)) themes.push('nature');
+      if (/psychic|mind|thought|mental|madness|insanity|brain/.test(lower)) themes.push('psychic');
+      if (/corrupt|warped|twisted|tainted|defil|blight|plague/.test(lower)) themes.push('corruption');
+      if (/construct|golem|machine|mechanical|artifice|gear|pump|rig/.test(lower)) themes.push('mechanical');
+      if (/water|ocean|sea|aquatic|fluid|wave|tsunami|drown/.test(lower)) themes.push('water');
+      if (/earth|stone|rock|mountain|ground|terra|soil|quake/.test(lower)) themes.push('earth');
+      if (/arcane|magic|wizard|spell|eldritch|mystical|rune/.test(lower)) themes.push('arcane');
+      if (/poison|venom|toxic|plague|blight|infection|diseased/.test(lower)) themes.push('poison');
+
+      // Pick a theme pool to draw from
+      let theme = themes[Math.floor(Math.random() * themes.length)] || 'arcane';
+      const pool = THEMED_TRAIT_POOLS[theme] || THEMED_TRAIT_POOLS.arcane;
+      const traitTemplate = pool[Math.floor(Math.random() * pool.length)];
+
+      // Fill in placeholders
       const diceCount = Math.max(1, Math.floor(cr / 3));
       const dice = `${diceCount}d${[6,8,10][Math.floor(Math.random() * 3)]}`;
-
-      // Choose between triggered trait, passive, or reactive
-      const roll = Math.random();
-      let description;
-
-      if (roll < 0.35) {
-        // Triggered effect
-        const trigger = TRAIT_COMPONENTS.triggers[Math.floor(Math.random() * TRAIT_COMPONENTS.triggers.length)];
-        const effect = TRAIT_COMPONENTS.effects[Math.floor(Math.random() * TRAIT_COMPONENTS.effects.length)];
-        description = trigger + ', ' + effect + '.';
-      } else {
-        // Passive
-        description = TRAIT_COMPONENTS.passives[Math.floor(Math.random() * TRAIT_COMPONENTS.passives.length)];
-      }
-
-      // Fill in placeholders - pick a consistent save and condition for the whole trait
-      const saveName = saves[Math.floor(Math.random() * saves.length)];
-      const conditionName = conditions[Math.floor(Math.random() * conditions.length)];
-      description = description.replace(/\{name\}/g, 'the creature')
-        .replace(/\{range\}/g, range)
+      let description = traitTemplate.desc
+        .replace(/\{name\}/g, name)
         .replace(/\{dc\}/g, dc)
-        .replace(/\{save\}/g, saveName)
         .replace(/\{dice\}/g, dice)
         .replace(/\{dmgType\}/g, dmgType)
-        .replace(/\{condition\}/g, conditionName)
         .replace(/\{prof\}/g, prof);
 
-      return { name: generateTraitName(element, null), description };
+      return { name: traitTemplate.name, description };
     }
 
-    // ── Action generation engine ──
-    const ATTACK_SHAPES = {
-      melee: [
-        { name: 'Claw', reach: 5, dieSize: 6, dieCount: 2, type: 'slashing' },
-        { name: 'Bite', reach: 5, dieSize: 10, dieCount: 1, type: 'piercing' },
-        { name: 'Slam', reach: 5, dieSize: 8, dieCount: 2, type: 'bludgeoning' },
-        { name: 'Tail', reach: 10, dieSize: 8, dieCount: 1, type: 'bludgeoning' },
-        { name: 'Tentacle', reach: 15, dieSize: 6, dieCount: 2, type: 'bludgeoning' },
-        { name: 'Gore', reach: 5, dieSize: 12, dieCount: 1, type: 'piercing' },
-        { name: 'Fist', reach: 5, dieSize: 8, dieCount: 2, type: 'bludgeoning' },
-        { name: 'Sting', reach: 5, dieSize: 4, dieCount: 1, type: 'piercing' },
-        { name: 'Rend', reach: 5, dieSize: 8, dieCount: 2, type: 'slashing' },
-        { name: 'Crush', reach: 5, dieSize: 10, dieCount: 2, type: 'bludgeoning' }
-      ],
-      ranged: [
-        { name: 'Spit', range: '30/60', dieSize: 8, dieCount: 1 },
-        { name: 'Eye Ray', range: '60/120', dieSize: 10, dieCount: 1 },
-        { name: 'Spine', range: '30/60', dieSize: 6, dieCount: 2 },
-        { name: 'Bolt', range: '120/240', dieSize: 8, dieCount: 2 },
-        { name: 'Hurl', range: '30/60', dieSize: 10, dieCount: 2 }
-      ]
+    // ── CONCEPT-DRIVEN MELEE ATTACK NAMES ──
+    const CONCEPT_ATTACK_NAMES = {
+      construct: { melee: ['Piston Slam', 'Gear Crush', 'Steel Fist', 'Mechanical Rend', 'Hydraulic Slam', 'Arcane Spike'], ranged: ['Steam Blast', 'Bolt Launch', 'Energy Discharge', 'Arcane Missile'] },
+      celestial: { melee: ['Radiant Strike', 'Holy Smite', 'Blessed Touch', 'Divine Rend', 'Sanctified Palm', 'Sacred Blow'], ranged: ['Beam of Light', 'Celestial Ray', 'Sacred Bolt', 'Purifying Beam'] },
+      undead: { melee: ['Necrotic Touch', 'Life Drain', 'Ghastly Claw', 'Withering Grasp', 'Cursed Strike', 'Unholy Slam'], ranged: ['Death Ray', 'Soul Bolt', 'Cursed Gaze', 'Necrotic Blast'] },
+      fiend: { melee: ['Hellfire Claw', 'Infernal Strike', 'Abyssal Rend', 'Demonic Grasp', 'Infernal Slam', 'Wrathful Blow'], ranged: ['Hellfire Bolt', 'Cursed Flame', 'Dark Blast', 'Abyssal Ray'] },
+      dragon: { melee: ['Bite', 'Claw', 'Tail Sweep', 'Wing Buffet', 'Horned Slam', 'Crushing Bite'], ranged: ['Breath Weapon', 'Dragon Breath'] },
+      beast: { melee: ['Bite', 'Claw', 'Gore', 'Pounce', 'Trample', 'Fang Strike'], ranged: ['Spit', 'Quill Volley', 'Spine Spray'] },
+      aberration: { melee: ['Tentacle Slam', 'Mind Lash', 'Void Touch', 'Warped Claw', 'Eldritch Grasp', 'Reality Rend'], ranged: ['Psychic Blast', 'Reality Tear', 'Eye Ray', 'Void Bolt'] },
+      fey: { melee: ['Thorned Grasp', 'Enchanted Touch', 'Fey Strike', 'Wildwood Blow', 'Magical Swipe', 'Glamour Strike'], ranged: ['Charm Bolt', 'Illusion Blast', 'Dream Arrow', 'Fey Fire'] },
+      elemental: { melee: ['Elemental Slam', 'Engulf', 'Crush', 'Burning Touch', 'Frigid Slam', 'Shock Fist'], ranged: ['Elemental Bolt', 'Elemental Burst', 'Element Ray'] },
+      plant: { melee: ['Vine Lash', 'Root Slam', 'Thorn Strike', 'Constrict', 'Wooden Club', 'Entangling Grasp'], ranged: ['Spore Cloud', 'Seed Shot', 'Vine Whip'] },
+      peace: { melee: ['Serene Touch', 'Calming Palm', 'Gentle Rebuke', 'Peaceful Slam', 'Soothing Strike'], ranged: ['Pacifying Wave', 'Tranquil Bolt', 'Serenity Pulse', 'Peace Beam'] },
+      shadow: { melee: ['Shadow Claw', 'Darkness Touch', 'Umbral Strike', 'Void Grasp', 'Shadow Rend', 'Tenebrous Slash'], ranged: ['Shadow Bolt', 'Darkness Ray', 'Shade Arrow', 'Void Missile'] },
+      storm: { melee: ['Thunder Strike', 'Storm Fist', 'Lightning Lash', 'Tempest Blow', 'Shock Slam', 'Thunderous Rend'], ranged: ['Lightning Bolt', 'Thunder Wave', 'Tempest Burst', 'Storm Ray'] },
+      fire: { melee: ['Scorching Claw', 'Infernal Strike', 'Flameburst Slam', 'Molten Fist', 'Charring Rend', 'Pyroclastic Strike'], ranged: ['Flame Jet', 'Fireball', 'Magma Bolt', 'Inferno Ray'] },
+      ice: { melee: ['Glacial Slam', 'Frostbite Claw', 'Frozen Strike', 'Chilling Touch', 'Icy Rend', 'Permafrost Blow'], ranged: ['Frost Bolt', 'Blizzard Blast', 'Freezing Ray', 'Ice Shard'] },
+      poison: { melee: ['Venomous Strike', 'Toxic Touch', 'Poison Claw', 'Plague Grasp', 'Corrosive Rend'], ranged: ['Poison Spray', 'Toxic Bolt', 'Venom Ray', 'Plague Missile'] },
+      water: { melee: ['Drowning Grasp', 'Tidal Strike', 'Wave Slam', 'Aquatic Rend', 'Fluid Lash'], ranged: ['Water Jet', 'Tidal Wave', 'Deluge Bolt'] },
+      earth: { melee: ['Stone Slam', 'Earthen Fist', 'Rocky Rend', 'Tremor Strike', 'Petrifying Touch'], ranged: ['Rock Throw', 'Earth Bolt', 'Stone Shard'] },
+      arcane: { melee: ['Arcane Strike', 'Eldritch Touch', 'Magical Rend', 'Runic Slam', 'Spell Blade'], ranged: ['Arcane Missile', 'Force Bolt', 'Mystic Ray', 'Spell Arrow'] },
     };
 
-    function generateAttackName(base, element) {
-      const descriptors = {
-        fire: ['Scorching','Blazing','Searing','Molten','Infernal'],
-        ice: ['Freezing','Glacial','Frostbitten','Rime','Frozen'],
-        lightning: ['Crackling','Voltaic','Thunderous','Shocking','Charged'],
-        poison: ['Venomous','Toxic','Corrosive','Festering','Noxious'],
-        necrotic: ['Withering','Death','Shadow','Draining','Decaying'],
-        radiant: ['Radiant','Holy','Purifying','Burning','Sacred'],
-        psychic: ['Mind-Rending','Psychic','Bewildering','Maddening','Thought'],
-        force: ['Arcane','Force','Eldritch','Mystic','Runic']
-      };
-      const desc = descriptors[element] || descriptors.force;
-      return desc[Math.floor(Math.random() * desc.length)] + ' ' + base;
+    // ── CONCEPT-DRIVEN SPECIAL ACTION TEMPLATES ──
+    const THEMED_ACTION_TEMPLATES = {
+      peace: [
+        { name: 'Compel Peace', dmgDiceFactor: 1, descGen: (name, dc, dice) => `${name} targets one creature it can see within 60 feet. The target must succeed on a DC ${dc} Wisdom saving throw or drop all weapons and be unable to make attacks for 1 minute. The target can repeat the save at the end of each turn.` },
+        { name: 'Serene Pulse (Recharge 5-6)', dmgDiceFactor: 1.2, descGen: (name, dc, dice) => `${name} emits a pulse of pure tranquility in a 30-foot radius. Each creature in that area must make a DC ${dc} Charisma saving throw, taking ${dice} psychic damage on a failed save, or half as much on a successful one. A creature that fails the save is also pacified and cannot take hostile actions until the end of its next turn.` },
+      ],
+      fire: [
+        { name: 'Flame Jet (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice, atkBonus) => `${name} exhales flames in a 30-foot cone. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} fire damage on a failed save, or half as much on a success.` },
+        { name: 'Magma Strike', dmgDiceFactor: 1.2, descGen: (name, dc, dice, atkBonus) => `Melee Weapon Attack: +${atkBonus} to hit, reach 5 ft., one target. Hit: ${dice} bludgeoning damage plus 1d6 fire damage, and the ground in a 5-foot radius becomes difficult terrain.` },
+      ],
+      ice: [
+        { name: 'Blizzard Breath (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} exhales a blast of freezing wind in a 30-foot cone. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} cold damage on a failed save, or half as much on a success. A creature that fails the save has its speed reduced by half until the end of its next turn.` },
+        { name: 'Frozen Grasp', dmgDiceFactor: 1.2, descGen: (name, dc, dice) => `${name} targets one creature it can see within 30 feet. The target must succeed on a DC ${dc} Dexterity saving throw or be restrained by magical ice. At the end of the target's turn, it can repeat the save.` },
+      ],
+      shadow: [
+        { name: 'Shadow Bolt Barrage (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice, atkBonus) => `${name} hurls shadow bolts at creatures within 60 feet. Each creature it can see in that range must make a DC ${dc} Dexterity saving throw, taking ${dice} necrotic damage on a failed save, or half as much on a success.` },
+        { name: 'Void Touch', dmgDiceFactor: 1.2, descGen: (name, dc, dice, atkBonus) => `Melee Weapon Attack: +${atkBonus} to hit, reach 5 ft., one target. Hit: ${dice} necrotic damage, and the target must succeed on a DC ${dc} Constitution saving throw or be blinded until the end of its next turn.` },
+      ],
+      death: [
+        { name: 'Death Wave (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} emits a wave of necrotic energy in a 40-foot radius. Each creature in that area must make a DC ${dc} Constitution saving throw, taking ${dice} necrotic damage on a failed save, or half as much on a success.` },
+        { name: 'Soul Drain', dmgDiceFactor: 1.2, descGen: (name, dc, dice) => `${name} targets one creature it can see within 30 feet. The target must make a DC ${dc} Charisma saving throw. On a failed save, the target takes ${dice} necrotic damage and ${name} regains hit points equal to the damage taken.` },
+      ],
+      divine: [
+        { name: 'Radiant Burst (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice, atkBonus) => `${name} emits a burst of holy light in a 30-foot radius. Each creature of ${name}'s choice in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} radiant damage on a failed save, or half as much on a success. Undead in the area have disadvantage on the save.` },
+        { name: 'Divine Smite', dmgDiceFactor: 1.2, descGen: (name, dc, dice, atkBonus) => `Melee Weapon Attack: +${atkBonus} to hit, reach 5 ft., one target. Hit: ${dice} radiant damage. If the target is undead or a fiend, it takes an extra 1d6 radiant damage.` },
+      ],
+      storm: [
+        { name: 'Lightning Storm (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} creates a lightning storm in a 40-foot radius. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} lightning damage on a failed save, or half as much on a success.` },
+        { name: 'Thunderous Shout (Recharge 5-6)', dmgDiceFactor: 1.2, descGen: (name, dc, dice) => `${name} emits a deafening shout. Each creature within 30 feet must make a DC ${dc} Constitution saving throw, taking ${dice} thunder damage on a failed save, or half as much on a success. A creature that fails the save is also pushed 10 feet away.` },
+      ],
+      nature: [
+        { name: 'Entangling Vines (Recharge 5-6)', dmgDiceFactor: 1.2, descGen: (name, dc, dice) => `${name} summons vines in a 30-foot radius. Each creature in that area must make a DC ${dc} Strength saving throw or be restrained until the start of ${name}'s next turn.` },
+        { name: 'Spore Burst (Recharge 5-6)', dmgDiceFactor: 1.3, descGen: (name, dc, dice) => `${name} releases a cloud of spores in a 20-foot radius. Each creature in that area must make a DC ${dc} Constitution saving throw, taking ${dice} poison damage on a failed save, or half as much on a success.` },
+      ],
+      psychic: [
+        { name: 'Psychic Scream (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} unleashes a devastating psychic scream. Each creature within 30 feet that can hear it must make a DC ${dc} Intelligence saving throw, taking ${dice} psychic damage on a failed save, or half as much on a success.` },
+        { name: 'Mind Warp', dmgDiceFactor: 1.2, descGen: (name, dc, dice) => `${name} targets one creature it can see within 60 feet. The target must make a DC ${dc} Intelligence saving throw, taking ${dice} psychic damage on a failed save, or half as much on a success. On a failed save, the target also has disadvantage on the next attack roll it makes before the end of its next turn.` },
+      ],
+      mechanical: [
+        { name: 'Energy Discharge (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} releases a burst of arcane energy in a 30-foot radius. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} force damage on a failed save, or half as much on a success.` },
+        { name: 'Overload', dmgDiceFactor: 1.3, descGen: (name, dc, dice) => `${name} overloads with energy, forcing each creature within 15 feet to make a DC ${dc} Constitution saving throw, taking ${dice} force damage on a failed save, or half as much on a success.` },
+      ],
+    };
+
+    function getAttackNameForConcept(concept, type, isRanged) {
+      const lower = concept.toLowerCase();
+
+      // Determine creature type category
+      let category = type;
+      if (/construct|golem|machine|mechanical|pump|rig|gear|clockwork/.test(lower)) category = 'construct';
+      else if (/celestial|angel|divine|holy|god|sacred|blessed/.test(lower)) category = 'celestial';
+      else if (/undead|skeleton|zombie|ghost|wraith/.test(lower)) category = 'undead';
+      else if (/fiend|demon|devil|infernal/.test(lower)) category = 'fiend';
+      else if (/dragon|wyrm|drake/.test(lower)) category = 'dragon';
+      else if (/aberration|eldritch|tentacle/.test(lower)) category = 'aberration';
+      else if (/fey|faerie|sylph/.test(lower)) category = 'fey';
+      else if (/elemental|fire|ice|water|earth|air/.test(lower)) category = 'elemental';
+      else if (/plant|tree|flower|vine/.test(lower)) category = 'plant';
+      else if (/peace|pacif|calm|serene/.test(lower)) category = 'peace';
+      else if (/shadow|dark|void|umbral/.test(lower)) category = 'shadow';
+      else if (/storm|thunder|lightning|tempest/.test(lower)) category = 'storm';
+      else if (/fire|flame|burn|inferno/.test(lower)) category = 'fire';
+      else if (/ice|frost|cold|frozen/.test(lower)) category = 'ice';
+      else if (/poison|toxic|venom/.test(lower)) category = 'poison';
+      else if (/water|ocean|aquatic/.test(lower)) category = 'water';
+      else if (/earth|stone|rock/.test(lower)) category = 'earth';
+      else if (/arcane|magic|wizard|spell/.test(lower)) category = 'arcane';
+
+      const names = CONCEPT_ATTACK_NAMES[category] || CONCEPT_ATTACK_NAMES.arcane;
+      const pool = isRanged ? names.ranged : names.melee;
+      return pool[Math.floor(Math.random() * pool.length)];
     }
 
-    function generateActions(cr, element, stats, type, archetypes) {
+    function generateActions(cr, concept, element, stats, type, archetypes, name = 'the creature') {
       const crData = getCRData(cr);
       const actions = [];
       const strMod = getModifier(stats.str);
       const dexMod = getModifier(stats.dex);
+      const intMod = getModifier(stats.int);
+      const chaMod = getModifier(stats.cha);
       const dmgType = elementToDamageType(element);
+      const lower = concept.toLowerCase();
 
       // Number of attacks for multiattack
       const atkCount = cr >= 11 ? 3 : cr >= 5 ? 2 : cr >= 1 ? 2 : 1;
+      const diceCount = Math.max(1, Math.floor(cr / 3));
 
-      // Generate a primary melee attack
-      const meleeTemplate = ATTACK_SHAPES.melee[Math.floor(Math.random() * ATTACK_SHAPES.melee.length)];
-      const meleeAtkName = generateAttackName(meleeTemplate.name, element);
+      // Primary melee attack with concept-driven name
+      const meleeName = getAttackNameForConcept(concept, type, false);
       const meleeAtkBonus = crData.atkBonus;
-      const meleeDieCount = Math.max(1, meleeTemplate.dieCount + Math.floor(cr / 5));
-      const meleeDmgBonus = Math.max(strMod, dexMod);
-      const meleeTotalAvg = Math.floor(meleeDieCount * (meleeTemplate.dieSize + 1) / 2 + meleeDmgBonus);
+      const meleeDiceCount = Math.max(1, 2 + Math.floor(cr / 4));
+      const meleeDamageBonus = Math.max(strMod, dexMod);
+      const meleeTotalAvg = Math.floor(meleeDiceCount * 4.5 + meleeDamageBonus);
 
       const bonusDmgDice = cr >= 3 ? ` plus ${Math.max(1, Math.floor(cr / 4))}d${[6,8][Math.floor(Math.random() * 2)]} ${dmgType} damage` : '';
 
       actions.push({
-        name: meleeAtkName,
-        description: `Melee Weapon Attack: +${meleeAtkBonus} to hit, reach ${meleeTemplate.reach} ft., one target. Hit: ${meleeTotalAvg} (${meleeDieCount}d${meleeTemplate.dieSize} + ${meleeDmgBonus}) ${meleeTemplate.type} damage${bonusDmgDice}.`
+        name: meleeName,
+        description: `Melee Weapon Attack: +${meleeAtkBonus} to hit, reach 5 ft., one target. Hit: ${meleeTotalAvg} (${meleeDiceCount}d8 + ${meleeDamageBonus}) slashing damage${bonusDmgDice}.`
       });
 
-      // Generate a ranged or special attack
+      // Ranged or special attack
       if (archetypes.includes('caster') || Math.random() > 0.4) {
-        const rangedTemplate = ATTACK_SHAPES.ranged[Math.floor(Math.random() * ATTACK_SHAPES.ranged.length)];
-        const rangedName = generateAttackName(rangedTemplate.name, element);
-        const rangedDieCount = Math.max(1, rangedTemplate.dieCount + Math.floor(cr / 5));
-        const rangedDmgBonus = Math.max(getModifier(stats.int), getModifier(stats.cha));
-        const rangedTotalAvg = Math.floor(rangedDieCount * (rangedTemplate.dieSize + 1) / 2 + rangedDmgBonus);
+        const rangedName = getAttackNameForConcept(concept, type, true);
+        const rangedDiceCount = Math.max(1, 2 + Math.floor(cr / 4));
+        const rangedDamageBonus = Math.max(intMod, chaMod);
+        const rangedTotalAvg = Math.floor(rangedDiceCount * 4.5 + rangedDamageBonus);
 
         actions.push({
           name: rangedName,
-          description: `Ranged Spell Attack: +${meleeAtkBonus} to hit, range ${rangedTemplate.range} ft., one target. Hit: ${rangedTotalAvg} (${rangedDieCount}d${rangedTemplate.dieSize} + ${rangedDmgBonus}) ${dmgType} damage.`
+          description: `Ranged Spell Attack: +${crData.atkBonus} to hit, range 60/120 ft., one target. Hit: ${rangedTotalAvg} (${rangedDiceCount}d8 + ${rangedDamageBonus}) ${dmgType} damage.`
         });
       }
 
       // Multiattack
       if (atkCount >= 2) {
-        const atkNames = actions.map(a => a.name);
+        const atkNames = actions.filter(a => a.name !== 'Multiattack').map(a => a.name);
         actions.unshift({
           name: 'Multiattack',
-          description: `The creature makes ${atkCount} attacks: ${atkCount === 3 ? 'three' : 'two'} with its ${atkNames[0]}${atkNames.length > 1 ? ' or ' + atkNames[1] : ''}.`
+          description: `Makes ${atkCount} attacks: ${atkCount === 3 ? 'three' : 'two'} ${atkNames[0].toLowerCase()}${atkNames.length > 1 ? ' and ' + atkNames[1].toLowerCase() : ''} attacks.`
         });
       }
 
-      // Special ability action (breath weapon, aura burst, etc.)
+      // Special ability action (thematic to concept)
       if (cr >= 2 || Math.random() > 0.5) {
-        const specialActions = [
-          {
-            nameGen: () => elementToDamageType(element).charAt(0).toUpperCase() + elementToDamageType(element).slice(1) + ' Breath (Recharge 5-6)',
-            descGen: (dc, dice) => `The creature exhales ${dmgType} energy in a ${15 + cr * 2}-foot cone. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} ${dmgType} damage on a failed save, or half as much damage on a successful one.`
-          },
-          {
-            nameGen: () => 'Terrifying Howl (Recharge 5-6)',
-            descGen: (dc) => `The creature emits a supernatural howl. Each creature within 30 feet that can hear it must succeed on a DC ${dc} Wisdom saving throw or become frightened for 1 minute. A frightened creature can repeat the saving throw at the end of each of its turns, ending the effect on a success.`
-          },
-          {
-            nameGen: () => elementToDamageType(element).charAt(0).toUpperCase() + elementToDamageType(element).slice(1) + ' Pulse (Recharge 6)',
-            descGen: (dc, dice) => `The creature releases a pulse of ${dmgType} energy. Each creature within 20 feet must make a DC ${dc} Constitution saving throw, taking ${dice} ${dmgType} damage on a failed save, or half as much on a successful one. Creatures that fail are also pushed 10 feet away.`
-          },
-          {
-            nameGen: () => 'Engulf',
-            descGen: (dc, dice) => `The creature moves up to its speed. While doing so, it can enter the space of a Large or smaller creature. The creature must make a DC ${dc} Dexterity saving throw. On a failed save, the target takes ${dice} ${dmgType} damage and is restrained inside the creature. A restrained creature can try to escape by making a DC ${dc} Strength check as an action.`
-          },
-          {
-            nameGen: () => 'Gaze of ' + ['Madness','Petrification','Domination','Withering','Terror'][Math.floor(Math.random() * 5)],
-            descGen: (dc) => `The creature targets one creature it can see within 60 feet. The target must succeed on a DC ${dc} ${['Wisdom','Constitution','Charisma'][Math.floor(Math.random() * 3)]} saving throw or be ${['frightened','stunned','paralyzed','charmed'][Math.floor(Math.random() * 4)]} until the end of its next turn.`
-          }
-        ];
+        // Determine which theme pool to use
+        let themeKey = 'arcane';
+        if (/peace|pacif|calm|serene/.test(lower)) themeKey = 'peace';
+        else if (/fire|flame|burn|inferno/.test(lower)) themeKey = 'fire';
+        else if (/ice|frost|cold|frozen/.test(lower)) themeKey = 'ice';
+        else if (/shadow|dark|void|umbral/.test(lower)) themeKey = 'shadow';
+        else if (/death|necrotic|undead|decay/.test(lower)) themeKey = 'death';
+        else if (/divine|celestial|holy|sacred/.test(lower)) themeKey = 'divine';
+        else if (/storm|thunder|lightning|tempest/.test(lower)) themeKey = 'storm';
+        else if (/nature|plant|forest|tree|growth/.test(lower)) themeKey = 'nature';
+        else if (/psychic|mind|thought|mental|madness/.test(lower)) themeKey = 'psychic';
+        else if (/construct|golem|machine|mechanical/.test(lower)) themeKey = 'mechanical';
 
-        const special = specialActions[Math.floor(Math.random() * specialActions.length)];
-        const specialDiceCount = Math.max(2, Math.floor(cr * 1.2));
-        const specialDice = `${specialDiceCount}d${[6,8,10][Math.floor(Math.random() * 3)]}`;
+        const actionPool = THEMED_ACTION_TEMPLATES[themeKey] || THEMED_ACTION_TEMPLATES.arcane;
+        const actionTemplate = actionPool[Math.floor(Math.random() * actionPool.length)];
+        const specialDiceCount = Math.max(2, Math.floor(cr * actionTemplate.dmgDiceFactor));
+        const specialDice = `${specialDiceCount}d6`;
+
         actions.push({
-          name: special.nameGen(),
-          description: special.descGen(crData.saveDC, specialDice)
+          name: actionTemplate.name,
+          description: actionTemplate.descGen(name, crData.saveDC, specialDice, crData.atkBonus)
         });
       }
 
@@ -5917,16 +6083,67 @@
     }
 
     // ── Legendary action generation ──
-    function generateLegendaryActions(cr, element, stats) {
+    function generateLegendaryActions(cr, concept, element, stats) {
       if (cr < 5) return [];
       const dmgType = elementToDamageType(element);
       const dc = getCRData(cr).saveDC;
-      const pool = [
+      const lower = concept.toLowerCase();
+
+      // Theme-specific legendary action pools
+      const legendaryPools = {
+        peace: [
+          { name: 'Detect', description: 'The creature makes a Wisdom (Perception) check.' },
+          { name: 'Move', description: 'The creature moves up to half its speed.' },
+          { name: 'Pacifying Word', description: `One creature the creature can see within 30 feet that is hostile must succeed on a DC ${dc} Charisma saving throw or have disadvantage on attack rolls until the end of its next turn.` },
+          { name: 'Gentle Redirect (Costs 2 Actions)', description: `One creature the creature can see within 30 feet must succeed on a DC ${dc} Wisdom saving throw or be pacified and unable to take hostile actions until the end of its next turn.` },
+        ],
+        fire: [
+          { name: 'Detect', description: 'The creature makes a Wisdom (Perception) check.' },
+          { name: 'Move', description: 'The creature moves up to half its speed.' },
+          { name: 'Scorching Lash', description: `The creature makes one attack or forces one creature within 10 feet to make a DC ${dc} Dexterity saving throw or take ${Math.max(2, Math.floor(cr / 2))}d6 fire damage.` },
+          { name: 'Blaze (Costs 2 Actions)', description: `Each creature within 15 feet must make a DC ${dc} Dexterity saving throw, taking ${Math.max(3, Math.floor(cr / 2))}d6 fire damage on a failed save.` },
+          { name: 'Inferno (Costs 3 Actions)', description: `Each creature within 20 feet must succeed on a DC ${dc} Dexterity saving throw or take ${Math.max(3, Math.floor(cr / 2))}d8 fire damage.` }
+        ],
+        shadow: [
+          { name: 'Detect', description: 'The creature makes a Wisdom (Perception) check.' },
+          { name: 'Shadow Step (Costs 1 Action)', description: `The creature magically moves up to 30 feet to a space in dim light or darkness it can see.` },
+          { name: 'Void Lash', description: `The creature makes one attack or forces one creature within 10 feet to make a DC ${dc} Dexterity saving throw or take ${Math.max(2, Math.floor(cr / 2))}d6 necrotic damage.` },
+          { name: 'Shadow Burst (Costs 2 Actions)', description: `Dim light within 30 feet spreads to darkness. Each creature in the newly darkened area that the creature can see must succeed on a DC ${dc} Wisdom saving throw or be frightened until the end of its next turn.` },
+        ],
+        death: [
+          { name: 'Detect', description: 'The creature makes a Wisdom (Perception) check.' },
+          { name: 'Move', description: 'The creature moves up to half its speed.' },
+          { name: 'Death Lash', description: `The creature makes one attack or forces one creature within 10 feet to make a DC ${dc} Constitution saving throw or take ${Math.max(2, Math.floor(cr / 2))}d6 necrotic damage.` },
+          { name: 'Soul Drain (Costs 2 Actions)', description: `One creature the creature can see within 30 feet must make a DC ${dc} Charisma saving throw or take ${Math.max(3, Math.floor(cr / 2))}d6 necrotic damage and the creature regains hit points equal to the damage taken.` },
+        ],
+        divine: [
+          { name: 'Detect', description: 'The creature makes a Wisdom (Perception) check.' },
+          { name: 'Move', description: 'The creature moves up to half its speed.' },
+          { name: 'Holy Strike', description: `The creature makes one attack or forces one creature within 10 feet to make a DC ${dc} Dexterity saving throw or take ${Math.max(2, Math.floor(cr / 2))}d6 radiant damage.` },
+          { name: 'Radiant Judgment (Costs 2 Actions)', description: `Each creature of the creature's choice within 20 feet must make a DC ${dc} Dexterity saving throw, taking ${Math.max(3, Math.floor(cr / 2))}d6 radiant damage on a failed save. Undead have disadvantage.` },
+        ],
+        psychic: [
+          { name: 'Detect', description: 'The creature makes a Wisdom (Perception) check.' },
+          { name: 'Move', description: 'The creature moves up to half its speed.' },
+          { name: 'Mind Spike', description: `One creature the creature can see within 30 feet must make a DC ${dc} Intelligence saving throw or take ${Math.max(2, Math.floor(cr / 2))}d6 psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.` },
+          { name: 'Psychic Scream (Costs 2 Actions)', description: `Each creature within 20 feet that can hear the creature must make a DC ${dc} Wisdom saving throw or take ${Math.max(3, Math.floor(cr / 2))}d6 psychic damage.` },
+        ],
+      };
+
+      // Determine theme
+      let themeKey = 'arcane';
+      if (/peace|pacif|calm/.test(lower)) themeKey = 'peace';
+      else if (/fire|flame|burn/.test(lower)) themeKey = 'fire';
+      else if (/shadow|dark|void/.test(lower)) themeKey = 'shadow';
+      else if (/death|necrotic|undead/.test(lower)) themeKey = 'death';
+      else if (/divine|celestial|holy/.test(lower)) themeKey = 'divine';
+      else if (/psychic|mind|thought/.test(lower)) themeKey = 'psychic';
+
+      const pool = legendaryPools[themeKey] || [
         { name: 'Detect', description: 'The creature makes a Wisdom (Perception) check.' },
         { name: 'Move', description: 'The creature moves up to half its speed without provoking opportunity attacks.' },
         { name: `${dmgType.charAt(0).toUpperCase() + dmgType.slice(1)} Lash`, description: `The creature makes one attack or forces one creature within 10 feet to make a DC ${dc} Dexterity saving throw or take ${Math.max(2, Math.floor(cr / 2))}d6 ${dmgType} damage.` },
         { name: 'Teleport (Costs 2 Actions)', description: `The creature magically teleports up to ${30 + cr * 5} feet to an unoccupied space it can see.` },
-        { name: `${dmgType.charAt(0).toUpperCase() + dmgType.slice(1)} Storm (Costs 3 Actions)`, description: `Each creature within 20 feet must succeed on a DC ${dc} Constitution saving throw or take ${Math.max(3, Math.floor(cr / 2))}d8 ${dmgType} damage.` }
       ];
 
       const count = cr >= 17 ? 4 : cr >= 10 ? 3 : 2;
@@ -6786,11 +7003,11 @@
       const traitCount = 2 + Math.floor(Math.random() * 3);
       const baseTraits = [];
       for (let i = 0; i < traitCount; i++) {
-        baseTraits.push(composeTrait(name, element, cr, crData.prof));
+        baseTraits.push(composeTrait(name, concept, element, cr, crData.prof));
       }
 
       // Generate baseline actions
-      const baseActions = generateActions(cr, element, stats, type, archetypes);
+      const baseActions = generateActions(cr, concept, element, stats, type, archetypes, name);
 
       // Apply keyword templates
       const enhancements = applyKeywordTemplates(concept, baseTraits, baseActions, resistances.split(', ').filter(x => x), immunities.split(', ').filter(x => x));
@@ -6824,7 +7041,7 @@
       if (conceptAbilities.legendaryActions.length > 0) {
         legendaryActions = conceptAbilities.legendaryActions;
       } else {
-        legendaryActions = generateLegendaryActions(cr, element, stats);
+        legendaryActions = generateLegendaryActions(cr, concept, element, stats);
       }
 
       // AC type — concept-aware
