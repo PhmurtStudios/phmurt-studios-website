@@ -15329,6 +15329,8 @@ function downloadCityMap() {
         hp: monsterData.hp || 0,
         ac: monsterData.ac || 10,
         statBlock: monsterData.statBlock || '',
+        x: monsterData.x || Math.random() * 600,
+        y: monsterData.y || Math.random() * 400,
         addedAt: new Date().toISOString()
       };
 
@@ -15351,6 +15353,8 @@ function downloadCityMap() {
         personality: npcData.personality || '',
         appearance: npcData.appearance || '',
         backstory: npcData.backstory || '',
+        x: npcData.x || Math.random() * 600,
+        y: npcData.y || Math.random() * 400,
         addedAt: new Date().toISOString()
       };
 

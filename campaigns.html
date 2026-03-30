@@ -909,6 +909,277 @@
     .visibility-badge.public { background: rgba(46,204,113,0.15); color: #2ecc71; }
     .visibility-badge.dm-only { background: rgba(155,89,182,0.15); color: #9b59b6; }
 
+    /* ═══ Node Canvas ═══ */
+    .node-canvas-container {
+      position: relative;
+      width: 100%;
+      height: 700px;
+      background: #1a1a2e;
+      border: 1px solid var(--crimson-border);
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: grab;
+    }
+    .node-canvas-container:active { cursor: grabbing; }
+    .node-canvas-container.connecting { cursor: crosshair; }
+
+    /* The infinite canvas surface */
+    .node-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    /* SVG layer for connections */
+    .node-connections-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: visible;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+    .node-connection-path {
+      fill: none;
+      stroke: #c0392b;
+      stroke-width: 2.5;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      pointer-events: stroke;
+      cursor: pointer;
+    }
+    .node-connection-path:hover {
+      opacity: 1;
+      stroke-width: 3.5;
+    }
+    .node-connection-path.temp {
+      stroke-dasharray: 8 4;
+      opacity: 0.5;
+    }
+
+    /* Grid pattern background */
+    .node-canvas-grid {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      pointer-events: none;
+    }
+
+    /* Canvas controls toolbar */
+    .node-canvas-toolbar {
+      position: absolute;
+      top: 12px; right: 12px;
+      display: flex;
+      gap: 4px;
+      z-index: 10;
+    }
+    .node-canvas-btn {
+      padding: 6px 12px;
+      background: rgba(26,26,46,0.9);
+      border: 1px solid rgba(192,57,43,0.4);
+      color: rgba(255,255,255,0.7);
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    .node-canvas-btn:hover {
+      background: rgba(192,57,43,0.3);
+      color: #fff;
+      border-color: var(--crimson);
+    }
+
+    /* Zoom indicator */
+    .node-canvas-zoom {
+      position: absolute;
+      bottom: 12px; left: 12px;
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 1px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* ═══ Node Cards ═══ */
+    .node-card {
+      position: absolute;
+      width: 240px;
+      background: #16213e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      cursor: move;
+      user-select: none;
+      z-index: 2;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .node-card:hover {
+      border-color: rgba(192,57,43,0.5);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+      z-index: 5;
+    }
+    .node-card.selected {
+      border-color: var(--crimson);
+      box-shadow: 0 0 0 2px rgba(192,57,43,0.3), 0 6px 24px rgba(0,0,0,0.5);
+      z-index: 6;
+    }
+    .node-card.dragging {
+      z-index: 100;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      opacity: 0.95;
+    }
+
+    /* Node header — colored by type */
+    .node-header {
+      padding: 8px 12px;
+      border-radius: 6px 6px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .node-header-title {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: #fff;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .node-header-type {
+      font-size: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      background: rgba(0,0,0,0.2);
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+
+    /* Type-specific header colors */
+    .node-card.session .node-header { background: #7a200d; }
+    .node-card.major_plot .node-header { background: #7a6b0d; }
+    .node-card.minor_plot .node-header { background: #3d5a1e; }
+    .node-card.combat .node-header { background: #8b0000; }
+    .node-card.discovery .node-header { background: #1a6b3a; }
+    .node-card.npc_event .node-header { background: #2a4a6b; }
+    .node-card.custom .node-header { background: #4a4a4a; }
+    .node-card.monster .node-header { background: #6b1a3a; }
+    .node-card.npc .node-header { background: #1a4a6b; }
+    .node-card.treasure .node-header { background: #6b5a0d; }
+
+    /* Node body */
+    .node-body {
+      padding: 10px 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+      max-height: 80px;
+      overflow: hidden;
+    }
+    .node-body-date {
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 4px;
+    }
+    .node-body-desc {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Connection ports */
+    .node-port {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #2a2a4a;
+      border: 2px solid rgba(192,57,43,0.5);
+      cursor: crosshair;
+      z-index: 10;
+      transition: all 0.2s;
+    }
+    .node-port:hover {
+      background: var(--crimson);
+      border-color: var(--crimson);
+      transform: scale(1.3);
+    }
+    .node-port.connected {
+      background: var(--crimson);
+      border-color: var(--crimson);
+    }
+    .node-port-out {
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .node-port-in {
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* Node footer with small action buttons */
+    .node-footer {
+      padding: 6px 12px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+    .node-action-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      font-size: 11px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+    .node-action-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+    .node-action-btn.delete:hover {
+      color: #e74c3c;
+      background: rgba(231,76,60,0.15);
+    }
+
+    /* Empty canvas state */
+    .node-canvas-empty {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: rgba(255,255,255,0.2);
+      font-family: 'Cinzel', serif;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .node-canvas-empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .node-canvas-empty-text {
+      font-size: 14px;
+      letter-spacing: 2px;
+    }
+
     /* Responsive */
     @media (max-width: 1200px) {
       .campaign-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1139,34 +1410,47 @@
           </div>
         </div>
 
-        <!-- Timeline Section -->
+        <!-- Timeline / Node Canvas Section -->
         <div id="journalTimelineSection" style="display: block; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border);">
           <div class="section-header">
             <div class="section-title">Campaign Timeline</div>
-            <button class="section-add-btn" onclick="openAddTimelineEventModal()">+ Add Event</button>
-          </div>
-          <div style="font-size:13px;color:var(--text-dim);margin-bottom:24px;">Click any event to expand its details. Events marked as DM-only are hidden from players.</div>
-
-          <div class="timeline-interactive-wrapper">
-            <div class="timeline-controls">
-              <select class="form-input" id="timelineFilterType" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))" style="width:auto;">
-                <option value="all">All Events</option>
-                <option value="session">Sessions</option>
-                <option value="major_plot">Major Plot Points</option>
-                <option value="minor_plot">Minor Plot Points</option>
-                <option value="combat">Key Battles</option>
-                <option value="discovery">Discoveries</option>
-                <option value="npc_event">NPC Events</option>
-                <option value="custom">Custom</option>
-              </select>
-              <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-dim);cursor:pointer;margin-left:12px;">
-                <input type="checkbox" id="timelineShowDMOnly" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))"> Show DM-only events
-              </label>
+            <div class="section-btns">
+              <button class="section-add-btn" onclick="openAddTimelineEventModal()">+ Add Event</button>
             </div>
+          </div>
+          <div style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">
+            Drag nodes to arrange your story. Connect events by dragging from one port to another. Scroll to zoom, drag canvas to pan.
+          </div>
 
-            <div id="timelineContainer" style="margin-top:24px;"></div>
+          <!-- Filters row -->
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+            <select class="form-input" id="timelineFilterType" onchange="renderNodeCanvas()" style="width:auto;padding:6px 12px;font-size:12px;">
+              <option value="all">All Events</option>
+              <option value="session">Sessions</option>
+              <option value="major_plot">Major Plot</option>
+              <option value="minor_plot">Minor Plot</option>
+              <option value="combat">Battles</option>
+              <option value="discovery">Discoveries</option>
+              <option value="npc_event">NPC Events</option>
+              <option value="custom">Custom</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);cursor:pointer;">
+              <input type="checkbox" id="timelineShowDMOnly" checked onchange="renderNodeCanvas()"> DM-only
+            </label>
+          </div>
 
-            <div class="empty-state" id="timelineEmptyState" style="display:none;"><div class="empty-state-text">No timeline events yet. Start building your campaign's story!</div></div>
+          <!-- The Node Canvas -->
+          <div class="node-canvas-container" id="nodeCanvasContainer">
+            <div class="node-canvas-grid"></div>
+            <svg class="node-connections-svg" id="nodeConnectionsSVG"></svg>
+            <div class="node-canvas" id="nodeCanvas"></div>
+            <div class="node-canvas-toolbar">
+              <button class="node-canvas-btn" onclick="nodeCanvasZoom(1.2)" title="Zoom In">+</button>
+              <button class="node-canvas-btn" onclick="nodeCanvasZoom(0.8)" title="Zoom Out">−</button>
+              <button class="node-canvas-btn" onclick="nodeCanvasFitAll()" title="Fit All">Fit</button>
+              <button class="node-canvas-btn" onclick="nodeCanvasReset()" title="Reset View">Reset</button>
+            </div>
+            <div class="node-canvas-zoom" id="nodeCanvasZoomLabel">100%</div>
           </div>
         </div>
 
@@ -1999,6 +2283,7 @@
       c.notes = c.notes || [];
       c.timeline = c.timeline || [];
       c.generatedContent = c.generatedContent || [];
+      c.nodeConnections = c.nodeConnections || [];
       c.initiative = c.initiative || { combatants: [], currentTurn: 0, round: 1, active: false };
       c.battlemap = c.battlemap || {};
       c.settings = c.settings || {};
@@ -2169,7 +2454,7 @@
       renderPartyPlayersTab(c);
       renderEncountersResourcesTab(c);
       renderNotesTab(c);
-      renderTimelineTab(c);
+      renderNodeCanvas();
       renderPlayersTab(c);
       var tabButtons = document.querySelectorAll('.campaign-tab');
       if (tabButtons.length > 0) switchTab('overview', tabButtons[0]);
@@ -2519,6 +2804,8 @@
         if (idx >= 0) {
           evtData.attachedItems = c.timeline[idx].attachedItems || [];
           evtData.createdAt = c.timeline[idx].createdAt;
+          evtData.x = c.timeline[idx].x;
+          evtData.y = c.timeline[idx].y;
           c.timeline[idx] = evtData;
         }
       } else {
@@ -2528,7 +2815,7 @@
       window._editingTimelineEventId = null;
       saveCampaigns();
       closeModal('addTimelineEventModal');
-      renderTimelineTab(c);
+      renderNodeCanvas();
     }
 
     function deleteTimelineEvent(eventId) {
@@ -2536,7 +2823,7 @@
       if (!c || !c.timeline) return;
       c.timeline = c.timeline.filter(function(e) { return e.id !== eventId; });
       saveCampaigns();
-      renderTimelineTab(c);
+      renderNodeCanvas();
     }
 
     function toggleTimelineEventVisibility(eventId) {
@@ -2546,14 +2833,14 @@
       if (!evt) return;
       evt.visibility = evt.visibility === 'public' ? 'dm_only' : 'public';
       saveCampaigns();
-      renderTimelineTab(c);
+      renderNodeCanvas();
     }
 
     function toggleTimelineExpand(el) {
       el.closest('.timeline-event').classList.toggle('expanded');
     }
 
-    function renderTimelineTab(c) {
+    function renderTimelineTab_deprecated(c) {
       var container = document.getElementById('timelineContainer');
       var emptyState = document.getElementById('timelineEmptyState');
 
@@ -5227,6 +5514,482 @@
         if (modals.length > 0) {
           modals[modals.length - 1].classList.remove('active');
         }
+      }
+    });
+
+    // ═════════════════════════════════════════════════════════════
+    // NODE CANVAS SYSTEM (Blender-style node editor)
+    // ═════════════════════════════════════════════════════════════
+
+    var _nodeCanvas = {
+      panX: 0, panY: 0,
+      zoom: 1,
+      isPanning: false,
+      panStartX: 0, panStartY: 0,
+      panStartPanX: 0, panStartPanY: 0,
+      isDraggingNode: false,
+      dragNode: null,
+      dragOffsetX: 0, dragOffsetY: 0,
+      isConnecting: false,
+      connectFromId: null,
+      connectFromPort: null,
+      selectedNodeId: null,
+      initialized: false,
+      nodes: []
+    };
+
+    function initNodeCanvas() {
+      var container = document.getElementById('nodeCanvasContainer');
+      if (!container) return;
+
+      // Pan with middle-click, ctrl+drag, or left-click on background
+      container.addEventListener('mousedown', function(e) {
+        var isBackground = e.target === container || e.target.classList.contains('node-canvas-grid')
+          || e.target === document.getElementById('nodeCanvas');
+        if (e.button === 1 || (e.button === 0 && e.ctrlKey) || (e.button === 0 && isBackground)) {
+          _nodeCanvas.isPanning = true;
+          _nodeCanvas.panStartX = e.clientX;
+          _nodeCanvas.panStartY = e.clientY;
+          _nodeCanvas.panStartPanX = _nodeCanvas.panX;
+          _nodeCanvas.panStartPanY = _nodeCanvas.panY;
+          e.preventDefault();
+        }
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (_nodeCanvas.isPanning) {
+          var deltaX = e.clientX - _nodeCanvas.panStartX;
+          var deltaY = e.clientY - _nodeCanvas.panStartY;
+          _nodeCanvas.panX = _nodeCanvas.panStartPanX + deltaX;
+          _nodeCanvas.panY = _nodeCanvas.panStartPanY + deltaY;
+          updateCanvasTransform();
+          drawConnections();
+        }
+      });
+
+      document.addEventListener('mouseup', function() {
+        _nodeCanvas.isPanning = false;
+      });
+
+      // Zoom with scroll wheel (no modifier needed in the canvas)
+      container.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        var zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+        nodeCanvasZoom(zoomFactor);
+      }, { passive: false });
+
+      _nodeCanvas.initialized = true;
+    }
+
+    function nodeCanvasZoom(factor) {
+      _nodeCanvas.zoom = Math.max(0.2, Math.min(3.0, _nodeCanvas.zoom * factor));
+      updateCanvasTransform();
+    }
+
+    function nodeCanvasReset() {
+      _nodeCanvas.panX = 0;
+      _nodeCanvas.panY = 0;
+      _nodeCanvas.zoom = 1;
+      updateCanvasTransform();
+    }
+
+    function nodeCanvasFitAll() {
+      // Fit all nodes in view
+      var nodes = document.querySelectorAll('.node-card');
+      if (!nodes.length) {
+        nodeCanvasReset();
+        return;
+      }
+
+      var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      nodes.forEach(function(node) {
+        var x = parseInt(node.style.left) || 0;
+        var y = parseInt(node.style.top) || 0;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x + 240);
+        maxY = Math.max(maxY, y + 200);
+      });
+
+      var container = document.getElementById('nodeCanvasContainer');
+      var padding = 40;
+      var w = maxX - minX + padding * 2;
+      var h = maxY - minY + padding * 2;
+      var containerW = container.clientWidth;
+      var containerH = container.clientHeight;
+
+      _nodeCanvas.zoom = Math.min(containerW / w, containerH / h);
+      _nodeCanvas.zoom = Math.max(0.2, Math.min(1.5, _nodeCanvas.zoom));
+      _nodeCanvas.panX = (containerW - w * _nodeCanvas.zoom) / 2 - minX * _nodeCanvas.zoom + padding * _nodeCanvas.zoom;
+      _nodeCanvas.panY = (containerH - h * _nodeCanvas.zoom) / 2 - minY * _nodeCanvas.zoom + padding * _nodeCanvas.zoom;
+
+      updateCanvasTransform();
+    }
+
+    function updateCanvasTransform() {
+      var canvas = document.getElementById('nodeCanvas');
+      var svg = document.getElementById('nodeConnectionsSVG');
+      var transform = 'translate(' + _nodeCanvas.panX + 'px, ' + _nodeCanvas.panY + 'px) scale(' + _nodeCanvas.zoom + ')';
+      if (canvas) canvas.style.transform = transform;
+      if (svg) svg.style.transform = transform;
+      var zoomLabel = document.getElementById('nodeCanvasZoomLabel');
+      if (zoomLabel) zoomLabel.textContent = Math.round(_nodeCanvas.zoom * 100) + '%';
+    }
+
+    function renderNodeCanvas() {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+
+      var data = c;
+      var timeline = data.timeline || [];
+
+      // Load generated content (monsters, NPCs, etc.)
+      var campaignId = window._activeCampaignId;
+      var monsters = JSON.parse(localStorage.getItem('phmurt_campaign_monsters_' + campaignId) || '[]');
+      var npcs = JSON.parse(localStorage.getItem('phmurt_campaign_npcs_' + campaignId) || '[]');
+
+      var allNodes = [];
+
+      // Add timeline events as nodes
+      timeline.forEach(function(evt) {
+        allNodes.push({
+          id: evt.id,
+          title: evt.title || 'Untitled',
+          type: evt.type || 'custom',
+          nodeType: 'timeline',
+          date: evt.gameDate || '',
+          description: evt.description || '',
+          x: evt.x || 0,
+          y: evt.y || 0
+        });
+      });
+
+      // Add monsters
+      monsters.forEach(function(m) {
+        allNodes.push({
+          id: m.id,
+          title: m.name || 'Unnamed Monster',
+          type: 'monster',
+          nodeType: 'monster',
+          description: 'CR ' + (m.cr || 0),
+          x: m.x || 0,
+          y: m.y || 0
+        });
+      });
+
+      // Add NPCs
+      npcs.forEach(function(n) {
+        allNodes.push({
+          id: n.id,
+          title: n.name || 'Unnamed NPC',
+          type: 'npc',
+          nodeType: 'npc',
+          description: (n.race || '') + ' ' + (n.occupation || ''),
+          x: n.x || 0,
+          y: n.y || 0
+        });
+      });
+
+      // Apply filter
+      var filterType = document.getElementById('timelineFilterType');
+      var typeFilter = filterType ? filterType.value : 'all';
+      if (typeFilter !== 'all') {
+        allNodes = allNodes.filter(function(n) { return n.type === typeFilter; });
+      }
+
+      // Auto-layout nodes that have no positions
+      autoLayoutNodes(allNodes);
+
+      // Store nodes for reference
+      _nodeCanvas.nodes = allNodes;
+
+      // Render node cards
+      var canvas = document.getElementById('nodeCanvas');
+      if (!canvas) return;
+      canvas.innerHTML = '';
+
+      if (allNodes.length === 0) {
+        canvas.innerHTML = '<div class="node-canvas-empty">'
+          + '<div class="node-canvas-empty-icon">⬡</div>'
+          + '<div class="node-canvas-empty-text">No nodes yet. Add timeline events or export creatures from the generators.</div>'
+          + '</div>';
+      }
+
+      allNodes.forEach(function(node) {
+        var card = createNodeCard(node);
+        canvas.appendChild(card);
+      });
+
+      // Draw connections
+      drawConnections();
+
+      // Update canvas transform
+      updateCanvasTransform();
+
+      if (!_nodeCanvas.initialized) {
+        initNodeCanvas();
+      }
+    }
+
+    function createNodeCard(node) {
+      var card = document.createElement('div');
+      card.className = 'node-card ' + (node.type || 'custom');
+      card.dataset.nodeId = node.id;
+      card.style.left = node.x + 'px';
+      card.style.top = node.y + 'px';
+
+      var typeLabels = {
+        session: 'Session', major_plot: 'Plot', minor_plot: 'Plot', combat: 'Combat',
+        discovery: 'Discovery', npc_event: 'NPC', custom: 'Custom', monster: 'Monster', npc: 'NPC', treasure: 'Treasure'
+      };
+
+      var html = '<div class="node-header">';
+      html += '<div class="node-header-title">' + escapeHtml(node.title) + '</div>';
+      html += '<div class="node-header-type">' + (typeLabels[node.type] || node.type) + '</div>';
+      html += '</div>';
+
+      html += '<div class="node-body">';
+      if (node.date) html += '<div class="node-body-date">' + escapeHtml(node.date) + '</div>';
+      if (node.description) html += '<div class="node-body-desc">' + escapeHtml(node.description) + '</div>';
+      html += '</div>';
+
+      html += '<div class="node-port node-port-in" data-port="in"></div>';
+      html += '<div class="node-port node-port-out" data-port="out"></div>';
+
+      html += '<div class="node-footer">';
+      html += '<button class="node-action-btn" onclick="editTimelineNode(\x27' + node.id + '\x27)" title="Edit">✎</button>';
+      html += '<button class="node-action-btn delete" onclick="deleteTimelineNode(\x27' + node.id + '\x27)" title="Delete">✕</button>';
+      html += '</div>';
+
+      card.innerHTML = html;
+
+      // Node drag handler
+      card.addEventListener('mousedown', function(e) {
+        if (e.target.closest('.node-port') || e.target.closest('.node-action-btn')) return;
+        _nodeCanvas.isDraggingNode = true;
+        _nodeCanvas.dragNode = card;
+        var containerRect = document.getElementById('nodeCanvasContainer').getBoundingClientRect();
+        var mouseCanvasX = (e.clientX - containerRect.left - _nodeCanvas.panX) / _nodeCanvas.zoom;
+        var mouseCanvasY = (e.clientY - containerRect.top - _nodeCanvas.panY) / _nodeCanvas.zoom;
+        _nodeCanvas.dragOffsetX = mouseCanvasX - (parseInt(card.style.left) || 0);
+        _nodeCanvas.dragOffsetY = mouseCanvasY - (parseInt(card.style.top) || 0);
+        card.classList.add('dragging');
+      });
+
+      // Port connection handler
+      card.querySelectorAll('.node-port-out').forEach(function(port) {
+        port.addEventListener('mousedown', function(e) {
+          e.stopPropagation();
+          _nodeCanvas.isConnecting = true;
+          _nodeCanvas.connectFromId = node.id;
+          _nodeCanvas.connectFromPort = port;
+          document.getElementById('nodeCanvasContainer').classList.add('connecting');
+        });
+      });
+
+      card.querySelectorAll('.node-port-in').forEach(function(port) {
+        port.addEventListener('mouseover', function(e) {
+          if (_nodeCanvas.isConnecting && _nodeCanvas.connectFromId !== node.id) {
+            port.style.background = 'var(--crimson)';
+          }
+        });
+        port.addEventListener('mouseout', function(e) {
+          port.style.background = '';
+        });
+        port.addEventListener('mouseup', function(e) {
+          if (_nodeCanvas.isConnecting && _nodeCanvas.connectFromId !== node.id) {
+            createConnection(_nodeCanvas.connectFromId, node.id);
+          }
+          _nodeCanvas.isConnecting = false;
+          _nodeCanvas.connectFromId = null;
+          document.getElementById('nodeCanvasContainer').classList.remove('connecting');
+          drawConnections();
+        });
+      });
+
+      return card;
+    }
+
+    function autoLayoutNodes(nodes) {
+      if (!nodes.length) return;
+
+      var cols = Math.ceil(Math.sqrt(nodes.length));
+      var colWidth = 300;
+      var rowHeight = 200;
+
+      var hasAnyPosition = nodes.some(function(n) { return n.x !== 0 || n.y !== 0; });
+
+      nodes.forEach(function(node, idx) {
+        if (!hasAnyPosition || (node.x === 0 && node.y === 0)) {
+          var col = idx % cols;
+          var row = Math.floor(idx / cols);
+          node.x = col * colWidth;
+          node.y = row * rowHeight;
+        }
+      });
+    }
+
+    function createConnection(fromId, toId) {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+      if (!c.nodeConnections) c.nodeConnections = [];
+
+      var exists = c.nodeConnections.some(function(conn) {
+        return conn.fromId === fromId && conn.toId === toId;
+      });
+
+      if (!exists) {
+        c.nodeConnections.push({ fromId: fromId, toId: toId });
+        saveCampaigns();
+      }
+    }
+
+    function drawConnections() {
+      var c = getCampaign(window._activeCampaignId);
+      var connections = (c && c.nodeConnections) || [];
+      var svg = document.getElementById('nodeConnectionsSVG');
+
+      if (!svg) return;
+      svg.innerHTML = '';
+
+      connections.forEach(function(conn) {
+        var fromNode = document.querySelector('.node-card[data-node-id="' + conn.fromId + '"]');
+        var toNode = document.querySelector('.node-card[data-node-id="' + conn.toId + '"]');
+
+        if (!fromNode || !toNode) return;
+
+        var fromX = parseInt(fromNode.style.left) + 240;  // right edge
+        var fromY = parseInt(fromNode.style.top) + 100;   // middle
+        var toX = parseInt(toNode.style.left);             // left edge
+        var toY = parseInt(toNode.style.top) + 100;        // middle
+
+        var path = createBezierPath(fromX, fromY, toX, toY);
+        var pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathEl.setAttribute('d', path);
+        pathEl.setAttribute('class', 'node-connection-path');
+        pathEl.addEventListener('click', function(e) {
+          e.stopPropagation();
+          deleteConnection(conn.fromId, conn.toId);
+        });
+        pathEl.title = 'Click to disconnect';
+
+        svg.appendChild(pathEl);
+      });
+    }
+
+    function createBezierPath(x1, y1, x2, y2) {
+      var dx = x2 - x1;
+      var controlOffsetX = Math.abs(dx) / 2;
+      return 'M ' + x1 + ',' + y1 + ' C ' + (x1 + controlOffsetX) + ',' + y1 + ' ' + (x2 - controlOffsetX) + ',' + y2 + ' ' + x2 + ',' + y2;
+    }
+
+    function deleteConnection(fromId, toId) {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c || !c.nodeConnections) return;
+
+      c.nodeConnections = c.nodeConnections.filter(function(conn) {
+        return !(conn.fromId === fromId && conn.toId === toId);
+      });
+
+      saveCampaigns();
+      drawConnections();
+    }
+
+    function deleteTimelineNode(nodeId) {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+
+      // Remove from timeline
+      if (c.timeline) {
+        c.timeline = c.timeline.filter(function(e) { return e.id !== nodeId; });
+      }
+
+      // Remove from monsters
+      var mKey = 'phmurt_campaign_monsters_' + window._activeCampaignId;
+      var monsters = JSON.parse(localStorage.getItem(mKey) || '[]');
+      monsters = monsters.filter(function(m) { return m.id !== nodeId; });
+      localStorage.setItem(mKey, JSON.stringify(monsters));
+
+      // Remove from NPCs
+      var nKey = 'phmurt_campaign_npcs_' + window._activeCampaignId;
+      var npcs = JSON.parse(localStorage.getItem(nKey) || '[]');
+      npcs = npcs.filter(function(n) { return n.id !== nodeId; });
+      localStorage.setItem(nKey, JSON.stringify(npcs));
+
+      // Remove connections
+      if (c.nodeConnections) {
+        c.nodeConnections = c.nodeConnections.filter(function(conn) {
+          return conn.fromId !== nodeId && conn.toId !== nodeId;
+        });
+      }
+
+      saveCampaigns();
+      renderNodeCanvas();
+    }
+
+    function editTimelineNode(nodeId) {
+      var c = getCampaign(window._activeCampaignId);
+      if (!c) return;
+
+      // Check if it's a timeline event
+      var evt = c.timeline && c.timeline.find(function(e) { return e.id === nodeId; });
+      if (evt) {
+        openAddTimelineEventModal(nodeId);
+        return;
+      }
+
+      // For monsters/NPCs, we'd need to open their respective editors
+      // For now, just show a message
+      if (window.psToast) psToast('Edit via generators for now', 'info');
+    }
+
+    // Mouse move handler for dragging nodes
+    document.addEventListener('mousemove', function(e) {
+      if (_nodeCanvas.isDraggingNode && _nodeCanvas.dragNode) {
+        var containerRect = document.getElementById('nodeCanvasContainer').getBoundingClientRect();
+        var x = (e.clientX - containerRect.left - _nodeCanvas.panX) / _nodeCanvas.zoom;
+        var y = (e.clientY - containerRect.top - _nodeCanvas.panY) / _nodeCanvas.zoom;
+
+        _nodeCanvas.dragNode.style.left = (x - _nodeCanvas.dragOffsetX) + 'px';
+        _nodeCanvas.dragNode.style.top = (y - _nodeCanvas.dragOffsetY) + 'px';
+
+        drawConnections();
+      }
+    });
+
+    document.addEventListener('mouseup', function(e) {
+      if (_nodeCanvas.isDraggingNode && _nodeCanvas.dragNode) {
+        _nodeCanvas.isDraggingNode = false;
+        _nodeCanvas.dragNode.classList.remove('dragging');
+
+        // Save node position
+        var nodeId = _nodeCanvas.dragNode.dataset.nodeId;
+        var x = parseInt(_nodeCanvas.dragNode.style.left) || 0;
+        var y = parseInt(_nodeCanvas.dragNode.style.top) || 0;
+
+        var c = getCampaign(window._activeCampaignId);
+        if (!c) return;
+
+        // Update position in timeline
+        if (c.timeline) {
+          var evt = c.timeline.find(function(e) { return e.id === nodeId; });
+          if (evt) { evt.x = x; evt.y = y; }
+        }
+
+        // Update in monsters
+        var mKey = 'phmurt_campaign_monsters_' + window._activeCampaignId;
+        var monsters = JSON.parse(localStorage.getItem(mKey) || '[]');
+        var monster = monsters.find(function(m) { return m.id === nodeId; });
+        if (monster) { monster.x = x; monster.y = y; localStorage.setItem(mKey, JSON.stringify(monsters)); }
+
+        // Update in NPCs
+        var nKey = 'phmurt_campaign_npcs_' + window._activeCampaignId;
+        var npcs = JSON.parse(localStorage.getItem(nKey) || '[]');
+        var npc = npcs.find(function(n) { return n.id === nodeId; });
+        if (npc) { npc.x = x; npc.y = y; localStorage.setItem(nKey, JSON.stringify(npcs)); }
+
+        saveCampaigns();
+        _nodeCanvas.dragNode = null;
       }
     });
 
