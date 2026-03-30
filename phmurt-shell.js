@@ -223,11 +223,14 @@
         <div class="ps-nav-right">
           <div class="ps-dice-wrapper">
             <button class="ps-dice-btn" title="Roll d20" onclick="PhmurtDice.quickRoll()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
-                <line x1="12" y1="2" x2="12" y2="22"/>
-                <line x1="2" y1="8.5" x2="22" y2="8.5"/>
-                <text x="12" y="17" text-anchor="middle" fill="currentColor" stroke="none" font-size="8" font-family="Cinzel">20</text>
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round">
+                <polygon points="50,5 95,35 80,90 20,90 5,35"/>
+                <line x1="50" y1="5" x2="20" y2="90"/>
+                <line x1="50" y1="5" x2="80" y2="90"/>
+                <line x1="5" y1="35" x2="80" y2="90"/>
+                <line x1="95" y1="35" x2="20" y2="90"/>
+                <line x1="5" y1="35" x2="95" y2="35"/>
+                <text x="50" y="62" text-anchor="middle" fill="currentColor" stroke="none" font-size="26" font-weight="700" font-family="Cinzel,serif">20</text>
               </svg>
             </button>
             <div class="ps-dice-popup" id="dicePopup"></div>
@@ -591,38 +594,114 @@
 
   // ── Dice Roller ──
   window.PhmurtDice = {
+    _history: [],
+    _selectedDie: 20,
+    _count: 1,
+    _panelOpen: false,
+
     quickRoll: function() {
-      var result = Math.floor(Math.random() * 20) + 1;
       var popup = document.getElementById('dicePopup');
       if (!popup) return;
 
-      var cls = '';
-      if (result === 20) cls = ' nat20';
-      else if (result === 1) cls = ' nat1';
+      // Toggle panel open/close
+      if (PhmurtDice._panelOpen) {
+        popup.classList.remove('visible');
+        PhmurtDice._panelOpen = false;
+        return;
+      }
 
-      popup.innerHTML = '<div class="ps-dice-popup-num' + cls + '">' + result + '</div><div class="ps-dice-popup-label">1d20</div>';
+      PhmurtDice._panelOpen = true;
+      PhmurtDice._renderPanel();
       popup.classList.add('visible');
+    },
 
-      // Add roll animation to button
+    _renderPanel: function() {
+      var popup = document.getElementById('dicePopup');
+      if (!popup) return;
+
+      var dice = [4, 6, 8, 10, 12, 20, 100];
+      var diceHtml = dice.map(function(d) {
+        var sel = d === PhmurtDice._selectedDie ? ' ps-die-selected' : '';
+        return '<button class="ps-die-btn' + sel + '" onclick="event.stopPropagation();PhmurtDice.selectDie(' + d + ')">d' + d + '</button>';
+      }).join('');
+
+      var historyHtml = '';
+      if (PhmurtDice._history.length) {
+        historyHtml = '<div class="ps-dice-history">';
+        PhmurtDice._history.slice(-5).reverse().forEach(function(h) {
+          var cls = '';
+          if (h.max === h.total && h.count === 1) cls = ' nat20';
+          if (h.total === h.count) cls = ' nat1';
+          historyHtml += '<div class="ps-dice-hist-row"><span class="ps-dice-hist-label">' + h.count + 'd' + h.die + '</span><span class="ps-dice-hist-val' + cls + '">' + h.total + (h.rolls.length > 1 ? ' <span class="ps-dice-hist-detail">(' + h.rolls.join('+') + ')</span>' : '') + '</span></div>';
+        });
+        historyHtml += '</div>';
+      }
+
+      popup.innerHTML =
+        '<div class="ps-dice-panel">' +
+          '<div class="ps-dice-panel-title">Dice Roller</div>' +
+          '<div class="ps-dice-selector">' + diceHtml + '</div>' +
+          '<div class="ps-dice-count-row">' +
+            '<button class="ps-dice-count-btn" onclick="event.stopPropagation();PhmurtDice.adjustCount(-1)">-</button>' +
+            '<span class="ps-dice-count-display">' + PhmurtDice._count + 'd' + PhmurtDice._selectedDie + '</span>' +
+            '<button class="ps-dice-count-btn" onclick="event.stopPropagation();PhmurtDice.adjustCount(1)">+</button>' +
+          '</div>' +
+          '<button class="ps-dice-roll-btn" onclick="event.stopPropagation();PhmurtDice.roll()">Roll</button>' +
+          '<div id="diceResult"></div>' +
+          historyHtml +
+        '</div>';
+    },
+
+    selectDie: function(d) {
+      PhmurtDice._selectedDie = d;
+      PhmurtDice._renderPanel();
+    },
+
+    adjustCount: function(delta) {
+      PhmurtDice._count = Math.max(1, Math.min(10, PhmurtDice._count + delta));
+      PhmurtDice._renderPanel();
+    },
+
+    roll: function() {
+      var die = PhmurtDice._selectedDie;
+      var count = PhmurtDice._count;
+      var rolls = [];
+      for (var i = 0; i < count; i++) {
+        rolls.push(Math.floor(Math.random() * die) + 1);
+      }
+      var total = rolls.reduce(function(a, b) { return a + b; }, 0);
+
+      PhmurtDice._history.push({ die: die, count: count, rolls: rolls, total: total, max: die });
+      if (PhmurtDice._history.length > 20) PhmurtDice._history.shift();
+
+      // Animate button
       var btn = document.querySelector('.ps-dice-btn');
       if (btn) {
         btn.classList.add('rolling');
         setTimeout(function() { btn.classList.remove('rolling'); }, 500);
       }
 
-      clearTimeout(PhmurtDice._timer);
-      PhmurtDice._timer = setTimeout(function() {
-        popup.classList.remove('visible');
-      }, 3000);
+      PhmurtDice._renderPanel();
+
+      // Flash the result
+      var resultEl = document.getElementById('diceResult');
+      if (resultEl) {
+        var cls = '';
+        if (total === die * count) cls = ' nat20';
+        if (total === count) cls = ' nat1';
+        resultEl.innerHTML = '<div class="ps-dice-result-num' + cls + '">' + total + '</div>' +
+          (rolls.length > 1 ? '<div class="ps-dice-result-breakdown">' + rolls.join(' + ') + '</div>' : '');
+      }
     },
+
     _timer: null,
     init: function() {
-      // Close popup on outside click
       document.addEventListener('click', function(e) {
         var wrapper = document.querySelector('.ps-dice-wrapper');
         if (wrapper && !wrapper.contains(e.target)) {
           var popup = document.getElementById('dicePopup');
           if (popup) popup.classList.remove('visible');
+          PhmurtDice._panelOpen = false;
         }
       });
     }

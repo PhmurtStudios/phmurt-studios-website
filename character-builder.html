@@ -31,7 +31,7 @@
     .cb-step-item { display: flex; align-items: center; gap: 14px; padding: 12px 24px; cursor: pointer; transition: background 0.2s; position: relative; }
     .cb-step-item:hover { background: rgba(192,57,43,0.06); }
     .cb-step-item.active { background: rgba(192,57,43,0.1); }
-    .cb-step-item.active::left { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--crimson); }
+    .cb-step-item.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--crimson); }
     .cb-step-item.done .cb-step-num { background: var(--crimson); border-color: var(--crimson); color: var(--white); }
     .cb-step-num { width: 28px; height: 28px; border: 1px solid rgba(192,57,43,0.3); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 10px; color:var(--text-muted); flex-shrink: 0; transition: all 0.2s; }
     .cb-step-item.active .cb-step-num { border-color: var(--crimson); color: var(--crimson); }

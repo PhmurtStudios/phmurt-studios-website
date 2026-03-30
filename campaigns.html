@@ -111,6 +111,113 @@
       display: block;
     }
 
+    .campaign-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .campaign-list-header-left {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .campaign-list-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .campaign-list-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .campaign-join-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .campaign-join-toggle:hover {
+      border-color: var(--crimson);
+      color: var(--crimson);
+    }
+
+    .campaign-join-toggle svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .campaign-create-btn {
+      padding: 10px 24px;
+      background: var(--crimson);
+      border: none;
+      color: var(--white);
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .campaign-create-btn:hover {
+      background: var(--crimson-dim);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(192, 57, 43, 0.2);
+    }
+
+    /* Empty State Hero */
+    .empty-state-hero {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 40px;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      background: var(--bg-card);
+    }
+
+    .empty-state-icon-wrap {
+      margin-bottom: 24px;
+      opacity: 0.6;
+    }
+
+    .empty-state-hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .empty-state-hero-text {
+      font-size: 15px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
     .campaign-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -210,11 +317,11 @@
     /* ═══════════════════════════════
        CAMPAIGN DETAIL VIEW
        ═══════════════════════════════ */
-    .campaign-detail {
+    .campaign-detail-view {
       display: none;
     }
 
-    .campaign-detail.active {
+    .campaign-detail-view.active {
       display: block;
     }
 
@@ -2868,6 +2975,14 @@
 <body>
   <div id="ps-site-shell"></div>
 
+  <!-- Page Hero -->
+  <div class="ps-page-hero">
+    <div class="ps-page-eyebrow">DM Tools</div>
+    <div class="ps-page-title">Campaign</div>
+    <div class="ps-page-subtitle">Manager</div>
+    <p class="ps-page-intro">Plan sessions, track your party, run encounters, and manage every detail of your world from one place. Everything a Dungeon Master needs, built for the table.</p>
+  </div>
+
   <div class="campaign-container">
     <!-- Join Campaign Banner -->
     <div id="joinCampaignBanner" class="join-campaign-banner" style="display:none;">
@@ -2888,14 +3003,26 @@
     <!-- Campaign List View -->
     <div id="campaignList" class="campaign-list-view active">
       <div class="campaign-list-header">
-        <h1 style="font-size:32px;margin:0;">Your Campaigns</h1>
-        <button id="createCampaignBtn" class="form-button" onclick="openCreateCampaignModal()" style="margin-top:0;">+ Create Campaign</button>
+        <div class="campaign-list-header-left">
+          <div class="ps-section-title">Your Campaigns</div>
+          <div class="campaign-list-subtitle" id="campaignCountLabel">0 campaigns</div>
+        </div>
+        <div class="campaign-list-actions">
+          <button class="campaign-join-toggle" onclick="toggleJoinBanner()" title="Join with invite code">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Join
+          </button>
+          <button id="createCampaignBtn" class="campaign-create-btn" onclick="openCreateCampaignModal()">+ New Campaign</button>
+        </div>
       </div>
       <div id="campaignGrid" class="campaign-grid">
-        <div class="empty-state">
-          <div class="empty-state-icon">📜</div>
-          <div class="empty-state-title">No Campaigns Yet</div>
-          <div class="empty-state-text">Create your first campaign to get started!</div>
+        <div class="empty-state-hero">
+          <div class="empty-state-icon-wrap">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--crimson)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div class="empty-state-hero-title">No Campaigns Yet</div>
+          <div class="empty-state-hero-text">Every great adventure starts here. Create a campaign to begin tracking your party, building encounters, and managing your world.</div>
+          <button class="campaign-create-btn" onclick="openCreateCampaignModal()" style="margin-top:12px;">+ Create Your First Campaign</button>
         </div>
       </div>
     </div>
@@ -3364,7 +3491,7 @@
        ═══════════════════════════════════════════════════════════════════════════════════ -->
 
   <!-- Create Campaign Modal -->
-  <div id="createCampaignModal" class="modal" style="display:none;">
+  <div id="createCampaignModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Create Campaign</h2>
@@ -3395,7 +3522,7 @@
   </div>
 
   <!-- Add Party Member Modal -->
-  <div id="addPartyModal" class="modal" style="display:none;">
+  <div id="addPartyModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Party Member</h2>
@@ -3443,7 +3570,7 @@
   </div>
 
   <!-- Encounter Builder Modal -->
-  <div id="encounterBuilderModal" class="modal" style="display:none;">
+  <div id="encounterBuilderModal" class="modal">
     <div class="modal-content modal-wide">
       <div class="modal-header">
         <h2>Encounter Builder</h2>
@@ -3511,7 +3638,7 @@
   </div>
 
   <!-- Monster Stat Block Modal -->
-  <div id="statBlockModal" class="modal" style="display:none;">
+  <div id="statBlockModal" class="modal">
     <div class="modal-content modal-wide">
       <div class="modal-header">
         <h2 id="statBlockTitle">Monster Stats</h2>
@@ -3527,7 +3654,7 @@
   </div>
 
   <!-- Add Session Note Modal -->
-  <div id="addNoteModal" class="modal" style="display:none;">
+  <div id="addNoteModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Session Note</h2>
@@ -3551,7 +3678,7 @@
   </div>
 
   <!-- Add Timeline Event Modal -->
-  <div id="addTimelineEventModal" class="modal" style="display:none;">
+  <div id="addTimelineEventModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Timeline Event</h2>
@@ -3583,7 +3710,7 @@
   </div>
 
   <!-- Link Character Modal -->
-  <div id="linkCharacterModal" class="modal" style="display:none;">
+  <div id="linkCharacterModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Link Character to Party</h2>
@@ -3605,7 +3732,7 @@
   </div>
 
   <!-- Add Initiative Combatant Modal -->
-  <div id="initiativeModal" class="modal" style="display:none;">
+  <div id="initiativeModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Combatant</h2>
@@ -3675,7 +3802,7 @@
   </div>
 
   <!-- Add Handout Modal (NEW) -->
-  <div id="addHandoutModal" class="modal" style="display:none;">
+  <div id="addHandoutModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Handout</h2>
@@ -3702,7 +3829,7 @@
   </div>
 
   <!-- Add Lore Entry Modal (NEW) -->
-  <div id="addLoreModal" class="modal" style="display:none;">
+  <div id="addLoreModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Lore Entry</h2>
@@ -4045,12 +4172,12 @@ function ensureCampaignDefaults(c) {
 // ═══════════════════════════════
 // INIT
 // ═══════════════════════════════
+function buildTypeFilterTags() { /* no-op: timeline filter tags are now inline in renderJournalContent */ }
+
 function init() {
   loadCampaigns();
   renderCampaignList();
-  buildTypeFilterTags();
   populateMonsterTypeFilter();
-  calculateCR();
   updateAuthUI();
 
   if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.onAuthStateChange === 'function') {
@@ -4116,7 +4243,7 @@ function generateInviteCode() {
 }
 
 function createCampaign(event) {
-  event.preventDefault();
+  if (event && event.preventDefault) event.preventDefault();
   var currentUser = requireAuth();
   if (!currentUser) return;
   var campaign = {
@@ -4197,11 +4324,23 @@ function deleteCampaign(id) {
   renderCampaignList();
 }
 
+function toggleJoinBanner() {
+  var banner = document.getElementById('joinCampaignBanner');
+  if (banner) banner.style.display = banner.style.display === 'none' ? '' : 'none';
+}
+
 function renderCampaignList() {
   var grid = document.getElementById('campaignGrid');
   var campaigns = window._campaigns || [];
+  var countLabel = document.getElementById('campaignCountLabel');
+  if (countLabel) countLabel.textContent = campaigns.length + ' campaign' + (campaigns.length !== 1 ? 's' : '');
   if (!campaigns.length) {
-    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-text">No campaigns yet. Create your first adventure!</div></div>';
+    grid.innerHTML = '<div class="empty-state-hero">' +
+      '<div class="empty-state-icon-wrap"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--crimson)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>' +
+      '<div class="empty-state-hero-title">No Campaigns Yet</div>' +
+      '<div class="empty-state-hero-text">Every great adventure starts here. Create a campaign to begin tracking your party, building encounters, and managing your world.</div>' +
+      '<button class="campaign-create-btn" onclick="openCreateCampaignModal()" style="margin-top:16px;">+ Create Your First Campaign</button>' +
+    '</div>';
     return;
   }
   grid.innerHTML = campaigns.map(function(c) {
@@ -4466,29 +4605,115 @@ function renderLoreSection(c) {
 function renderPlayTab() {
   var playContainer = document.getElementById('playTab');
   if (!playContainer) return;
-  var html = '<div style="padding:20px;display:grid;grid-template-columns:1fr 200px;gap:20px;height:100%;overflow:hidden;">';
-  html += '<div style="display:flex;flex-direction:column;overflow:hidden;">';
-  html += '<div id="bmCanvasWrap" style="flex:1;position:relative;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;">';
-  html += '<canvas id="battlemapCanvas" style="display:block;"></canvas>';
+  var c = getCampaign(window._activeCampaignId);
+
+  var html = '<div class="play-layout">';
+
+  // Left sidebar: Initiative + Dice Roller
+  html += '<div class="play-sidebar">';
+
+  // Initiative Tracker
+  html += '<div class="initiative-section">';
+  html += '<div class="section-header"><div class="section-title">Initiative</div>';
+  html += '<div class="section-btns">';
+  html += '<button class="section-add-btn" onclick="addPartyToInitiative()" style="font-size:9px;background:transparent;border:1px solid var(--border);color:var(--text-muted);">All Party</button>';
+  html += '<button class="section-add-btn" onclick="openInitiativeModal()">+ Add</button>';
+  html += '</div></div>';
+  html += '<div class="round-counter" id="roundCounter">Round 1</div>';
+  html += '<div id="initiativeList" class="initiative-list"><div class="empty-state"><div class="empty-state-text">Add combatants to begin</div></div></div>';
+  html += '<div id="initiativeControls" class="initiative-controls" style="display:none;">';
+  html += '<button class="form-button" onclick="previousTurn()" style="flex:1;font-size:11px;padding:6px;">◀ Prev</button>';
+  html += '<button class="form-button" onclick="nextTurn()" style="flex:1;font-size:11px;padding:6px;">Next ▶</button>';
+  html += '<button class="form-button" onclick="resetInitiative()" style="flex:1;font-size:11px;padding:6px;background:transparent;border:1px solid var(--border);color:var(--text-muted);">Reset</button>';
+  html += '</div></div>';
+
+  // Dice Roller
+  html += '<div class="dice-roller">';
+  html += '<div class="section-header"><div class="section-title">Dice Roller</div></div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
+  ['4','6','8','10','12','20','100'].forEach(function(d) {
+    var cls = d === '20' ? 'background:var(--crimson);' : 'background:var(--bg-hover);border:1px solid var(--border);';
+    html += '<button style="' + cls + 'color:var(--text);padding:6px 10px;font-size:11px;cursor:pointer;border-radius:4px;font-family:Cinzel,serif;border:none;" onclick="rollDice(' + d + ')">d' + d + '</button>';
+  });
+  html += '</div>';
+  html += '<div style="display:flex;gap:4px;margin-bottom:8px;"><input type="text" class="form-input" id="diceCustomInput" placeholder="2d6+3" style="flex:1;font-size:11px;padding:5px 8px;">';
+  html += '<button class="form-button" onclick="rollCustomDice()" style="font-size:11px;padding:5px 10px;">Roll</button></div>';
+  html += '<div id="diceResult" style="text-align:center;padding:8px;background:var(--bg-card);border-radius:4px;margin-bottom:8px;min-height:40px;"></div>';
+  html += '<div id="diceHistory" style="max-height:120px;overflow-y:auto;"></div>';
+  html += '</div>';
+
+  // Quick Reference
+  html += '<div style="margin-top:8px;">';
+  html += '<div class="collapsible-header" onclick="toggleCollapsible(this)" style="cursor:pointer;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;display:flex;justify-content:space-between;align-items:center;">';
+  html += '<span style="font-family:Cinzel,serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);">Quick Reference</span>';
+  html += '<span class="collapsible-arrow" style="color:var(--text-muted);">▸</span></div>';
+  html += '<div class="collapsible-content" style="display:none;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;font-size:11px;color:var(--text-dim);line-height:1.6;">';
+  html += '<strong style="color:var(--text);">Conditions:</strong> Blinded · Charmed · Deafened · Frightened · Grappled · Incapacitated · Invisible · Paralyzed · Petrified · Poisoned · Prone · Restrained · Stunned · Unconscious<br><br>';
+  html += '<strong style="color:var(--text);">Actions:</strong> Attack · Cast a Spell · Dash · Disengage · Dodge · Help · Hide · Ready · Search · Use an Object<br><br>';
+  html += '<strong style="color:var(--text);">Cover:</strong> Half (+2 AC) · Three-Quarters (+5 AC) · Full (can\'t be targeted)';
+  html += '</div></div>';
+
+  html += '</div>'; // end sidebar
+
+  // Main: Battlemap
+  html += '<div class="play-main">';
+  html += '<input type="file" id="bmMapUpload" accept="image/*" style="display:none" onchange="handleMapUpload(this)">';
+
+  // Toolbar
+  html += '<div class="battlemap-toolbar" id="bmToolbar" style="display:flex;flex-wrap:wrap;gap:4px;padding:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px 4px 0 0;align-items:center;">';
+  var tools = [
+    {id:'select',label:'Select'},{id:'draw',label:'Draw'},{id:'line',label:'Line'},{id:'rect',label:'Rect'},
+    {id:'circle',label:'Circle'},{id:'cone',label:'Cone'},{id:'polygon',label:'Poly'},{id:'text',label:'Text'},
+    {id:'stamp',label:'Stamp'},{id:'ruler',label:'Ruler'},{id:'radius',label:'Radius'},{id:'fog',label:'Fog'},
+    {id:'eraser',label:'Eraser'}
+  ];
+  tools.forEach(function(t) {
+    html += '<button class="bm-tool' + (t.id === 'select' ? ' active' : '') + '" data-bm-tool="' + t.id + '" onclick="setBmTool(\x27' + t.id + '\x27)" title="' + t.label + '">' + t.label + '</button>';
+  });
+  html += '<div class="bm-sep" style="width:1px;height:20px;background:var(--border);margin:0 4px;"></div>';
+  html += '<input type="color" id="bmDrawColor" value="#dc143c" onchange="bm.drawColor=this.value" style="width:28px;height:28px;border:none;cursor:pointer;">';
+  html += '<select id="bmLineWidth" onchange="bm.drawWidth=parseInt(this.value,10)" style="padding:3px;font-size:10px;background:var(--bg-input);color:var(--text);border:1px solid var(--border);border-radius:2px;">';
+  html += '<option value="2">Thin</option><option value="3" selected>Med</option><option value="6">Thick</option><option value="10">Bold</option></select>';
+  html += '<div class="bm-sep" style="width:1px;height:20px;background:var(--border);margin:0 4px;"></div>';
+  html += '<button class="bm-tool" id="bmGridBtn" onclick="toggleBmGrid()">Grid</button>';
+  html += '<button class="bm-tool" onclick="bmZoom(0.25)">+</button>';
+  html += '<span id="bmZoomDisplay" style="font-size:10px;color:var(--text-muted);min-width:35px;text-align:center;">100%</span>';
+  html += '<button class="bm-tool" onclick="bmZoom(-0.25)">−</button>';
+  html += '<button class="bm-tool" onclick="resetBmView()">Reset</button>';
+  html += '<div class="bm-sep" style="width:1px;height:20px;background:var(--border);margin:0 4px;"></div>';
+  html += '<button class="bm-tool" onclick="undoBm()">Undo</button>';
+  html += '<button class="bm-tool" onclick="revealAllFog()">Reveal</button>';
+  html += '<button class="bm-tool" onclick="hideAllFog()">Fog All</button>';
+  html += '<button class="bm-tool" onclick="clearBattlemap()">Clear</button>';
+  html += '</div>';
+
+  // Canvas
+  html += '<div class="battlemap-canvas-wrap" id="bmCanvasWrap" style="position:relative;flex:1;background:#1a1a2e;border:1px solid var(--border);border-top:none;overflow:hidden;">';
+  html += '<canvas id="battlemapCanvas"></canvas>';
   html += '<div id="bmCoordLabels" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;"></div>';
   html += '</div>';
-  html += '<div style="display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding:8px 0;">';
-  html += '<button class="form-button" onclick="bm.tool=\'select\'" style="font-size:11px;padding:6px 10px;">Select</button>';
-  html += '<button class="form-button" onclick="bm.tool=\'draw\'" style="font-size:11px;padding:6px 10px;">Draw</button>';
-  html += '<button class="form-button" onclick="bm.tool=\'rect\'" style="font-size:11px;padding:6px 10px;">Rect</button>';
-  html += '<button class="form-button" onclick="bm.tool=\'circle\'" style="font-size:11px;padding:6px 10px;">Circle</button>';
-  html += '<button class="form-button" onclick="bm.tool=\'radius\'" style="font-size:11px;padding:6px 10px;">AoE</button>';
-  html += '<button class="form-button" onclick="zoomBattlemap(1.2)" style="font-size:11px;padding:6px 10px;">Zoom +</button>';
-  html += '<button class="form-button" onclick="zoomBattlemap(0.8)" style="font-size:11px;padding:6px 10px;">Zoom -</button>';
-  html += '<button class="form-button" onclick="resetBattlemapView()" style="font-size:11px;padding:6px 10px;">Reset</button>';
+
+  // Map sidebar
+  html += '<div class="battlemap-sidebar" id="bmSidebar" style="display:flex;gap:8px;padding:8px;background:var(--bg-card);border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;flex-wrap:wrap;">';
+  html += '<div style="flex:1;min-width:120px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;">Minimap</div><canvas id="bmMinimap" width="140" height="100" style="width:100%;border:1px solid var(--border);border-radius:2px;"></canvas></div>';
+  html += '<div style="flex:1;min-width:120px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;">Map</div>';
+  html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
+  html += '<button class="bm-tool" onclick="document.getElementById(\'bmMapUpload\').click()" style="font-size:10px;">Upload</button>';
+  html += '<input type="color" id="bmBgColor" value="#1a1a2e" onchange="bm.bgColor=this.value" style="width:24px;height:24px;border:none;cursor:pointer;">';
+  html += '<select id="bmGridSizeSelect" onchange="setBmGridSize(parseInt(this.value,10))" style="padding:2px;font-size:10px;background:var(--bg-input);color:var(--text);border:1px solid var(--border);border-radius:2px;">';
+  html += '<option value="20">Tiny</option><option value="30">Small</option><option value="40" selected>Med</option><option value="50">Large</option></select>';
+  html += '</div></div>';
+  html += '<div style="flex:2;min-width:200px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;">Tokens</div><div id="bmTokenPanel"></div></div>';
+  html += '<div style="flex:1;min-width:120px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;">On Map (<span id="bmTokenCount">0</span>)</div><div id="bmPlacedTokens" style="max-height:100px;overflow-y:auto;"></div></div>';
+  html += '<div id="bmRulerInfo" style="display:none;font-size:11px;color:var(--text-muted);"><strong>Ruler:</strong> <span id="bmRulerText">0 ft</span></div>';
+  html += '<div id="bmRadiusInfo" style="display:none;font-size:11px;color:var(--text-muted);"><strong>Radius:</strong> <span id="bmRadiusText">0 ft</span></div>';
   html += '</div>';
-  html += '</div>';
-  html += '<div style="display:flex;flex-direction:column;gap:12px;overflow-y:auto;">';
-  html += '<div><h4>Minimap</h4><canvas id="bmMinimap" style="width:100%;border:1px solid var(--border);background:var(--bg-card);border-radius:4px;"></canvas></div>';
-  html += '<div id="bmTokenPanel" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:8px;max-height:300px;overflow-y:auto;"></div>';
-  html += '</div>';
-  html += '</div>';
+
+  html += '</div>'; // end play-main
+  html += '</div>'; // end play-layout
+
   playContainer.innerHTML = html;
+  if (c) renderInitiativeTracker();
 }
 
 // ═══════════════════════════════
@@ -4913,6 +5138,43 @@ function saveNextSession() {
   renderNextSession();
   closeModal('nextSessionModal');
   if (window.psToast) psToast('Session scheduled!');
+}
+
+function updateSessionPrep() {
+  var c = getCampaign(window._activeCampaignId);
+  if (!c) return;
+  var checkbox = document.getElementById('prepCheckbox');
+  if (!checkbox) return;
+  if (!c.nextSession) c.nextSession = {};
+  c.nextSession.prepComplete = checkbox.checked;
+  saveCampaigns();
+}
+
+function filterTimeline() {
+  var c = getCampaign(window._activeCampaignId);
+  if (!c) return;
+  var filter = document.getElementById('timelineTypeFilter');
+  if (!filter) return;
+  var val = filter.value;
+  var items = document.querySelectorAll('.timeline-item');
+  items.forEach(function(item) {
+    if (!val || val === 'all' || item.getAttribute('data-type') === val) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+function filterNotes() {
+  var input = document.getElementById('notesSearchInput');
+  if (!input) return;
+  var query = input.value.toLowerCase();
+  var notes = document.querySelectorAll('.note-card');
+  notes.forEach(function(note) {
+    var text = note.textContent.toLowerCase();
+    note.style.display = text.indexOf(query) !== -1 ? '' : 'none';
+  });
 }
 
 function renderNextSession() {
