@@ -1,301 +1,361 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  ChevronDown, ChevronRight, ChevronUp, Swords, Shield, Users, MapPin, Crown,
-  Scroll, Clock, Calendar, Flame, Star, Eye, BookOpen, Dice1, Dice3, Dice5, Dice6,
-  Target, Heart, Zap, AlertTriangle, CheckCircle, Circle, ArrowRight, Plus,
+  ChevronDown, ChevronRight, Swords, Users, MapPin, Crown,
+  Scroll, Clock, Star, BookOpen, Dice6,
+  Target, Heart, CheckCircle, Circle, ArrowRight, Plus,
   Compass, Mountain, Castle, Skull, Flag, TrendingUp, TrendingDown, Minus,
-  Play, Pause, SkipForward, Volume2, Search, Bell, Settings, Menu, X,
-  ChevronLeft, MoreHorizontal, Crosshair, Map, Globe, Layers, Activity
+  SkipForward, Search, Bell, Settings, X, Edit3, Trash2, Eye, EyeOff,
+  Globe, Layers, Activity, Upload, Download, FileText, Save, Copy,
+  Calendar, Lock, Unlock, ToggleLeft, ToggleRight, AlertTriangle,
+  Package, Shield, Wand2, Map as MapIcon, Link, RefreshCw, ChevronUp,
+  MoreVertical, Check, Image, Bold, Italic, List, Type, Heading
 } from "lucide-react";
 
-// ─── MOCK DATA ──────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHMURT STUDIOS — CAMPAIGN MANAGER
+   Tokens & patterns matched 1:1 to style.css + campaigns.html
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-const CAMPAIGN_DATA = {
-  name: "The Shattered Crown",
-  status: "active",
-  startDate: "2025-09-14",
-  nextSession: "2026-04-02T19:00:00",
-  sessionsPlayed: 24,
+const T = {
+  bg:            "#0c0a0a",
+  bgNav:         "#080607",
+  bgCard:        "#111010",
+  bgHover:       "#1c1515",
+  bgMid:         "#181212",
+  bgInput:       "rgba(255,255,255,0.04)",
+  text:          "#f5ede0",
+  textDim:       "#c8bfb0",
+  textMuted:     "#8c7d6e",
+  textFaint:     "#574843",
+  crimson:       "#c0392b",
+  crimsonDim:    "#8b2219",
+  crimsonSoft:   "rgba(192,57,43,0.13)",
+  crimsonBorder: "rgba(192,57,43,0.32)",
+  border:        "rgba(255,255,255,0.09)",
+  borderMid:     "rgba(255,255,255,0.05)",
+  ui:            "'Cinzel', serif",
+  body:          "'Spectral', Georgia, serif",
+};
+
+// ─── BLANK CAMPAIGN TEMPLATE ────────────────────────────────────────────────
+
+const NEW_CAMPAIGN = () => ({
+  name: "Untitled Campaign", status: "active", startDate: new Date().toISOString().slice(0,10),
+  nextSession: "", sessionsPlayed: 0,
+  sessionSchedule: { dayOfWeek: 6, hour: 19, minute: 0, frequency: "weekly", timezone: "EST" },
+  modules: {
+    timeline: true, worldState: true, playMode: true, scheduler: true,
+    questTracker: true, factionTracker: true, npcTracker: true,
+    playerUploads: true, notesEditor: true,
+  },
+  party: [], quests: [], factions: [], regions: [], npcs: [],
+  timeline: [], campaignNotes: [],
+  activity: [{ time: "Just now", text: "Campaign created" }],
+});
+
+// ─── EXAMPLE CAMPAIGN (saved to account) ────────────────────────────────────
+
+const EXAMPLE_CAMPAIGN = {
+  name: "The Shattered Crown", status: "active", startDate: "2025-09-14",
+  nextSession: "2026-04-02T19:00:00", sessionsPlayed: 24,
+  sessionSchedule: { dayOfWeek: 3, hour: 19, minute: 0, frequency: "weekly", timezone: "EST" },
+  modules: {
+    timeline: true, worldState: true, playMode: true, scheduler: true,
+    questTracker: true, factionTracker: true, npcTracker: true,
+    playerUploads: true, notesEditor: true,
+  },
   party: [
-    { id: 1, name: "Kael Stormwind", class: "Paladin", level: 9, hp: 78, maxHp: 85, ac: 20, player: "Marcus", status: "healthy", icon: "shield" },
-    { id: 2, name: "Lyra Nightbloom", class: "Wizard", level: 9, hp: 42, maxHp: 48, ac: 15, player: "Sarah", status: "healthy", icon: "star" },
-    { id: 3, name: "Thorne Ashwick", class: "Rogue", level: 9, hp: 55, maxHp: 62, ac: 17, player: "Jake", status: "poisoned", icon: "eye" },
-    { id: 4, name: "Bronwyn Ironfist", class: "Cleric", level: 9, hp: 68, maxHp: 70, ac: 18, player: "Emma", status: "healthy", icon: "heart" },
-    { id: 5, name: "Fenris Darkmoor", class: "Ranger", level: 9, hp: 30, maxHp: 58, ac: 16, player: "Alex", status: "wounded", icon: "crosshair" }
+    { id:1, name:"Kael Stormwind",   cls:"Paladin", lv:9, hp:78, maxHp:85, ac:20, player:"Marcus", status:"healthy", sheetUrl:null, sheetName:null, race:"Human", bio:"Former soldier turned holy warrior." },
+    { id:2, name:"Lyra Nightbloom",  cls:"Wizard",  lv:9, hp:42, maxHp:48, ac:15, player:"Sarah",  status:"healthy", sheetUrl:null, sheetName:null, race:"Half-Elf", bio:"Arcane scholar from the Moonspire Academy." },
+    { id:3, name:"Thorne Ashwick",   cls:"Rogue",   lv:9, hp:55, maxHp:62, ac:17, player:"Jake",   status:"poisoned", sheetUrl:null, sheetName:null, race:"Halfling", bio:"Charming thief with a heart of gold." },
+    { id:4, name:"Bronwyn Ironfist", cls:"Cleric",  lv:9, hp:68, maxHp:70, ac:18, player:"Emma",   status:"healthy", sheetUrl:null, sheetName:null, race:"Dwarf", bio:"Devoted healer and keeper of old rites." },
+    { id:5, name:"Fenris Darkmoor",  cls:"Ranger",  lv:9, hp:30, maxHp:58, ac:16, player:"Alex",   status:"wounded", sheetUrl:null, sheetName:null, race:"Human", bio:"Lone tracker haunted by a dark past." },
   ],
   quests: [
-    { id: 1, title: "Retrieve the Crown of Aldenmire", type: "main", status: "active", urgency: "high", linkedFaction: "The Silver Accord", linkedRegion: "Aldenmire Ruins" },
-    { id: 2, title: "Investigate the Blighted Marsh", type: "side", status: "active", urgency: "medium", linkedFaction: "Marsh Wardens", linkedRegion: "Greymoor Marshes" },
-    { id: 3, title: "Escort the Merchant Caravan", type: "side", status: "completed", urgency: "low", linkedFaction: "Merchant Guild", linkedRegion: "King's Road" },
-    { id: 4, title: "Destroy the Shadow Obelisk", type: "main", status: "active", urgency: "critical", linkedFaction: "The Hollow", linkedRegion: "Shadowfen" },
-    { id: 5, title: "Win the Tournament of Blades", type: "side", status: "upcoming", urgency: "low", linkedFaction: "Kingdom of Valdris", linkedRegion: "Valdris Capital" }
+    { id:1, title:"Retrieve the Crown of Aldenmire",  type:"main", status:"active", urgency:"high",     faction:"The Silver Accord", region:"Aldenmire Ruins" },
+    { id:2, title:"Investigate the Blighted Marsh",    type:"side", status:"active", urgency:"medium",   faction:"Marsh Wardens",     region:"Greymoor Marshes" },
+    { id:3, title:"Escort the Merchant Caravan",       type:"side", status:"completed", urgency:"low",   faction:"Merchant Guild",    region:"King's Road" },
+    { id:4, title:"Destroy the Shadow Obelisk",        type:"main", status:"active", urgency:"critical", faction:"The Hollow",        region:"Shadowfen" },
+    { id:5, title:"Win the Tournament of Blades",      type:"side", status:"upcoming", urgency:"low",    faction:"Kingdom of Valdris",region:"Valdris Capital" },
   ],
   factions: [
-    { id: 1, name: "The Silver Accord", attitude: "allied", power: 72, trend: "rising", description: "Coalition of free cities opposing the Hollow", color: "#94a3b8" },
-    { id: 2, name: "The Hollow", attitude: "hostile", power: 88, trend: "rising", description: "Shadow cult seeking the Shattered Crown", color: "#7c3aed" },
-    { id: 3, name: "Kingdom of Valdris", attitude: "neutral", power: 65, trend: "declining", description: "Once-mighty kingdom weakened by civil war", color: "#d97706" },
-    { id: 4, name: "Marsh Wardens", attitude: "friendly", power: 30, trend: "stable", description: "Druidic guardians of the Greymoor Marshes", color: "#059669" },
-    { id: 5, name: "Merchant Guild", attitude: "friendly", power: 55, trend: "rising", description: "Trade consortium with vast information networks", color: "#dc2626" }
+    { id:1, name:"The Silver Accord",  attitude:"allied",   power:72, trend:"rising",    desc:"Coalition of free cities opposing the Hollow",      color:"#94a3b8" },
+    { id:2, name:"The Hollow",         attitude:"hostile",  power:88, trend:"rising",    desc:"Shadow cult seeking the Shattered Crown",            color:"#7c3aed" },
+    { id:3, name:"Kingdom of Valdris", attitude:"neutral",  power:65, trend:"declining", desc:"Once-mighty kingdom weakened by civil war",          color:"#d97706" },
+    { id:4, name:"Marsh Wardens",      attitude:"friendly", power:30, trend:"stable",   desc:"Druidic guardians of the Greymoor Marshes",          color:"#2d6a4f" },
+    { id:5, name:"Merchant Guild",     attitude:"friendly", power:55, trend:"rising",    desc:"Trade consortium with vast information networks",    color:"#c0392b" },
   ],
   regions: [
-    { id: 1, name: "Valdris Capital", type: "city", controlledBy: "Kingdom of Valdris", threat: "low", state: "tense", partyVisited: true },
-    { id: 2, name: "Greymoor Marshes", type: "wilderness", controlledBy: "Marsh Wardens", threat: "medium", state: "corrupted", partyVisited: true },
-    { id: 3, name: "Aldenmire Ruins", type: "dungeon", controlledBy: "The Hollow", threat: "extreme", state: "dangerous", partyVisited: false },
-    { id: 4, name: "Thornhaven", type: "town", controlledBy: "The Silver Accord", threat: "low", state: "rebuilding", partyVisited: true },
-    { id: 5, name: "Shadowfen", type: "wilderness", controlledBy: "The Hollow", threat: "high", state: "blighted", partyVisited: true },
-    { id: 6, name: "King's Road", type: "route", controlledBy: "Kingdom of Valdris", threat: "medium", state: "patrolled", partyVisited: true }
+    { id:1, name:"Valdris Capital",  type:"city",       ctrl:"Kingdom of Valdris", threat:"low",     state:"tense",      visited:true },
+    { id:2, name:"Greymoor Marshes", type:"wilderness",  ctrl:"Marsh Wardens",     threat:"medium",  state:"corrupted",  visited:true },
+    { id:3, name:"Aldenmire Ruins",  type:"dungeon",     ctrl:"The Hollow",        threat:"extreme", state:"dangerous",  visited:false },
+    { id:4, name:"Thornhaven",       type:"town",        ctrl:"The Silver Accord", threat:"low",     state:"rebuilding", visited:true },
+    { id:5, name:"Shadowfen",        type:"wilderness",  ctrl:"The Hollow",        threat:"high",    state:"blighted",   visited:true },
+    { id:6, name:"King's Road",      type:"route",       ctrl:"Kingdom of Valdris",threat:"medium",  state:"patrolled",  visited:true },
   ],
   npcs: [
-    { id: 1, name: "Commander Elara Voss", faction: "The Silver Accord", location: "Thornhaven", attitude: "allied", role: "quest giver", alive: true },
-    { id: 2, name: "The Whisper King", faction: "The Hollow", location: "Unknown", attitude: "hostile", role: "antagonist", alive: true },
-    { id: 3, name: "Barkeep Milo", faction: null, location: "Thornhaven", attitude: "friendly", role: "informant", alive: true },
-    { id: 4, name: "Warden Thistle", faction: "Marsh Wardens", location: "Greymoor Marshes", attitude: "cautious", role: "ally", alive: true },
-    { id: 5, name: "Lord Aldric Valdris", faction: "Kingdom of Valdris", location: "Valdris Capital", attitude: "neutral", role: "political", alive: true },
-    { id: 6, name: "Seraphine the Lost", faction: "The Hollow", location: "Shadowfen", attitude: "hostile", role: "lieutenant", alive: false }
+    { id:1, name:"Commander Elara Voss", faction:"The Silver Accord", loc:"Thornhaven",       attitude:"allied",   role:"quest giver", alive:true },
+    { id:2, name:"The Whisper King",     faction:"The Hollow",        loc:"Unknown",           attitude:"hostile",  role:"antagonist",  alive:true },
+    { id:3, name:"Barkeep Milo",         faction:null,                loc:"Thornhaven",       attitude:"friendly", role:"informant",   alive:true },
+    { id:4, name:"Warden Thistle",       faction:"Marsh Wardens",     loc:"Greymoor Marshes", attitude:"cautious", role:"ally",        alive:true },
+    { id:5, name:"Lord Aldric Valdris",  faction:"Kingdom of Valdris",loc:"Valdris Capital",  attitude:"neutral",  role:"political",   alive:true },
+    { id:6, name:"Seraphine the Lost",   faction:"The Hollow",        loc:"Shadowfen",        attitude:"hostile",  role:"lieutenant",  alive:false },
   ],
   timeline: [
-    {
-      id: 24, number: 24, title: "Into the Shadowfen", date: "2026-03-26", status: "completed",
-      summary: "The party ventured into the Shadowfen seeking the Shadow Obelisk. They fought corrupted beasts and discovered Seraphine the Lost guarding a ritual site. After a fierce battle, Seraphine was defeated but the obelisk remains active.",
-      events: [
-        { type: "encounter", text: "Ambush by 6 Blighted Wolves in the outer marshes", outcome: "Victory — Fenris badly wounded" },
-        { type: "discovery", text: "Found Seraphine's journal revealing the Crown's true location: Aldenmire", outcome: "New quest lead unlocked" },
-        { type: "encounter", text: "Boss fight: Seraphine the Lost (CR 11 Shadow Mage)", outcome: "Seraphine slain, obelisk still active" },
-        { type: "world_change", text: "The Hollow's grip on Shadowfen weakens slightly", outcome: "Faction power shift" },
-        { type: "loot", text: "Acquired Seraphine's Shadow Staff and encoded map", outcome: "Key item obtained" }
+    { id:24, n:24, title:"Into the Shadowfen", date:"2026-03-26",
+      summary:"The party ventured into the Shadowfen seeking the Shadow Obelisk. They fought corrupted beasts and discovered Seraphine the Lost guarding a ritual site. After a fierce battle, Seraphine was defeated but the obelisk remains active.",
+      events:[
+        { id:"e1", type:"encounter",    text:"Ambush by 6 Blighted Wolves in the outer marshes",  outcome:"Victory — Fenris badly wounded", dmOnly:false },
+        { id:"e2", type:"discovery",    text:"Found Seraphine's journal revealing the Crown's true location", outcome:"New quest lead unlocked", dmOnly:true },
+        { id:"e3", type:"encounter",    text:"Boss fight: Seraphine the Lost (CR 11 Shadow Mage)", outcome:"Seraphine slain, obelisk still active", dmOnly:false },
+        { id:"e4", type:"world_change", text:"The Hollow's grip on Shadowfen weakens slightly", outcome:"Faction power shift", dmOnly:false },
+        { id:"e5", type:"loot",         text:"Acquired Seraphine's Shadow Staff and encoded map", outcome:"Key item obtained", dmOnly:false },
       ],
-      worldChanges: ["Seraphine the Lost killed", "Hollow power in Shadowfen reduced", "Encoded map reveals Aldenmire path"],
-      notesCount: 7
-    },
-    {
-      id: 23, number: 23, title: "The Warden's Warning", date: "2026-03-19", status: "completed",
-      summary: "Warden Thistle warned the party about growing darkness in the marshes. The party helped defend a druidic shrine and earned the Marsh Wardens' trust.",
-      events: [
-        { type: "roleplay", text: "Extended negotiation with Warden Thistle for safe passage", outcome: "Alliance formed" },
-        { type: "encounter", text: "Defense of the Moonwell Shrine against shadow creatures", outcome: "Shrine protected" },
-        { type: "world_change", text: "Marsh Wardens formally allied with the party", outcome: "Faction relationship upgrade" }
+      changes:["Seraphine the Lost killed","Hollow power reduced","Aldenmire path revealed"], notes:"Party handled the encounter well. Fenris nearly went down twice.", dmOnly:false },
+    { id:23, n:23, title:"The Warden's Warning", date:"2026-03-19",
+      summary:"Warden Thistle warned the party about growing darkness in the marshes. The party helped defend a druidic shrine and earned the Marsh Wardens' trust.",
+      events:[
+        { id:"e6", type:"roleplay",     text:"Extended negotiation with Warden Thistle for safe passage", outcome:"Alliance formed", dmOnly:false },
+        { id:"e7", type:"encounter",    text:"Defense of the Moonwell Shrine against shadow creatures", outcome:"Shrine protected", dmOnly:false },
+        { id:"e8", type:"world_change", text:"Marsh Wardens formally allied with the party", outcome:"Faction relationship upgrade", dmOnly:false },
       ],
-      worldChanges: ["Marsh Wardens now allied", "Moonwell Shrine protected"],
-      notesCount: 4
-    },
-    {
-      id: 22, number: 22, title: "Crossroads at King's Road", date: "2026-03-12", status: "completed",
-      summary: "Completed the merchant escort quest. Encountered Hollow agents on the road. Learned about political tensions in Valdris.",
-      events: [
-        { type: "encounter", text: "Hollow ambush on the merchant caravan", outcome: "Repelled, captured one agent" },
-        { type: "roleplay", text: "Interrogation of captured Hollow agent", outcome: "Learned of Aldenmire excavation" },
-        { type: "quest_complete", text: "Merchant caravan delivered safely to Thornhaven", outcome: "Gold reward + merchant guild favor" }
+      changes:["Marsh Wardens now allied","Moonwell Shrine protected"], notes:"", dmOnly:false },
+    { id:22, n:22, title:"Crossroads at King's Road", date:"2026-03-12",
+      summary:"Completed the merchant escort quest. Encountered Hollow agents on the road. Learned about political tensions in Valdris.",
+      events:[
+        { id:"e9", type:"encounter",      text:"Hollow ambush on the merchant caravan", outcome:"Repelled, captured one agent", dmOnly:false },
+        { id:"e10", type:"roleplay",       text:"Interrogation of captured Hollow agent", outcome:"Learned of Aldenmire excavation", dmOnly:true },
+        { id:"e11", type:"quest_complete", text:"Merchant caravan delivered safely to Thornhaven", outcome:"Gold + merchant guild favor", dmOnly:false },
       ],
-      worldChanges: ["Merchant Guild favor increased", "Intelligence on Hollow operations gained"],
-      notesCount: 3
-    },
-    {
-      id: 21, number: 21, title: "The Gathering Storm", date: "2026-03-05", status: "completed",
-      summary: "Party arrived in Thornhaven. Met Commander Voss, learned about the Shattered Crown's history and the Silver Accord's formation.",
-      events: [
-        { type: "roleplay", text: "Council meeting with Silver Accord leadership", outcome: "Main quest briefing received" },
-        { type: "discovery", text: "Ancient texts in Thornhaven library hint at Crown's power", outcome: "Lore unlocked" }
+      changes:["Merchant Guild favor increased","Intel on Hollow gained"], notes:"", dmOnly:false },
+    { id:21, n:21, title:"The Gathering Storm", date:"2026-03-05",
+      summary:"Party arrived in Thornhaven. Met Commander Voss, learned about the Shattered Crown's history and the Silver Accord's formation.",
+      events:[
+        { id:"e12", type:"roleplay",  text:"Council meeting with Silver Accord leadership", outcome:"Main quest briefing received", dmOnly:false },
+        { id:"e13", type:"discovery", text:"Ancient texts in Thornhaven library hint at Crown's power", outcome:"Lore unlocked", dmOnly:false },
       ],
-      worldChanges: ["Silver Accord quest line activated"],
-      notesCount: 5
-    }
+      changes:["Silver Accord quest line activated"], notes:"", dmOnly:false },
   ],
-  recentActivity: [
-    { time: "2h ago", text: "Added session 24 notes and loot distribution", icon: "scroll" },
-    { time: "5h ago", text: "Updated Fenris HP after healing rest", icon: "heart" },
-    { time: "1d ago", text: "Marked Seraphine the Lost as deceased", icon: "skull" },
-    { time: "1d ago", text: "Updated Hollow faction power (-5)", icon: "trending-down" },
-    { time: "2d ago", text: "Added encoded map to party inventory", icon: "map" },
-    { time: "3d ago", text: "Scheduled next session: April 2nd", icon: "calendar" }
-  ]
+  campaignNotes: [],
+  activity: [
+    { time:"2h ago", text:"Added session 24 notes and loot distribution" },
+    { time:"5h ago", text:"Updated Fenris HP after healing rest" },
+    { time:"1d ago", text:"Marked Seraphine the Lost as deceased" },
+    { time:"1d ago", text:"Updated Hollow faction power (−5)" },
+    { time:"2d ago", text:"Added encoded map to party inventory" },
+    { time:"3d ago", text:"Scheduled next session: April 2nd" },
+  ],
 };
 
-// ─── THEME COLORS ───────────────────────────────────────────────────────────
+// ─── PRIMITIVES ─────────────────────────────────────────────────────────────
 
-const theme = {
-  parchment: "#f5f0e1",
-  parchmentDark: "#e8dcc8",
-  parchmentDeep: "#d4c5a9",
-  ink: "#2c1810",
-  inkLight: "#5c4033",
-  inkMuted: "#8b7355",
-  accent: "#8b4513",
-  accentGold: "#c9a84c",
-  danger: "#8b0000",
-  success: "#2d5a27",
-  water: "#4a6fa5",
-  shadow: "#1a0f0a"
-};
-
-// ─── UTILITY COMPONENTS ─────────────────────────────────────────────────────
-
-const Badge = ({ children, variant = "default", small = false }) => {
-  const styles = {
-    default: { background: theme.parchmentDark, color: theme.ink, border: `1px solid ${theme.parchmentDeep}` },
-    danger: { background: "#3d0c0c", color: "#f0a0a0", border: "1px solid #5a1a1a" },
-    success: { background: "#0c2d0c", color: "#90d090", border: "1px solid #1a4a1a" },
-    warning: { background: "#3d2c0c", color: "#f0d090", border: "1px solid #5a4a1a" },
-    info: { background: "#0c1a3d", color: "#90b8f0", border: "1px solid #1a2a5a" },
-    critical: { background: "#4a0000", color: "#ff6666", border: "1px solid #6a0000" },
-    muted: { background: "rgba(139,115,85,0.15)", color: theme.inkMuted, border: "1px solid rgba(139,115,85,0.2)" }
+const Tag = ({ children, variant = "default" }) => {
+  const m = {
+    default:  { bg: T.crimsonSoft, c: T.crimson,  b: T.crimsonBorder },
+    danger:   { bg: "rgba(192,57,43,0.18)", c: "#e8605a", b: "rgba(192,57,43,0.45)" },
+    success:  { bg: "rgba(45,106,79,0.14)", c: "#6fcf97", b: "rgba(45,106,79,0.32)" },
+    warning:  { bg: "rgba(217,119,6,0.12)", c: "#f0b860", b: "rgba(217,119,6,0.28)" },
+    info:     { bg: "rgba(148,163,184,0.10)", c: "#a8b8cc", b: "rgba(148,163,184,0.25)" },
+    critical: { bg: "rgba(192,57,43,0.22)", c: "#ff7070", b: "rgba(192,57,43,0.50)" },
+    muted:    { bg: T.bgInput, c: T.textMuted, b: T.border },
   };
+  const s = m[variant] || m.default;
   return (
     <span style={{
-      ...styles[variant],
-      padding: small ? "1px 6px" : "2px 10px",
-      borderRadius: "4px",
-      fontSize: small ? "10px" : "11px",
-      fontWeight: 600,
-      textTransform: "uppercase",
-      letterSpacing: "0.5px",
-      whiteSpace: "nowrap",
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "4px"
-    }}>
-      {children}
-    </span>
+      display:"inline-block", background:s.bg, color:s.c, border:`1px solid ${s.b}`,
+      fontFamily:T.ui, fontSize:"8px", letterSpacing:"1px", textTransform:"uppercase",
+      padding:"3px 8px", borderRadius:"2px", fontWeight:500, whiteSpace:"nowrap",
+    }}>{children}</span>
   );
 };
 
-const ProgressBar = ({ value, max, color = theme.accentGold, height = 6, showLabel = false }) => {
-  const pct = Math.round((value / max) * 100);
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%" }}>
-      <div style={{ flex: 1, height, background: "rgba(0,0,0,0.2)", borderRadius: height / 2, overflow: "hidden" }}>
-        <div style={{
-          width: `${pct}%`, height: "100%", background: color,
-          borderRadius: height / 2, transition: "width 0.6s ease"
-        }} />
-      </div>
-      {showLabel && <span style={{ fontSize: "11px", color: theme.inkMuted, minWidth: "32px" }}>{pct}%</span>}
-    </div>
-  );
-};
-
-const Card = ({ children, style = {}, onClick, hoverable = false, active = false }) => (
-  <div onClick={onClick} style={{
-    background: active ? "rgba(139,69,19,0.08)" : "rgba(245,240,225,0.6)",
-    border: `1px solid ${active ? theme.accent : "rgba(139,115,85,0.2)"}`,
-    borderRadius: "8px",
-    padding: "16px",
-    cursor: onClick ? "pointer" : "default",
-    transition: "all 0.2s ease",
-    ...(hoverable && onClick ? { ":hover": { borderColor: theme.accent } } : {}),
-    ...style
-  }}>
-    {children}
+const HpBar = ({ val, max, color }) => (
+  <div style={{ width:"100%", height:6, background:T.bgInput, border:`1px solid ${T.border}`, borderRadius:"2px", overflow:"hidden" }}>
+    <div style={{ width:`${Math.round(val/max*100)}%`, height:"100%", background:color||T.crimson, transition:"width 0.3s ease" }} />
   </div>
 );
 
-const SectionHeader = ({ icon: Icon, title, action, count }) => (
-  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-      {Icon && <Icon size={16} color={theme.accent} />}
-      <h3 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: theme.ink, textTransform: "uppercase", letterSpacing: "1px" }}>
-        {title}
-      </h3>
-      {count !== undefined && (
-        <span style={{ fontSize: "11px", color: theme.inkMuted, background: "rgba(0,0,0,0.06)", padding: "1px 7px", borderRadius: "10px" }}>{count}</span>
-      )}
+const PowerBar = ({ val, max, color }) => (
+  <div style={{ width:"100%", height:4, background:T.bgInput, borderRadius:"2px", overflow:"hidden" }}>
+    <div style={{ width:`${Math.round(val/max*100)}%`, height:"100%", background:color||T.crimson, transition:"width 0.3s ease" }} />
+  </div>
+);
+
+const SectionTitle = ({ icon:Icon, children, count, action }) => (
+  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+      {Icon && <Icon size={14} color={T.crimson} />}
+      <span style={{ fontFamily:T.ui, fontSize:"11px", letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", fontWeight:500 }}>{children}</span>
+      {count != null && <span style={{ fontFamily:T.ui, fontSize:"9px", color:T.textMuted, letterSpacing:"1px" }}>({count})</span>}
     </div>
     {action}
   </div>
 );
 
-const IconBtn = ({ icon: Icon, onClick, size = 14, title, active = false }) => (
-  <button onClick={onClick} title={title} style={{
-    background: active ? "rgba(139,69,19,0.15)" : "none", border: "1px solid rgba(139,115,85,0.2)",
-    borderRadius: "4px", padding: "4px 6px", cursor: "pointer", display: "flex", alignItems: "center",
-    color: active ? theme.accent : theme.inkMuted, transition: "all 0.15s"
-  }}>
-    <Icon size={size} />
-  </button>
+const LinkBtn = ({ children, onClick }) => (
+  <button onClick={onClick} style={{
+    background:"none", border:"none", cursor:"pointer", padding:0,
+    fontFamily:T.ui, fontSize:"9px", letterSpacing:"2px", color:T.textMuted, textTransform:"uppercase",
+    fontWeight:500, display:"flex", alignItems:"center", gap:4, transition:"color 0.2s",
+  }}>{children}</button>
 );
 
-// ─── COUNTDOWN HOOK ─────────────────────────────────────────────────────────
+const CrimsonBtn = ({ children, onClick, secondary, small, disabled, style:sx }) => (
+  <button onClick={disabled?undefined:onClick} style={{
+    padding: small ? "6px 14px" : "10px 24px",
+    border: secondary ? `1px solid ${T.border}` : "none",
+    background: disabled ? T.bgMid : secondary ? "transparent" : T.crimson,
+    color: disabled ? T.textFaint : secondary ? T.textMuted : "#f5ede0",
+    fontFamily:T.ui, fontSize: small ? "8px" : "9px", letterSpacing:"2px", textTransform:"uppercase",
+    cursor: disabled ? "default" : "pointer", borderRadius:"2px", fontWeight:500, transition:"all 0.2s",
+    display:"inline-flex", alignItems:"center", gap:8, opacity: disabled ? 0.5 : 1, ...sx,
+  }}>{children}</button>
+);
 
-function useCountdown(targetDate) {
-  const [remaining, setRemaining] = useState("");
+const Section = ({ children, style }) => (
+  <div style={{
+    background:T.bgCard, border:`1px solid ${T.crimsonBorder}`, borderRadius:"4px",
+    padding:28, boxShadow:"0 2px 8px rgba(0,0,0,0.08)", ...style,
+  }}>{children}</div>
+);
+
+const Input = ({ value, onChange, placeholder, style:sx, type="text", ...rest }) => (
+  <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} {...rest}
+    style={{ padding:"8px 12px", border:`1px solid ${T.border}`, borderRadius:"2px", background:T.bgInput,
+      fontSize:13, fontFamily:T.body, color:T.text, outline:"none", width:"100%", ...sx }} />
+);
+
+const Select = ({ value, onChange, children, style:sx }) => (
+  <select value={value} onChange={e=>onChange(e.target.value)}
+    style={{ padding:"8px 12px", border:`1px solid ${T.border}`, borderRadius:"2px", background:T.bgCard,
+      fontSize:13, fontFamily:T.body, color:T.text, outline:"none", cursor:"pointer", ...sx }}>
+    {children}
+  </select>
+);
+
+const Textarea = ({ value, onChange, placeholder, rows=4, style:sx }) => (
+  <textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={rows}
+    style={{ padding:"10px 12px", border:`1px solid ${T.border}`, borderRadius:"2px", background:T.bgInput,
+      fontSize:13, fontFamily:T.body, color:T.text, outline:"none", width:"100%", resize:"vertical",
+      lineHeight:1.7, ...sx }} />
+);
+
+const Modal = ({ open, onClose, title, children, wide }) => {
+  if (!open) return null;
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", padding:32 }}
+      onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()} style={{
+        background:T.bgCard, border:`1px solid ${T.crimsonBorder}`, borderRadius:"4px",
+        width: wide ? 740 : 520, maxHeight:"85vh", overflow:"hidden", display:"flex", flexDirection:"column",
+        boxShadow:"0 12px 40px rgba(0,0,0,0.5)",
+      }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"18px 24px", borderBottom:`1px solid ${T.border}` }}>
+          <span style={{ fontFamily:T.ui, fontSize:11, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", fontWeight:500 }}>{title}</span>
+          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:4 }}><X size={16}/></button>
+        </div>
+        <div style={{ padding:24, overflowY:"auto", flex:1 }}>{children}</div>
+      </div>
+    </div>
+  );
+};
+
+const ToggleSwitch = ({ on, onToggle, label }) => (
+  <div onClick={onToggle} style={{ display:"flex", alignItems:"center", gap:12, cursor:"pointer", padding:"8px 0" }}>
+    {on ? <ToggleRight size={22} color={T.crimson}/> : <ToggleLeft size={22} color={T.textFaint}/>}
+    <span style={{ fontSize:13, fontFamily:T.body, color: on ? T.text : T.textMuted, fontWeight:300 }}>{label}</span>
+  </div>
+);
+
+function useCountdown(target) {
+  const [s,setS] = useState("");
   useEffect(() => {
-    const update = () => {
-      const diff = new Date(targetDate) - new Date();
-      if (diff <= 0) { setRemaining("Now!"); return; }
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff % 86400000) / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      setRemaining(d > 0 ? `${d}d ${h}h ${m}m` : `${h}h ${m}m`);
+    const tick = () => {
+      const d = new Date(target) - new Date();
+      if (d<=0) { setS("Now"); return; }
+      const days=Math.floor(d/864e5), hrs=Math.floor((d%864e5)/36e5), min=Math.floor((d%36e5)/6e4);
+      setS(days>0 ? `${days}d ${hrs}h` : `${hrs}h ${min}m`);
     };
-    update();
-    const id = setInterval(update, 60000);
-    return () => clearInterval(id);
-  }, [targetDate]);
-  return remaining;
+    tick(); const id=setInterval(tick,60000); return ()=>clearInterval(id);
+  }, [target]);
+  return s;
 }
+
+let _eid = 100;
+const eid = () => `e${_eid++}`;
+let _id = 100;
+const uid = () => _id++;
 
 // ─── DICE ROLLER ────────────────────────────────────────────────────────────
 
 function DiceRoller() {
-  const [results, setResults] = useState([]);
-  const [selectedDie, setSelectedDie] = useState(20);
-  const [modifier, setModifier] = useState(0);
-  const [rolling, setRolling] = useState(false);
-  const dice = [4, 6, 8, 10, 12, 20, 100];
+  const [results,setResults] = useState([]);
+  const [die,setDie] = useState(20);
+  const [mod,setMod] = useState(0);
+  const [count,setCount] = useState(1);
+  const [rolling,setRolling] = useState(false);
+  const dice = [4,6,8,10,12,20,100];
 
   const roll = useCallback(() => {
     setRolling(true);
     setTimeout(() => {
-      const result = Math.floor(Math.random() * selectedDie) + 1;
-      const total = result + modifier;
-      const isCrit = selectedDie === 20 && result === 20;
-      const isFumble = selectedDie === 20 && result === 1;
-      setResults(prev => [{ die: selectedDie, result, modifier, total, isCrit, isFumble, time: Date.now() }, ...prev].slice(0, 12));
+      const rolls = Array.from({length:count}, ()=> Math.floor(Math.random()*die)+1);
+      const total = rolls.reduce((a,b)=>a+b,0) + mod;
+      const hasCrit = die===20 && rolls.some(r=>r===20);
+      const hasFumble = die===20 && rolls.some(r=>r===1);
+      setResults(p => [{ die, rolls, count, mod, total, crit:hasCrit, fumble:hasFumble, t:Date.now() }, ...p].slice(0,20));
       setRolling(false);
-    }, 300);
-  }, [selectedDie, modifier]);
+    }, 250);
+  }, [die,mod,count]);
 
   return (
     <div>
-      <div style={{ display: "flex", gap: "4px", marginBottom: "10px", flexWrap: "wrap" }}>
+      <div style={{ display:"flex", gap:4, marginBottom:12, flexWrap:"wrap" }}>
         {dice.map(d => (
-          <button key={d} onClick={() => setSelectedDie(d)} style={{
-            padding: "6px 10px", border: `1px solid ${d === selectedDie ? theme.accent : "rgba(139,115,85,0.3)"}`,
-            borderRadius: "4px", background: d === selectedDie ? "rgba(139,69,19,0.15)" : "transparent",
-            color: d === selectedDie ? theme.accent : theme.inkLight, cursor: "pointer",
-            fontSize: "12px", fontWeight: 600, transition: "all 0.15s"
+          <button key={d} onClick={()=>setDie(d)} style={{
+            padding:"5px 8px", background: d===die ? T.crimson : "transparent",
+            border:`1px solid ${d===die ? T.crimson : T.border}`,
+            color: d===die ? "#f5ede0" : T.textMuted,
+            fontFamily:T.ui, fontSize:"10px", cursor:"pointer", borderRadius:"2px",
+            fontWeight:500, transition:"all 0.15s",
           }}>d{d}</button>
         ))}
       </div>
-      <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "12px" }}>
-        <span style={{ fontSize: "11px", color: theme.inkMuted }}>MOD</span>
-        <button onClick={() => setModifier(m => m - 1)} style={{ background: "none", border: "1px solid rgba(139,115,85,0.3)", borderRadius: "3px", padding: "2px 8px", cursor: "pointer", color: theme.inkLight }}>-</button>
-        <span style={{ fontSize: "14px", fontWeight: 700, color: theme.ink, minWidth: "24px", textAlign: "center" }}>{modifier >= 0 ? `+${modifier}` : modifier}</span>
-        <button onClick={() => setModifier(m => m + 1)} style={{ background: "none", border: "1px solid rgba(139,115,85,0.3)", borderRadius: "3px", padding: "2px 8px", cursor: "pointer", color: theme.inkLight }}>+</button>
-        <button onClick={roll} disabled={rolling} style={{
-          marginLeft: "auto", padding: "8px 20px", background: rolling ? theme.inkMuted : theme.accent,
-          color: theme.parchment, border: "none", borderRadius: "6px", cursor: rolling ? "default" : "pointer",
-          fontWeight: 700, fontSize: "13px", letterSpacing: "0.5px", transition: "all 0.15s",
-          display: "flex", alignItems: "center", gap: "6px"
-        }}>
-          <Dice6 size={14} style={{ animation: rolling ? "spin 0.3s linear infinite" : "none" }} />
-          {rolling ? "..." : `Roll d${selectedDie}`}
-        </button>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginBottom:12 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+          <span style={{ fontFamily:T.ui, fontSize:8, color:T.textMuted, letterSpacing:"1px" }}>COUNT</span>
+          <button onClick={()=>setCount(c=>Math.max(1,c-1))} style={{ width:24, height:24, background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontSize:14, cursor:"pointer", borderRadius:"2px", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
+          <span style={{ fontFamily:T.ui, fontSize:14, color:T.text, fontWeight:500, minWidth:20, textAlign:"center" }}>{count}</span>
+          <button onClick={()=>setCount(c=>Math.min(10,c+1))} style={{ width:24, height:24, background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontSize:14, cursor:"pointer", borderRadius:"2px", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
+        </div>
+        <div style={{ width:1, height:20, background:T.border }}/>
+        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+          <span style={{ fontFamily:T.ui, fontSize:8, color:T.textMuted, letterSpacing:"1px" }}>MOD</span>
+          <button onClick={()=>setMod(m=>m-1)} style={{ width:24, height:24, background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontSize:14, cursor:"pointer", borderRadius:"2px", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
+          <span style={{ fontFamily:T.ui, fontSize:14, color:T.text, fontWeight:500, minWidth:30, textAlign:"center" }}>{mod>=0?`+${mod}`:mod}</span>
+          <button onClick={()=>setMod(m=>m+1)} style={{ width:24, height:24, background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontSize:14, cursor:"pointer", borderRadius:"2px", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
+        </div>
       </div>
+      <button onClick={roll} disabled={rolling} style={{
+        width:"100%", padding:10, background:rolling?T.crimsonDim:T.crimson, border:"none",
+        color:"#f5ede0", fontFamily:T.ui, fontSize:"10px", letterSpacing:"2px", textTransform:"uppercase",
+        cursor:rolling?"default":"pointer", borderRadius:"2px", fontWeight:500, marginBottom:8, transition:"all 0.2s",
+      }}>{rolling ? "Rolling..." : `Roll ${count}d${die}${mod?mod>0?`+${mod}`:mod:""}`}</button>
       {results.length > 0 && (
-        <div style={{ maxHeight: "180px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "4px" }}>
-          {results.map((r, i) => (
-            <div key={r.time} style={{
-              display: "flex", alignItems: "center", gap: "8px", padding: "6px 10px",
-              background: i === 0 ? (r.isCrit ? "rgba(201,168,76,0.15)" : r.isFumble ? "rgba(139,0,0,0.1)" : "rgba(0,0,0,0.04)") : "transparent",
-              borderRadius: "4px", borderLeft: i === 0 ? `3px solid ${r.isCrit ? theme.accentGold : r.isFumble ? theme.danger : theme.accent}` : "3px solid transparent",
-              opacity: i === 0 ? 1 : 0.5 + (1 - i / results.length) * 0.5
-            }}>
-              <span style={{ fontSize: "11px", color: theme.inkMuted, minWidth: "28px" }}>d{r.die}</span>
-              <span style={{ fontSize: "16px", fontWeight: 800, color: r.isCrit ? theme.accentGold : r.isFumble ? theme.danger : theme.ink }}>{r.result}</span>
-              {r.modifier !== 0 && <span style={{ fontSize: "11px", color: theme.inkMuted }}>{r.modifier > 0 ? `+${r.modifier}` : r.modifier}</span>}
-              {r.modifier !== 0 && <span style={{ fontSize: "13px", fontWeight: 700, color: theme.inkLight }}>= {r.total}</span>}
-              {r.isCrit && <Badge variant="warning" small>CRIT!</Badge>}
-              {r.isFumble && <Badge variant="danger" small>FUMBLE</Badge>}
+        <div style={{ borderTop:`1px solid ${T.border}`, marginTop:8, paddingTop:8 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+            <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>HISTORY</span>
+            <button onClick={()=>setResults([])} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>CLEAR</button>
+          </div>
+          {results.map((r,i) => (
+            <div key={r.t} style={{ display:"flex", justifyContent:"space-between", padding:"4px 0", fontSize:12, color:T.textDim, opacity:i===0?1:Math.max(0.35,1-i*0.08) }}>
+              <span style={{ fontFamily:T.ui, fontSize:10, color:T.textMuted }}>
+                {r.count>1?`${r.count}`:""}{r.die===100?"d%":`d${r.die}`}{r.mod!==0?(r.mod>0?`+${r.mod}`:r.mod):""}
+                {r.count>1 && <span style={{ color:T.textFaint, marginLeft:4 }}>[{r.rolls.join(", ")}]</span>}
+              </span>
+              <span style={{ fontWeight:500, color: r.crit?"#f1c40f":r.fumble?"#e74c3c":T.text, textShadow: r.crit?"0 0 12px rgba(241,196,15,0.5)":r.fumble?"0 0 12px rgba(231,76,60,0.5)":"none" }}>
+                {r.total} {r.crit?"NAT 20!":r.fumble?"NAT 1":""}
+              </span>
             </div>
           ))}
         </div>
@@ -307,439 +367,911 @@ function DiceRoller() {
 // ─── INITIATIVE TRACKER ─────────────────────────────────────────────────────
 
 function InitiativeTracker({ party }) {
-  const [combatants, setCombatants] = useState([]);
-  const [currentTurn, setCurrentTurn] = useState(0);
-  const [round, setRound] = useState(1);
-  const [inCombat, setInCombat] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newInit, setNewInit] = useState("");
+  const [combatants,setCombatants] = useState([]);
+  const [turn,setTurn] = useState(0);
+  const [round,setRound] = useState(1);
+  const [live,setLive] = useState(false);
+  const [name,setName] = useState("");
+  const [init,setInit] = useState("");
+  const [hpVal,setHpVal] = useState("");
+  const [acVal,setAcVal] = useState("");
+  const [conditions,setConditions] = useState({});
 
-  const startCombat = () => {
-    const pcs = party.map(p => ({
-      id: `pc-${p.id}`, name: p.name, initiative: Math.floor(Math.random() * 20) + 1,
-      hp: p.hp, maxHp: p.maxHp, ac: p.ac, type: "pc", class: p.class
-    }));
-    const enemies = [
-      { id: "e1", name: "Shadow Horror", initiative: Math.floor(Math.random() * 20) + 3, hp: 95, maxHp: 95, ac: 16, type: "enemy" },
-      { id: "e2", name: "Hollow Cultist", initiative: Math.floor(Math.random() * 20) + 1, hp: 32, maxHp: 32, ac: 13, type: "enemy" },
-      { id: "e3", name: "Hollow Cultist", initiative: Math.floor(Math.random() * 20) + 1, hp: 32, maxHp: 32, ac: 13, type: "enemy" }
-    ];
-    setCombatants([...pcs, ...enemies].sort((a, b) => b.initiative - a.initiative));
-    setCurrentTurn(0);
-    setRound(1);
-    setInCombat(true);
+  const start = () => {
+    const pcs = party.map(p => ({ id:`pc-${p.id}`, name:p.name, init:Math.floor(Math.random()*20)+1, hp:p.hp, maxHp:p.maxHp, ac:p.ac, type:"pc" }));
+    setCombatants(pcs.sort((a,b)=>b.init-a.init));
+    setTurn(0); setRound(1); setLive(true); setConditions({});
+  };
+  const next = () => {
+    let nextIdx = turn + 1;
+    while (nextIdx < combatants.length && combatants[nextIdx].hp <= 0) nextIdx++;
+    if (nextIdx >= combatants.length) {
+      setRound(r=>r+1);
+      let first = 0;
+      while (first < combatants.length && combatants[first].hp <= 0) first++;
+      setTurn(first);
+    } else setTurn(nextIdx);
+  };
+  const prev = () => {
+    if (turn === 0 && round === 1) return;
+    let prevIdx = turn - 1;
+    if (prevIdx < 0) { setRound(r=>Math.max(1,r-1)); prevIdx = combatants.length - 1; }
+    while (prevIdx >= 0 && combatants[prevIdx].hp <= 0) prevIdx--;
+    if (prevIdx >= 0) setTurn(prevIdx);
+  };
+  const adjHp = (id,d) => setCombatants(p=>p.map(c=>c.id===id?{...c,hp:Math.max(0,Math.min(c.maxHp,c.hp+d))}:c));
+  const remove = (id) => { setCombatants(p=>p.filter(c=>c.id!==id)); if(turn >= combatants.length-1) setTurn(t=>Math.max(0,t-1)); };
+  const addCondition = (id, cond) => { if(!cond) return; setConditions(p=>({...p, [id]: [...(p[id]||[]), cond]})); };
+  const removeCondition = (id, idx) => { setConditions(p=>({...p, [id]: (p[id]||[]).filter((_,i)=>i!==idx)})); };
+  const add = () => {
+    if(!name.trim()||!init) return;
+    const newC = {id:`c-${Date.now()}`,name,init:parseInt(init),hp:parseInt(hpVal)||30,maxHp:parseInt(hpVal)||30,ac:parseInt(acVal)||12,type:"enemy"};
+    setCombatants(p=>[...p,newC].sort((a,b)=>b.init-a.init));
+    setName(""); setInit(""); setHpVal(""); setAcVal("");
   };
 
-  const nextTurn = () => {
-    if (currentTurn >= combatants.length - 1) {
-      setCurrentTurn(0);
-      setRound(r => r + 1);
-    } else {
-      setCurrentTurn(t => t + 1);
-    }
-  };
+  const conditionsList = ["Blinded","Charmed","Deafened","Frightened","Grappled","Incapacitated","Invisible","Paralyzed","Petrified","Poisoned","Prone","Restrained","Stunned","Unconscious","Concentrating"];
 
-  const adjustHp = (id, delta) => {
-    setCombatants(prev => prev.map(c => c.id === id ? { ...c, hp: Math.max(0, Math.min(c.maxHp, c.hp + delta)) } : c));
-  };
-
-  const addCombatant = () => {
-    if (!newName.trim() || !newInit) return;
-    const entry = { id: `custom-${Date.now()}`, name: newName, initiative: parseInt(newInit), hp: 30, maxHp: 30, ac: 12, type: "enemy" };
-    setCombatants(prev => [...prev, entry].sort((a, b) => b.initiative - a.initiative));
-    setNewName("");
-    setNewInit("");
-  };
-
-  if (!inCombat) {
-    return (
-      <div style={{ textAlign: "center", padding: "20px 0" }}>
-        <Swords size={32} color={theme.inkMuted} style={{ marginBottom: "8px" }} />
-        <p style={{ color: theme.inkMuted, fontSize: "13px", marginBottom: "16px" }}>No active encounter</p>
-        <button onClick={startCombat} style={{
-          padding: "10px 24px", background: theme.danger, color: theme.parchment,
-          border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: 700, fontSize: "13px",
-          display: "inline-flex", alignItems: "center", gap: "8px"
-        }}>
-          <Swords size={14} /> Start Encounter
-        </button>
-      </div>
-    );
-  }
+  if(!live) return (
+    <div style={{ textAlign:"center", padding:"28px 0" }}>
+      <Swords size={28} color={T.textFaint} style={{ marginBottom:10 }} />
+      <p style={{ fontFamily:T.body, fontSize:14, color:T.textMuted, fontStyle:"italic", fontWeight:300, marginBottom:18 }}>No active encounter</p>
+      <CrimsonBtn onClick={start}><Swords size={13}/> Start Encounter</CrimsonBtn>
+    </div>
+  );
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Badge variant="danger">Round {round}</Badge>
-          <span style={{ fontSize: "12px", color: theme.inkMuted }}>Turn {currentTurn + 1}/{combatants.length}</span>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <Tag variant="danger">Round {round}</Tag>
+          <span style={{ fontFamily:T.ui, fontSize:9, color:T.textFaint, letterSpacing:"1px" }}>{turn+1}/{combatants.length}</span>
         </div>
-        <div style={{ display: "flex", gap: "4px" }}>
-          <button onClick={nextTurn} style={{
-            padding: "5px 12px", background: theme.accent, color: theme.parchment,
-            border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "11px", fontWeight: 600,
-            display: "flex", alignItems: "center", gap: "4px"
-          }}>
-            <SkipForward size={12} /> Next
-          </button>
-          <button onClick={() => setInCombat(false)} style={{
-            padding: "5px 12px", background: "rgba(139,0,0,0.15)", color: theme.danger,
-            border: `1px solid ${theme.danger}`, borderRadius: "4px", cursor: "pointer", fontSize: "11px", fontWeight: 600
-          }}>End</button>
+        <div style={{ display:"flex", gap:6 }}>
+          <CrimsonBtn onClick={prev} secondary small><ChevronUp size={11}/></CrimsonBtn>
+          <CrimsonBtn onClick={next} secondary small><SkipForward size={11}/> Next</CrimsonBtn>
+          <CrimsonBtn onClick={()=>{setLive(false);setCombatants([]);}} secondary small>End</CrimsonBtn>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "3px", maxHeight: "260px", overflowY: "auto" }}>
-        {combatants.map((c, i) => (
+      <div style={{ display:"flex", flexDirection:"column", gap:2, maxHeight:320, overflowY:"auto" }}>
+        {combatants.map((c,i) => (
           <div key={c.id} style={{
-            display: "flex", alignItems: "center", gap: "8px", padding: "7px 10px",
-            background: i === currentTurn ? "rgba(139,69,19,0.12)" : c.hp <= 0 ? "rgba(0,0,0,0.06)" : "transparent",
-            borderRadius: "5px", borderLeft: i === currentTurn ? `3px solid ${theme.accent}` : "3px solid transparent",
-            opacity: c.hp <= 0 ? 0.4 : 1
+            padding:"8px 10px", background: i===turn ? T.crimsonSoft : "transparent",
+            borderRadius:"2px", borderLeft: i===turn ? `3px solid ${T.crimson}` : "3px solid transparent",
+            opacity: c.hp<=0 ? 0.3 : 1, transition:"all 0.15s",
           }}>
-            <span style={{ fontSize: "12px", fontWeight: 700, color: theme.inkMuted, minWidth: "20px" }}>{c.initiative}</span>
-            <span style={{
-              width: "6px", height: "6px", borderRadius: "50%",
-              background: c.type === "pc" ? theme.success : theme.danger, flexShrink: 0
-            }} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "12px", fontWeight: 600, color: theme.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</div>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <span style={{ fontSize:12, fontFamily:T.body, fontWeight:500, color:T.textFaint, minWidth:20 }}>{c.init}</span>
+              <span style={{ width:5, height:5, borderRadius:"50%", flexShrink:0, background:c.type==="pc"?"#6fcf97":T.crimson }} />
+              <span style={{ flex:1, fontSize:13, fontFamily:T.body, fontWeight:400, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
+              <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>AC {c.ac}</span>
+              <div style={{ display:"flex", alignItems:"center", gap:2 }}>
+                <button onClick={()=>adjHp(c.id,-5)} style={{ background:"none", border:"none", cursor:"pointer", color:T.crimson, fontSize:14, padding:"2px 4px" }}>−</button>
+                <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, minWidth:42, textAlign:"center", color:c.hp<=c.maxHp*0.25?T.crimson:c.hp<=c.maxHp*0.5?"#d97706":T.textDim }}>{c.hp}/{c.maxHp}</span>
+                <button onClick={()=>adjHp(c.id,5)} style={{ background:"none", border:"none", cursor:"pointer", color:"#6fcf97", fontSize:14, padding:"2px 4px" }}>+</button>
+              </div>
+              {c.type==="enemy" && <button onClick={()=>remove(c.id)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:"2px" }}><X size={10}/></button>}
             </div>
-            <span style={{ fontSize: "10px", color: theme.inkMuted }}>AC {c.ac}</span>
-            <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-              <button onClick={() => adjustHp(c.id, -5)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.danger, fontSize: "12px", padding: "2px" }}>-</button>
-              <span style={{
-                fontSize: "11px", fontWeight: 700, minWidth: "38px", textAlign: "center",
-                color: c.hp <= c.maxHp * 0.25 ? theme.danger : c.hp <= c.maxHp * 0.5 ? "#b45309" : theme.ink
-              }}>{c.hp}/{c.maxHp}</span>
-              <button onClick={() => adjustHp(c.id, 5)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.success, fontSize: "12px", padding: "2px" }}>+</button>
-            </div>
+            {(conditions[c.id]||[]).length > 0 && (
+              <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginTop:4, paddingLeft:28 }}>
+                {(conditions[c.id]||[]).map((cond,ci) => (
+                  <span key={ci} onClick={()=>removeCondition(c.id,ci)} style={{
+                    display:"inline-flex", alignItems:"center", gap:3, background:T.crimsonSoft, border:`1px solid ${T.crimsonBorder}`,
+                    padding:"1px 6px", borderRadius:"2px", fontSize:8, fontFamily:T.ui, letterSpacing:"0.5px", color:T.crimson, cursor:"pointer", textTransform:"uppercase",
+                  }}>{cond} <X size={7}/></span>
+                ))}
+              </div>
+            )}
+            {i === turn && c.hp > 0 && (
+              <div style={{ paddingLeft:28, marginTop:4 }}>
+                <select onChange={e=>{addCondition(c.id,e.target.value);e.target.value="";}} value=""
+                  style={{ padding:"3px 6px", fontSize:10, fontFamily:T.ui, background:T.bgInput, border:`1px solid ${T.border}`, color:T.textMuted, borderRadius:"2px", cursor:"pointer" }}>
+                  <option value="">+ Condition</option>
+                  {conditionsList.map(co=><option key={co} value={co}>{co}</option>)}
+                </select>
+              </div>
+            )}
           </div>
         ))}
       </div>
-      <div style={{ display: "flex", gap: "4px", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid rgba(139,115,85,0.15)" }}>
-        <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Name" style={{
-          flex: 1, padding: "5px 8px", border: "1px solid rgba(139,115,85,0.3)", borderRadius: "4px",
-          background: "rgba(0,0,0,0.03)", fontSize: "11px", color: theme.ink, outline: "none"
-        }} />
-        <input value={newInit} onChange={e => setNewInit(e.target.value)} placeholder="Init" type="number" style={{
-          width: "46px", padding: "5px 6px", border: "1px solid rgba(139,115,85,0.3)", borderRadius: "4px",
-          background: "rgba(0,0,0,0.03)", fontSize: "11px", color: theme.ink, outline: "none", textAlign: "center"
-        }} />
-        <button onClick={addCombatant} style={{
-          padding: "5px 10px", background: "rgba(139,115,85,0.1)", border: "1px solid rgba(139,115,85,0.3)",
-          borderRadius: "4px", cursor: "pointer", color: theme.inkLight, fontSize: "11px"
-        }}>
-          <Plus size={12} />
-        </button>
+      <div style={{ display:"flex", gap:6, marginTop:12, paddingTop:12, borderTop:`1px solid ${T.borderMid}` }}>
+        <Input value={name} onChange={setName} placeholder="Name" style={{ flex:1 }} />
+        <Input value={init} onChange={setInit} placeholder="Init" type="number" style={{ width:48, textAlign:"center" }} />
+        <Input value={hpVal} onChange={setHpVal} placeholder="HP" type="number" style={{ width:48, textAlign:"center" }} />
+        <Input value={acVal} onChange={setAcVal} placeholder="AC" type="number" style={{ width:48, textAlign:"center" }} />
+        <CrimsonBtn onClick={add} secondary small><Plus size={12}/></CrimsonBtn>
       </div>
     </div>
   );
 }
 
-// ─── MAIN TAB VIEWS ─────────────────────────────────────────────────────────
+// ─── SESSION SCHEDULER (inline, no wrapper) ────────────────────────────────
 
-// ─── DASHBOARD ──────────────────────────────────────────────────────────────
+function SessionSchedulerInline({ data, setData }) {
+  const sched = data.sessionSchedule;
+  const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const [customDate, setCustomDate] = useState("");
+  const [customTime, setCustomTime] = useState("19:00");
 
-function DashboardView({ data, onNavigate }) {
+  const updateSchedule = (key, val) => {
+    setData(d => ({ ...d, sessionSchedule: { ...d.sessionSchedule, [key]: val } }));
+  };
+
+  const calculateNextSession = () => {
+    const now = new Date();
+    let next = new Date(now);
+    const targetDay = sched.dayOfWeek;
+    const diff = (targetDay - now.getDay() + 7) % 7;
+    next.setDate(now.getDate() + (diff === 0 && now.getHours() >= sched.hour ? 7 : diff));
+    next.setHours(sched.hour, sched.minute, 0, 0);
+    if (sched.frequency === "biweekly") next.setDate(next.getDate() + 7);
+    return next.toISOString();
+  };
+
+  const applySchedule = () => {
+    const nextISO = calculateNextSession();
+    setData(d => ({ ...d, nextSession: nextISO,
+      activity: [{ time: "Just now", text: `Updated session schedule: ${dayNames[sched.dayOfWeek]}s at ${sched.hour}:${String(sched.minute).padStart(2,"0")}` }, ...d.activity].slice(0,20)
+    }));
+  };
+
+  const scheduleCustom = () => {
+    if (!customDate) return;
+    const dt = new Date(`${customDate}T${customTime}:00`);
+    setData(d => ({ ...d, nextSession: dt.toISOString(),
+      activity: [{ time: "Just now", text: `Scheduled session for ${dt.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})} at ${customTime}` }, ...d.activity].slice(0,20)
+    }));
+    setCustomDate(""); setCustomTime("19:00");
+  };
+
+  const cancelNext = () => {
+    const after = calculateNextSession();
+    const skip = new Date(new Date(after).getTime() + 7*864e5);
+    setData(d => ({ ...d, nextSession: skip.toISOString(),
+      activity: [{ time: "Just now", text: "Cancelled next session, pushed to following week" }, ...d.activity].slice(0,20)
+    }));
+  };
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Day</span>
+          <Select value={sched.dayOfWeek} onChange={v=>updateSchedule("dayOfWeek",parseInt(v))} style={{ width:"100%" }}>
+            {dayNames.map((d,i) => <option key={i} value={i}>{d}</option>)}
+          </Select>
+        </div>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Frequency</span>
+          <Select value={sched.frequency} onChange={v=>updateSchedule("frequency",v)} style={{ width:"100%" }}>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Biweekly</option>
+            <option value="monthly">Monthly</option>
+          </Select>
+        </div>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Hour</span>
+          <Input type="number" value={sched.hour} onChange={v=>updateSchedule("hour",Math.max(0,Math.min(23,parseInt(v)||0)))} />
+        </div>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Minute</span>
+          <Input type="number" value={sched.minute} onChange={v=>updateSchedule("minute",Math.max(0,Math.min(59,parseInt(v)||0)))} />
+        </div>
+      </div>
+      <div style={{ display:"flex", gap:8 }}>
+        <CrimsonBtn onClick={applySchedule} small><Check size={12}/> Apply Schedule</CrimsonBtn>
+        <CrimsonBtn onClick={cancelNext} secondary small><X size={12}/> Skip Next</CrimsonBtn>
+      </div>
+      <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:16 }}>
+        <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:10 }}>One-Off Session</span>
+        <div style={{ display:"flex", gap:8 }}>
+          <Input type="date" value={customDate} onChange={setCustomDate} style={{ flex:1 }} />
+          <Input type="time" value={customTime} onChange={setCustomTime} style={{ width:100 }} />
+          <CrimsonBtn onClick={scheduleCustom} secondary small><Calendar size={12}/> Set</CrimsonBtn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PLAYER CHARACTER FORM (self-service for players) ───────────────────────
+
+function PlayerCharacterForm({ onSubmit, existing, onCancel }) {
+  const [form, setForm] = useState(existing || {
+    name:"", cls:"", lv:1, hp:10, maxHp:10, ac:10, player:"", status:"healthy",
+    race:"", bio:"", sheetUrl:null, sheetName:null,
+  });
+  const fileRef = useRef(null);
+
+  const handleSheet = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setForm(p => ({...p, sheetUrl: url, sheetName: file.name}));
+  };
+
+  const submit = () => {
+    if (!form.name.trim() || !form.player.trim()) return;
+    onSubmit(form);
+  };
+
+  const classes = ["Barbarian","Bard","Cleric","Druid","Fighter","Monk","Paladin","Ranger","Rogue","Sorcerer","Warlock","Wizard","Artificer","Blood Hunter"];
+  const races = ["Human","Elf","Half-Elf","Dwarf","Halfling","Gnome","Half-Orc","Tiefling","Dragonborn","Aasimar","Goliath","Tabaxi","Kenku","Firbolg","Genasi","Changeling","Warforged"];
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Player Name</span>
+          <Input value={form.player} onChange={v=>setForm(p=>({...p,player:v}))} placeholder="Your name" />
+        </div>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Character Name</span>
+          <Input value={form.name} onChange={v=>setForm(p=>({...p,name:v}))} placeholder="Character name" />
+        </div>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Race</span>
+          <Select value={form.race} onChange={v=>setForm(p=>({...p,race:v}))} style={{ width:"100%" }}>
+            <option value="">Select...</option>
+            {races.map(r=><option key={r} value={r}>{r}</option>)}
+          </Select>
+        </div>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Class</span>
+          <Select value={form.cls} onChange={v=>setForm(p=>({...p,cls:v}))} style={{ width:"100%" }}>
+            <option value="">Select...</option>
+            {classes.map(c=><option key={c} value={c}>{c}</option>)}
+          </Select>
+        </div>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Level</span>
+          <Input type="number" value={form.lv} onChange={v=>setForm(p=>({...p,lv:Math.max(1,Math.min(20,parseInt(v)||1))}))} />
+        </div>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>HP</span>
+          <Input type="number" value={form.hp} onChange={v=>setForm(p=>({...p,hp:parseInt(v)||1,maxHp:Math.max(p.maxHp,parseInt(v)||1)}))} />
+        </div>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Max HP</span>
+          <Input type="number" value={form.maxHp} onChange={v=>setForm(p=>({...p,maxHp:parseInt(v)||1}))} />
+        </div>
+        <div>
+          <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>AC</span>
+          <Input type="number" value={form.ac} onChange={v=>setForm(p=>({...p,ac:parseInt(v)||10}))} />
+        </div>
+      </div>
+      <div>
+        <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Backstory / Notes</span>
+        <Textarea value={form.bio||""} onChange={v=>setForm(p=>({...p,bio:v}))} placeholder="A brief backstory or notes about your character..." rows={3} />
+      </div>
+      <div>
+        <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Character Sheet</span>
+        <input type="file" ref={fileRef} style={{display:"none"}} accept=".pdf,.png,.jpg,.jpeg,.json" onChange={handleSheet} />
+        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+          <CrimsonBtn onClick={()=>fileRef.current?.click()} secondary small><Upload size={11}/> {form.sheetName ? "Replace" : "Upload Sheet"}</CrimsonBtn>
+          {form.sheetName && <span style={{ fontSize:11, color:T.textDim, fontStyle:"italic" }}>{form.sheetName}</span>}
+        </div>
+      </div>
+      <div style={{ display:"flex", gap:8, paddingTop:8, borderTop:`1px solid ${T.border}` }}>
+        <CrimsonBtn onClick={submit}><Check size={12}/> {existing ? "Save Changes" : "Join Campaign"}</CrimsonBtn>
+        {onCancel && <CrimsonBtn onClick={onCancel} secondary>Cancel</CrimsonBtn>}
+      </div>
+    </div>
+  );
+}
+
+// ─── PLAYER CHARACTER CARD (compact display after joining) ──────────────────
+
+function PlayerCard({ member, onEdit, onUploadSheet, isDm }) {
+  const [expanded, setExpanded] = useState(false);
+  const fileRef = useRef(null);
+
+  const handleSheet = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    onUploadSheet(member.id, file);
+  };
+
+  return (
+    <div style={{
+      background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:"4px",
+      boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s", overflow:"hidden",
+    }}>
+      <input type="file" ref={fileRef} style={{display:"none"}} accept=".pdf,.png,.jpg,.jpeg,.json" onChange={handleSheet} />
+      {/* Compact header — always visible */}
+      <div onClick={()=>setExpanded(!expanded)} style={{ padding:"16px 20px", cursor:"pointer", display:"flex", alignItems:"center", gap:12 }}>
+        <div style={{ width:36, height:36, borderRadius:"50%", background:T.crimsonSoft, border:`1px solid ${T.crimsonBorder}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+          <span style={{ fontFamily:T.ui, fontSize:12, color:T.crimson, fontWeight:500 }}>{member.name.charAt(0)}</span>
+        </div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <span style={{ fontSize:15, color:T.text, fontWeight:300 }}>{member.name}</span>
+            <Tag variant="muted">Lv{member.lv} {member.cls}</Tag>
+          </div>
+          <div style={{ fontSize:11, color:T.textFaint, fontWeight:300, marginTop:2 }}>
+            {member.player}{member.race ? ` — ${member.race}` : ""}
+          </div>
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
+          {member.status!=="healthy" && <Tag variant={member.status==="wounded"||member.status==="dead"?"danger":"warning"}>{member.status}</Tag>}
+          <div style={{ textAlign:"right" }}>
+            <div style={{ fontSize:11, color:member.hp<=member.maxHp*0.3?T.crimson:member.hp<=member.maxHp*0.5?"#d97706":T.textDim, fontWeight:500 }}>{member.hp}/{member.maxHp}</div>
+            <div style={{ width:60 }}><HpBar val={member.hp} max={member.maxHp} color={member.hp<member.maxHp*0.3?T.crimson:member.hp<member.maxHp*0.6?"#d97706":"#2d6a4f"}/></div>
+          </div>
+          <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>AC {member.ac}</span>
+          {expanded ? <ChevronUp size={14} color={T.textFaint}/> : <ChevronDown size={14} color={T.textFaint}/>}
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div style={{ padding:"0 20px 20px", borderTop:`1px solid ${T.borderMid}` }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:12, paddingTop:16, marginBottom:12 }}>
+            {[{l:"HP",v:`${member.hp}/${member.maxHp}`},{l:"AC",v:member.ac},{l:"Level",v:member.lv},{l:"Class",v:member.cls}].map(s=>(
+              <div key={s.l} style={{ textAlign:"center", background:T.bg, padding:"10px 8px", borderRadius:"2px", border:`1px solid ${T.border}` }}>
+                <span style={{ fontFamily:T.ui, fontSize:7, letterSpacing:"1.5px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:4 }}>{s.l}</span>
+                <span style={{ fontSize:14, color:T.crimson, fontWeight:300 }}>{s.v}</span>
+              </div>
+            ))}
+          </div>
+          {member.bio && <p style={{ fontSize:13, color:T.textDim, fontStyle:"italic", fontWeight:300, lineHeight:1.7, margin:"0 0 12px" }}>{member.bio}</p>}
+          {member.sheetName && (
+            <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:12 }}>
+              <FileText size={11} color={T.textFaint}/>
+              <a href={member.sheetUrl} target="_blank" rel="noreferrer" style={{ fontSize:11, color:T.crimson, textDecoration:"none" }}>{member.sheetName}</a>
+            </div>
+          )}
+          <div style={{ display:"flex", gap:6 }}>
+            <CrimsonBtn onClick={()=>onEdit(member)} secondary small><Edit3 size={10}/> Edit Character</CrimsonBtn>
+            <CrimsonBtn onClick={()=>fileRef.current?.click()} secondary small><Upload size={10}/> {member.sheetName?"Replace":"Upload"} Sheet</CrimsonBtn>
+            {isDm && (
+              <CrimsonBtn onClick={()=>onEdit({...member, _remove:true})} secondary small><Trash2 size={10}/> Remove</CrimsonBtn>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CAMPAIGN SELECTOR
+// ═══════════════════════════════════════════════════════════════════════════
+
+function CampaignSelector({ campaigns, activeCampaignId, onSelect, onCreate, onDelete }) {
+  const [showList, setShowList] = useState(false);
+
+  return (
+    <div style={{ position:"relative" }}>
+      <button onClick={()=>setShowList(!showList)} style={{
+        display:"flex", alignItems:"center", gap:8, background:"transparent", border:`1px solid ${T.border}`,
+        padding:"6px 14px", borderRadius:"2px", cursor:"pointer", transition:"all 0.2s",
+      }}>
+        <span style={{ fontSize:12, color:T.textDim, fontWeight:300 }}>{campaigns.find(c=>c.id===activeCampaignId)?.data.name || "Select Campaign"}</span>
+        <ChevronDown size={12} color={T.textFaint}/>
+      </button>
+      {showList && (
+        <div style={{
+          position:"absolute", top:"100%", right:0, marginTop:4, width:280,
+          background:T.bgCard, border:`1px solid ${T.crimsonBorder}`, borderRadius:"4px",
+          boxShadow:"0 8px 24px rgba(0,0,0,0.4)", zIndex:300, overflow:"hidden",
+        }}>
+          <div style={{ padding:"12px 16px", borderBottom:`1px solid ${T.border}` }}>
+            <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase" }}>Your Campaigns</span>
+          </div>
+          <div style={{ maxHeight:240, overflowY:"auto" }}>
+            {campaigns.map(c => (
+              <div key={c.id} onClick={()=>{onSelect(c.id);setShowList(false);}} style={{
+                padding:"10px 16px", cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center",
+                background: c.id===activeCampaignId ? T.crimsonSoft : "transparent",
+                borderBottom:`1px solid ${T.borderMid}`, transition:"background 0.15s",
+              }}>
+                <div>
+                  <div style={{ fontSize:13, color:T.text, fontWeight:300 }}>{c.data.name}</div>
+                  <div style={{ fontSize:10, color:T.textFaint, fontStyle:"italic" }}>
+                    {c.data.party.length} players · {c.data.sessionsPlayed} sessions
+                    {c.isExample && " · Example"}
+                  </div>
+                </div>
+                {!c.isExample && c.id !== activeCampaignId && (
+                  <button onClick={e=>{e.stopPropagation();onDelete(c.id);}} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:4 }}><Trash2 size={11}/></button>
+                )}
+              </div>
+            ))}
+          </div>
+          <div onClick={()=>{onCreate();setShowList(false);}} style={{
+            padding:"12px 16px", cursor:"pointer", borderTop:`1px solid ${T.border}`,
+            display:"flex", alignItems:"center", gap:8, transition:"background 0.15s",
+          }}>
+            <Plus size={14} color={T.crimson}/>
+            <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase" }}>New Campaign</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════
+
+function DashboardView({ data, setData, onNav }) {
   const countdown = useCountdown(data.nextSession);
+  const active = data.quests.filter(q=>q.status==="active");
+  const urgVar = { critical:"critical", high:"danger", medium:"warning", low:"muted" };
+  const [joiningParty, setJoiningParty] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [addingQuest, setAddingQuest] = useState(false);
+  const [schedOpen, setSchedOpen] = useState(false);
+  const [newQuest, setNewQuest] = useState({ title:"", type:"side", status:"active", urgency:"medium", faction:"", region:"" });
 
-  const urgencyVariant = { critical: "critical", high: "danger", medium: "warning", low: "muted" };
-  const activeQuests = data.quests.filter(q => q.status === "active");
-  const guidedSteps = [
-    { done: true, text: "Party created with 5 members" },
-    { done: true, text: "24 sessions logged" },
-    { done: true, text: "World regions established" },
-    { done: false, text: "Prep session 25: Aldenmire Ruins expedition" },
-    { done: false, text: "Add encounters for Aldenmire dungeon" },
-    { done: false, text: "Review Hollow faction response to Seraphine's defeat" }
+  const handlePlayerSubmit = (formData) => {
+    if (editingMember) {
+      if (formData._remove) {
+        setData(d=>({...d, party: d.party.filter(p=>p.id!==editingMember.id),
+          activity:[{time:"Just now", text:`Removed ${editingMember.name} from party`},...d.activity].slice(0,20)}));
+      } else {
+        setData(d=>({...d, party: d.party.map(p=>p.id===editingMember.id?{...p,...formData}:p),
+          activity:[{time:"Just now", text:`${formData.name} updated their character`},...d.activity].slice(0,20)}));
+      }
+      setEditingMember(null);
+    } else {
+      setData(d=>({...d, party: [...d.party, { ...formData, id:uid() }],
+        activity:[{time:"Just now", text:`${formData.name} (${formData.player}) joined the party`},...d.activity].slice(0,20)}));
+      setJoiningParty(false);
+    }
+  };
+  const handleSheetUpload = (memberId, file) => {
+    const url = URL.createObjectURL(file);
+    setData(d=>({...d, party: d.party.map(p=>p.id===memberId?{...p,sheetUrl:url,sheetName:file.name}:p),
+      activity:[{time:"Just now", text:`Character sheet uploaded for ${d.party.find(p=>p.id===memberId)?.name}`},...d.activity].slice(0,20)}));
+  };
+  const addQuest = () => {
+    if(!newQuest.title) return;
+    setData(d=>({...d, quests: [...d.quests, { ...newQuest, id:uid() }],
+      activity:[{time:"Just now", text:`Added quest: ${newQuest.title}`},...d.activity].slice(0,20)}));
+    setNewQuest({ title:"", type:"side", status:"active", urgency:"medium", faction:"", region:"" }); setAddingQuest(false);
+  };
+  const updateQuestStatus = (id, status) => {
+    setData(d=>({...d, quests: d.quests.map(q=>q.id===id?{...q,status}:q),
+      activity:[{time:"Just now", text:`Quest "${d.quests.find(q=>q.id===id)?.title}" marked ${status}`},...d.activity].slice(0,20)}));
+  };
+  const handleEdit = (member) => {
+    if (member._remove) {
+      setData(d=>({...d, party: d.party.filter(p=>p.id!==member.id),
+        activity:[{time:"Just now", text:`Removed ${member.name} from party`},...d.activity].slice(0,20)}));
+    } else {
+      setEditingMember(member);
+    }
+  };
+
+  const nextN = data.sessionsPlayed + 1;
+  const steps = [
+    { done:data.party.length>0, text:"Add party members" },
+    { done:data.sessionsPlayed>0, text:"Log your first session" },
+    { done:data.regions.length>0, text:"Establish world regions" },
+    { done:data.factions.length>0, text:"Create factions" },
+    { done:data.npcs.length>0, text:"Add NPCs to the world" },
+    { done:data.nextSession, text:"Schedule your next session" },
   ];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "20px", padding: "20px" }}>
-      {/* LEFT COLUMN */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        {/* Campaign Status Banner */}
-        <div style={{
-          background: `linear-gradient(135deg, rgba(139,69,19,0.08) 0%, rgba(201,168,76,0.06) 100%)`,
-          border: `1px solid rgba(139,69,19,0.15)`, borderRadius: "10px", padding: "20px",
-          display: "grid", gridTemplateColumns: "1fr auto", gap: "20px", alignItems: "center"
-        }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-              <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 800, color: theme.ink, fontFamily: "Georgia, serif" }}>
-                {data.name}
-              </h2>
-              <Badge variant="success">Active</Badge>
+    <div style={{ display:"grid", gridTemplateColumns:"1fr 340px", gap:24, padding:"32px 56px" }}>
+      <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+        {/* Stats Row */}
+        <div style={{ display:"flex", gap:20 }}>
+          {[
+            { label:"Sessions", value:data.sessionsPlayed },
+            { label:"Party Size", value:data.party.length },
+            { label:"Active Quests", value:active.length },
+            { label:"Kingdoms", value:data.factions.length },
+          ].map(s => (
+            <div key={s.label} style={{ flex:1, background:T.bgCard, border:`1px solid ${T.crimsonBorder}`, borderRadius:"4px", padding:"16px 24px", textAlign:"center" }}>
+              <span style={{ fontFamily:T.ui, fontSize:"8px", letterSpacing:"2px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:8 }}>{s.label}</span>
+              <span style={{ fontSize:28, color:T.crimson, fontWeight:300 }}>{s.value}</span>
             </div>
-            <p style={{ margin: 0, fontSize: "13px", color: theme.inkMuted }}>
-              {data.sessionsPlayed} sessions played since {new Date(data.startDate).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-            </p>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: "11px", color: theme.inkMuted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "2px" }}>Next Session</div>
-            <div style={{ fontSize: "24px", fontWeight: 800, color: theme.accent, fontFamily: "Georgia, serif" }}>{countdown}</div>
-            <div style={{ fontSize: "12px", color: theme.inkLight }}>
-              {new Date(data.nextSession).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+          ))}
+        </div>
+
+        {/* Next Session + inline scheduler */}
+        <Section style={{ position:"relative" }}>
+          <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:12 }}>Next Session</span>
+          {data.nextSession ? <>
+            <div style={{ fontSize:24, color:T.crimson, fontWeight:300, marginBottom:8 }}>{countdown}</div>
+            <div style={{ fontSize:13, color:T.textDim, fontStyle:"italic" }}>
+              {new Date(data.nextSession).toLocaleDateString("en-US",{ weekday:"long", month:"long", day:"numeric", hour:"numeric", minute:"2-digit" })}
             </div>
+          </> : (
+            <p style={{ fontSize:13, color:T.textFaint, fontStyle:"italic", fontWeight:300 }}>No session scheduled yet</p>
+          )}
+          {data.modules.scheduler && (
+            <button onClick={()=>setSchedOpen(!schedOpen)} style={{
+              position:"absolute", bottom:12, right:12, background:"none", border:`1px solid ${T.border}`,
+              borderRadius:"2px", cursor:"pointer", padding:"4px 8px", display:"flex", alignItems:"center", gap:4,
+              color:schedOpen?T.crimson:T.textFaint, transition:"all 0.2s",
+            }}>
+              <Calendar size={11}/>
+              <span style={{ fontFamily:T.ui, fontSize:7, letterSpacing:"1px", textTransform:"uppercase" }}>Schedule</span>
+              {schedOpen ? <ChevronUp size={10}/> : <ChevronDown size={10}/>}
+            </button>
+          )}
+          {schedOpen && data.modules.scheduler && (
+            <div style={{ marginTop:20, paddingTop:16, borderTop:`1px solid ${T.border}` }}>
+              <SessionSchedulerInline data={data} setData={setData} />
+            </div>
+          )}
+        </Section>
+
+        {/* Party — player cards */}
+        <div>
+          <SectionTitle icon={Users} count={data.party.length} action={
+            <div style={{ display:"flex", gap:8 }}>
+              <LinkBtn onClick={()=>setJoiningParty(true)}><Plus size={10}/> Join Party</LinkBtn>
+              <LinkBtn onClick={()=>onNav("play")}>Play Mode <ArrowRight size={10}/></LinkBtn>
+            </div>
+          }>The Party</SectionTitle>
+
+          {data.party.length === 0 && !joiningParty && (
+            <Section style={{ textAlign:"center", padding:32 }}>
+              <Users size={28} color={T.textFaint} style={{marginBottom:12}}/>
+              <p style={{ fontSize:14, color:T.textMuted, fontStyle:"italic", fontWeight:300, marginBottom:16 }}>No adventurers yet. Players can join and create their characters.</p>
+              <CrimsonBtn onClick={()=>setJoiningParty(true)}><Plus size={12}/> Create Your Character</CrimsonBtn>
+            </Section>
+          )}
+
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {data.party.map(p => (
+              <PlayerCard key={p.id} member={p} onEdit={handleEdit} onUploadSheet={handleSheetUpload} isDm={true} />
+            ))}
           </div>
         </div>
 
-        {/* Party Overview */}
-        <Card>
-          <SectionHeader icon={Users} title="The Party" count={data.party.length} action={
-            <button onClick={() => onNavigate("play")} style={{ fontSize: "11px", color: theme.accent, background: "none", border: "none", cursor: "pointer", fontWeight: 600 }}>
-              Open Play Mode <ArrowRight size={10} style={{ verticalAlign: "middle" }} />
-            </button>
-          } />
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            {data.party.map(p => (
-              <div key={p.id} style={{
-                flex: "1 1 140px", padding: "10px 12px",
-                background: "rgba(0,0,0,0.03)", borderRadius: "6px",
-                borderLeft: `3px solid ${p.status === "wounded" ? theme.danger : p.status === "poisoned" ? "#7c3aed" : theme.success}`
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "4px" }}>
-                  <div>
-                    <div style={{ fontSize: "13px", fontWeight: 700, color: theme.ink }}>{p.name}</div>
-                    <div style={{ fontSize: "11px", color: theme.inkMuted }}>Lv{p.level} {p.class} — {p.player}</div>
-                  </div>
-                  {p.status !== "healthy" && <Badge variant={p.status === "wounded" ? "danger" : "warning"} small>{p.status}</Badge>}
-                </div>
-                <div style={{ marginTop: "6px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: theme.inkMuted, marginBottom: "2px" }}>
-                    <span>HP</span><span>{p.hp}/{p.maxHp}</span>
-                  </div>
-                  <ProgressBar value={p.hp} max={p.maxHp} color={p.hp < p.maxHp * 0.3 ? theme.danger : p.hp < p.maxHp * 0.6 ? "#b45309" : theme.success} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+        {/* Join Party / Edit Character Modal */}
+        <Modal open={joiningParty || editingMember !== null} onClose={()=>{setJoiningParty(false);setEditingMember(null);}} title={editingMember ? "Edit Character" : "Join the Party"} wide>
+          <PlayerCharacterForm
+            existing={editingMember}
+            onSubmit={handlePlayerSubmit}
+            onCancel={()=>{setJoiningParty(false);setEditingMember(null);}}
+          />
+        </Modal>
 
         {/* Active Quests */}
-        <Card>
-          <SectionHeader icon={Scroll} title="Active Quests" count={activeQuests.length} />
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {activeQuests.sort((a, b) => {
-              const ord = { critical: 0, high: 1, medium: 2, low: 3 };
-              return (ord[a.urgency] ?? 9) - (ord[b.urgency] ?? 9);
-            }).map(q => (
-              <div key={q.id} style={{
-                display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px",
-                background: q.urgency === "critical" ? "rgba(139,0,0,0.04)" : "rgba(0,0,0,0.02)",
-                borderRadius: "6px", borderLeft: `3px solid ${q.urgency === "critical" ? theme.danger : q.urgency === "high" ? "#b45309" : q.urgency === "medium" ? theme.accentGold : theme.inkMuted}`
-              }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "13px", fontWeight: 600, color: theme.ink }}>{q.title}</div>
-                  <div style={{ fontSize: "11px", color: theme.inkMuted, display: "flex", gap: "12px", marginTop: "2px" }}>
-                    <span><MapPin size={10} style={{ verticalAlign: "middle" }} /> {q.linkedRegion}</span>
-                    <span><Flag size={10} style={{ verticalAlign: "middle" }} /> {q.linkedFaction}</span>
+        {data.modules.questTracker && (
+          <div>
+            <SectionTitle icon={Scroll} count={active.length} action={<LinkBtn onClick={()=>setAddingQuest(true)}><Plus size={10}/> Add Quest</LinkBtn>}>Active Quests</SectionTitle>
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              {data.quests.filter(q=>q.status!=="completed").sort((a,b)=>{const o={critical:0,high:1,medium:2,low:3};return(o[a.urgency]??9)-(o[b.urgency]??9);}).map(q => (
+                <div key={q.id} style={{
+                  background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:"4px", padding:"16px 20px",
+                  borderLeft:`4px solid ${q.urgency==="critical"?T.crimson:q.urgency==="high"?"#d97706":q.urgency==="medium"?"#d4a843":T.textFaint}`,
+                  boxShadow:"0 2px 8px rgba(0,0,0,0.08)",
+                }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"start" }}>
+                    <div style={{ fontSize:15, color:T.text, fontWeight:300, marginBottom:6 }}>{q.title}</div>
+                    <Select value={q.status} onChange={v=>updateQuestStatus(q.id,v)} style={{ fontSize:10, padding:"3px 8px", width:"auto" }}>
+                      <option value="active">Active</option>
+                      <option value="completed">Completed</option>
+                      <option value="upcoming">Upcoming</option>
+                      <option value="failed">Failed</option>
+                    </Select>
+                  </div>
+                  <div style={{ display:"flex", gap:16, fontSize:12, color:T.textMuted, marginBottom:8, fontStyle:"italic" }}>
+                    <span style={{ display:"flex", alignItems:"center", gap:4 }}><MapPin size={10} color={T.textFaint}/> {q.region}</span>
+                    <span style={{ display:"flex", alignItems:"center", gap:4 }}><Flag size={10} color={T.textFaint}/> {q.faction}</span>
+                  </div>
+                  <div style={{ display:"flex", gap:6 }}>
+                    <Tag variant={urgVar[q.urgency]}>{q.urgency}</Tag>
+                    <Tag variant={q.type==="main"?"info":"muted"}>{q.type}</Tag>
                   </div>
                 </div>
-                <Badge variant={urgencyVariant[q.urgency]} small>{q.urgency}</Badge>
-                <Badge variant={q.type === "main" ? "info" : "muted"} small>{q.type}</Badge>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </Card>
+        )}
 
-        {/* World State Summary */}
-        <Card>
-          <SectionHeader icon={Globe} title="World State" action={
-            <button onClick={() => onNavigate("world")} style={{ fontSize: "11px", color: theme.accent, background: "none", border: "none", cursor: "pointer", fontWeight: 600 }}>
-              Full Map <ArrowRight size={10} style={{ verticalAlign: "middle" }} />
-            </button>
-          } />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-            {data.factions.map(f => (
-              <div key={f.id} style={{
-                padding: "10px 12px", background: "rgba(0,0,0,0.02)", borderRadius: "6px",
-                borderLeft: `3px solid ${f.color}`
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: theme.ink }}>{f.name}</span>
-                  {f.trend === "rising" ? <TrendingUp size={12} color={theme.danger} /> : f.trend === "declining" ? <TrendingDown size={12} color={theme.success} /> : <Minus size={12} color={theme.inkMuted} />}
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Badge variant={f.attitude === "allied" || f.attitude === "friendly" ? "success" : f.attitude === "hostile" ? "danger" : "muted"} small>{f.attitude}</Badge>
-                  <span style={{ fontSize: "10px", color: theme.inkMuted }}>Power {f.power}</span>
-                </div>
-                <div style={{ marginTop: "4px" }}>
-                  <ProgressBar value={f.power} max={100} color={f.color} height={4} />
-                </div>
-              </div>
-            ))}
+        {/* Add Quest Modal */}
+        <Modal open={addingQuest} onClose={()=>setAddingQuest(false)} title="Add Quest">
+          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+            <Input value={newQuest.title} onChange={v=>setNewQuest(p=>({...p,title:v}))} placeholder="Quest Title" />
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+              <Select value={newQuest.type} onChange={v=>setNewQuest(p=>({...p,type:v}))} style={{ width:"100%" }}>
+                <option value="main">Main Quest</option>
+                <option value="side">Side Quest</option>
+              </Select>
+              <Select value={newQuest.urgency} onChange={v=>setNewQuest(p=>({...p,urgency:v}))} style={{ width:"100%" }}>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </Select>
+            </div>
+            <Input value={newQuest.region} onChange={v=>setNewQuest(p=>({...p,region:v}))} placeholder="Region" />
+            <Input value={newQuest.faction} onChange={v=>setNewQuest(p=>({...p,faction:v}))} placeholder="Related Faction" />
+            <CrimsonBtn onClick={addQuest}><Plus size={12}/> Add Quest</CrimsonBtn>
           </div>
-        </Card>
+        </Modal>
+
+        {/* Factions */}
+        {data.modules.factionTracker && (
+          <div>
+            <SectionTitle icon={Globe} action={<LinkBtn onClick={()=>onNav("world")}>World State <ArrowRight size={10}/></LinkBtn>}>Factions</SectionTitle>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+              {data.factions.map(f => (
+                <div key={f.id} style={{ background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:"4px", padding:"16px 20px", borderLeft:`3px solid ${f.color}`, boxShadow:"0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                    <span style={{ fontSize:14, color:T.text, fontWeight:300 }}>{f.name}</span>
+                    {f.trend==="rising"?<TrendingUp size={12} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={12} color="#6fcf97"/>:<Minus size={12} color={T.textFaint}/>}
+                  </div>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                    <Tag variant={f.attitude==="allied"||f.attitude==="friendly"?"success":f.attitude==="hostile"?"danger":"muted"}>{f.attitude}</Tag>
+                    <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>PWR {f.power}</span>
+                  </div>
+                  <PowerBar val={f.power} max={100} color={f.color} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* RIGHT SIDEBAR */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        {/* What's Next Panel */}
-        <Card style={{ background: "rgba(139,69,19,0.06)", border: `1px solid rgba(139,69,19,0.15)` }}>
-          <SectionHeader icon={Compass} title="What's Next" />
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {guidedSteps.map((s, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "start", gap: "8px", padding: "6px 0", opacity: s.done ? 0.5 : 1 }}>
-                {s.done ? <CheckCircle size={14} color={theme.success} style={{ marginTop: "1px", flexShrink: 0 }} /> : <Circle size={14} color={theme.accent} style={{ marginTop: "1px", flexShrink: 0 }} />}
-                <span style={{ fontSize: "12px", color: s.done ? theme.inkMuted : theme.ink, textDecoration: s.done ? "line-through" : "none" }}>{s.text}</span>
+      <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+        <Section>
+          <SectionTitle icon={Compass}>What's Next</SectionTitle>
+          <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+            {steps.map((s,i) => (
+              <div key={i} style={{ display:"flex", alignItems:"start", gap:10, opacity:s.done?0.4:1 }}>
+                {s.done ? <CheckCircle size={14} color="#6fcf97" style={{marginTop:2,flexShrink:0}}/> : <Circle size={14} color={T.crimson} style={{marginTop:2,flexShrink:0}}/>}
+                <span style={{ fontSize:13, fontFamily:T.body, fontWeight:300, color:s.done?T.textFaint:T.textDim, textDecoration:s.done?"line-through":"none" }}>{s.text}</span>
               </div>
             ))}
           </div>
-        </Card>
+        </Section>
 
-        {/* Latest Session */}
-        <Card>
-          <SectionHeader icon={BookOpen} title="Latest Session" />
-          <div style={{ marginBottom: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 700, color: theme.accent }}>#{data.timeline[0].number}</span>
-              <span style={{ fontSize: "14px", fontWeight: 700, color: theme.ink, fontFamily: "Georgia, serif" }}>{data.timeline[0].title}</span>
+        {data.modules.timeline && (
+          <Section>
+            <SectionTitle icon={BookOpen}>Latest Session</SectionTitle>
+            {data.timeline.length > 0 ? <>
+              <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"1px", color:T.crimson, fontWeight:500 }}>#{data.timeline[0].n}</span>
+              <div style={{ fontSize:18, color:T.text, fontWeight:300, margin:"6px 0 4px" }}>{data.timeline[0].title}</div>
+              <div style={{ fontSize:12, color:T.textMuted, fontStyle:"italic", marginBottom:12, fontWeight:300 }}>{data.timeline[0].date}</div>
+              <p style={{ fontSize:13, color:T.textDim, lineHeight:1.7, margin:"0 0 12px", fontWeight:300 }}>{data.timeline[0].summary}</p>
+              <button onClick={()=>onNav("timeline")} style={{
+                width:"100%", padding:10, background:T.crimsonSoft, border:`1px solid ${T.crimsonBorder}`,
+                borderRadius:"2px", cursor:"pointer", fontFamily:T.ui, fontSize:"9px", letterSpacing:"2px",
+                color:T.crimson, textTransform:"uppercase", fontWeight:500, display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+              }}>View Timeline <ArrowRight size={10}/></button>
+            </> : <p style={{ fontSize:13, color:T.textFaint, fontStyle:"italic" }}>No sessions logged yet.</p>}
+          </Section>
+        )}
+
+        <Section>
+          <SectionTitle icon={Activity}>Recent Activity</SectionTitle>
+          {data.activity.slice(0,8).map((a,i) => (
+            <div key={i} style={{ display:"flex", gap:12, padding:"8px 0", borderBottom:i<7?`1px solid ${T.borderMid}`:"none" }}>
+              <span style={{ fontFamily:T.ui, fontSize:9, color:T.textFaint, minWidth:48, letterSpacing:"0.5px", marginTop:2 }}>{a.time}</span>
+              <span style={{ fontSize:13, fontFamily:T.body, color:T.textMuted, lineHeight:1.5, fontWeight:300 }}>{a.text}</span>
             </div>
-            <div style={{ fontSize: "11px", color: theme.inkMuted, marginBottom: "6px" }}>{data.timeline[0].date}</div>
-            <p style={{ fontSize: "12px", color: theme.inkLight, lineHeight: 1.5, margin: 0 }}>{data.timeline[0].summary}</p>
-          </div>
-          <div style={{ fontSize: "11px", color: theme.inkMuted }}>
-            {data.timeline[0].events.length} events — {data.timeline[0].worldChanges.length} world changes — {data.timeline[0].notesCount} notes
-          </div>
-          <button onClick={() => onNavigate("timeline")} style={{
-            marginTop: "10px", width: "100%", padding: "8px", background: "rgba(0,0,0,0.04)",
-            border: "1px solid rgba(139,115,85,0.2)", borderRadius: "6px", cursor: "pointer",
-            fontSize: "12px", color: theme.accent, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px"
-          }}>
-            View Full Timeline <ArrowRight size={12} />
-          </button>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <SectionHeader icon={Activity} title="Recent Activity" />
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {data.recentActivity.map((a, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "start", gap: "8px", padding: "4px 0", borderBottom: i < data.recentActivity.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
-                <span style={{ fontSize: "10px", color: theme.inkMuted, minWidth: "36px", marginTop: "2px" }}>{a.time}</span>
-                <span style={{ fontSize: "12px", color: theme.inkLight, lineHeight: 1.4 }}>{a.text}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
+          ))}
+        </Section>
       </div>
     </div>
   );
 }
 
-// ─── TIMELINE ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// TIMELINE
+// ═══════════════════════════════════════════════════════════════════════════
 
-function TimelineView({ data }) {
-  const [expanded, setExpanded] = useState(new Set([data.timeline[0].id]));
-  const toggle = id => setExpanded(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+function TimelineView({ data, setData }) {
+  const [open,setOpen] = useState(new Set([data.timeline[0]?.id]));
+  const [dmView,setDmView] = useState(true);
+  const [filter,setFilter] = useState("all");
+  const [addingSession, setAddingSession] = useState(false);
+  const [editingSession, setEditingSession] = useState(null);
+  const [addingEvent, setAddingEvent] = useState(null);
+  const [newSession, setNewSession] = useState({ title:"", date:"", summary:"", dmOnly:false });
+  const [newEvent, setNewEvent] = useState({ type:"encounter", text:"", outcome:"", dmOnly:false });
+  const [editNotes, setEditNotes] = useState({});
 
-  const eventIcons = { encounter: Swords, discovery: Search, roleplay: Users, world_change: Globe, loot: Star, quest_complete: CheckCircle };
-  const eventColors = { encounter: theme.danger, discovery: theme.water, roleplay: theme.accentGold, world_change: "#7c3aed", loot: theme.accentGold, quest_complete: theme.success };
+  const toggle = id => setOpen(p => { const n=new Set(p); n.has(id)?n.delete(id):n.add(id); return n; });
+  const evIcons = { encounter:Swords, discovery:Search, roleplay:Users, world_change:Globe, loot:Star, quest_complete:CheckCircle };
+  const evCols = { encounter:"#8b0000", discovery:"#1a6b3a", roleplay:"#7a6b0d", world_change:"#2a4a6b", loot:"#7a6b0d", quest_complete:"#3d5a1e" };
+  const eventTypes = ["encounter","discovery","roleplay","world_change","loot","quest_complete"];
+
+  const addSession = () => {
+    if (!newSession.title || !newSession.date) return;
+    const n = data.timeline.length > 0 ? Math.max(...data.timeline.map(s=>s.n)) + 1 : 1;
+    const session = { id:uid(), n, title:newSession.title, date:newSession.date, summary:newSession.summary, events:[], changes:[], notes:"", dmOnly:newSession.dmOnly };
+    setData(d=>({...d, timeline:[session,...d.timeline], sessionsPlayed:d.sessionsPlayed+1,
+      activity:[{time:"Just now",text:`Added session ${n}: ${newSession.title}`},...d.activity].slice(0,20)}));
+    setNewSession({ title:"", date:"", summary:"", dmOnly:false }); setAddingSession(false);
+  };
+
+  const deleteSession = (id) => {
+    setData(d=>({...d, timeline:d.timeline.filter(s=>s.id!==id),
+      activity:[{time:"Just now",text:"Removed a session from timeline"},...d.activity].slice(0,20)}));
+  };
+
+  const addEvent = (sessionId) => {
+    if (!newEvent.text) return;
+    const ev = { id:eid(), ...newEvent };
+    setData(d=>({...d, timeline:d.timeline.map(s=>s.id===sessionId?{...s,events:[...s.events,ev]}:s)}));
+    setNewEvent({ type:"encounter", text:"", outcome:"", dmOnly:false }); setAddingEvent(null);
+  };
+
+  const toggleEventDmOnly = (sessionId, eventId) => {
+    setData(d=>({...d, timeline:d.timeline.map(s=>s.id===sessionId?{...s,events:s.events.map(e=>e.id===eventId?{...e,dmOnly:!e.dmOnly}:e)}:s)}));
+  };
+
+  const deleteEvent = (sessionId, eventId) => {
+    setData(d=>({...d, timeline:d.timeline.map(s=>s.id===sessionId?{...s,events:s.events.filter(e=>e.id!==eventId)}:s)}));
+  };
+
+  const toggleSessionDmOnly = (id) => {
+    setData(d=>({...d, timeline:d.timeline.map(s=>s.id===id?{...s,dmOnly:!s.dmOnly}:s)}));
+  };
+
+  const updateSessionNotes = (id, notes) => {
+    setData(d=>({...d, timeline:d.timeline.map(s=>s.id===id?{...s,notes}:s)}));
+  };
+
+  const addWorldChange = (sessionId, text) => {
+    if (!text) return;
+    setData(d=>({...d, timeline:d.timeline.map(s=>s.id===sessionId?{...s,changes:[...s.changes,text]}:s)}));
+  };
+
+  const filteredTimeline = data.timeline.filter(s => {
+    if (!dmView && s.dmOnly) return false;
+    return true;
+  });
 
   return (
-    <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
+    <div style={{ padding:"32px 56px", maxWidth:920, margin:"0 auto" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:32, paddingBottom:20, borderBottom:`1px solid ${T.crimsonBorder}` }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 800, color: theme.ink, fontFamily: "Georgia, serif" }}>Campaign Timeline</h2>
-          <p style={{ margin: "4px 0 0", fontSize: "12px", color: theme.inkMuted }}>{data.timeline.length} sessions recorded — The Shattered Crown</p>
+          <div style={{ fontSize:42, color:T.text, fontWeight:300, marginBottom:8 }}>Campaign Timeline</div>
+          <p style={{ fontSize:13, color:T.textMuted, fontStyle:"italic", margin:0, fontWeight:300 }}>{data.timeline.length} sessions recorded</p>
         </div>
-        <button style={{
-          padding: "8px 16px", background: theme.accent, color: theme.parchment,
-          border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: 700, fontSize: "12px",
-          display: "flex", alignItems: "center", gap: "6px"
-        }}>
-          <Plus size={14} /> New Session
-        </button>
+        <div style={{ display:"flex", gap:12, alignItems:"center" }}>
+          <div onClick={()=>setDmView(!dmView)} style={{ display:"flex", alignItems:"center", gap:6, cursor:"pointer", padding:"6px 12px", background:dmView?T.crimsonSoft:"transparent", border:`1px solid ${dmView?T.crimsonBorder:T.border}`, borderRadius:"2px" }}>
+            {dmView ? <Eye size={12} color={T.crimson}/> : <EyeOff size={12} color={T.textFaint}/>}
+            <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:dmView?T.crimson:T.textFaint, textTransform:"uppercase" }}>DM View</span>
+          </div>
+          <Select value={filter} onChange={setFilter} style={{ fontSize:10, padding:"6px 10px" }}>
+            <option value="all">All Events</option>
+            {eventTypes.map(t=><option key={t} value={t}>{t.replace("_"," ")}</option>)}
+          </Select>
+          <CrimsonBtn onClick={()=>setAddingSession(true)}><Plus size={13}/> New Session</CrimsonBtn>
+        </div>
       </div>
 
-      <div style={{ position: "relative" }}>
-        {/* Vertical timeline line */}
-        <div style={{
-          position: "absolute", left: "18px", top: 0, bottom: 0, width: "2px",
-          background: `linear-gradient(180deg, ${theme.accent} 0%, ${theme.parchmentDeep} 100%)`
-        }} />
+      {/* Add Session Modal */}
+      <Modal open={addingSession} onClose={()=>setAddingSession(false)} title="Log New Session">
+        <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+          <Input value={newSession.title} onChange={v=>setNewSession(p=>({...p,title:v}))} placeholder="Session Title" />
+          <Input type="date" value={newSession.date} onChange={v=>setNewSession(p=>({...p,date:v}))} />
+          <Textarea value={newSession.summary} onChange={v=>setNewSession(p=>({...p,summary:v}))} placeholder="Session summary..." rows={4} />
+          <ToggleSwitch on={newSession.dmOnly} onToggle={()=>setNewSession(p=>({...p,dmOnly:!p.dmOnly}))} label="DM Only (hidden from players)" />
+          <CrimsonBtn onClick={addSession}><Plus size={12}/> Log Session</CrimsonBtn>
+        </div>
+      </Modal>
 
-        {data.timeline.map((session, idx) => {
-          const isOpen = expanded.has(session.id);
-          const isLatest = idx === 0;
+      <div style={{ position:"relative" }}>
+        <div style={{ position:"absolute", left:15, top:0, bottom:0, width:2, background:T.crimsonBorder }} />
+
+        {filteredTimeline.map((s,idx) => {
+          const isOpen = open.has(s.id);
+          const latest = idx===0;
+          const filteredEvents = s.events.filter(e => {
+            if (!dmView && e.dmOnly) return false;
+            if (filter !== "all" && e.type !== filter) return false;
+            return true;
+          });
+
           return (
-            <div key={session.id} style={{ position: "relative", marginBottom: "12px", paddingLeft: "48px" }}>
-              {/* Timeline dot */}
+            <div key={s.id} style={{ position:"relative", marginBottom:12, paddingLeft:44 }}>
               <div style={{
-                position: "absolute", left: "10px", top: "18px",
-                width: isLatest ? "18px" : "14px", height: isLatest ? "18px" : "14px",
-                borderRadius: "50%", background: isLatest ? theme.accent : theme.parchmentDark,
-                border: `2px solid ${isLatest ? theme.accent : theme.inkMuted}`,
-                zIndex: 1, boxShadow: isLatest ? `0 0 8px rgba(139,69,19,0.3)` : "none",
-                transform: isLatest ? "translate(-2px, 0)" : "none"
+                position:"absolute", left:latest?8:10, top:20,
+                width:latest?16:12, height:latest?16:12, borderRadius:"50%",
+                background:latest?T.crimson:T.bgMid, border:`3px solid ${latest?T.bgCard:T.textFaint}`,
+                zIndex:1, boxShadow:latest?"0 0 12px rgba(192,57,43,0.4)":"none",
               }} />
 
-              <div onClick={() => toggle(session.id)} style={{
-                background: isOpen ? "rgba(139,69,19,0.05)" : "rgba(245,240,225,0.6)",
-                border: `1px solid ${isOpen ? "rgba(139,69,19,0.2)" : "rgba(139,115,85,0.15)"}`,
-                borderRadius: "8px", cursor: "pointer", transition: "all 0.2s ease", overflow: "hidden"
+              <div style={{
+                background:isOpen?T.bgHover:T.bgCard, border:`1px solid ${isOpen?T.crimsonBorder:T.border}`,
+                borderRadius:"4px", overflow:"hidden", boxShadow:"0 2px 8px rgba(0,0,0,0.08)",
+                opacity:s.dmOnly?0.75:1,
               }}>
-                {/* Session header */}
-                <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: "12px" }}>
-                  {isOpen ? <ChevronDown size={16} color={theme.inkMuted} /> : <ChevronRight size={16} color={theme.inkMuted} />}
-                  <span style={{
-                    fontSize: "12px", fontWeight: 800, color: theme.accent,
-                    background: "rgba(139,69,19,0.08)", padding: "2px 8px", borderRadius: "4px"
-                  }}>#{session.number}</span>
-                  <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: "15px", fontWeight: 700, color: theme.ink, fontFamily: "Georgia, serif" }}>
-                      {session.title}
-                    </span>
-                    <span style={{ fontSize: "12px", color: theme.inkMuted, marginLeft: "10px" }}>{session.date}</span>
+                <div onClick={()=>toggle(s.id)} style={{ padding:"16px 20px", display:"flex", alignItems:"center", gap:12, cursor:"pointer" }}>
+                  {isOpen ? <ChevronDown size={14} color={T.textFaint}/> : <ChevronRight size={14} color={T.textFaint}/>}
+                  <span style={{ fontFamily:T.ui, fontSize:9, fontWeight:500, color:T.crimson, letterSpacing:"1.5px", background:T.crimsonSoft, padding:"2px 10px", borderRadius:"2px" }}>#{s.n}</span>
+                  <div style={{ flex:1 }}>
+                    <span style={{ fontSize:16, fontWeight:300, color:T.text }}>{s.title}</span>
+                    <span style={{ fontSize:12, color:T.textFaint, marginLeft:12, fontStyle:"italic", fontWeight:300 }}>{s.date}</span>
                   </div>
-                  <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                    <Badge variant="muted" small>{session.events.length} events</Badge>
-                    {session.worldChanges.length > 0 && <Badge variant="warning" small>{session.worldChanges.length} changes</Badge>}
-                  </div>
+                  {s.dmOnly && <Tag variant="warning"><Lock size={8}/> DM</Tag>}
+                  <Tag variant="muted">{filteredEvents.length} events</Tag>
+                  {s.changes.length>0 && <Tag variant="warning">{s.changes.length} changes</Tag>}
                 </div>
 
-                {/* Expanded content */}
                 {isOpen && (
-                  <div onClick={e => e.stopPropagation()} style={{ padding: "0 16px 16px", cursor: "default" }}>
-                    <p style={{ fontSize: "13px", color: theme.inkLight, lineHeight: 1.6, margin: "0 0 16px", paddingLeft: "28px" }}>
-                      {session.summary}
-                    </p>
+                  <div onClick={e=>e.stopPropagation()} style={{ padding:"0 20px 20px", cursor:"default" }}>
+                    <p style={{ fontSize:14, fontFamily:T.body, color:T.textDim, lineHeight:1.8, margin:"0 0 20px", paddingLeft:26, fontWeight:300, fontStyle:"italic" }}>{s.summary}</p>
+
+                    {/* Session Controls */}
+                    <div style={{ display:"flex", gap:6, marginBottom:16, paddingLeft:26 }}>
+                      <CrimsonBtn onClick={()=>toggleSessionDmOnly(s.id)} secondary small>
+                        {s.dmOnly ? <><Unlock size={10}/> Make Visible</> : <><Lock size={10}/> DM Only</>}
+                      </CrimsonBtn>
+                      <CrimsonBtn onClick={()=>setAddingEvent(s.id)} secondary small><Plus size={10}/> Add Event</CrimsonBtn>
+                      <CrimsonBtn onClick={()=>deleteSession(s.id)} secondary small><Trash2 size={10}/> Delete</CrimsonBtn>
+                    </div>
 
                     {/* Events */}
-                    <div style={{ marginBottom: "14px" }}>
-                      <div style={{ fontSize: "11px", fontWeight: 700, color: theme.inkMuted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px", paddingLeft: "28px" }}>Events</div>
-                      {session.events.map((ev, i) => {
-                        const Icon = eventIcons[ev.type] || Circle;
-                        const col = eventColors[ev.type] || theme.inkMuted;
+                    <div style={{ marginBottom:16 }}>
+                      <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:10, paddingLeft:26, fontWeight:500 }}>Events</span>
+                      {filteredEvents.map((ev,i) => {
+                        const Icon=evIcons[ev.type]||Circle;
                         return (
-                          <div key={i} style={{
-                            display: "flex", gap: "10px", padding: "8px 0 8px 28px", alignItems: "start",
-                            borderBottom: i < session.events.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none"
-                          }}>
-                            <Icon size={14} color={col} style={{ marginTop: "2px", flexShrink: 0 }} />
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: "12px", color: theme.ink }}>{ev.text}</div>
-                              <div style={{ fontSize: "11px", color: theme.inkMuted, marginTop: "2px" }}>
-                                <ArrowRight size={10} style={{ verticalAlign: "middle" }} /> {ev.outcome}
+                          <div key={ev.id||i} style={{ display:"flex", gap:12, padding:"10px 0 10px 26px", alignItems:"start", borderBottom:i<filteredEvents.length-1?`1px solid ${T.borderMid}`:"none", opacity:ev.dmOnly?0.65:1 }}>
+                            <Icon size={13} color={evCols[ev.type]||T.textFaint} style={{marginTop:3,flexShrink:0}} />
+                            <div style={{ flex:1 }}>
+                              <div style={{ fontSize:13, color:T.textDim, fontWeight:300 }}>{ev.text}</div>
+                              <div style={{ fontSize:12, color:T.textFaint, marginTop:3, fontWeight:300, display:"flex", alignItems:"center", gap:4 }}>
+                                <ArrowRight size={9}/> {ev.outcome}
                               </div>
+                            </div>
+                            <div style={{ display:"flex", gap:4, flexShrink:0 }}>
+                              {ev.dmOnly && <Tag variant="warning"><Lock size={7}/></Tag>}
+                              <button onClick={()=>toggleEventDmOnly(s.id,ev.id)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:2 }}>
+                                {ev.dmOnly ? <Eye size={11}/> : <EyeOff size={11}/>}
+                              </button>
+                              <button onClick={()=>deleteEvent(s.id,ev.id)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:2 }}><Trash2 size={11}/></button>
                             </div>
                           </div>
                         );
                       })}
                     </div>
 
-                    {/* World Changes */}
-                    {session.worldChanges.length > 0 && (
-                      <div style={{ paddingLeft: "28px" }}>
-                        <div style={{ fontSize: "11px", fontWeight: 700, color: theme.inkMuted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>World State Changes</div>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                          {session.worldChanges.map((wc, i) => (
-                            <Badge key={i} variant="warning">{wc}</Badge>
-                          ))}
+                    {/* Add Event Inline */}
+                    {addingEvent === s.id && (
+                      <div style={{ paddingLeft:26, marginBottom:16, padding:16, background:T.bg, borderRadius:"2px", border:`1px solid ${T.border}` }}>
+                        <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                          <Select value={newEvent.type} onChange={v=>setNewEvent(p=>({...p,type:v}))} style={{ width:"100%" }}>
+                            {eventTypes.map(t=><option key={t} value={t}>{t.replace("_"," ").replace(/\b\w/g,c=>c.toUpperCase())}</option>)}
+                          </Select>
+                          <Input value={newEvent.text} onChange={v=>setNewEvent(p=>({...p,text:v}))} placeholder="What happened..." />
+                          <Input value={newEvent.outcome} onChange={v=>setNewEvent(p=>({...p,outcome:v}))} placeholder="Outcome..." />
+                          <ToggleSwitch on={newEvent.dmOnly} onToggle={()=>setNewEvent(p=>({...p,dmOnly:!p.dmOnly}))} label="DM Only" />
+                          <div style={{ display:"flex", gap:6 }}>
+                            <CrimsonBtn onClick={()=>addEvent(s.id)} small><Plus size={10}/> Add</CrimsonBtn>
+                            <CrimsonBtn onClick={()=>setAddingEvent(null)} secondary small>Cancel</CrimsonBtn>
+                          </div>
                         </div>
                       </div>
                     )}
+
+                    {/* World Changes */}
+                    {s.changes.length>0 && (
+                      <div style={{ paddingLeft:26, marginBottom:16 }}>
+                        <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:8, fontWeight:500 }}>World Changes</span>
+                        <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>{s.changes.map((c,i)=><Tag key={i} variant="warning">{c}</Tag>)}</div>
+                      </div>
+                    )}
+
+                    {/* Session Notes */}
+                    <div style={{ paddingLeft:26 }}>
+                      <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:8, fontWeight:500 }}>Session Notes</span>
+                      <Textarea value={typeof s.notes === "string" ? s.notes : ""} onChange={v=>updateSessionNotes(s.id,v)} placeholder="Session notes, DM thoughts, prep for next time..." rows={3} />
+                    </div>
                   </div>
                 )}
               </div>
@@ -751,439 +1283,828 @@ function TimelineView({ data }) {
   );
 }
 
-// ─── WORLD STATE ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// WORLD STATE
+// ═══════════════════════════════════════════════════════════════════════════
 
-function WorldView({ data }) {
-  const [selectedEntity, setSelectedEntity] = useState(null);
-  const [entityType, setEntityType] = useState(null);
-  const [worldTab, setWorldTab] = useState("regions");
+function WorldView({ data, setData }) {
+  const [sel,setSel] = useState(null);
+  const [selType,setSelType] = useState(null);
+  const [tab,setTab] = useState("regions");
+  const [editing,setEditing] = useState(false);
+  const [addingEntity,setAddingEntity] = useState(false);
 
-  const getConnections = (type, entity) => {
-    const connections = [];
-    if (type === "region") {
-      const faction = data.factions.find(f => f.name === entity.controlledBy);
-      if (faction) connections.push({ type: "faction", entity: faction, label: "Controlled by" });
-      data.npcs.filter(n => n.location === entity.name).forEach(n => connections.push({ type: "npc", entity: n, label: "Located here" }));
-      data.quests.filter(q => q.linkedRegion === entity.name).forEach(q => connections.push({ type: "quest", entity: q, label: "Active quest" }));
-    } else if (type === "faction") {
-      data.regions.filter(r => r.controlledBy === entity.name).forEach(r => connections.push({ type: "region", entity: r, label: "Controls" }));
-      data.npcs.filter(n => n.faction === entity.name).forEach(n => connections.push({ type: "npc", entity: n, label: "Member" }));
-      data.quests.filter(q => q.linkedFaction === entity.name).forEach(q => connections.push({ type: "quest", entity: q, label: "Related quest" }));
-    } else if (type === "npc") {
-      if (entity.faction) {
-        const f = data.factions.find(f => f.name === entity.faction);
-        if (f) connections.push({ type: "faction", entity: f, label: "Member of" });
-      }
-      const r = data.regions.find(r => r.name === entity.location);
-      if (r) connections.push({ type: "region", entity: r, label: "Located in" });
-    }
-    return connections;
+  const conns = (type,ent) => {
+    const c=[];
+    if(type==="region"){ const f=data.factions.find(f=>f.name===ent.ctrl); if(f) c.push({type:"faction",e:f,label:"Controlled by"}); data.npcs.filter(n=>n.loc===ent.name).forEach(n=>c.push({type:"npc",e:n,label:"Located here"})); data.quests.filter(q=>q.region===ent.name).forEach(q=>c.push({type:"quest",e:q,label:"Active quest"})); }
+    else if(type==="faction"){ data.regions.filter(r=>r.ctrl===ent.name).forEach(r=>c.push({type:"region",e:r,label:"Controls"})); data.npcs.filter(n=>n.faction===ent.name).forEach(n=>c.push({type:"npc",e:n,label:"Member"})); data.quests.filter(q=>q.faction===ent.name).forEach(q=>c.push({type:"quest",e:q,label:"Related quest"})); }
+    else if(type==="npc"){ if(ent.faction){const f=data.factions.find(f=>f.name===ent.faction); if(f) c.push({type:"faction",e:f,label:"Member of"});} const r=data.regions.find(r=>r.name===ent.loc); if(r) c.push({type:"region",e:r,label:"Located in"}); }
+    return c;
+  };
+  const rIcons = { city:Castle, town:Castle, wilderness:Mountain, dungeon:Skull, route:MapPin };
+  const tCols = { low:"#6fcf97", medium:"#d4a843", high:"#d97706", extreme:T.crimson };
+
+  const updateFaction = (id, updates) => {
+    setData(d=>({...d, factions:d.factions.map(f=>f.id===id?{...f,...updates}:f)}));
+    if(sel?.id===id && selType==="faction") setSel(p=>({...p,...updates}));
+  };
+  const updateRegion = (id, updates) => {
+    setData(d=>({...d, regions:d.regions.map(r=>r.id===id?{...r,...updates}:r)}));
+    if(sel?.id===id && selType==="region") setSel(p=>({...p,...updates}));
+  };
+  const updateNpc = (id, updates) => {
+    setData(d=>({...d, npcs:d.npcs.map(n=>n.id===id?{...n,...updates}:n)}));
+    if(sel?.id===id && selType==="npc") setSel(p=>({...p,...updates}));
+  };
+  const addEntity = (type, entity) => {
+    const newE = { ...entity, id:uid() };
+    if(type==="region") setData(d=>({...d,regions:[...d.regions,newE]}));
+    if(type==="faction") setData(d=>({...d,factions:[...d.factions,newE]}));
+    if(type==="npc") setData(d=>({...d,npcs:[...d.npcs,newE]}));
+    setAddingEntity(false);
   };
 
-  const regionIcons = { city: Castle, town: Castle, wilderness: Mountain, dungeon: Skull, route: MapPin };
-  const threatColors = { low: theme.success, medium: theme.accentGold, high: "#b45309", extreme: theme.danger };
-
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: "20px", padding: "20px", height: "calc(100vh - 60px)" }}>
-      {/* Main content */}
-      <div style={{ overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "20px" }}>
-          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 800, color: theme.ink, fontFamily: "Georgia, serif" }}>World State</h2>
-          <div style={{ display: "flex", gap: "4px" }}>
-            {["regions", "factions", "npcs"].map(tab => (
-              <button key={tab} onClick={() => { setWorldTab(tab); setSelectedEntity(null); }} style={{
-                padding: "6px 14px", border: `1px solid ${worldTab === tab ? theme.accent : "rgba(139,115,85,0.2)"}`,
-                borderRadius: "5px", background: worldTab === tab ? "rgba(139,69,19,0.1)" : "transparent",
-                color: worldTab === tab ? theme.accent : theme.inkMuted, cursor: "pointer",
-                fontSize: "12px", fontWeight: 600, textTransform: "capitalize", transition: "all 0.15s"
-              }}>{tab}</button>
+    <div style={{ display:"grid", gridTemplateColumns:"1fr 360px", gap:24, padding:"32px 56px", height:"calc(100vh - 56px)" }}>
+      <div style={{ overflowY:"auto" }}>
+        <div style={{ display:"flex", alignItems:"flex-start", gap:20, marginBottom:28, paddingBottom:20, borderBottom:`1px solid ${T.border}` }}>
+          <div style={{ fontSize:42, color:T.text, fontWeight:300 }}>World State</div>
+          <div style={{ display:"flex", gap:0, marginTop:12 }}>
+            {["regions","factions","npcs"].map(t => (
+              <button key={t} onClick={()=>{setTab(t);setSel(null);setEditing(false);}} style={{
+                padding:"16px 32px", background:"transparent", border:"none", cursor:"pointer",
+                fontFamily:T.ui, fontSize:10, letterSpacing:"2px", textTransform:"uppercase", fontWeight:500,
+                color:tab===t?T.crimson:T.textMuted, position:"relative", transition:"all 0.3s",
+                borderBottom:tab===t?`3px solid ${T.crimson}`:"3px solid transparent",
+              }}>{t}</button>
             ))}
+          </div>
+          <div style={{ marginLeft:"auto", marginTop:12 }}>
+            <CrimsonBtn onClick={()=>setAddingEntity(true)} small><Plus size={11}/> Add</CrimsonBtn>
           </div>
         </div>
 
-        {worldTab === "regions" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+        {tab==="regions" && (
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
             {data.regions.map(r => {
-              const Icon = regionIcons[r.type] || MapPin;
+              const Icon=rIcons[r.type]||MapPin; const active=sel?.id===r.id&&selType==="region";
               return (
-                <Card key={r.id} onClick={() => { setSelectedEntity(r); setEntityType("region"); }} hoverable active={selectedEntity?.id === r.id && entityType === "region"}>
-                  <div style={{ display: "flex", alignItems: "start", gap: "10px" }}>
-                    <Icon size={18} color={threatColors[r.threat]} style={{ marginTop: "2px" }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: "14px", fontWeight: 700, color: theme.ink, marginBottom: "4px" }}>{r.name}</div>
-                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "6px" }}>
-                        <Badge variant={r.threat === "extreme" ? "critical" : r.threat === "high" ? "danger" : r.threat === "medium" ? "warning" : "success"} small>{r.threat} threat</Badge>
-                        <Badge variant="muted" small>{r.type}</Badge>
-                        {r.partyVisited && <Badge variant="info" small>visited</Badge>}
+                <div key={r.id} onClick={()=>{setSel(r);setSelType("region");setEditing(false);}} style={{
+                  background:active?T.bgHover:T.bgCard, padding:20, cursor:"pointer",
+                  border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
+                  boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
+                }}>
+                  <div style={{ display:"flex", alignItems:"start", gap:10 }}>
+                    <Icon size={16} color={tCols[r.threat]} style={{marginTop:2}} />
+                    <div>
+                      <div style={{ fontSize:15, fontWeight:300, color:T.text, marginBottom:8 }}>{r.name}</div>
+                      <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:8 }}>
+                        <Tag variant={r.threat==="extreme"?"critical":r.threat==="high"?"danger":r.threat==="medium"?"warning":"success"}>{r.threat}</Tag>
+                        <Tag variant="muted">{r.type}</Tag>
+                        {r.visited && <Tag variant="info">visited</Tag>}
                       </div>
-                      <div style={{ fontSize: "11px", color: theme.inkMuted }}>
-                        {r.controlledBy} — <span style={{ fontStyle: "italic" }}>{r.state}</span>
-                      </div>
+                      <div style={{ fontSize:12, color:T.textMuted, fontWeight:300 }}>{r.ctrl} — <span style={{fontStyle:"italic"}}>{r.state}</span></div>
                     </div>
                   </div>
-                </Card>
+                </div>
               );
             })}
           </div>
         )}
 
-        {worldTab === "factions" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {data.factions.map(f => (
-              <Card key={f.id} onClick={() => { setSelectedEntity(f); setEntityType("faction"); }} hoverable active={selectedEntity?.id === f.id && entityType === "faction"}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ width: "8px", height: "40px", borderRadius: "4px", background: f.color, flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                      <span style={{ fontSize: "15px", fontWeight: 700, color: theme.ink }}>{f.name}</span>
-                      <Badge variant={f.attitude === "allied" || f.attitude === "friendly" ? "success" : f.attitude === "hostile" ? "danger" : "muted"} small>{f.attitude}</Badge>
-                      {f.trend === "rising" ? <TrendingUp size={12} color={theme.danger} /> : f.trend === "declining" ? <TrendingDown size={12} color={theme.success} /> : <Minus size={12} color={theme.inkMuted} />}
-                    </div>
-                    <p style={{ fontSize: "12px", color: theme.inkMuted, margin: "0 0 6px" }}>{f.description}</p>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ fontSize: "10px", color: theme.inkMuted }}>Power</span>
-                      <div style={{ flex: 1, maxWidth: "200px" }}>
-                        <ProgressBar value={f.power} max={100} color={f.color} height={5} showLabel />
+        {tab==="factions" && (
+          <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+            {data.factions.map(f => {
+              const active=sel?.id===f.id&&selType==="faction";
+              return (
+                <div key={f.id} onClick={()=>{setSel(f);setSelType("faction");setEditing(false);}} style={{
+                  background:active?T.bgHover:T.bgCard, padding:24, cursor:"pointer",
+                  border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
+                  borderLeft:`4px solid ${f.color}`, boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
+                }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                    <span style={{ fontSize:18, fontWeight:300, color:T.text }}>{f.name}</span>
+                    <Tag variant={f.attitude==="allied"||f.attitude==="friendly"?"success":f.attitude==="hostile"?"danger":"muted"}>{f.attitude}</Tag>
+                    {f.trend==="rising"?<TrendingUp size={12} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={12} color="#6fcf97"/>:<Minus size={12} color={T.textFaint}/>}
+                  </div>
+                  <p style={{ fontSize:13, color:T.textDim, margin:"0 0 10px", fontWeight:300, fontStyle:"italic" }}>{f.desc}</p>
+                  <div style={{ display:"flex", alignItems:"center", gap:10, maxWidth:300 }}>
+                    <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1.5px" }}>PWR</span>
+                    <div style={{flex:1}}><PowerBar val={f.power} max={100} color={f.color}/></div>
+                    <span style={{ fontSize:12, color:T.textMuted }}>{f.power}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {tab==="npcs" && (
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+            {data.npcs.map(n => {
+              const active=sel?.id===n.id&&selType==="npc";
+              return (
+                <div key={n.id} onClick={()=>{setSel(n);setSelType("npc");setEditing(false);}} style={{
+                  background:active?T.bgHover:T.bgCard, padding:20, cursor:"pointer", opacity:n.alive?1:0.45,
+                  border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
+                  boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
+                }}>
+                  <div style={{ display:"flex", alignItems:"start", gap:10 }}>
+                    {n.alive?<Users size={14} color={T.textFaint}/>:<Skull size={14} color={T.crimson}/>}
+                    <div>
+                      <div style={{ fontSize:15, fontWeight:300, color:T.text, marginBottom:4 }}>{n.name}</div>
+                      <div style={{ fontSize:12, color:T.textFaint, marginBottom:8, fontStyle:"italic", fontWeight:300 }}>{n.role} — {n.loc}</div>
+                      <div style={{ display:"flex", gap:4, flexWrap:"wrap" }}>
+                        <Tag variant={n.attitude==="allied"||n.attitude==="friendly"?"success":n.attitude==="hostile"?"danger":n.attitude==="cautious"?"warning":"muted"}>{n.attitude}</Tag>
+                        {n.faction && <Tag variant="muted">{n.faction}</Tag>}
+                        {!n.alive && <Tag variant="danger">deceased</Tag>}
                       </div>
                     </div>
                   </div>
                 </div>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {worldTab === "npcs" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-            {data.npcs.map(n => (
-              <Card key={n.id} onClick={() => { setSelectedEntity(n); setEntityType("npc"); }} hoverable active={selectedEntity?.id === n.id && entityType === "npc"}
-                    style={{ opacity: n.alive ? 1 : 0.5 }}>
-                <div style={{ display: "flex", alignItems: "start", gap: "10px" }}>
-                  {n.alive ? <Users size={16} color={theme.inkMuted} /> : <Skull size={16} color={theme.danger} />}
-                  <div>
-                    <div style={{ fontSize: "13px", fontWeight: 700, color: theme.ink }}>{n.name}</div>
-                    <div style={{ fontSize: "11px", color: theme.inkMuted, marginBottom: "4px" }}>{n.role} — {n.location}</div>
-                    <div style={{ display: "flex", gap: "4px" }}>
-                      <Badge variant={n.attitude === "allied" || n.attitude === "friendly" ? "success" : n.attitude === "hostile" ? "danger" : n.attitude === "cautious" ? "warning" : "muted"} small>{n.attitude}</Badge>
-                      {n.faction && <Badge variant="muted" small>{n.faction}</Badge>}
-                      {!n.alive && <Badge variant="danger" small>deceased</Badge>}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Connection Panel */}
-      <div style={{ borderLeft: "1px solid rgba(139,115,85,0.15)", paddingLeft: "20px", overflowY: "auto" }}>
-        {selectedEntity ? (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 800, color: theme.ink, fontFamily: "Georgia, serif" }}>
-                {selectedEntity.name}
-              </h3>
-              <button onClick={() => setSelectedEntity(null)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.inkMuted }}>
-                <X size={16} />
-              </button>
+      {/* Connections + Edit Panel */}
+      <div style={{ overflowY:"auto" }}>
+        {sel ? (
+          <Section style={{ position:"sticky", top:0 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+              <div style={{ fontSize:21, color:T.text, fontWeight:300 }}>{sel.name}</div>
+              <div style={{ display:"flex", gap:6 }}>
+                <button onClick={()=>setEditing(!editing)} style={{ background:"none", border:"none", cursor:"pointer", color:editing?T.crimson:T.textFaint }}><Edit3 size={14}/></button>
+                <button onClick={()=>setSel(null)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint }}><X size={14}/></button>
+              </div>
             </div>
 
-            {/* Entity details */}
-            <div style={{ marginBottom: "16px", padding: "12px", background: "rgba(0,0,0,0.03)", borderRadius: "6px" }}>
-              {entityType === "region" && (
-                <>
-                  <div style={{ fontSize: "12px", color: theme.inkMuted, marginBottom: "4px" }}>Type: <strong style={{ color: theme.ink }}>{selectedEntity.type}</strong></div>
-                  <div style={{ fontSize: "12px", color: theme.inkMuted, marginBottom: "4px" }}>State: <strong style={{ color: theme.ink }}>{selectedEntity.state}</strong></div>
-                  <div style={{ fontSize: "12px", color: theme.inkMuted }}>Threat: <Badge variant={selectedEntity.threat === "extreme" ? "critical" : selectedEntity.threat === "high" ? "danger" : selectedEntity.threat === "medium" ? "warning" : "success"} small>{selectedEntity.threat}</Badge></div>
-                </>
-              )}
-              {entityType === "faction" && (
-                <>
-                  <p style={{ fontSize: "12px", color: theme.inkLight, margin: "0 0 8px" }}>{selectedEntity.description}</p>
-                  <div style={{ fontSize: "12px", color: theme.inkMuted, marginBottom: "4px" }}>Power: <strong style={{ color: theme.ink }}>{selectedEntity.power}/100</strong></div>
-                  <div style={{ fontSize: "12px", color: theme.inkMuted }}>Trend: <strong style={{ color: theme.ink }}>{selectedEntity.trend}</strong></div>
-                </>
-              )}
-              {entityType === "npc" && (
-                <>
-                  <div style={{ fontSize: "12px", color: theme.inkMuted, marginBottom: "4px" }}>Role: <strong style={{ color: theme.ink }}>{selectedEntity.role}</strong></div>
-                  <div style={{ fontSize: "12px", color: theme.inkMuted, marginBottom: "4px" }}>Location: <strong style={{ color: theme.ink }}>{selectedEntity.location}</strong></div>
-                  <div style={{ fontSize: "12px", color: theme.inkMuted }}>Status: <strong style={{ color: theme.ink }}>{selectedEntity.alive ? "Alive" : "Deceased"}</strong></div>
-                </>
-              )}
-            </div>
+            {editing ? (
+              <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:20 }}>
+                {selType==="faction" && <>
+                  <Select value={sel.attitude} onChange={v=>{updateFaction(sel.id,{attitude:v});setSel(p=>({...p,attitude:v}));}} style={{ width:"100%" }}>
+                    {["allied","friendly","neutral","cautious","hostile"].map(a=><option key={a} value={a}>{a}</option>)}
+                  </Select>
+                  <div>
+                    <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>POWER: {sel.power}</span>
+                    <input type="range" min="0" max="100" value={sel.power} onChange={e=>{const v=parseInt(e.target.value);updateFaction(sel.id,{power:v});setSel(p=>({...p,power:v}));}} style={{ width:"100%" }} />
+                  </div>
+                  <Select value={sel.trend} onChange={v=>{updateFaction(sel.id,{trend:v});setSel(p=>({...p,trend:v}));}} style={{ width:"100%" }}>
+                    {["rising","stable","declining"].map(t=><option key={t} value={t}>{t}</option>)}
+                  </Select>
+                </>}
+                {selType==="region" && <>
+                  <Select value={sel.threat} onChange={v=>{updateRegion(sel.id,{threat:v});setSel(p=>({...p,threat:v}));}} style={{ width:"100%" }}>
+                    {["low","medium","high","extreme"].map(t=><option key={t} value={t}>{t}</option>)}
+                  </Select>
+                  <Input value={sel.state} onChange={v=>{updateRegion(sel.id,{state:v});setSel(p=>({...p,state:v}));}} placeholder="State" />
+                  <ToggleSwitch on={sel.visited} onToggle={()=>{updateRegion(sel.id,{visited:!sel.visited});setSel(p=>({...p,visited:!p.visited}));}} label="Visited" />
+                </>}
+                {selType==="npc" && <>
+                  <Select value={sel.attitude} onChange={v=>{updateNpc(sel.id,{attitude:v});setSel(p=>({...p,attitude:v}));}} style={{ width:"100%" }}>
+                    {["allied","friendly","neutral","cautious","hostile"].map(a=><option key={a} value={a}>{a}</option>)}
+                  </Select>
+                  <Input value={sel.loc} onChange={v=>{updateNpc(sel.id,{loc:v});setSel(p=>({...p,loc:v}));}} placeholder="Location" />
+                  <Input value={sel.role} onChange={v=>{updateNpc(sel.id,{role:v});setSel(p=>({...p,role:v}));}} placeholder="Role" />
+                  <ToggleSwitch on={sel.alive} onToggle={()=>{updateNpc(sel.id,{alive:!sel.alive});setSel(p=>({...p,alive:!p.alive}));}} label="Alive" />
+                </>}
+              </div>
+            ) : (
+              <div style={{ padding:16, background:T.bg, border:`1px solid ${T.crimsonBorder}`, borderRadius:"2px", marginBottom:20 }}>
+                {selType==="region" && <>
+                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Type: <span style={{color:T.textDim}}>{sel.type}</span></div>
+                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>State: <span style={{color:T.textDim,fontStyle:"italic"}}>{sel.state}</span></div>
+                  <div style={{ fontSize:12, color:T.textMuted }}>Threat: <Tag variant={sel.threat==="extreme"?"critical":sel.threat==="high"?"danger":sel.threat==="medium"?"warning":"success"}>{sel.threat}</Tag></div>
+                </>}
+                {selType==="faction" && <>
+                  <p style={{ fontSize:13, color:T.textDim, margin:"0 0 10px", fontWeight:300, fontStyle:"italic" }}>{sel.desc}</p>
+                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Power: <span style={{color:T.textDim}}>{sel.power}/100</span></div>
+                  <div style={{ fontSize:12, color:T.textMuted }}>Trend: <span style={{color:T.textDim}}>{sel.trend}</span></div>
+                </>}
+                {selType==="npc" && <>
+                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Role: <span style={{color:T.textDim}}>{sel.role}</span></div>
+                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Location: <span style={{color:T.textDim}}>{sel.loc}</span></div>
+                  <div style={{ fontSize:12, color:T.textMuted }}>Status: <span style={{color:T.textDim}}>{sel.alive?"Alive":"Deceased"}</span></div>
+                </>}
+              </div>
+            )}
 
-            {/* Connections */}
-            <SectionHeader icon={Layers} title="Connections" />
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              {getConnections(entityType, selectedEntity).map((conn, i) => (
-                <div key={i} onClick={() => { setSelectedEntity(conn.entity); setEntityType(conn.type); }} style={{
-                  padding: "10px 12px", background: "rgba(0,0,0,0.03)", borderRadius: "6px",
-                  cursor: "pointer", borderLeft: `3px solid ${conn.type === "faction" ? (conn.entity.color || theme.accent) : theme.inkMuted}`,
-                  transition: "all 0.15s"
+            <SectionTitle icon={Layers}>Connections</SectionTitle>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {conns(selType,sel).map((c,i) => (
+                <div key={i} onClick={()=>{setSel(c.e);setSelType(c.type);setEditing(false);}} style={{
+                  padding:"14px 16px", background:T.bg, cursor:"pointer", borderRadius:"2px",
+                  border:`1px solid ${T.border}`, borderLeft:`3px solid ${c.type==="faction"?(c.e.color||T.crimson):T.textFaint}`,
+                  transition:"all 0.15s",
                 }}>
-                  <div style={{ fontSize: "10px", color: theme.inkMuted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px" }}>{conn.label}</div>
-                  <div style={{ fontSize: "13px", fontWeight: 600, color: theme.ink }}>{conn.entity.name || conn.entity.title}</div>
-                  <div style={{ fontSize: "11px", color: theme.inkMuted, marginTop: "2px" }}>{conn.type}</div>
+                  <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"2px", textTransform:"uppercase", display:"block", marginBottom:4 }}>{c.label}</span>
+                  <span style={{ fontSize:14, fontWeight:300, color:T.text }}>{c.e.name||c.e.title}</span>
                 </div>
               ))}
-              {getConnections(entityType, selectedEntity).length === 0 && (
-                <p style={{ fontSize: "12px", color: theme.inkMuted, fontStyle: "italic" }}>No direct connections found.</p>
-              )}
+              {conns(selType,sel).length===0 && <p style={{ fontSize:13, color:T.textFaint, fontStyle:"italic", fontWeight:300 }}>No connections found.</p>}
             </div>
-          </div>
+          </Section>
         ) : (
-          <div style={{ textAlign: "center", paddingTop: "60px" }}>
-            <Layers size={32} color={theme.inkMuted} style={{ marginBottom: "8px" }} />
-            <p style={{ fontSize: "13px", color: theme.inkMuted }}>Select any element to view its connections across the world.</p>
-            <p style={{ fontSize: "11px", color: theme.parchmentDeep }}>Regions, factions, NPCs, and quests are all interconnected.</p>
+          <div style={{ textAlign:"center", paddingTop:80 }}>
+            <Layers size={28} color={T.textFaint} style={{marginBottom:12}} />
+            <p style={{ fontSize:15, color:T.textDim, fontWeight:300, fontStyle:"italic" }}>Select any element to view<br/>its connections across the world.</p>
           </div>
         )}
       </div>
+
+      {/* Add Entity Modal */}
+      <AddEntityModal open={addingEntity} onClose={()=>setAddingEntity(false)} tab={tab} onAdd={addEntity} data={data} />
     </div>
   );
 }
 
-// ─── PLAY MODE ──────────────────────────────────────────────────────────────
-
-function PlayView({ data }) {
-  const [activePanel, setActivePanel] = useState("initiative");
+function AddEntityModal({ open, onClose, tab, onAdd, data }) {
+  const [form, setForm] = useState({});
+  useEffect(() => {
+    if (tab==="regions") setForm({ name:"", type:"town", ctrl:"", threat:"low", state:"stable", visited:false });
+    else if (tab==="factions") setForm({ name:"", attitude:"neutral", power:50, trend:"stable", desc:"", color:"#94a3b8" });
+    else setForm({ name:"", faction:null, loc:"", attitude:"neutral", role:"", alive:true });
+  }, [tab, open]);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "0", height: "calc(100vh - 60px)" }}>
-      {/* Main play area */}
-      <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <Modal open={open} onClose={onClose} title={`Add ${tab.slice(0,-1)}`}>
+      <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+        <Input value={form.name||""} onChange={v=>setForm(p=>({...p,name:v}))} placeholder="Name" />
+        {tab==="regions" && <>
+          <Select value={form.type||"town"} onChange={v=>setForm(p=>({...p,type:v}))} style={{ width:"100%" }}>
+            {["city","town","wilderness","dungeon","route"].map(t=><option key={t} value={t}>{t}</option>)}
+          </Select>
+          <Select value={form.ctrl||""} onChange={v=>setForm(p=>({...p,ctrl:v}))} style={{ width:"100%" }}>
+            <option value="">No controller</option>
+            {data.factions.map(f=><option key={f.id} value={f.name}>{f.name}</option>)}
+          </Select>
+          <Select value={form.threat||"low"} onChange={v=>setForm(p=>({...p,threat:v}))} style={{ width:"100%" }}>
+            {["low","medium","high","extreme"].map(t=><option key={t} value={t}>{t}</option>)}
+          </Select>
+        </>}
+        {tab==="factions" && <>
+          <Textarea value={form.desc||""} onChange={v=>setForm(p=>({...p,desc:v}))} placeholder="Description..." rows={2} />
+          <Select value={form.attitude||"neutral"} onChange={v=>setForm(p=>({...p,attitude:v}))} style={{ width:"100%" }}>
+            {["allied","friendly","neutral","cautious","hostile"].map(a=><option key={a} value={a}>{a}</option>)}
+          </Select>
+        </>}
+        {tab==="npcs" && <>
+          <Input value={form.role||""} onChange={v=>setForm(p=>({...p,role:v}))} placeholder="Role (e.g., quest giver, ally)" />
+          <Input value={form.loc||""} onChange={v=>setForm(p=>({...p,loc:v}))} placeholder="Location" />
+          <Select value={form.faction||""} onChange={v=>setForm(p=>({...p,faction:v||null}))} style={{ width:"100%" }}>
+            <option value="">No faction</option>
+            {data.factions.map(f=><option key={f.id} value={f.name}>{f.name}</option>)}
+          </Select>
+          <Select value={form.attitude||"neutral"} onChange={v=>setForm(p=>({...p,attitude:v}))} style={{ width:"100%" }}>
+            {["allied","friendly","neutral","cautious","hostile"].map(a=><option key={a} value={a}>{a}</option>)}
+          </Select>
+        </>}
+        <CrimsonBtn onClick={()=>{if(form.name) onAdd(tab.slice(0,-1),form);}}><Plus size={12}/> Add</CrimsonBtn>
+      </div>
+    </Modal>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLAY MODE
+// ═══════════════════════════════════════════════════════════════════════════
+
+function PlayView({ data, setData }) {
+  const [panel,setPanel] = useState("initiative");
+
+  return (
+    <div style={{ display:"grid", gridTemplateColumns:"1fr 340px", gap:24, padding:"32px 56px", height:"calc(100vh - 56px)" }}>
+      <div style={{ display:"flex", flexDirection:"column", gap:24, overflowY:"auto" }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 800, color: theme.ink, fontFamily: "Georgia, serif" }}>Play Mode</h2>
-            <p style={{ margin: "2px 0 0", fontSize: "12px", color: theme.inkMuted }}>Session 25 — Live DM Control Panel</p>
+            <div style={{ fontSize:42, color:T.text, fontWeight:300 }}>Play Mode</div>
+            <p style={{ fontSize:13, color:T.textMuted, fontStyle:"italic", margin:"4px 0 0", fontWeight:300 }}>Session {data.sessionsPlayed + 1} — Live DM Control</p>
           </div>
-          <Badge variant="danger">
-            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#ff4444", display: "inline-block", animation: "pulse 2s infinite" }} /> LIVE
-          </Badge>
+          <Tag variant="critical"><span style={{ width:5, height:5, borderRadius:"50%", background:T.crimson, display:"inline-block", animation:"pulse 2s infinite" }}/> Live</Tag>
         </div>
 
-        {/* Interactive World Map */}
-        <div style={{
-          flex: 1, minHeight: "360px", background: "rgba(0,0,0,0.03)", borderRadius: "8px",
-          border: "1px solid rgba(139,115,85,0.15)", position: "relative", overflow: "hidden"
-        }}>
-          {/* Stylized map visualization */}
-          <svg viewBox="0 0 800 500" style={{ width: "100%", height: "100%" }}>
-            {/* Water background */}
-            <rect width="800" height="500" fill="rgba(74,111,165,0.08)" />
-
-            {/* Landmasses */}
-            <path d="M100,180 Q150,120 250,140 Q350,100 400,150 Q450,120 500,160 Q520,200 490,250 Q460,280 400,290 Q350,300 300,270 Q200,260 150,230 Z" fill="rgba(180,165,130,0.4)" stroke="rgba(44,24,16,0.3)" strokeWidth="1.5" />
-            <path d="M520,100 Q580,80 650,120 Q700,160 680,220 Q660,260 600,250 Q550,240 530,180 Z" fill="rgba(180,165,130,0.4)" stroke="rgba(44,24,16,0.3)" strokeWidth="1.5" />
-            <path d="M150,320 Q200,290 300,310 Q380,320 400,360 Q380,400 300,410 Q200,400 160,370 Z" fill="rgba(180,165,130,0.4)" stroke="rgba(44,24,16,0.3)" strokeWidth="1.5" />
-
-            {/* Mountain markers */}
-            {[[280, 160], [320, 150], [360, 155], [250, 175], [400, 165]].map(([x, y], i) => (
-              <polygon key={`m${i}`} points={`${x},${y-15} ${x-8},${y+5} ${x+8},${y+5}`} fill="rgba(44,24,16,0.3)" stroke="rgba(44,24,16,0.5)" strokeWidth="1" />
-            ))}
-
-            {/* Region labels */}
-            <text x="300" y="220" textAnchor="middle" fill="rgba(44,24,16,0.5)" fontSize="11" fontWeight="600" fontFamily="Georgia">Valdris Capital</text>
-            <text x="350" y="245" textAnchor="middle" fill="rgba(44,24,16,0.35)" fontSize="9" fontFamily="Georgia">The Silver Accord</text>
-            <text x="600" y="170" textAnchor="middle" fill="rgba(44,24,16,0.5)" fontSize="10" fontWeight="600" fontFamily="Georgia">Shadowfen</text>
-            <text x="280" y="360" textAnchor="middle" fill="rgba(44,24,16,0.5)" fontSize="10" fontWeight="600" fontFamily="Georgia">Greymoor Marshes</text>
-            <text x="450" y="130" textAnchor="middle" fill="rgba(44,24,16,0.4)" fontSize="9" fontFamily="Georgia">Aldenmire Ruins</text>
-            <text x="180" y="200" textAnchor="middle" fill="rgba(44,24,16,0.4)" fontSize="9" fontFamily="Georgia">Thornhaven</text>
-
-            {/* Location dots */}
-            {[[300, 205, true], [600, 155, true], [280, 345, true], [450, 118, false], [180, 188, true]].map(([x, y, visited], i) => (
-              <g key={`l${i}`}>
-                <circle cx={x} cy={y} r={visited ? 5 : 4} fill={visited ? theme.accent : theme.inkMuted} opacity={0.8} />
-                {visited && <circle cx={x} cy={y} r={8} fill="none" stroke={theme.accent} strokeWidth="1" opacity={0.3} />}
-              </g>
-            ))}
-
-            {/* Party location indicator */}
-            <g>
-              <circle cx="580" cy="180" r="12" fill="rgba(139,69,19,0.2)" stroke={theme.accent} strokeWidth="2">
-                <animate attributeName="r" values="12;16;12" dur="2s" repeatCount="indefinite" />
-              </circle>
-              <circle cx="580" cy="180" r="4" fill={theme.accent} />
-              <text x="580" y="200" textAnchor="middle" fill={theme.accent} fontSize="8" fontWeight="700">PARTY</text>
-            </g>
-
-            {/* Road lines */}
-            <path d="M180,190 Q240,195 300,205" fill="none" stroke="rgba(44,24,16,0.2)" strokeWidth="1" strokeDasharray="4,3" />
-            <path d="M300,210 Q350,280 280,345" fill="none" stroke="rgba(44,24,16,0.15)" strokeWidth="1" strokeDasharray="3,4" />
-            <path d="M300,205 Q400,180 450,118" fill="none" stroke="rgba(44,24,16,0.15)" strokeWidth="1" strokeDasharray="4,3" />
-            <path d="M450,125 Q520,140 580,155" fill="none" stroke="rgba(44,24,16,0.2)" strokeWidth="1" strokeDasharray="4,3" />
-
-            {/* Compass rose */}
-            <g transform="translate(720, 430)">
-              <circle r="20" fill="rgba(245,240,225,0.5)" stroke="rgba(44,24,16,0.2)" strokeWidth="1" />
-              <text y="-8" textAnchor="middle" fill="rgba(44,24,16,0.5)" fontSize="8" fontWeight="700">N</text>
-              <line x1="0" y1="-6" x2="0" y2="6" stroke="rgba(44,24,16,0.3)" strokeWidth="1" />
-              <line x1="-6" y1="0" x2="6" y2="0" stroke="rgba(44,24,16,0.3)" strokeWidth="1" />
-            </g>
+        <Section style={{ flex:1, minHeight:360, padding:0, overflow:"hidden" }}>
+          <svg viewBox="0 0 800 500" style={{ width:"100%", height:"100%", display:"block" }}>
+            <rect width="800" height="500" fill={T.bgMid} />
+            <path d="M100,180 Q150,120 250,140 Q350,100 400,150 Q450,120 500,160 Q520,200 490,250 Q460,280 400,290 Q350,300 300,270 Q200,260 150,230 Z" fill="rgba(139,115,85,0.10)" stroke={T.textFaint} strokeWidth="1" />
+            <path d="M520,100 Q580,80 650,120 Q700,160 680,220 Q660,260 600,250 Q550,240 530,180 Z" fill="rgba(139,115,85,0.10)" stroke={T.textFaint} strokeWidth="1" />
+            <path d="M150,320 Q200,290 300,310 Q380,320 400,360 Q380,400 300,410 Q200,400 160,370 Z" fill="rgba(139,115,85,0.10)" stroke={T.textFaint} strokeWidth="1" />
+            {[[280,160],[320,150],[360,155],[250,175],[400,165]].map(([x,y],i)=><polygon key={i} points={`${x},${y-12} ${x-6},${y+4} ${x+6},${y+4}`} fill={T.textFaint} stroke={T.textMuted} strokeWidth="0.5"/>)}
+            <text x="300" y="220" textAnchor="middle" fill={T.textFaint} fontSize="8" fontFamily="Cinzel" letterSpacing="2">VALDRIS CAPITAL</text>
+            <text x="600" y="170" textAnchor="middle" fill={T.textFaint} fontSize="7" fontFamily="Cinzel" letterSpacing="2">SHADOWFEN</text>
+            <text x="280" y="360" textAnchor="middle" fill={T.textFaint} fontSize="7" fontFamily="Cinzel" letterSpacing="2">GREYMOOR</text>
+            <text x="450" y="130" textAnchor="middle" fill={T.textFaint} fontSize="7" fontFamily="Cinzel" letterSpacing="2">ALDENMIRE</text>
+            <text x="180" y="198" textAnchor="middle" fill={T.textFaint} fontSize="7" fontFamily="Cinzel" letterSpacing="2">THORNHAVEN</text>
+            {[[300,205,true],[600,155,true],[280,345,true],[450,118,false],[180,188,true]].map(([x,y,v],i)=><g key={i}><circle cx={x} cy={y} r={v?4:3} fill={v?T.crimson:T.textFaint} opacity={0.7}/>{v&&<circle cx={x} cy={y} r={7} fill="none" stroke={T.crimson} strokeWidth="0.5" opacity="0.3"/>}</g>)}
+            <g><circle cx="580" cy="180" r="10" fill="none" stroke={T.crimson} strokeWidth="1.5" opacity="0.5"><animate attributeName="r" values="10;14;10" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0.15;0.5" dur="3s" repeatCount="indefinite"/></circle><circle cx="580" cy="180" r="3" fill={T.crimson}/><text x="580" y="198" textAnchor="middle" fill={T.crimson} fontSize="6" fontFamily="Cinzel" letterSpacing="1.5">PARTY</text></g>
+            {[["M180,190 Q240,195 300,205"],["M300,210 Q350,280 280,345"],["M300,205 Q400,180 450,118"],["M450,125 Q520,140 580,155"]].map((d,i)=><path key={i} d={d[0]} fill="none" stroke={T.textFaint} strokeWidth="0.5" strokeDasharray="4,4" opacity="0.4"/>)}
           </svg>
-        </div>
+        </Section>
 
-        {/* NPC Quick Reference */}
-        <Card>
-          <SectionHeader icon={Users} title="NPC Quick Reference" count={data.npcs.filter(n => n.alive).length} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }}>
-            {data.npcs.filter(n => n.alive).map(n => (
+        <div>
+          <SectionTitle icon={Users} count={data.npcs.filter(n=>n.alive).length}>NPC Reference</SectionTitle>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
+            {data.npcs.filter(n=>n.alive).map(n => (
               <div key={n.id} style={{
-                padding: "8px 10px", background: "rgba(0,0,0,0.02)", borderRadius: "5px",
-                borderLeft: `2px solid ${n.attitude === "allied" || n.attitude === "friendly" ? theme.success : n.attitude === "hostile" ? theme.danger : theme.accentGold}`
+                padding:"12px 16px", background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:"4px",
+                borderLeft:`3px solid ${n.attitude==="allied"||n.attitude==="friendly"?"#2d6a4f":n.attitude==="hostile"?T.crimson:T.textFaint}`,
               }}>
-                <div style={{ fontSize: "12px", fontWeight: 700, color: theme.ink }}>{n.name}</div>
-                <div style={{ fontSize: "10px", color: theme.inkMuted }}>{n.role} — {n.location}</div>
+                <div style={{ fontSize:13, fontWeight:300, color:T.text, marginBottom:2 }}>{n.name}</div>
+                <div style={{ fontSize:11, color:T.textFaint, fontWeight:300, fontStyle:"italic" }}>{n.role} — {n.loc}</div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </div>
 
-      {/* Right control panel */}
-      <div style={{
-        borderLeft: "1px solid rgba(139,115,85,0.15)", display: "flex", flexDirection: "column",
-        background: "rgba(0,0,0,0.02)", overflowY: "auto"
-      }}>
-        {/* Panel tabs */}
-        <div style={{ display: "flex", borderBottom: "1px solid rgba(139,115,85,0.15)" }}>
-          {[{ id: "initiative", icon: Swords, label: "Initiative" }, { id: "dice", icon: Dice6, label: "Dice" }].map(t => (
-            <button key={t.id} onClick={() => setActivePanel(t.id)} style={{
-              flex: 1, padding: "10px", background: activePanel === t.id ? "rgba(139,69,19,0.08)" : "transparent",
-              border: "none", borderBottom: activePanel === t.id ? `2px solid ${theme.accent}` : "2px solid transparent",
-              cursor: "pointer", color: activePanel === t.id ? theme.accent : theme.inkMuted,
-              fontSize: "11px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "5px",
-              textTransform: "uppercase", letterSpacing: "0.5px", transition: "all 0.15s"
-            }}>
-              <t.icon size={13} /> {t.label}
-            </button>
+      <div style={{ display:"flex", flexDirection:"column", overflowY:"auto" }}>
+        <div style={{ display:"flex", borderBottom:`1px solid ${T.border}`, marginBottom:0 }}>
+          {[{id:"initiative",icon:Swords,label:"Initiative"},{id:"dice",icon:Dice6,label:"Dice"}].map(t=>(
+            <button key={t.id} onClick={()=>setPanel(t.id)} style={{
+              flex:1, padding:"16px 32px", background:"transparent", border:"none",
+              borderBottom:panel===t.id?`3px solid ${T.crimson}`:"3px solid transparent",
+              cursor:"pointer", color:panel===t.id?T.crimson:T.textMuted,
+              fontFamily:T.ui, fontSize:10, letterSpacing:"2px", textTransform:"uppercase",
+              fontWeight:500, transition:"all 0.3s", display:"flex", alignItems:"center", justifyContent:"center", gap:6,
+            }}><t.icon size={13}/> {t.label}</button>
           ))}
         </div>
 
-        {/* Panel content */}
-        <div style={{ padding: "16px", flex: 1 }}>
-          {activePanel === "initiative" && <InitiativeTracker party={data.party} />}
-          {activePanel === "dice" && <DiceRoller />}
-        </div>
+        <Section style={{ flex:1, margin:0, borderRadius:0, border:"none", borderBottom:`1px solid ${T.border}` }}>
+          {panel==="initiative" && <InitiativeTracker party={data.party}/>}
+          {panel==="dice" && <DiceRoller/>}
+        </Section>
 
-        {/* Active Encounter Panel */}
-        <div style={{ borderTop: "1px solid rgba(139,115,85,0.15)", padding: "14px 16px" }}>
-          <SectionHeader icon={Target} title="Active Encounter" />
-          <div style={{ padding: "12px", background: "rgba(139,0,0,0.04)", borderRadius: "6px", borderLeft: `3px solid ${theme.danger}` }}>
-            <div style={{ fontSize: "13px", fontWeight: 700, color: theme.ink, marginBottom: "4px" }}>Shadow Horror Ambush</div>
-            <div style={{ fontSize: "11px", color: theme.inkMuted, marginBottom: "6px" }}>Difficulty: Hard — CR 8 + 2x CR 3</div>
-            <div style={{ display: "flex", gap: "6px" }}>
-              <Badge variant="danger" small>combat</Badge>
-              <Badge variant="muted" small>Shadowfen</Badge>
-            </div>
-          </div>
-        </div>
-
-        {/* Party Status Compact */}
-        <div style={{ borderTop: "1px solid rgba(139,115,85,0.15)", padding: "14px 16px" }}>
-          <SectionHeader icon={Heart} title="Party Status" />
-          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+        <Section style={{ borderRadius:0, border:"none", borderBottom:`1px solid ${T.border}` }}>
+          <SectionTitle icon={Heart}>Party Status</SectionTitle>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
             {data.party.map(p => (
-              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 600, color: theme.ink, minWidth: "70px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name.split(" ")[0]}</span>
-                <div style={{ flex: 1 }}>
-                  <ProgressBar value={p.hp} max={p.maxHp} color={p.hp < p.maxHp * 0.3 ? theme.danger : p.hp < p.maxHp * 0.6 ? "#b45309" : theme.success} height={5} />
-                </div>
-                <span style={{ fontSize: "10px", color: theme.inkMuted, minWidth: "36px", textAlign: "right" }}>{p.hp}/{p.maxHp}</span>
+              <div key={p.id} style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <span style={{ fontSize:12, fontWeight:300, color:T.textDim, minWidth:70, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.name.split(" ")[0]}</span>
+                <div style={{flex:1}}><HpBar val={p.hp} max={p.maxHp} color={p.hp<p.maxHp*0.3?T.crimson:p.hp<p.maxHp*0.6?"#d97706":"#2d6a4f"}/></div>
+                <span style={{ fontSize:11, color:T.textMuted, minWidth:42, textAlign:"right" }}>{p.hp}/{p.maxHp}</span>
               </div>
             ))}
           </div>
-        </div>
+        </Section>
       </div>
     </div>
   );
 }
 
-// ─── MAIN APP ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// CAMPAIGN NOTES / ADVENTURE MODULE FORMATTER
+// ═══════════════════════════════════════════════════════════════════════════
 
-export default function CampaignManager() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+function NotesView({ data, setData }) {
+  const [notes, setNotes] = useState(data.campaignNotes || []);
+  const [activeNote, setActiveNote] = useState(null);
+  const [reformatMode, setReformatMode] = useState(false);
+  const [rawInput, setRawInput] = useState("");
+  const [previewMode, setPreviewMode] = useState(false);
 
-  const tabs = [
-    { id: "dashboard", label: "Campaign Hub", icon: Compass },
-    { id: "timeline", label: "Timeline", icon: Clock },
-    { id: "world", label: "World", icon: Globe },
-    { id: "play", label: "Play Mode", icon: Swords }
+  const createNote = (title = "Untitled Chapter", content = "") => {
+    const note = { id: uid(), title, content, type: "chapter", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    const updated = [...notes, note];
+    setNotes(updated);
+    setData(d => ({...d, campaignNotes: updated}));
+    setActiveNote(note.id);
+    return note;
+  };
+
+  const updateNote = (id, updates) => {
+    const updated = notes.map(n => n.id===id ? {...n, ...updates, updatedAt: new Date().toISOString()} : n);
+    setNotes(updated);
+    setData(d => ({...d, campaignNotes: updated}));
+  };
+
+  const deleteNote = (id) => {
+    const updated = notes.filter(n=>n.id!==id);
+    setNotes(updated);
+    setData(d => ({...d, campaignNotes: updated}));
+    if (activeNote === id) setActiveNote(null);
+  };
+
+  const formatAsModule = (content) => {
+    const lines = content.split("\n");
+    let formatted = "";
+    let inStatBlock = false;
+
+    lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        if (inStatBlock) { inStatBlock = false; formatted += "---\n\n"; }
+        else formatted += "\n";
+        return;
+      }
+      // Headers: # syntax or ALL CAPS lines
+      if (trimmed.match(/^#{1,3}\s/) || (trimmed === trimmed.toUpperCase() && trimmed.length < 60 && trimmed.length > 2 && /[A-Z]/.test(trimmed))) {
+        if (inStatBlock) { inStatBlock = false; formatted += "---\n\n"; }
+        const level = trimmed.startsWith("###") ? "### " : trimmed.startsWith("##") ? "## " : trimmed.startsWith("#") ? "## " : "## ";
+        const headerText = trimmed.replace(/^#+\s*/, "");
+        formatted += `${level}${headerText}\n\n`;
+      }
+      // Read-aloud text (quotes or >)
+      else if (trimmed.startsWith(">") || (trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+        if (inStatBlock) { inStatBlock = false; formatted += "---\n\n"; }
+        formatted += `> *${trimmed.replace(/^[>"]\s*/, "").replace(/^"/, "").replace(/"$/, "")}*\n\n`;
+      }
+      // Stat block lines (Key: Value pattern, short lines)
+      else if (trimmed.match(/^[\w\s]+:\s/) && trimmed.length < 80) {
+        if (!inStatBlock) { formatted += "---\n"; inStatBlock = true; }
+        formatted += `**${trimmed.split(":")[0].trim()}:** ${trimmed.split(":").slice(1).join(":").trim()}\n`;
+      }
+      // Bullet points
+      else if (trimmed.startsWith("-") || trimmed.startsWith("•") || trimmed.startsWith("*")) {
+        if (inStatBlock) { inStatBlock = false; formatted += "---\n\n"; }
+        formatted += `${trimmed}\n`;
+      }
+      // Regular text
+      else {
+        if (inStatBlock) { inStatBlock = false; formatted += "---\n\n"; }
+        formatted += `${trimmed}\n\n`;
+      }
+    });
+
+    if (inStatBlock) formatted += "---\n";
+    return formatted.trim();
+  };
+
+  const handleReformat = () => {
+    if (!rawInput.trim()) return;
+    const formatted = formatAsModule(rawInput);
+    const title = rawInput.split("\n")[0].substring(0, 60).replace(/^#+\s*/, "") || "Reformatted Notes";
+    createNote(title, formatted);
+    setRawInput("");
+    setReformatMode(false);
+  };
+
+  const active = notes.find(n=>n.id===activeNote);
+
+  const noteTypes = [
+    { id:"chapter", label:"Chapter", icon:BookOpen },
+    { id:"encounter", label:"Encounter", icon:Swords },
+    { id:"location", label:"Location", icon:MapPin },
+    { id:"lore", label:"Lore", icon:Scroll },
+    { id:"handout", label:"Handout", icon:FileText },
   ];
 
-  return (
-    <div style={{
-      width: "100%", height: "100vh", display: "flex", flexDirection: "column",
-      background: `linear-gradient(170deg, ${theme.parchment} 0%, ${theme.parchmentDark} 50%, ${theme.parchment} 100%)`,
-      color: theme.ink, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      overflow: "hidden"
-    }}>
-      {/* Top Navigation Bar */}
-      <nav style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 20px", height: "56px", flexShrink: 0,
-        borderBottom: `1px solid ${theme.parchmentDeep}`,
-        background: "rgba(245,240,225,0.95)", backdropFilter: "blur(8px)"
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Crown size={20} color={theme.accent} />
-            <span style={{ fontSize: "16px", fontWeight: 800, color: theme.ink, fontFamily: "Georgia, serif", letterSpacing: "0.5px" }}>
-              Campaign Manager
-            </span>
+  const renderPreview = (content) => {
+    return content.split("\n").map((line, i) => {
+      const trimmed = line.trim();
+      if (!trimmed) return <div key={i} style={{ height:8 }} />;
+      if (trimmed === "---") return <hr key={i} style={{ border:"none", borderTop:`1px solid ${T.crimsonBorder}`, margin:"6px 0" }} />;
+      if (trimmed.startsWith("## ")) return (
+        <h2 key={i} style={{
+          fontFamily:T.ui, fontSize:16, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase",
+          fontWeight:500, margin:"24px 0 12px", borderBottom:`1px solid ${T.crimsonBorder}`, paddingBottom:8,
+        }}>{trimmed.slice(3)}</h2>
+      );
+      if (trimmed.startsWith("### ")) return (
+        <h3 key={i} style={{
+          fontFamily:T.ui, fontSize:13, letterSpacing:"1px", color:T.text, fontWeight:500, margin:"16px 0 8px",
+        }}>{trimmed.slice(4)}</h3>
+      );
+      if (trimmed.startsWith("> ")) return (
+        <blockquote key={i} style={{
+          borderLeft:`3px solid ${T.crimson}`, background:"rgba(192,57,43,0.05)", padding:"10px 16px",
+          margin:"12px 0", color:T.textDim, fontStyle:"italic", fontSize:14, lineHeight:1.8, fontWeight:300,
+          borderRadius:"0 3px 3px 0",
+        }}>{trimmed.slice(2).replace(/\*/g,"")}</blockquote>
+      );
+      if (trimmed.startsWith("- ") || trimmed.startsWith("• ")) return (
+        <div key={i} style={{ paddingLeft:16, fontSize:13, color:T.textDim, lineHeight:1.7, fontWeight:300 }}>{trimmed}</div>
+      );
+      if (trimmed.match(/^\*\*[\w\s]+:\*\*/)) {
+        const parts = trimmed.match(/^\*\*(.*?):\*\*\s*(.*)/);
+        if (parts) return (
+          <div key={i} style={{ fontSize:13, lineHeight:1.7, fontWeight:300, color:T.textDim, padding:"1px 0" }}>
+            <strong style={{ color:T.text, fontWeight:500, fontFamily:T.ui, fontSize:11, letterSpacing:"0.5px" }}>{parts[1]}:</strong> {parts[2]}
           </div>
-          <div style={{ display: "flex", gap: "2px" }}>
-            {tabs.map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-                padding: "8px 16px", background: activeTab === tab.id ? "rgba(139,69,19,0.1)" : "transparent",
-                border: "none", borderRadius: "6px", cursor: "pointer",
-                color: activeTab === tab.id ? theme.accent : theme.inkMuted,
-                fontSize: "13px", fontWeight: activeTab === tab.id ? 700 : 500,
-                display: "flex", alignItems: "center", gap: "6px", transition: "all 0.15s",
-                borderBottom: activeTab === tab.id ? `2px solid ${theme.accent}` : "2px solid transparent"
-              }}>
-                <tab.icon size={15} />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ fontSize: "12px", color: theme.inkMuted, fontFamily: "Georgia, serif" }}>The Shattered Crown</span>
-          <Bell size={16} color={theme.inkMuted} style={{ cursor: "pointer" }} />
-          <Settings size={16} color={theme.inkMuted} style={{ cursor: "pointer" }} />
-        </div>
-      </nav>
+        );
+      }
+      return <p key={i} style={{ fontSize:14, color:T.textDim, lineHeight:1.8, margin:"0 0 8px", fontWeight:300 }}>{trimmed}</p>;
+    });
+  };
 
-      {/* Content Area */}
-      <div style={{ flex: 1, overflow: "hidden" }}>
-        <div style={{ height: "100%", overflowY: "auto" }}>
-          {activeTab === "dashboard" && <DashboardView data={CAMPAIGN_DATA} onNavigate={setActiveTab} />}
-          {activeTab === "timeline" && <TimelineView data={CAMPAIGN_DATA} />}
-          {activeTab === "world" && <WorldView data={CAMPAIGN_DATA} />}
-          {activeTab === "play" && <PlayView data={CAMPAIGN_DATA} />}
+  return (
+    <div style={{ display:"grid", gridTemplateColumns:"280px 1fr", gap:0, height:"calc(100vh - 56px)" }}>
+      {/* Sidebar */}
+      <div style={{ borderRight:`1px solid ${T.border}`, padding:20, overflowY:"auto", background:T.bgMid }}>
+        <SectionTitle icon={BookOpen}>Campaign Notes</SectionTitle>
+        <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:16 }}>
+          <CrimsonBtn onClick={()=>createNote()} small style={{ width:"100%" }}><Plus size={11}/> New Chapter</CrimsonBtn>
+          <CrimsonBtn onClick={()=>setReformatMode(true)} secondary small style={{ width:"100%" }}><RefreshCw size={11}/> Reformat Notes</CrimsonBtn>
+        </div>
+        <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+          {notes.map(n => (
+            <div key={n.id} onClick={()=>{setActiveNote(n.id);setPreviewMode(false);setReformatMode(false);}} style={{
+              padding:"10px 12px", cursor:"pointer", borderRadius:"2px",
+              background: activeNote===n.id ? T.bgHover : "transparent",
+              border:`1px solid ${activeNote===n.id ? T.crimsonBorder : "transparent"}`,
+              transition:"all 0.15s",
+            }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
+                <Tag variant="muted">{n.type}</Tag>
+                <span style={{ flex:1, fontSize:12, color:T.text, fontWeight:300, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{n.title}</span>
+                <button onClick={e=>{e.stopPropagation();deleteNote(n.id);}} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:2 }}><Trash2 size={10}/></button>
+              </div>
+              <div style={{ fontSize:10, color:T.textFaint, fontStyle:"italic" }}>{new Date(n.updatedAt).toLocaleDateString()}</div>
+            </div>
+          ))}
+          {notes.length === 0 && <p style={{ fontSize:12, color:T.textFaint, fontStyle:"italic", textAlign:"center", padding:20, fontWeight:300 }}>No notes yet. Create a chapter or paste your raw notes to reformat them.</p>}
         </div>
       </div>
 
-      {/* CSS Animations */}
+      {/* Editor / Preview */}
+      <div style={{ padding:32, overflowY:"auto" }}>
+        {reformatMode ? (
+          <div>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+              <div>
+                <div style={{ fontSize:28, color:T.text, fontWeight:300 }}>Reformat into Adventure Module</div>
+                <p style={{ fontSize:12, color:T.textMuted, fontStyle:"italic", margin:"6px 0 0", fontWeight:300 }}>
+                  Paste your raw DM notes, session prep, or homebrew writing and transform it into a polished, traditional D&D adventure module layout.
+                </p>
+              </div>
+              <CrimsonBtn onClick={()=>setReformatMode(false)} secondary small><X size={11}/> Cancel</CrimsonBtn>
+            </div>
+
+            <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
+              {[
+                { label:"Headers", hint:"# or ALL CAPS lines become section headers" },
+                { label:"Read-Aloud", hint:'> or "quoted" text becomes boxed read-aloud' },
+                { label:"Stat Blocks", hint:"Key: Value lines group into stat blocks" },
+                { label:"Lists", hint:"- or • lines become bullet lists" },
+              ].map(tip => (
+                <div key={tip.label} style={{ background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:"3px", padding:"6px 10px", fontSize:10, color:T.textMuted }}>
+                  <span style={{ color:T.crimson, fontFamily:T.ui, letterSpacing:"0.5px", fontSize:9 }}>{tip.label}</span>
+                  <span style={{ margin:"0 4px", color:T.textFaint }}>—</span>
+                  <span style={{ fontStyle:"italic", fontWeight:300 }}>{tip.hint}</span>
+                </div>
+              ))}
+            </div>
+
+            <Textarea value={rawInput} onChange={setRawInput}
+              placeholder={"# Chapter 1: The Dark Beginning\n\nThe party arrives at the village of Thornhaven as dusk settles over the valley.\n\n> \"Welcome, travelers. Dark times have befallen our village.\"\n\nLOCATION: THE OLD TAVERN\nThe tavern is dimly lit with a roaring fireplace.\n\n- Three patrons sit at the bar\n- A hooded figure watches from the corner\n- The barkeep polishes glasses nervously\n\nEnemy: Bandit Captain\nHP: 65\nAC: 15\nAttack: +5 to hit, 1d8+3 slashing\nChallenge: 2 (450 XP)"}
+              rows={14} />
+
+            {rawInput && (
+              <div style={{ marginTop:20 }}>
+                <SectionTitle icon={Eye}>Module Preview</SectionTitle>
+                <div style={{
+                  padding:"32px 40px", background:`linear-gradient(135deg, ${T.bgCard} 0%, ${T.bgMid} 100%)`,
+                  border:`1px solid ${T.crimsonBorder}`, borderRadius:"4px", maxHeight:360, overflowY:"auto",
+                  boxShadow:"inset 0 0 60px rgba(0,0,0,0.15)",
+                }}>
+                  <div style={{ maxWidth:640 }}>
+                    {renderPreview(formatAsModule(rawInput))}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div style={{ marginTop:16, display:"flex", gap:12, alignItems:"center" }}>
+              <CrimsonBtn onClick={handleReformat} disabled={!rawInput.trim()}><Save size={12}/> Reformat & Save</CrimsonBtn>
+              <span style={{ fontSize:11, color:T.textFaint, fontStyle:"italic" }}>Saves as a new note with adventure module formatting</span>
+            </div>
+          </div>
+        ) : active ? (
+          <div>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:24 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                <Input value={active.title} onChange={v=>updateNote(active.id,{title:v})} style={{ fontSize:24, fontWeight:300, border:"none", background:"transparent", padding:0, color:T.text, width:"auto", minWidth:200 }} />
+                <Select value={active.type} onChange={v=>updateNote(active.id,{type:v})} style={{ fontSize:10, padding:"4px 8px", width:"auto" }}>
+                  {noteTypes.map(t=><option key={t.id} value={t.id}>{t.label}</option>)}
+                </Select>
+              </div>
+              <div style={{ display:"flex", gap:8 }}>
+                <CrimsonBtn onClick={()=>setPreviewMode(!previewMode)} secondary small>
+                  {previewMode ? <><Edit3 size={11}/> Edit</> : <><Eye size={11}/> Preview</>}
+                </CrimsonBtn>
+              </div>
+            </div>
+
+            {previewMode ? (
+              <div style={{
+                padding:"40px 48px", background:`linear-gradient(135deg, ${T.bgCard} 0%, ${T.bgMid} 100%)`,
+                border:`1px solid ${T.crimsonBorder}`, borderRadius:"4px", minHeight:400,
+                boxShadow:"inset 0 0 60px rgba(0,0,0,0.15)",
+              }}>
+                <div style={{ maxWidth:640 }}>
+                  <div style={{ textAlign:"center", marginBottom:32 }}>
+                    <div style={{ width:40, height:1, background:T.crimson, margin:"0 auto 16px" }} />
+                    <h1 style={{ fontFamily:T.ui, fontSize:22, letterSpacing:"4px", color:T.crimson, textTransform:"uppercase", fontWeight:500, marginBottom:4 }}>{active.title}</h1>
+                    <div style={{ fontSize:10, color:T.textFaint, fontStyle:"italic", fontFamily:T.ui, letterSpacing:"1.5px", textTransform:"uppercase" }}>{active.type}</div>
+                    <div style={{ width:40, height:1, background:T.crimson, margin:"16px auto 0" }} />
+                  </div>
+                  {renderPreview(active.content)}
+                </div>
+              </div>
+            ) : (
+              <Textarea value={active.content} onChange={v=>updateNote(active.id,{content:v})}
+                placeholder="Write your campaign notes here using markdown-style formatting:\n\n## Section Header\n> Read-aloud text for players\n**Stat Name:** Value\n- Bullet point\n\nRegular paragraph text..."
+                rows={24} style={{ minHeight:500, fontSize:14, lineHeight:1.8 }} />
+            )}
+          </div>
+        ) : (
+          <div style={{ textAlign:"center", paddingTop:100 }}>
+            <BookOpen size={40} color={T.textFaint} style={{marginBottom:16}} />
+            <div style={{ fontSize:20, color:T.textDim, fontWeight:300, marginBottom:8 }}>Campaign Notes & Module Formatter</div>
+            <p style={{ fontSize:13, color:T.textFaint, fontStyle:"italic", fontWeight:300, maxWidth:440, margin:"0 auto 24px" }}>
+              Write your campaign notes from scratch or paste your raw DM notes and reformat them into a traditional adventure module style — complete with proper headers, read-aloud boxes, and stat blocks.
+            </p>
+            <div style={{ display:"flex", gap:12, justifyContent:"center" }}>
+              <CrimsonBtn onClick={()=>createNote()} small><Plus size={11}/> New Chapter</CrimsonBtn>
+              <CrimsonBtn onClick={()=>setReformatMode(true)} secondary small><RefreshCw size={11}/> Reformat Notes</CrimsonBtn>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function SettingsView({ data, setData }) {
+  const modules = data.modules;
+  const toggleModule = (key) => {
+    setData(d => ({...d, modules: {...d.modules, [key]: !d.modules[key]}}));
+  };
+
+  const moduleList = [
+    { key:"timeline", label:"Campaign Timeline", desc:"Track sessions, events, and world changes over time", icon:Clock },
+    { key:"worldState", label:"World State", desc:"Manage regions, factions, and NPCs with interconnected data", icon:Globe },
+    { key:"playMode", label:"Play Mode", desc:"Live DM tools: initiative tracker, dice roller, party status", icon:Swords },
+    { key:"scheduler", label:"Session Scheduler", desc:"Schedule recurring or one-off sessions with countdown timer", icon:Calendar },
+    { key:"questTracker", label:"Quest Tracker", desc:"Track active, completed, and upcoming quests", icon:Scroll },
+    { key:"factionTracker", label:"Faction Tracker", desc:"Monitor faction power, attitudes, and trends", icon:Shield },
+    { key:"npcTracker", label:"NPC Tracker", desc:"Manage NPCs, their locations, and relationships", icon:Users },
+    { key:"playerUploads", label:"Player Uploads", desc:"Allow players to upload character sheets to their profiles", icon:Upload },
+    { key:"notesEditor", label:"Notes & Module Formatter", desc:"Write campaign notes and reformat them into traditional adventure module style", icon:BookOpen },
+  ];
+
+  return (
+    <div style={{ padding:"32px 56px", maxWidth:700, margin:"0 auto" }}>
+      <div style={{ marginBottom:32, paddingBottom:20, borderBottom:`1px solid ${T.crimsonBorder}` }}>
+        <div style={{ fontSize:42, color:T.text, fontWeight:300, marginBottom:8 }}>Campaign Settings</div>
+        <p style={{ fontSize:13, color:T.textMuted, fontStyle:"italic", margin:0, fontWeight:300 }}>Toggle features on or off to customize your campaign management experience</p>
+      </div>
+
+      <Section>
+        <SectionTitle icon={Settings}>Feature Modules</SectionTitle>
+        <p style={{ fontSize:12, color:T.textMuted, fontStyle:"italic", marginBottom:20, fontWeight:300 }}>Enable or disable modules to keep your workspace focused on what matters for your campaign.</p>
+        <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+          {moduleList.map(m => (
+            <div key={m.key} onClick={()=>toggleModule(m.key)} style={{
+              display:"flex", alignItems:"center", gap:16, padding:"14px 16px", cursor:"pointer",
+              background: modules[m.key] ? T.crimsonSoft : "transparent",
+              border:`1px solid ${modules[m.key] ? T.crimsonBorder : T.border}`,
+              borderRadius:"4px", transition:"all 0.2s",
+            }}>
+              {modules[m.key] ? <ToggleRight size={22} color={T.crimson}/> : <ToggleLeft size={22} color={T.textFaint}/>}
+              <m.icon size={16} color={modules[m.key] ? T.crimson : T.textFaint} />
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:14, color:modules[m.key]?T.text:T.textMuted, fontWeight:300 }}>{m.label}</div>
+                <div style={{ fontSize:11, color:T.textFaint, fontWeight:300, fontStyle:"italic" }}>{m.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section style={{ marginTop:24 }}>
+        <SectionTitle icon={Crown}>Campaign Info</SectionTitle>
+        <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+          <div>
+            <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Campaign Name</span>
+            <Input value={data.name} onChange={v=>setData(d=>({...d,name:v}))} />
+          </div>
+          <div>
+            <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Status</span>
+            <Select value={data.status} onChange={v=>setData(d=>({...d,status:v}))} style={{ width:"100%" }}>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </Select>
+          </div>
+          <div>
+            <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textMuted, textTransform:"uppercase", display:"block", marginBottom:6 }}>Start Date</span>
+            <Input type="date" value={data.startDate} onChange={v=>setData(d=>({...d,startDate:v}))} />
+          </div>
+        </div>
+      </Section>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════════════════════
+
+export default function CampaignManager() {
+  const [campaigns, setCampaigns] = useState([
+    { id: "example", data: JSON.parse(JSON.stringify(EXAMPLE_CAMPAIGN)), isExample: true },
+  ]);
+  const [activeCampaignId, setActiveCampaignId] = useState("example");
+  const [tab, setTab] = useState("dashboard");
+
+  const data = campaigns.find(c=>c.id===activeCampaignId)?.data || NEW_CAMPAIGN();
+  const setData = (updater) => {
+    setCampaigns(prev => prev.map(c => {
+      if (c.id !== activeCampaignId) return c;
+      const newData = typeof updater === "function" ? updater(c.data) : updater;
+      return { ...c, data: newData };
+    }));
+  };
+
+  const createCampaign = () => {
+    const newId = `campaign-${Date.now()}`;
+    setCampaigns(prev => [...prev, { id: newId, data: NEW_CAMPAIGN(), isExample: false }]);
+    setActiveCampaignId(newId);
+    setTab("dashboard");
+  };
+  const deleteCampaign = (id) => {
+    setCampaigns(prev => prev.filter(c => c.id !== id));
+    if (activeCampaignId === id) {
+      const remaining = campaigns.filter(c => c.id !== id);
+      setActiveCampaignId(remaining[0]?.id || "");
+    }
+  };
+
+  const allTabs = [
+    { id:"dashboard", label:"Campaign Hub", icon:Compass, always:true },
+    { id:"timeline",  label:"Timeline",     icon:Clock,   module:"timeline" },
+    { id:"world",     label:"World",        icon:Globe,   module:"worldState" },
+    { id:"play",      label:"Play Mode",    icon:Swords,  module:"playMode" },
+    { id:"notes",     label:"Notes",        icon:BookOpen, module:"notesEditor" },
+    { id:"settings",  label:"Settings",     icon:Settings, always:true },
+  ];
+
+  const tabs = allTabs.filter(t => t.always || data.modules[t.module]);
+
+  return (
+    <div style={{ width:"100%", height:"100vh", display:"flex", flexDirection:"column", background:T.bg, color:T.text, fontFamily:T.body, overflow:"hidden" }}>
+      <nav style={{ display:"flex", alignItems:"center", gap:0, padding:"0 56px", height:56, flexShrink:0, borderBottom:`1px solid ${T.border}`, background:T.bgNav, position:"sticky", top:0, zIndex:200 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, marginRight:36 }}>
+          <Crown size={16} color={T.crimson} />
+          <span style={{ fontFamily:T.ui, fontSize:10, fontWeight:500, color:T.text, letterSpacing:"3px", textTransform:"uppercase" }}>Campaign Manager</span>
+        </div>
+        <div style={{ flex:1, display:"flex", gap:24, overflowX:"auto" }}>
+          {tabs.map(t => (
+            <button key={t.id} onClick={()=>setTab(t.id)} style={{
+              background:"transparent", border:"none", cursor:"pointer", padding:"18px 0",
+              fontFamily:T.ui, fontSize:10, letterSpacing:"3px", textTransform:"uppercase",
+              color:tab===t.id?T.text:T.textMuted, fontWeight:500, position:"relative",
+              display:"flex", alignItems:"center", gap:6, transition:"color 0.2s", whiteSpace:"nowrap",
+              borderBottom:tab===t.id?`2px solid ${T.crimson}`:"2px solid transparent",
+            }}><t.icon size={13}/> {t.label}</button>
+          ))}
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+          <CampaignSelector
+            campaigns={campaigns}
+            activeCampaignId={activeCampaignId}
+            onSelect={setActiveCampaignId}
+            onCreate={createCampaign}
+            onDelete={deleteCampaign}
+          />
+          <Bell size={14} color={T.textFaint} style={{cursor:"pointer"}} />
+        </div>
+      </nav>
+
+      <div style={{ flex:1, overflow:"hidden" }}>
+        <div style={{ height:"100%", overflowY:"auto" }}>
+          {tab==="dashboard" && <DashboardView data={data} setData={setData} onNav={setTab}/>}
+          {tab==="timeline"  && <TimelineView data={data} setData={setData}/>}
+          {tab==="world"     && <WorldView data={data} setData={setData}/>}
+          {tab==="play"      && <PlayView data={data} setData={setData}/>}
+          {tab==="notes"     && <NotesView data={data} setData={setData}/>}
+          {tab==="settings"  && <SettingsView data={data} setData={setData}/>}
+        </div>
+      </div>
+
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(139,115,85,0.25); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(139,115,85,0.4); }
-        * { box-sizing: border-box; }
-        button:hover { filter: brightness(1.05); }
-        input:focus { border-color: rgba(139,69,19,0.4) !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        *{box-sizing:border-box;}
+        ::selection{background:${T.crimson};color:#f5f0e8;}
+        ::-webkit-scrollbar{width:4px;}
+        ::-webkit-scrollbar-track{background:transparent;}
+        ::-webkit-scrollbar-thumb{background:${T.textFaint};border-radius:2px;}
+        ::-webkit-scrollbar-thumb:hover{background:${T.textMuted};}
+        input::placeholder{color:${T.textFaint};}
+        textarea::placeholder{color:${T.textFaint};}
+        input:focus, textarea:focus{outline:none;border-color:${T.crimson}!important;box-shadow:0 0 0 3px rgba(192,57,43,0.08);}
+        select:focus{outline:none;border-color:${T.crimson}!important;}
+        button:hover{filter:brightness(1.1);}
+        input[type="range"]{-webkit-appearance:none;height:4px;background:${T.bgInput};border-radius:2px;outline:none;}
+        input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:${T.crimson};border-radius:50%;cursor:pointer;}
       `}</style>
     </div>
   );
