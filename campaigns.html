@@ -2371,7 +2371,7 @@
         var dmOnly = evt.visibility === 'dm_only';
         var classes = 'timeline-node ' + evt.type + (dmOnly ? ' dm-only' : '');
         
-        trackHtml += '<div class="' + classes + '" style="left: ' + position + 'px;" onclick="selectTimelineEvent('' + evt.id + '')" draggable="true" onmousedown="startTimelineReorder('' + evt.id + '', event)">';
+        trackHtml += '<div class="' + classes + '" style="left: ' + position + 'px;" onclick="selectTimelineEvent(\x27' + evt.id + '\x27)" draggable="true" onmousedown="startTimelineReorder(\x27' + evt.id + '\x27, event)">';
         trackHtml += '<div class="timeline-node-label">' + escapeHtml(evt.gameDate || 'No date') + '</div>';
         trackHtml += '</div>';
       });
@@ -2494,9 +2494,9 @@
       
       if (isDM) {
         html += '<div class="timeline-detail-actions">';
-        html += '<button onclick="openAddTimelineEventModal('' + evt.id + '')">Edit</button>';
-        html += '<button onclick="toggleTimelineEventVisibility('' + evt.id + '')">' + (dmOnly ? 'Make Public' : 'Make DM Only') + '</button>';
-        html += '<button onclick="deleteTimelineEvent('' + evt.id + '')" style="color:#e74c3c;">Delete</button>';
+        html += '<button onclick="openAddTimelineEventModal(\x27' + evt.id + '\x27)">Edit</button>';
+        html += '<button onclick="toggleTimelineEventVisibility(\x27' + evt.id + '\x27)">' + (dmOnly ? 'Make Public' : 'Make DM Only') + '</button>';
+        html += '<button onclick="deleteTimelineEvent(\x27' + evt.id + '\x27)" style="color:#e74c3c;">Delete</button>';
         html += '</div>';
       }
       
