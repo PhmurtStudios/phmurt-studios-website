@@ -4282,35 +4282,55 @@ function createCampaign(event) {
 }
 
 function backToCampaignList() {
-  bm._initialized = false;
-  if (bm.animId) cancelAnimationFrame(bm.animId);
-  document.getElementById('campaignList').classList.add('active');
-  document.getElementById('campaignDetail').style.display = 'none';
+  try { bm._initialized = false; if (bm.animId) cancelAnimationFrame(bm.animId); } catch(e) {}
+  var list = document.getElementById('campaignList');
+  var detail = document.getElementById('campaignDetail');
+  if (list) { list.classList.add('active'); list.style.display = ''; }
+  if (detail) detail.style.display = 'none';
   window._activeCampaignId = null;
+  renderCampaignList();
 }
 
 function openCampaign(id) {
-  var c = getCampaign(id);
-  if (!c) return;
-  window._activeCampaignId = id;
-  var campaignList = document.getElementById('campaignList');
-  var campaignDetail = document.getElementById('campaignDetail');
-  var detailName = document.getElementById('detailName');
-  var detailSystem = document.getElementById('detailSystem');
-  var detailDesc = document.getElementById('detailDesc');
+  try {
+    var c = getCampaign(id);
+    if (!c) { console.error('[Campaign] Campaign not found:', id); return; }
+    window._activeCampaignId = id;
+    var campaignList = document.getElementById('campaignList');
+    var campaignDetail = document.getElementById('campaignDetail');
+    var detailName = document.getElementById('detailName');
+    var detailSystem = document.getElementById('detailSystem');
+    var detailDesc = document.getElementById('detailDesc');
 
-  if (campaignList) campaignList.classList.remove('active');
-  if (campaignDetail) campaignDetail.style.display = 'block';
-  if (detailName) detailName.textContent = c.name;
-  if (detailSystem) detailSystem.textContent = c.system || '5E';
-  if (detailDesc) detailDesc.textContent = c.description || '';
+    // Hide list, show detail
+    if (campaignList) {
+      campaignList.classList.remove('active');
+      campaignList.style.display = 'none';
+    }
+    if (campaignDetail) {
+      campaignDetail.style.display = 'block';
+    }
+    if (detailName) detailName.textContent = c.name;
+    if (detailSystem) detailSystem.textContent = c.system || '5E';
+    if (detailDesc) detailDesc.textContent = c.description || '';
 
-  renderHubTab();
-  renderJournalContent();
-  renderPlayTab();
+    // Update stat pills
+    var statParty = document.getElementById('statPartyCount');
+    var statSessions = document.getElementById('statSessionCount');
+    var statStart = document.getElementById('statStartDate');
+    if (statParty) statParty.textContent = (c.party || []).length;
+    if (statSessions) statSessions.textContent = (c.notes || []).length;
+    if (statStart) statStart.textContent = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—';
 
-  var tabButtons = document.querySelectorAll('.campaign-tab');
-  if (tabButtons.length > 0) switchTab('hub', tabButtons[0]);
+    renderHubTab();
+    renderJournalContent();
+    renderPlayTab();
+
+    var tabButtons = document.querySelectorAll('.campaign-tab');
+    if (tabButtons.length > 0) switchTab('hub', tabButtons[0]);
+  } catch (err) {
+    console.error('[Campaign] Error opening campaign:', err.message, err.stack);
+  }
 }
 
 function deleteCampaign(id) {

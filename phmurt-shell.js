@@ -223,14 +223,12 @@
         <div class="ps-nav-right">
           <div class="ps-dice-wrapper">
             <button class="ps-dice-btn" title="Roll d20" onclick="PhmurtDice.quickRoll()">
-              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round">
-                <polygon points="50,5 95,35 80,90 20,90 5,35"/>
-                <line x1="50" y1="5" x2="20" y2="90"/>
-                <line x1="50" y1="5" x2="80" y2="90"/>
-                <line x1="5" y1="35" x2="80" y2="90"/>
-                <line x1="95" y1="35" x2="20" y2="90"/>
-                <line x1="5" y1="35" x2="95" y2="35"/>
-                <text x="50" y="62" text-anchor="middle" fill="currentColor" stroke="none" font-size="26" font-weight="700" font-family="Cinzel,serif">20</text>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+                <polygon points="12,2 22,19 2,19"/>
+                <polygon points="12,7 18,17 6,17"/>
+                <line x1="12" y1="2" x2="12" y2="7"/>
+                <line x1="22" y1="19" x2="18" y2="17"/>
+                <line x1="2" y1="19" x2="6" y2="17"/>
               </svg>
             </button>
             <div class="ps-dice-popup" id="dicePopup"></div>
