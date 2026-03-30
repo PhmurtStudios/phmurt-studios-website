@@ -1164,6 +1164,343 @@
       border-radius: 4px;
     }
 
+    /* ═══════════════════════════════ ENHANCED GENERATOR STYLES ═══════════════════════════════ */
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes magicPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(192, 57, 43, 0.3); }
+      50% { box-shadow: 0 0 16px rgba(192, 57, 43, 0.6); }
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    /* Difficulty Indicator Bar */
+    .gen-difficulty-bar {
+      display: flex;
+      gap: 3px;
+      margin: 8px 0;
+      height: 6px;
+    }
+
+    .gen-difficulty-segment {
+      flex: 1;
+      border-radius: 2px;
+      background: var(--border-subtle);
+    }
+
+    .gen-difficulty-segment.active {
+      background: var(--crimson);
+    }
+
+    .gen-difficulty-segment.easy { background: #2ecc71; }
+    .gen-difficulty-segment.medium { background: #f39c12; }
+    .gen-difficulty-segment.hard { background: #e74c3c; }
+    .gen-difficulty-segment.deadly { background: #c0392b; }
+
+    /* Temperature Scale */
+    .gen-temp-scale {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      background: var(--bg-card);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .gen-temp-bar {
+      flex: 1;
+      height: 4px;
+      background: linear-gradient(to right, #3498db, #2ecc71, #f39c12, #e74c3c);
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .gen-temp-indicator {
+      position: absolute;
+      width: 2px;
+      height: 12px;
+      background: var(--text);
+      top: -4px;
+      border-radius: 1px;
+    }
+
+    /* Rarity Badges */
+    .gen-rarity-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin: 2px 4px 2px 0;
+    }
+
+    .gen-rarity-common { background: #888; color: #fff; }
+    .gen-rarity-uncommon { background: #2ecc71; color: #fff; }
+    .gen-rarity-rare { background: #3498db; color: #fff; }
+    .gen-rarity-very-rare { background: #9b59b6; color: #fff; }
+    .gen-rarity-legendary { background: #f39c12; color: #fff; }
+
+    /* Coin Badges */
+    .gen-coin-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      margin: 4px;
+      border-radius: 4px;
+      background: var(--bg-mid);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 1px;
+    }
+
+    .gen-coin-cp { border-left: 3px solid #a0522d; }
+    .gen-coin-sp { border-left: 3px solid #c0c0c0; }
+    .gen-coin-gp { border-left: 3px solid #f39c12; }
+    .gen-coin-pp { border-left: 3px solid #9b59b6; }
+
+    /* Component Chips for Spells */
+    .gen-component-chip {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: bold;
+      margin: 2px;
+      color: var(--crimson);
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.5px;
+    }
+
+    /* Magic Item Table */
+    .gen-item-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 12px;
+    }
+
+    .gen-item-table th {
+      background: var(--bg-mid);
+      padding: 8px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+      font-family: 'Cinzel', serif;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--crimson);
+    }
+
+    .gen-item-table td {
+      padding: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .gen-item-table tr:hover {
+      background: var(--bg-mid);
+    }
+
+    /* Atmospheric Meter */
+    .gen-atmosphere-meter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      font-size: 12px;
+    }
+
+    .gen-meter-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--border-subtle);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .gen-meter-fill {
+      height: 100%;
+      background: var(--crimson);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* Game Effect Severity Coding */
+    .gen-effect-minor { color: #2ecc71; }
+    .gen-effect-moderate { color: #f39c12; }
+    .gen-effect-severe { color: #e74c3c; }
+
+    /* Wild Magic Card */
+    .gen-wildmagic-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(192, 57, 43, 0.1) 100%);
+      border: 2px solid rgba(192, 57, 43, 0.3);
+      border-radius: 6px;
+      padding: 20px;
+      animation: magicPulse 3s ease-in-out infinite;
+      position: relative;
+    }
+
+    .gen-d100-roll {
+      font-size: 64px;
+      font-weight: bold;
+      color: var(--crimson);
+      text-align: center;
+      margin: 12px 0;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(192, 57, 43, 0.3);
+    }
+
+    /* Potion Bottle Visual */
+    .gen-potion-bottle {
+      width: 60px;
+      height: 80px;
+      margin: 16px auto;
+      position: relative;
+      border-radius: 0 0 20px 20px;
+      border: 2px solid var(--text-muted);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .gen-potion-liquid {
+      width: 100%;
+      border-radius: 0 0 18px 18px;
+      transition: height 0.3s ease;
+    }
+
+    .gen-potion-cork {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 16px;
+      background: #8b4513;
+      border-radius: 2px;
+      border: 1px solid #654321;
+    }
+
+    /* Quest Flow Diagram */
+    .gen-quest-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0;
+      font-size: 11px;
+      flex-wrap: wrap;
+    }
+
+    .gen-quest-step {
+      background: var(--bg-card);
+      padding: 6px 12px;
+      border-radius: 3px;
+      border-left: 3px solid var(--crimson);
+      white-space: nowrap;
+    }
+
+    .gen-quest-arrow {
+      color: var(--crimson);
+      font-weight: bold;
+    }
+
+    /* Room Layout Numbered */
+    .gen-room-list {
+      counter-reset: room-counter;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .gen-room-list li {
+      counter-increment: room-counter;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: var(--bg-mid);
+      border-left: 3px solid var(--crimson);
+      border-radius: 2px;
+    }
+
+    .gen-room-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--crimson);
+      color: var(--bg);
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .gen-room-number::before {
+      content: counter(room-counter);
+    }
+
+    .gen-room-content {
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    /* Boss Encounter Card */
+    .gen-boss-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(192, 57, 43, 0.15) 100%);
+      border: 2px solid var(--crimson);
+      border-radius: 4px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+
+    .gen-boss-title {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      color: var(--crimson);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Genre Badge */
+    .gen-genre-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--crimson);
+      color: var(--bg);
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: 'Cinzel', serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
   </style>
 </head>
 <body data-nav-active="DM Tools" data-footer-copy="Roll Well. Play Weird.">
@@ -2391,6 +2728,14 @@
   <script>
     // ═══════════════════════════════ GENERATOR DATA & UTILITIES ═══════════════════════════════
 
+    // HTML escaping to prevent XSS
+    function escapeHtml(text) {
+      if (!text) return '';
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
     const DATA = {
       npcNames: {
         common: ['Aldric', 'Beatrice', 'Caspian', 'Delilah', 'Everett', 'Fiona', 'Garrett', 'Helena', 'Ivan', 'Joanna', 'Kieran', 'Lysandra', 'Marcus', 'Nola', 'Orrin', 'Petra', 'Quincy', 'Rosemary', 'Silas', 'Tabitha', 'Ulysses', 'Violet', 'Wyatt', 'Xander', 'Yara', 'Zeke', 'Arabella', 'Brennan', 'Cecilia', 'Dorian', 'Esme', 'Fielding', 'Gwendolyn', 'Hugo', 'Imogen', 'Jasper', 'Killian', 'Lilith', 'Matthias', 'Noreen', 'Oswald', 'Penelope', 'Quill', 'Raelynn', 'Sebastian', 'Thaddeus', 'Ursula', 'Vera', 'Winona', 'Xanthe'],
@@ -3092,10 +3437,10 @@
       const backstory = random(backstories);
 
       const html = `
-        <div class="gen-npc-card gen-result">
-          <div class="gen-narrative">A ${npc.ageRange.toLowerCase()} ${npc.race.toLowerCase()} stands before you, ${npc.appearance.toLowerCase()}. ${npc.gender === 'Male' ? 'He' : 'She'} carries ${npc.gender === 'Male' ? 'himself' : 'herself'} with ${npc.personality.toLowerCase().includes('confident') || npc.personality.toLowerCase().includes('proud') ? 'an air of quiet authority' : npc.personality.toLowerCase().includes('nervous') || npc.personality.toLowerCase().includes('shy') ? 'a wary, guarded posture' : 'a steady, watchful demeanor'}. As a ${npc.occupation.toLowerCase()}, ${npc.name} has clearly seen ${npc.age > 50 ? 'many long years of' : 'enough of'} the world to have stories worth telling.</div>
-          <div class="gen-npc-name">${npc.name}</div>
-          <div class="gen-npc-class">${npc.race} ${npc.occupation} • ${npc.gender}</div>
+        <div class="gen-npc-card gen-result" style="animation: fadeIn 0.4s ease-in;">
+          <div class="gen-narrative">A ${escapeHtml(npc.ageRange.toLowerCase())} ${escapeHtml(npc.race.toLowerCase())} stands before you, ${escapeHtml(npc.appearance.toLowerCase())}. ${npc.gender === 'Male' ? 'He' : 'She'} carries ${npc.gender === 'Male' ? 'himself' : 'herself'} with ${npc.personality.toLowerCase().includes('confident') || npc.personality.toLowerCase().includes('proud') ? 'an air of quiet authority' : npc.personality.toLowerCase().includes('nervous') || npc.personality.toLowerCase().includes('shy') ? 'a wary, guarded posture' : 'a steady, watchful demeanor'}. As a ${escapeHtml(npc.occupation.toLowerCase())}, ${escapeHtml(npc.name)} has clearly seen ${npc.age > 50 ? 'many long years of' : 'enough of'} the world to have stories worth telling.</div>
+          <div class="gen-npc-name">${escapeHtml(npc.name)}</div>
+          <div class="gen-npc-class">${escapeHtml(npc.race)} ${escapeHtml(npc.occupation)} • ${escapeHtml(npc.gender)}</div>
 
           <div class="gen-result-subheading">Vital Stats</div>
           <div class="gen-npc-stat">
@@ -3104,68 +3449,100 @@
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Alignment</div>
-            <div class="gen-npc-stat-value">${npc.alignment}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.alignment)}</div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Ability Emphasis</div>
-            <div class="gen-npc-stat-value">${statSuggestion}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(statSuggestion)}</div>
           </div>
 
           <div class="gen-result-subheading">Appearance & Personality</div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Appearance</div>
-            <div class="gen-npc-stat-value">${npc.appearance}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.appearance)}</div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Personality</div>
-            <div class="gen-npc-stat-value">${npc.personality}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.personality)}</div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Mannerism</div>
-            <div class="gen-npc-stat-value">${npc.mannerism}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.mannerism)}</div>
           </div>
 
           <div class="gen-result-subheading">Character</div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Voice</div>
-            <div class="gen-npc-stat-value">${npc.voice}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.voice)}</div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Quirk</div>
-            <div class="gen-npc-stat-value">${npc.quirk}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.quirk)}</div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Motivation</div>
-            <div class="gen-npc-stat-value">${npc.motivation}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.motivation)}</div>
           </div>
 
           <div class="gen-result-subheading">Relations & Intrigue</div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Party Relationship</div>
-            <div class="gen-npc-stat-value">${npc.relationship}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.relationship)}</div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Opening Line</div>
-            <div class="gen-npc-stat-value"><em>"${npc.dialogue}"</em></div>
+            <div class="gen-npc-stat-value"><em>"${escapeHtml(npc.dialogue)}"</em></div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Backstory Hook</div>
-            <div class="gen-npc-stat-value">${backstory}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(backstory)}</div>
           </div>
           <div class="gen-npc-stat">
             <div class="gen-npc-stat-label">Dark Secret</div>
-            <div class="gen-npc-stat-value">${npc.secret}</div>
+            <div class="gen-npc-stat-value">${escapeHtml(npc.secret)}</div>
           </div>
 
           <div class="gen-result-actions">
-            <button class="gen-result-btn" onclick="copyToClipboard('${npc.name} - ${npc.race} ${npc.occupation} (${npc.alignment}). ${npc.appearance}. ${npc.personality}. Secret: ${npc.secret}')">Copy</button>
-            <button class="gen-result-btn" onclick="pinToNotes('NPC', '${npc.name}')">Pin</button>
+            <button class="gen-result-btn" data-npc-name="${escapeHtml(npc.name)}" data-npc-data="${escapeHtml(npc.name)} - ${escapeHtml(npc.race)} ${escapeHtml(npc.occupation)} (${escapeHtml(npc.alignment)}). ${escapeHtml(npc.appearance)}. ${escapeHtml(npc.personality)}. Secret: ${escapeHtml(npc.secret)}" class="gen-result-btn-copy">Copy</button>
+            <button class="gen-result-btn" data-npc-name="${escapeHtml(npc.name)}" class="gen-result-btn-pin">Pin</button>
+            <button class="gen-result-btn" onclick="exportNPCToCampaign()">Add to Campaign</button>
           </div>
         </div>
       `;
 
       const output = document.getElementById('npcOutput');
       output.innerHTML = html;
+
+      // Attach event listeners to dynamically created buttons
+      setTimeout(() => {
+        const copyBtn = output.querySelector('.gen-result-btn-copy');
+        const pinBtn = output.querySelector('.gen-result-btn-pin');
+
+        if (copyBtn) {
+          const data = copyBtn.getAttribute('data-npc-data');
+          copyBtn.addEventListener('click', () => copyToClipboard(data));
+          copyBtn.textContent = 'Copy';
+        }
+
+        if (pinBtn) {
+          const npcName = pinBtn.getAttribute('data-npc-name');
+          pinBtn.addEventListener('click', () => pinToNotes('NPC', npcName));
+          pinBtn.textContent = 'Pin';
+        }
+      }, 0);
+
+      // Store the generated NPC data for export
+      lastGeneratedData.npc = {
+        name: npc.name,
+        race: npc.race,
+        occupation: npc.occupation,
+        alignment: npc.alignment,
+        appearance: npc.appearance,
+        personality: npc.personality,
+        backstory: backstory,
+        voice: npc.voice,
+        quirk: npc.quirk
+      };
     }
 
     function generateMultipleNPC(count) {
@@ -3185,7 +3562,7 @@
         };
 
         html += `
-          <div class="gen-npc-card gen-result">
+          <div class="gen-npc-card gen-result" style="animation: fadeIn 0.4s ease-in;">
             <div class="gen-npc-name">${npc.name}</div>
             <div class="gen-npc-class">${npc.race} ${npc.occupation} • ${npc.gender}</div>
             <div class="gen-npc-stat">
@@ -3236,7 +3613,7 @@
       const inventory = inventoryItems.map((item, i) => `<div>• ${item} - ${randomInt(50, 2000)} GP</div>`).join('');
 
       const html = `
-        <div class="gen-npc-card gen-result">
+        <div class="gen-npc-card gen-result" style="animation: fadeIn 0.4s ease-in;">
           <div class="gen-npc-name">${merchant.name}</div>
           <div class="gen-npc-class">${merchant.race} ${merchant.occupation} • ${merchant.gender}</div>
 
@@ -3334,7 +3711,7 @@
       }
 
       const html = `
-        <div class="gen-result">
+        <div class="gen-result" style="animation: fadeIn 0.4s ease-in;">
           <div class="gen-narrative">You push open the weathered door of <strong>${tavern.name}</strong> and ${tavern.atmosphere.toLowerCase().includes('lively') || tavern.atmosphere.toLowerCase().includes('rowdy') ? 'a wall of noise and warmth washes over you. Laughter and clinking tankards fill the air' : tavern.atmosphere.toLowerCase().includes('quiet') || tavern.atmosphere.toLowerCase().includes('dim') ? 'a hush falls as curious eyes turn your way. The air is thick with pipe smoke and whispered conversations' : 'the smell of roasting meat and spiced ale greets you immediately. The hearth crackles in the corner as patrons nurse their drinks'}. ${tavern.patrons > 20 ? 'The place is packed — every table occupied, with standing room only near the bar.' : tavern.patrons > 10 ? 'A decent crowd fills the common room, most tables claimed but a few spots remain.' : 'Only a handful of souls occupy the room, leaving plenty of empty seats.'} Behind the bar, ${barkeep.name} the ${barkeep.race.toLowerCase()} ${barkeep.quirk.toLowerCase().includes('laugh') ? 'lets out a booming laugh' : 'polishes a glass with practiced ease'}, eyeing you with ${barkeep.personality.toLowerCase().includes('friendly') || barkeep.personality.toLowerCase().includes('warm') ? 'a welcoming nod' : 'a measuring gaze'}.</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Tavern Name</div>
@@ -3356,7 +3733,9 @@
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Food Menu</div>
-            <div class="gen-result-value">${menuItems.join(', ')}</div>
+            <div class="gen-result-value" style="display: flex; flex-wrap: wrap; gap: 8px;">
+              ${menuItems.map(item => '<div style="background: var(--bg-card); padding: 6px 10px; border-radius: 3px; font-size: 12px; border-left: 2px solid var(--crimson);">🍖 ' + item + '</div>').join('')}
+            </div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Number of Patrons</div>
@@ -3376,9 +3755,10 @@
             <div class="gen-result-label">Entertainment Tonight</div>
             <div class="gen-result-value">${tavern.entertainment}</div>
           </div>
-          <div class="gen-result-item">
-            <div class="gen-result-label">Notable Patron</div>
-            <div class="gen-result-value">${notablePatron.name} - ${notablePatron.description}</div>
+          <div style="background: linear-gradient(135deg, var(--bg-card) 0%, rgba(192, 57, 43, 0.1) 100%); padding: 12px; margin: 8px 0; border: 1px solid rgba(192, 57, 43, 0.3); border-radius: 4px;">
+            <div style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--crimson); margin-bottom: 6px;">⭐ Notable Patron</div>
+            <div style="font-weight: bold; margin-bottom: 4px;">${notablePatron.name}</div>
+            <div style="font-size: 12px; color: var(--text-dim);">${notablePatron.description}</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Complication or Danger</div>
@@ -3390,9 +3770,9 @@
           </div>
 
           <div class="gen-result-subheading">The Regulars</div>
-          ${regulars.map(r => `<div class="gen-result-item">
-            <div class="gen-result-label">${r.name}</div>
-            <div class="gen-result-value">${r.desc}</div>
+          ${regulars.map(r => `<div style="background: var(--bg-mid); padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--crimson); border-radius: 2px;">
+            <div style="font-weight: bold; margin-bottom: 4px;">👤 ${r.name}</div>
+            <div style="font-size: 12px; color: var(--text-dim);">${r.desc}</div>
           </div>`).join('')}
 
           <div class="gen-result-subheading">The Barkeep</div>
@@ -3416,11 +3796,23 @@
           <div class="gen-result-actions">
             <button class="gen-result-btn" onclick="copyToClipboard('${tavern.name} - ${tavern.type}. Barkeep: ${barkeep.name}. ${tavern.priceLevel} prices.')">Copy</button>
             <button class="gen-result-btn" onclick="pinToNotes('Tavern', '${tavern.name}')">Pin</button>
+            <button class="gen-result-btn" onclick="exportTavernToCampaign()">Add to Campaign</button>
           </div>
         </div>
       `;
 
       document.getElementById('tavernOutput').innerHTML = html;
+
+      // Store generated tavern data
+      lastGeneratedData.tavern = {
+        title: tavern.name,
+        name: tavern.name,
+        type: tavern.type,
+        priceLevel: tavern.priceLevel,
+        atmosphere: tavern.atmosphere,
+        barkeep: barkeep.name,
+        html: html
+      };
     }
 
     function generateDungeon() {
@@ -3451,7 +3843,7 @@
       const bossLoot = randomNth(randomInt(2, 4), DATA.magicItems);
 
       let html = `
-        <div class="gen-result">
+        <div class="gen-result" style="animation: fadeIn 0.4s ease-in;">
           <div class="gen-narrative">The entrance to <strong>${dungeonName}</strong> looms before you — ${entrance.toLowerCase()}. A chill draft carries the scent of ${selectedType === 'tomb' ? 'ancient dust and decay' : selectedType === 'cave' ? 'damp stone and fungus' : selectedType === 'temple' ? 'incense long faded and cold stone' : selectedType === 'lair' ? 'animal musk and something far worse' : selectedType === 'mine' ? 'iron and stale air' : selectedType === 'fortress' ? 'rust and old blood' : 'sewage and rot'} from somewhere deep within. ${theme}. This place has not been kind to those who came before you.</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Dungeon Name</div>
@@ -3473,9 +3865,9 @@
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Rooms (${rooms.length})</div>
-            <div class="gen-result-value">
-              ${rooms.map((r, i) => `<div><strong>Room ${i + 1}:</strong> ${r}</div>`).join('')}
-            </div>
+            <ul class="gen-room-list">
+              ${rooms.map((r, i) => `<li><div class="gen-room-number"></div><div class="gen-room-content">${r}</div></li>`).join('')}
+            </ul>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Room Connections</div>
@@ -3505,15 +3897,24 @@
               ${monsters.map(m => `<div>${m.name} (CR ${m.cr})</div>`).join('')}
             </div>
           </div>
-          <div class="gen-result-item">
-            <div class="gen-result-label">Boss Encounter</div>
-            <div class="gen-result-value"><strong>${boss.name}</strong> (CR ${boss.cr})</div>
+          <div class="gen-boss-card">
+            <div class="gen-boss-title">⚔️ Boss Encounter</div>
+            <div style="font-size: 14px; margin: 8px 0;"><strong>${boss.name}</strong></div>
+            <div style="font-size: 12px; color: var(--text-dim);">Challenge Rating: <strong style="color: var(--text);">${boss.cr}</strong></div>
+            <div style="font-size: 12px; margin-top: 8px;">Estimated XP: <strong>${boss.cr * 100}</strong></div>
           </div>
 
           <div class="gen-result-subheading">Rewards & Lore</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Boss Loot</div>
-            <div class="gen-result-value">${bossLoot.join(', ')}</div>
+            <div class="gen-result-value">
+              ${bossLoot.map(item => {
+                const rarities = ['common', 'uncommon', 'rare', 'very rare', 'legendary'];
+                const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+                const rarityClass = 'gen-rarity-' + rarity.toLowerCase().replace(' ', '-');
+                return '<div style="display: inline-block; margin: 4px;"><span class="gen-rarity-badge ' + rarityClass + '">' + rarity.toUpperCase() + '</span><br><small>' + item + '</small></div>';
+              }).join('')}
+            </div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Dungeon Lore/History</div>
@@ -3523,11 +3924,24 @@
           <div class="gen-result-actions">
             <button class="gen-result-btn" onclick="copyToClipboard('${dungeonName} - ${selectedType}. Boss: ${boss.name}. Theme: ${theme}.')">Copy</button>
             <button class="gen-result-btn" onclick="pinToNotes('Dungeon', '${dungeonName}')">Pin</button>
+            <button class="gen-result-btn" onclick="exportDungeonToCampaign()">Add to Campaign</button>
           </div>
         </div>
       `;
 
       document.getElementById('dungeonOutput').innerHTML = html;
+
+      // Store generated dungeon data
+      lastGeneratedData.dungeon = {
+        title: dungeonName,
+        name: dungeonName,
+        type: selectedType,
+        theme: theme,
+        boss: boss.name,
+        rooms: rooms,
+        lore: lore,
+        html: html
+      };
 
       // Draw the dungeon map
       drawDungeonMap(rooms, boss);
@@ -3815,7 +4229,7 @@
       const magicItem = hasMagicItem ? random(DATA.magicItems) : null;
 
       const html = `
-        <div class="gen-result">
+        <div class="gen-result" style="animation: fadeIn 0.4s ease-in;">
           <div class="gen-narrative">${setup} ${terrain.toLowerCase().includes('dense') || terrain.toLowerCase().includes('thick') ? 'The terrain offers plenty of cover but limits your movement.' : terrain.toLowerCase().includes('open') || terrain.toLowerCase().includes('flat') ? 'The open ground offers nowhere to hide — this will be a straight fight.' : 'The ground here is treacherous, demanding careful footing.'} ${monsters.length > 3 ? 'You are outnumbered.' : monsters.length > 1 ? 'Multiple threats emerge.' : 'A lone figure blocks your path.'} Roll for initiative.</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Encounter Setup</div>
@@ -3833,15 +4247,32 @@
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Difficulty Rating</div>
-            <div class="gen-result-value">${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} (Party Level ${level})</div>
+            <div class="gen-result-value">
+              ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} (Party Level ${level})
+              <div class="gen-difficulty-bar">
+                <div class="gen-difficulty-segment ${difficulty === 'easy' ? 'easy active' : 'easy'}"></div>
+                <div class="gen-difficulty-segment ${difficulty === 'medium' ? 'medium active' : 'medium'}"></div>
+                <div class="gen-difficulty-segment ${difficulty === 'hard' ? 'hard active' : 'hard'}"></div>
+                <div class="gen-difficulty-segment ${difficulty === 'deadly' ? 'deadly active' : 'deadly'}"></div>
+              </div>
+            </div>
           </div>
 
           <div class="gen-result-subheading">Combat Statistics</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Enemies Present</div>
-            <div class="gen-result-value">
-              ${monsters.map(m => `<div>${m.name} (CR ${m.cr})</div>`).join('')}
-            </div>
+            <table class="gen-item-table">
+              <thead>
+                <tr>
+                  <th>Creature</th>
+                  <th>CR</th>
+                  <th>XP</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${monsters.map(m => `<tr><td>${m.name}</td><td>${m.cr}</td><td>${m.cr * 100}</td></tr>`).join('')}
+              </tbody>
+            </table>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Total Encounter XP</div>
@@ -3879,11 +4310,21 @@
           <div class="gen-result-actions">
             <button class="gen-result-btn" onclick="copyToClipboard('Encounter in ${selectedEnv}. ${difficulty} difficulty. ${monsters.map(m => m.name).join(', ')}')">Copy</button>
             <button class="gen-result-btn" onclick="pinToNotes('Encounter', selectedEnv)">Pin</button>
+            <button class="gen-result-btn" onclick="exportEncounterToCampaign()">Add to Campaign</button>
           </div>
         </div>
       `;
 
       document.getElementById('encounterOutput').innerHTML = html;
+
+      // Store generated encounter data
+      lastGeneratedData.encounter = {
+        name: 'Encounter in ' + selectedEnv,
+        environment: selectedEnv,
+        monsters: monsters.map(m => ({ name: m.name, cr: m.cr })),
+        totalCR: totalCR,
+        difficulty: difficulty
+      };
     }
 
     function generateTreasure() {
@@ -3920,14 +4361,14 @@
       const isCursed = randomInt(1, 10) === 1;
       const curse = isCursed ? random(DATA.curses) : null;
 
-      let html = '<div class="gen-result">';
+      let html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
       html += `<div class="gen-narrative">You find ${container.toLowerCase()} ${isCursed ? 'that radiates a faint, unsettling aura — something about it feels wrong' : 'gleaming in the dim light, undisturbed for what could be ages'}. ${treasure.magic ? 'A faint magical hum emanates from within, promising powerful artifacts.' : treasure.gems ? 'Light catches on something brilliant inside — precious stones, catching every flicker of torchlight.' : 'The weight alone tells you this haul is substantial.'} The total value of this find is estimated at <strong>${totalGPValue.toFixed(0)} gold pieces</strong>.</div>`;
 
       if (treasure.cp) {
         html += `
           <div class="gen-result-item">
             <div class="gen-result-label">Coins</div>
-            <div class="gen-result-value">${treasure.cp} CP, ${treasure.sp} SP, ${treasure.gp} GP, ${treasure.pp} PP</div>
+            <div class="gen-result-value"><span class="gen-coin-badge gen-coin-cp"><strong>CP</strong> ${treasure.cp}</span><span class="gen-coin-badge gen-coin-sp"><strong>SP</strong> ${treasure.sp}</span><span class="gen-coin-badge gen-coin-gp"><strong>GP</strong> ${treasure.gp}</span><span class="gen-coin-badge gen-coin-pp"><strong>PP</strong> ${treasure.pp}</span></div>
           </div>
         `;
       }
@@ -3958,12 +4399,24 @@
         html += `
           <div class="gen-result-item">
             <div class="gen-result-label">Magic Items</div>
-            <div class="gen-result-value">
-              ${treasure.magic.map(m => {
-                const desc = DATA.magicItemDescriptions[m] || 'A magical item of mysterious power.';
-                return `<div><strong>${m}</strong><br><em>${desc}</em></div>`;
-              }).join('')}
-            </div>
+            <table class="gen-item-table">
+              <thead>
+                <tr>
+                  <th>Item Name</th>
+                  <th>Rarity</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${treasure.magic.map(m => {
+                  const desc = DATA.magicItemDescriptions[m] || 'A magical item of mysterious power.';
+                  const rarities = ['common', 'uncommon', 'rare', 'very rare', 'legendary'];
+                  const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+                  const rarityClass = 'gen-rarity-' + rarity.toLowerCase().replace(' ', '-');
+                  return `<tr><td><strong>${m}</strong></td><td><span class="gen-rarity-badge ${rarityClass}">${rarity.toUpperCase()}</span></td><td><em>${desc}</em></td></tr>`;
+                }).join('')}
+              </tbody>
+            </table>
           </div>
         `;
       }
@@ -3985,18 +4438,29 @@
       }
 
       html += `
-        <div class="gen-result-item">
-          <div class="gen-result-label">Estimated Total Value</div>
-          <div class="gen-result-value">${totalGPValue.toFixed(0)} GP</div>
+        <div class="gen-result-item" style="background: linear-gradient(135deg, var(--bg-card) 0%, rgba(243, 156, 18, 0.1) 100%); padding: 16px; border-left: 4px solid var(--crimson); border-radius: 4px;">
+          <div class="gen-result-label" style="color: var(--crimson); font-family: 'Cinzel', serif; letter-spacing: 1px;">Total Treasure Value</div>
+          <div class="gen-result-value" style="font-size: 18px; font-weight: bold; color: var(--crimson);">${totalGPValue.toFixed(0)} GP</div>
         </div>
         <div class="gen-result-actions">
           <button class="gen-result-btn" onclick="copyToClipboard('Treasure worth ~${totalGPValue.toFixed(0)} GP. Container: ${container}')">Copy</button>
           <button class="gen-result-btn" onclick="pinToNotes('Treasure', 'Hoard')">Pin</button>
+          <button class="gen-result-btn" onclick="exportTreasureToCampaign()">Add to Campaign</button>
         </div>
       </div>
       `;
 
       document.getElementById('treasureOutput').innerHTML = html;
+
+      // Store generated treasure data
+      lastGeneratedData.treasure = {
+        name: 'Treasure Hoard',
+        contents: treasure,
+        totalValue: totalGPValue,
+        container: container,
+        isCursed: isCursed,
+        curse: curse
+      };
     }
 
     function generatePlotHook() {
@@ -4043,12 +4507,11 @@
       const estimatedDuration = durations[selectedGenre] || '2-4 sessions';
 
       const html = `
-        <div class="gen-result">
+        <div class="gen-result" style="animation: fadeIn 0.4s ease-in;">
           <div class="gen-narrative">${patron} approaches your party with urgency written across their face. "${hook.hook}" The stakes couldn't be higher — ${stakes.toLowerCase()}. You have ${timePressure.toLowerCase()} to act before the window closes. Something tells you this quest will take you to ${location.toLowerCase()}, and not everyone will come back unchanged.</div>
           <div class="gen-result-subheading">The Quest</div>
           <div class="gen-result-item">
-            <div class="gen-result-label">Adventure Type</div>
-            <div class="gen-result-value">${selectedGenre.charAt(0).toUpperCase() + selectedGenre.slice(1)}</div>
+            <span class="gen-genre-badge">${selectedGenre.charAt(0).toUpperCase() + selectedGenre.slice(1)}</span>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Suggested Level Range</div>
@@ -4067,19 +4530,29 @@
             <div class="gen-result-value">${patron}</div>
           </div>
 
-          <div class="gen-result-subheading">Quest Details</div>
-          <div class="gen-result-item">
-            <div class="gen-result-label">Quest Location</div>
-            <div class="gen-result-value">${location}</div>
+          <div class="gen-result-subheading">Quest Flow</div>
+          <div class="gen-quest-flow">
+            <div class="gen-quest-step" style="background: var(--bg-mid); border-left: 3px solid rgba(46, 204, 113, 0.6);">
+              <strong>Patron:</strong><br>${patron}
+            </div>
+            <div class="gen-quest-arrow">→</div>
+            <div class="gen-quest-step" style="background: var(--bg-mid); border-left: 3px solid rgba(52, 152, 219, 0.6);">
+              <strong>Location:</strong><br>${location}
+            </div>
+            <div class="gen-quest-arrow">→</div>
+            <div class="gen-quest-step" style="background: var(--bg-mid); border-left: 3px solid rgba(243, 156, 18, 0.6);">
+              <strong>Challenge:</strong><br>${timePressure}
+            </div>
+            <div class="gen-quest-arrow">→</div>
+            <div class="gen-quest-step" style="background: var(--bg-mid); border-left: 3px solid rgba(155, 89, 182, 0.6);">
+              <strong>Reward:</strong><br>${rewardBase} GP
+            </div>
           </div>
-          <div class="gen-result-item">
-            <div class="gen-result-label">Time Pressure</div>
-            <div class="gen-result-value">${timePressure}</div>
-          </div>
+
           <div class="gen-result-item">
             <div class="gen-result-label">Key NPCs Involved</div>
             <div class="gen-result-value">
-              ${npcs.map(n => `<div>• ${n}</div>`).join('')}
+              ${npcs.map(n => `<div style="padding: 6px; background: var(--bg-mid); margin: 4px 0; border-left: 3px solid var(--crimson); border-radius: 2px;">• ${n}</div>`).join('')}
             </div>
           </div>
 
@@ -4106,11 +4579,25 @@
           <div class="gen-result-actions">
             <button class="gen-result-btn" onclick="copyToClipboard('${selectedGenre}: ${hook.hook} | ${patron} | Reward: ${rewardBase} GP')">Copy</button>
             <button class="gen-result-btn" onclick="pinToNotes('Hook', selectedGenre)">Pin</button>
+            <button class="gen-result-btn" onclick="exportPlotHookToCampaign()">Add to Campaign</button>
           </div>
         </div>
       `;
 
       document.getElementById('plotOutput').innerHTML = html;
+
+      // Store generated plot hook data
+      lastGeneratedData.plotHook = {
+        title: hook.hook,
+        name: selectedGenre + ' Hook',
+        genre: selectedGenre,
+        patron: patron,
+        location: location,
+        stakes: stakes,
+        twist: twist,
+        reward: rewardBase,
+        html: html
+      };
     }
 
     function generateMultiplePlots(count) {
@@ -4127,7 +4614,7 @@
         `;
       }
 
-      document.getElementById('plotOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+      document.getElementById('plotOutput').innerHTML = `<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">${html}</div>`;
     }
 
     function generateWeather() {
@@ -4192,7 +4679,7 @@
       }
 
       const html = `
-        <div class="gen-result">
+        <div class="gen-result" style="animation: fadeIn 0.4s ease-in;">
           <div class="gen-narrative">The ${weather.timeOfDay.toLowerCase()} ${selectedSeason} air settles around you — ${weather.condition.toLowerCase().includes('clear') ? 'the sky stretches endlessly above, brilliant and unbroken' : weather.condition.toLowerCase().includes('rain') ? 'rain drums steadily against your cloaks, turning the ground to mud' : weather.condition.toLowerCase().includes('snow') ? 'snowflakes drift silently from a leaden sky, muffling all sound' : weather.condition.toLowerCase().includes('fog') ? 'a thick fog rolls in, swallowing the landscape until you can barely see twenty paces ahead' : weather.condition.toLowerCase().includes('thunder') ? 'thunder cracks overhead as lightning splits the darkened sky' : 'the weather is unpredictable, shifting between calm and menacing in moments'}. The wind ${weather.wind > 20 ? 'howls fiercely, tearing at your clothing and making conversation difficult' : weather.wind > 10 ? 'gusts intermittently, carrying the scent of the surrounding land' : 'is barely a whisper, leaving the air still and heavy'}.</div>
           <div class="gen-result-subheading">Environment</div>
           <div class="gen-result-item">
@@ -4211,11 +4698,19 @@
           <div class="gen-result-subheading">Conditions</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Weather Condition</div>
-            <div class="gen-result-value">${weather.condition}</div>
+            <div class="gen-result-value">
+              <span style="font-size: 20px; margin-right: 8px;">${weather.condition.includes('Clear') ? '☀️' : weather.condition.includes('Cloudy') ? '☁️' : weather.condition.includes('Rain') ? '🌧️' : weather.condition.includes('Snow') ? '❄️' : weather.condition.includes('Storm') ? '⛈️' : weather.condition.includes('Fog') ? '🌫️' : weather.condition.includes('Windy') ? '💨' : '🌤️'}</span>
+              ${weather.condition}
+            </div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Temperature</div>
-            <div class="gen-result-value">${weather.temperature}</div>
+            <div class="gen-temp-scale">
+              <div class="gen-temp-bar">
+                <div class="gen-temp-indicator" style="left: ${(parseInt(weather.temperature.split('-')[0]) + 50) / 100 * 100}%;"></div>
+              </div>
+              <span>${weather.temperature}</span>
+            </div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Wind</div>
@@ -4237,7 +4732,7 @@
           <div class="gen-result-subheading">Gameplay Impact</div>
           <div class="gen-result-item">
             <div class="gen-result-label">Mechanical Effects</div>
-            <div class="gen-result-value">${gameplayEffect}</div>
+            <div class="gen-result-value" style="${gameplayEffect.includes('Disadvantage') || gameplayEffect.includes('Half movement') ? 'color: var(--text);' : ''}">${gameplayEffect.includes('No special') ? '<span class="gen-effect-minor">✓ ' + gameplayEffect + '</span>' : gameplayEffect.includes('Disadvantage') ? '<span class="gen-effect-moderate">⚠ ' + gameplayEffect + '</span>' : '<span class="gen-effect-severe">✗ ' + gameplayEffect + '</span>'}</div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Travel Pace Impact</div>
@@ -4277,7 +4772,7 @@
 
       const conditions = ['Clear skies', 'Partly cloudy', 'Overcast', 'Light rain', 'Heavy rain', 'Thunderstorm', 'Fog', 'Snow', 'Sleet', 'Hail', 'Windy', 'Still and calm'];
 
-      let html = '<div class="gen-result">';
+      let html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
       html += '<div class="gen-result-label">5-Day Weather Forecast</div><div class="gen-result-value">' + selectedClimate.charAt(0).toUpperCase() + selectedClimate.slice(1) + ' (' + selectedSeason.charAt(0).toUpperCase() + selectedSeason.slice(1) + ')</div>';
 
       const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
@@ -4347,11 +4842,17 @@
       const severityClass = 'gen-severity-' + severity;
 
       const html = `
-        <div class="gen-result">
+        <div class="gen-result" style="animation: fadeIn 0.4s ease-in;">
           <div class="gen-narrative">The Weave shudders and twists as raw magical energy surges uncontrolled. ${severity === 'catastrophic' ? 'Reality itself seems to crack — the air tastes of copper and ozone as something <strong>catastrophic</strong> unfolds.' : severity === 'major' ? 'A brilliant flash of arcane light erupts outward. Something significant has changed.' : severity === 'moderate' ? 'Sparks of wild magic crackle through the air, reshaping the moment.' : 'A brief shimmer of unstable magic dances across your skin before fading.'}</div>
-          <div class="gen-result-item">
-            <div class="gen-result-label">d100 Roll</div>
-            <div class="gen-result-value">${roll}</div>
+          <div class="gen-wildmagic-card">
+          <div style="font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--crimson); margin-bottom: 12px; text-align: center;">Roll Result</div>
+          <div class="gen-d100-roll">${roll}</div>
+          <div style="text-align: center; font-size: 12px; color: var(--text-dim);">The Weave trembles...</div>
+        </div>
+
+        <div class="gen-result-item">
+            <div class="gen-result-label" style="opacity: 0;">Roll</div>
+            <div class="gen-result-value" style="opacity: 0; height: 0; margin: 0; padding: 0;"></div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Surge Type</div>
@@ -4359,7 +4860,9 @@
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Severity</div>
-            <div class="gen-result-value"><span class="${severityClass}">${severity.toUpperCase()}</span></div>
+            <div class="gen-result-value">
+              <span style="display: inline-block; padding: 6px 12px; background: ${severity === 'catastrophic' ? 'rgba(192, 57, 43, 0.4)' : severity === 'major' ? 'rgba(243, 156, 18, 0.4)' : severity === 'moderate' ? 'rgba(52, 152, 219, 0.4)' : 'rgba(46, 204, 113, 0.4)'}; border: 1px solid ${severity === 'catastrophic' ? 'var(--crimson)' : severity === 'major' ? '#f39c12' : severity === 'moderate' ? '#3498db' : '#2ecc71'}; border-radius: 3px; color: ${severity === 'catastrophic' ? 'var(--crimson)' : severity === 'major' ? '#f39c12' : severity === 'moderate' ? '#3498db' : '#2ecc71'}; font-weight: bold; letter-spacing: 1px;">${severity.toUpperCase()}</span>
+            </div>
           </div>
           <div class="gen-result-item">
             <div class="gen-result-label">Effect Nature</div>
@@ -4401,7 +4904,7 @@
         `;
       }
 
-      document.getElementById('wildmagicOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+      document.getElementById('wildmagicOutput').innerHTML = `<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">${html}</div>`;
     }
 
     // ══════════════════════════════ ENHANCED POTION DATA ══════════════════════════════
@@ -4472,7 +4975,7 @@
       var rarityColors = { common: '#888', uncommon: '#2ecc71', rare: '#3498db', very_rare: '#9b59b6', legendary: '#f39c12' };
       var rarityLabels = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', very_rare: 'Very Rare', legendary: 'Legendary' };
 
-      var html = '<div class="gen-result">';
+      var html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
       html += '<div class="gen-npc-name">' + potion.name + '</div>';
       html += '<div style="display:inline-block;padding:4px 12px;background:' + (rarityColors[potion.rarity]||'#888') + ';color:#fff;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-family:Cinzel,serif;margin-bottom:16px;">' + (rarityLabels[potion.rarity]||potion.rarity) + '</div>';
       html += '<div class="gen-npc-stat"><div class="gen-npc-stat-label">Appearance</div><div class="gen-npc-stat-value">' + potion.appear + '</div></div>';
@@ -4480,10 +4983,21 @@
       html += '<div class="gen-npc-stat"><div class="gen-npc-stat-label">Duration</div><div class="gen-npc-stat-value">' + potion.duration + '</div></div>';
       if (potion.side) html += '<div class="gen-npc-stat"><div class="gen-npc-stat-label">Side Effect</div><div class="gen-npc-stat-value"><em>' + potion.side + '</em></div></div>';
       html += '<div class="gen-npc-stat"><div class="gen-npc-stat-label">Value</div><div class="gen-npc-stat-value">' + potion.value + '</div></div>';
-      html += '<div class="gen-output-actions"><button class="gen-action-btn" onclick="copyOutputToClipboard(this)">Copy to Clipboard</button><button class="gen-action-btn" onclick="saveOutputNote(this)">Save to Notes</button></div>';
+      html += '<div class="gen-output-actions"><button class="gen-action-btn" onclick="copyOutputToClipboard(this)">Copy to Clipboard</button><button class="gen-action-btn" onclick="saveOutputNote(this)">Save to Notes</button><button class="gen-action-btn" onclick="exportPotionToCampaign()">Add to Campaign</button></div>';
       html += '</div>';
 
       document.getElementById('potionOutput').innerHTML = html;
+
+      // Store generated potion data
+      lastGeneratedData.potion = {
+        title: potion.name,
+        name: potion.name,
+        rarity: potion.rarity,
+        effect: potion.effect,
+        appearance: potion.appear,
+        value: potion.value,
+        html: html
+      };
     }
 
     function generateMultiplePotions(count) {
@@ -4492,7 +5006,7 @@
       var rarity = rarityInput ? rarityInput.value : 'any';
       var effectType = effectInput ? effectInput.value : 'any';
 
-      let html = '<div class="gen-result">';
+      let html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
 
       for (let i = 0; i < count; i++) {
         // Collect matching potions
@@ -4519,7 +5033,7 @@
         var rarityColors = { common: '#888', uncommon: '#2ecc71', rare: '#3498db', very_rare: '#9b59b6', legendary: '#f39c12' };
 
         html += '<div class="gen-npc-stat" style="margin-bottom:16px;padding:12px;background:var(--bg-mid);border:1px solid var(--border);border-radius:2px;">';
-        html += '<div style="margin-bottom:8px;"><strong>' + potion.name + '</strong> <span style="display:inline-block;padding:2px 8px;background:' + (rarityColors[potion.rarity]||'#888') + ';color:#fff;font-size:9px;border-radius:2px;margin-left:8px;">' + (potion.rarity||'common').toUpperCase() + '</span></div>';
+        html += '<div style="margin-bottom:8px;"><strong>' + potion.name + '</strong> <span class="gen-rarity-badge gen-rarity-' + (potion.rarity||'common').toLowerCase().replace('_', '-') + '">' + (potion.rarity||'common').toUpperCase() + '</span></div>';
         html += '<div style="font-size:12px;color:var(--text-dim);">' + potion.appear + ' — ' + potion.effect + '</div>';
         html += '</div>';
       }
@@ -4548,7 +5062,7 @@
       const theme = document.getElementById('spellTheme').value;
       const complexity = document.getElementById('spellComplexity').value;
 
-      let html = '<div class="gen-result">';
+      let html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
       for (let i = 0; i < count; i++) {
         const spell = createSpell(level, school, className, theme, complexity);
         html += renderSpellCard(spell);
@@ -4690,13 +5204,30 @@
     function displaySpell(spell) {
       const html = renderSpellCard(spell);
       document.getElementById('spellOutput').innerHTML = html;
+
+      // Store generated spell data
+      lastGeneratedData.spell = {
+        title: spell.name,
+        name: spell.name,
+        level: spell.level,
+        school: spell.school,
+        castingTime: spell.castingTime,
+        range: spell.range,
+        duration: spell.duration,
+        description: spell.description,
+        html: html
+      };
     }
 
     function renderSpellCard(spell) {
       return `
         <div class="gen-spell-card">
           <div class="gen-spell-name">${spell.name}</div>
-          <div class="gen-spell-meta">${spell.level} ${spell.school} | ${spell.class}</div>
+          <div class="gen-spell-meta" style="display: flex; align-items: center; gap: 12px;">
+            <span>${spell.level}</span>
+            <span style="display: inline-block; padding: 4px 12px; background: var(--bg-mid); border-left: 3px solid var(--crimson); border-radius: 2px; font-size: 11px; font-family: 'Cinzel', serif;">${spell.school}</span>
+            <span style="color: var(--text-dim);">• ${spell.class}</span>
+          </div>
 
           <div class="gen-spell-section">
             <div class="gen-spell-detail">
@@ -4712,7 +5243,9 @@
           <div class="gen-spell-section">
             <div class="gen-spell-detail">
               <div class="gen-spell-detail-label">Components</div>
-              <div class="gen-spell-detail-value">${spell.components}</div>
+              <div class="gen-spell-detail-value">
+                ${spell.components.split(', ').map(c => '<span class="gen-component-chip">' + c.trim() + '</span>').join('')}
+              </div>
             </div>
             <div class="gen-spell-detail">
               <div class="gen-spell-detail-label">Duration</div>
@@ -4735,6 +5268,7 @@
           <div class="gen-action-bar">
             <button class="gen-action-btn" onclick="copyToClipboard('${spell.name.replace(/'/g, "\\'")}')">Copy Name</button>
             <button class="gen-action-btn" onclick="saveToNotes('${spell.name.replace(/'/g, "\\'")}: ${spell.level} ${spell.school}')">Save to Notes</button>
+            <button class="gen-action-btn" onclick="exportSpellToCampaign()">Add to Campaign</button>
           </div>
         </div>
       `;
@@ -4745,7 +5279,7 @@
       const types = ['pocket', 'graffiti', 'sound', 'books', 'poster', 'shop', 'name'];
       const selectedType = type === 'any' ? random(types) : type;
 
-      let html = '<div class="gen-result">';
+      let html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
       const flavorNarratives = {
         pocket: 'You rifle through the pockets and pouches of your find, turning up an odd assortment of personal effects that tell a story all their own.',
         graffiti: 'Scrawled on the wall in hasty strokes, the graffiti catches your eye — someone left a message here, and it was meant to be found.',
@@ -4763,7 +5297,7 @@
           <div class="gen-result-item">
             <div class="gen-result-label">Items in Pocket (3)</div>
             <div class="gen-result-value">
-              ${items.map(i => `<div>• ${i}</div>`).join('')}
+              ${items.map(i => `<div style="padding: 8px; background: var(--bg-mid); margin: 4px 0; border-left: 3px solid var(--crimson); border-radius: 2px;">📦 ${i}</div>`).join('')}
             </div>
           </div>
         `;
@@ -4783,7 +5317,7 @@
           <div class="gen-result-item">
             <div class="gen-result-label">Ambient Sounds (3)</div>
             <div class="gen-result-value">
-              ${sounds.map(s => `<div>• ${s} (comes from ${random(['nearby', 'above', 'below', 'in the distance', 'right behind you'])})</div>`).join('')}
+              ${sounds.map(s => `<div style="padding: 8px; background: var(--bg-mid); margin: 4px 0; border-left: 3px solid var(--crimson); border-radius: 2px;">🔊 ${s}<br><small style="color: var(--text-dim);">Comes from ${random(['nearby', 'above', 'below', 'in the distance', 'right behind you'])}</small></div>`).join('')}
             </div>
           </div>
         `;
@@ -4793,7 +5327,7 @@
           <div class="gen-result-item">
             <div class="gen-result-label">Books on Shelf (3)</div>
             <div class="gen-result-value">
-              ${books.map(b => `<div>• "<strong>${b}</strong>" (Subject: ${random(['History', 'Magic', 'Herbs', 'Poetry', 'Adventure', 'Forbidden Knowledge'])})</div>`).join('')}
+              ${books.map(b => `<div style="padding: 8px; background: var(--bg-mid); margin: 4px 0; border-left: 3px solid var(--crimson); border-radius: 2px;">📖 <strong>${b}</strong><br><small style="color: var(--text-dim);">Subject: ${random(['History', 'Magic', 'Herbs', 'Poetry', 'Adventure', 'Forbidden Knowledge'])}</small></div>`).join('')}
             </div>
           </div>
         `;
@@ -4824,7 +5358,7 @@
             <div class="gen-result-value">
               ${items.map(item => {
                 const price = randomInt(25, 5000);
-                return `<div>• <strong>${item}</strong> - ${price} GP</div>`;
+                return `<div style="padding: 8px; background: var(--bg-mid); margin: 4px 0; border-left: 3px solid var(--crimson); border-radius: 2px;"><strong>${item}</strong><br><small style="color: var(--text-dim);">${price} GP</small></div>`;
               }).join('')}
             </div>
           </div>
@@ -4849,7 +5383,7 @@
           <div class="gen-result-item">
             <div class="gen-result-label">${selectedRace} Character Names (3)</div>
             <div class="gen-result-value">
-              ${names.map(n => `<div>• ${n}</div>`).join('')}
+              ${names.map(n => `<div style="padding: 8px; background: var(--bg-mid); margin: 4px 0; border-left: 3px solid var(--crimson); border-radius: 2px;">👤 ${n}</div>`).join('')}
             </div>
           </div>
         `;
@@ -4890,7 +5424,7 @@
         }
       }
 
-      document.getElementById('flavorOutput').innerHTML = `<div class="gen-result">${html}</div>`;
+      document.getElementById('flavorOutput').innerHTML = `<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">${html}</div>`;
     }
 
     function pinToNotes(type, name) {
@@ -5746,48 +6280,22 @@
       const statBlockHTML = document.getElementById('statBlockOutput').innerHTML;
 
       if (!statBlockHTML || statBlockHTML.includes('Configure your monster')) {
-        alert('Please generate a stat block first');
+        showToast('Please generate a stat block first', 'error');
         return;
       }
 
-      let campaigns = JSON.parse(localStorage.getItem('phmurt_campaigns')) || [];
-      if (campaigns.length === 0) {
-        alert('No campaigns found. Create a campaign first in the campaign manager.');
-        return;
-      }
-
-      let html = '<select id="campaignSelect" style="margin:12px 0;">';
-      campaigns.forEach((c, idx) => {
-        html += `<option value="${idx}">${c.name}</option>`;
-      });
-      html += '</select>';
-
-      const selection = prompt('Select a campaign:\n\n' + campaigns.map((c, i) => (i + 1) + '. ' + c.name).join('\n') + '\n\nEnter the number (1-' + campaigns.length + '):');
-      const campaignIdx = parseInt(selection) - 1;
-
-      if (isNaN(campaignIdx) || campaignIdx < 0 || campaignIdx >= campaigns.length) {
-        alert('Invalid selection');
-        return;
-      }
-
-      const campaign = campaigns[campaignIdx];
-      if (!campaign.encounters) campaign.encounters = [];
-
-      const monster = {
+      const monsterData = {
         name: name,
-        cr: parseFloat(document.getElementById('monsterCR').value),
-        count: 1,
-        html: statBlockHTML
+        cr: parseFloat(document.getElementById('monsterCR').value) || 0,
+        type: document.getElementById('monsterType').value || '',
+        size: document.getElementById('monsterSize').value || '',
+        hp: parseInt(document.getElementById('monsterHP')?.value || 0),
+        ac: parseInt(document.getElementById('monsterAC')?.value || 10),
+        statBlock: statBlockHTML
       };
 
-      if (!campaign.encounters[0]) {
-        campaign.encounters[0] = { monsters: [] };
-      }
-      campaign.encounters[0].monsters = campaign.encounters[0].monsters || [];
-      campaign.encounters[0].monsters.push(monster);
-
-      localStorage.setItem('phmurt_campaigns', JSON.stringify(campaigns));
-      alert('Monster added to campaign: ' + campaign.name);
+      lastGeneratedData.monster = monsterData;
+      exportToCampaign('monster', monsterData);
     }
 
     function exportMonsterAsImage() {
@@ -5851,6 +6359,71 @@
         document.body.removeChild(textarea);
         alert('Stat block copied to clipboard');
       }
+    }
+
+    // ══════════════════════════════ GENERATOR EXPORT HELPERS ══════════════════════════════
+    function exportNPCToCampaign() {
+      if (!lastGeneratedData.npc) {
+        showToast('Please generate an NPC first', 'error');
+        return;
+      }
+      exportToCampaign('npc', lastGeneratedData.npc);
+    }
+
+    function exportEncounterToCampaign() {
+      if (!lastGeneratedData.encounter) {
+        showToast('Please generate an encounter first', 'error');
+        return;
+      }
+      exportToCampaign('encounter', lastGeneratedData.encounter);
+    }
+
+    function exportTreasureToCampaign() {
+      if (!lastGeneratedData.treasure) {
+        showToast('Please generate treasure first', 'error');
+        return;
+      }
+      exportToCampaign('treasure', lastGeneratedData.treasure);
+    }
+
+    function exportPlotHookToCampaign() {
+      if (!lastGeneratedData.plotHook) {
+        showToast('Please generate a plot hook first', 'error');
+        return;
+      }
+      exportToCampaign('plotHook', lastGeneratedData.plotHook);
+    }
+
+    function exportTavernToCampaign() {
+      if (!lastGeneratedData.tavern) {
+        showToast('Please generate a tavern first', 'error');
+        return;
+      }
+      exportToCampaign('tavern', lastGeneratedData.tavern);
+    }
+
+    function exportDungeonToCampaign() {
+      if (!lastGeneratedData.dungeon) {
+        showToast('Please generate a dungeon first', 'error');
+        return;
+      }
+      exportToCampaign('dungeon', lastGeneratedData.dungeon);
+    }
+
+    function exportPotionToCampaign() {
+      if (!lastGeneratedData.potion) {
+        showToast('Please generate a potion first', 'error');
+        return;
+      }
+      exportToCampaign('potion', lastGeneratedData.potion);
+    }
+
+    function exportSpellToCampaign() {
+      if (!lastGeneratedData.spell) {
+        showToast('Please generate a spell first', 'error');
+        return;
+      }
+      exportToCampaign('spell', lastGeneratedData.spell);
     }
 
     // ══════════════════════════════ ABILITY TEMPLATES FOR ENHANCED MONSTERS ══════════════════════════════
@@ -6101,16 +6674,43 @@
     function generateMonsterAI(concept) {
       const analysis = decomposeConcept(concept);
       const size = detectSize(concept);
-      const type = detectType(concept);
+      let type = detectType(concept);
       const element = analysis.elements[0];
       const archetypes = analysis.archetypes;
       const environments = analysis.environments;
-      const alignment = generateAlignment(type, archetypes);
-
-      // Determine CR from concept complexity + randomness
-      let cr;
       const lower = concept.toLowerCase();
-      if (/\b(ancient|legendary|mythic|elder|arch|supreme|god|titan)\b/.test(lower)) cr = 15 + Math.floor(Math.random() * 10);
+
+      // Detect compound types from concept
+      const compoundTypes = [];
+      if (/construct|golem|automaton|mechanical|pump|rig|machine|clockwork/.test(lower)) compoundTypes.push('Construct');
+      if (/celestial|angel|divine|holy|god|sacred|blessed|peace/.test(lower)) compoundTypes.push('Celestial');
+      if (/undead|skeleton|zombie|ghost|wraith|lich/.test(lower)) compoundTypes.push('Undead');
+      if (/fiend|demon|devil|infernal/.test(lower)) compoundTypes.push('Fiend');
+      if (/aberration|eldritch|tentacle/.test(lower)) compoundTypes.push('Aberration');
+      if (/dragon|wyrm|drake/.test(lower)) compoundTypes.push('Dragon');
+      if (compoundTypes.length === 0) compoundTypes.push(type);
+      type = compoundTypes[0]; // Primary type
+      const typeDisplay = compoundTypes.length > 1 ? compoundTypes.join('/') : type;
+
+      // Detect if corrupted/twisted
+      const isCorrupted = /corrupt|twisted|tainted|dark|fallen|warped|perverted|defiled/.test(lower);
+
+      // Alignment — concept-aware
+      let alignment;
+      if (isCorrupted) alignment = ['Chaotic Evil','Neutral Evil','Lawful Evil'][Math.floor(Math.random() * 3)];
+      else alignment = generateAlignment(type, archetypes);
+
+      // Detect origin
+      let origin = 'Magical';
+      if (/supernatural|divine|god|deity|celestial/.test(lower)) origin = 'Supernatural';
+      if (/natural|beast|animal|wild/.test(lower)) origin = 'Natural';
+      if (/construct|mechanical|artifice|golem/.test(lower)) origin = 'Artificial';
+      if (/aberrant|far realm|eldritch|void/.test(lower)) origin = 'Aberrant';
+      if (/undead|death|necrotic/.test(lower)) origin = 'Necrotic';
+
+      // Determine CR from concept complexity + keywords
+      let cr;
+      if (/\b(ancient|legendary|mythic|elder|arch|supreme|god|titan|avatar)\b/.test(lower)) cr = 15 + Math.floor(Math.random() * 10);
       else if (/\b(powerful|mighty|great|elder|boss|lord|king|queen)\b/.test(lower)) cr = 8 + Math.floor(Math.random() * 7);
       else if (/\b(young|lesser|minor|small|weak|baby)\b/.test(lower)) cr = [0.25, 0.5, 1, 2][Math.floor(Math.random() * 4)];
       else cr = 2 + Math.floor(Math.random() * 8);
@@ -6118,6 +6718,10 @@
       // Size can bump CR
       if (size === 'Huge') cr = Math.max(cr, 5);
       if (size === 'Gargantuan') cr = Math.max(cr, 10);
+      // Compound types bump CR
+      if (compoundTypes.length > 1) cr = Math.max(cr, 8);
+      // Legendary keyword bumps
+      if (/legendary action|legendary/.test(lower)) cr = Math.max(cr, 10);
 
       const crData = getCRData(cr);
       const stats = generateAbilityScores(type, archetypes, size, cr);
@@ -6125,82 +6729,401 @@
       const hitDice = calculateHitDice(hp, size, getModifier(stats.con));
       const ac = crData.ac + Math.floor(Math.random() * 2);
       const speed = generateSpeed(type, size, environments, archetypes);
-      const name = generateCreatureName(concept);
+
+      // Detect if user provided a name-like phrase in concept
+      let name;
+      const nameMatch = concept.match(/(?:called|named|known as|the)\s+["']?([A-Z][A-Za-z\s]+?)["']?(?:\s|,|\.|\b(?:is|was|that|which))/);
+      if (nameMatch) {
+        name = nameMatch[1].trim();
+      } else {
+        name = generateCreatureName(concept);
+      }
+
+      // Check for stationary
+      const isStationary = /stationary|immobile|rooted|fixed|attached|cannot move|doesn't move/.test(lower);
+      if (isStationary) {
+        speed.walk = 0;
+        speed.fly = 0;
+        speed.swim = 0;
+        speed.climb = 0;
+      }
+
       const senses = generateSenses(type, environments);
       const languages = generateLanguages(type, cr, stats.int);
       let { resistances, immunities, conditionImmunities } = generateResistances(element, type);
 
-      // Saving throws (2-3 proficient saves)
+      // Saving throws (2-4 proficient saves based on CR)
       const saveAbilities = ['str','dex','con','int','wis','cha'];
-      const numSaves = cr >= 10 ? 3 : 2;
+      const numSaves = cr >= 17 ? 4 : cr >= 10 ? 3 : 2;
       const proficientSaves = [];
-      const sortedStats = saveAbilities.sort((a, b) => stats[b] - stats[a]);
+      const sortedStats = [...saveAbilities].sort((a, b) => stats[b] - stats[a]);
       for (let i = 0; i < numSaves; i++) {
         const ability = sortedStats[i];
         proficientSaves.push(`${ability.charAt(0).toUpperCase() + ability.slice(1)} +${getModifier(stats[ability]) + crData.prof}`);
       }
 
-      // Skills
+      // Skills — pick from thematically relevant options
       const skillOptions = [
         { skill: 'Perception', stat: 'wis' }, { skill: 'Stealth', stat: 'dex' },
         { skill: 'Athletics', stat: 'str' }, { skill: 'Arcana', stat: 'int' },
         { skill: 'Intimidation', stat: 'cha' }, { skill: 'Deception', stat: 'cha' },
-        { skill: 'Survival', stat: 'wis' }, { skill: 'Insight', stat: 'wis' }
+        { skill: 'Survival', stat: 'wis' }, { skill: 'Insight', stat: 'wis' },
+        { skill: 'Religion', stat: 'int' }, { skill: 'Investigation', stat: 'int' }
       ];
       const numSkills = 2 + Math.floor(Math.random() * 2);
       const skills = [];
-      const shuffledSkills = skillOptions.sort(() => Math.random() - 0.5);
+      const shuffledSkills = [...skillOptions].sort(() => Math.random() - 0.5);
       for (let i = 0; i < numSkills; i++) {
         const s = shuffledSkills[i];
         skills.push(`${s.skill} +${getModifier(stats[s.stat]) + crData.prof}`);
       }
 
-      // Generate traits (2-4)
+      // ── CONCEPT-DRIVEN ABILITY EXTRACTION ──
+      // Parse the user's concept for specific abilities they described
+      const conceptAbilities = parseConceptAbilities(concept, name, crData, stats);
+
+      // Generate baseline traits
       const traitCount = 2 + Math.floor(Math.random() * 3);
       const baseTraits = [];
       for (let i = 0; i < traitCount; i++) {
         baseTraits.push(composeTrait(name, element, cr, crData.prof));
       }
 
-      // Generate actions
+      // Generate baseline actions
       const baseActions = generateActions(cr, element, stats, type, archetypes);
 
-      // Apply keyword templates for concept-specific traits and actions
+      // Apply keyword templates
       const enhancements = applyKeywordTemplates(concept, baseTraits, baseActions, resistances.split(', ').filter(x => x), immunities.split(', ').filter(x => x));
 
-      // Merge with template-based abilities for richer, more unique abilities
+      // Merge with template-based abilities
       const templateAbilities = generateAbilitiesFromTemplates(concept, cr, crData, name, element);
-      const allTraits = [...enhancements.traits, ...templateAbilities.traits];
-      const allActions = [...enhancements.actions, ...templateAbilities.actions];
 
-      const traits = allTraits.slice(0, Math.max(5, traitCount + 2)); // Limit to reasonable count, prioritize newly generated ones
-      const actions = allActions.slice(0, 8); // Limit actions
+      // Concept-parsed abilities take priority, then templates, then base
+      const allTraits = [...conceptAbilities.traits, ...enhancements.traits, ...templateAbilities.traits];
+      const allActions = [...conceptAbilities.actions, ...enhancements.actions, ...templateAbilities.actions];
+
+      // Deduplicate by name
+      const seenTraitNames = new Set();
+      const traits = [];
+      for (const t of allTraits) {
+        if (!seenTraitNames.has(t.name)) { seenTraitNames.add(t.name); traits.push(t); }
+        if (traits.length >= 6) break;
+      }
+      const seenActionNames = new Set();
+      const actions = [];
+      for (const a of allActions) {
+        if (!seenActionNames.has(a.name)) { seenActionNames.add(a.name); actions.push(a); }
+        if (actions.length >= 8) break;
+      }
+
       resistances = enhancements.resistances.join(', ');
       immunities = enhancements.immunities.join(', ');
 
-      // Legendary actions
-      const legendaryActions = generateLegendaryActions(cr, element, stats);
+      // Legendary actions — concept-driven if mentioned, otherwise CR-based
+      let legendaryActions;
+      if (conceptAbilities.legendaryActions.length > 0) {
+        legendaryActions = conceptAbilities.legendaryActions;
+      } else {
+        legendaryActions = generateLegendaryActions(cr, element, stats);
+      }
 
-      // AC type
-      const acTypes = ['natural armor','thick hide','bone plates','magical protection','chitinous shell','scaled hide','ethereal ward','crystalline carapace'];
-      const acType = acTypes[Math.floor(Math.random() * acTypes.length)];
+      // AC type — concept-aware
+      let acType = 'natural armor';
+      if (/construct|golem|mechanical/.test(lower)) acType = 'reinforced plating';
+      else if (/celestial|divine|holy/.test(lower)) acType = 'divine ward';
+      else if (/dragon|scale/.test(lower)) acType = 'natural armor';
+      else if (/undead|bone|skeleton/.test(lower)) acType = 'bone plates';
+      else if (/elemental|fire|ice/.test(lower)) acType = 'elemental shell';
+      else if (/crystal|gem|arcane/.test(lower)) acType = 'crystalline carapace';
+      else {
+        const acTypes = ['natural armor','thick hide','bone plates','magical protection','chitinous shell','scaled hide','ethereal ward'];
+        acType = acTypes[Math.floor(Math.random() * acTypes.length)];
+      }
 
-      // Lore
-      const description = generateLore(name, type, element, environments, archetypes);
+      // ── DESCRIPTION & LORE — rich narrative paragraphs ──
+      const description = generateRichDescription(name, typeDisplay, size, element, concept, isCorrupted, environments);
+      const lore = generateRichLore(name, typeDisplay, element, concept, isCorrupted, environments, archetypes, origin);
+
+      // ── LOOT ──
+      const loot = generateLoot(name, type, element, cr, concept, isCorrupted);
+
+      // Condition immunities — concept-aware
+      if (/construct|golem|mechanical|pump/.test(lower)) {
+        const constructImmunities = ['charmed', 'exhaustion', 'frightened', 'paralyzed', 'poison'];
+        conditionImmunities = constructImmunities.join(', ');
+        if (!immunities.includes('poison')) immunities = immunities ? immunities + ', poison' : 'poison';
+        if (!immunities.includes('psychic')) immunities = immunities + ', psychic';
+      }
 
       return {
-        name, size, type, alignment, ac, acType, hp, hitDice, speed, stats,
+        name, size, type: typeDisplay, alignment, ac, acType, hp, hitDice, speed, stats,
         savingThrows: proficientSaves.join(', '),
         skills: skills.join(', '),
         damageResistances: resistances,
         damageImmunities: immunities,
-        conditionImmunities: conditionImmunities,
-        senses, languages, cr, xp: crData.xp,
-        traits, actions, legendaryActions, description
+        conditionImmunities,
+        senses, languages, cr, xp: crData.xp, origin,
+        traits, actions, legendaryActions, description, lore, loot,
+        isStationary, isCorrupted
       };
     }
 
+    // ── Parse specific abilities from the user's concept description ──
+    function parseConceptAbilities(concept, name, crData, stats) {
+      const lower = concept.toLowerCase();
+      const dc = crData.saveDC;
+      const traits = [];
+      const actions = [];
+      const legendaryActions = [];
+
+      // Adaptive/reactive resistance
+      if (/resistance.*(?:last|whatever|damage type.*hit)|(?:when|if).*hit.*(?:gain|get).*resistance/.test(lower)) {
+        traits.push({
+          name: 'Adaptive Resistance',
+          description: `When the ${name} is hit by an attack that deals damage, it gains resistance to that damage type until the end of its next turn.`
+        });
+      }
+
+      // Pacifism/stun on attack
+      if (/(?:attack|hit).*(?:constitution|con).*(?:saving throw|save).*(?:stun|pacif)|pacif.*(?:stun|cannot attack)/.test(lower)) {
+        traits.push({
+          name: 'Pacifying Counter',
+          description: `Whenever a creature targets the ${name} with an attack, the attacker must succeed on a DC ${dc} Constitution saving throw or be stunned with overwhelming pacifism until the end of its next turn.`
+        });
+      }
+
+      // Magic resistance
+      if (/magic resistance|advantage.*saving throw.*spell|resist.*magic/.test(lower)) {
+        traits.push({
+          name: 'Magic Resistance',
+          description: `The ${name} has advantage on saving throws against spells and other magical effects.`
+        });
+      }
+
+      // Stationary/immobile
+      if (/stationary|immobile|cannot move|rooted|fixed|attached/.test(lower)) {
+        traits.push({
+          name: 'Immovable',
+          description: `The ${name} is anchored in place and cannot be moved by any means. Its speed is 0 and cannot be changed.`
+        });
+      }
+
+      // Fear/frightened legendary action
+      if (/(?:legendary.*(?:fear|fright|dread))|(?:fear|fright|dread).*legendary/.test(lower)) {
+        legendaryActions.push({
+          name: 'Dreadful Quiet',
+          description: `The ${name} unleashes a wave of sinister calm. One creature it can see within 60 feet must succeed on a DC ${dc} Wisdom saving throw or be frightened until the end of its next turn.`
+        });
+      }
+
+      // Disarm legendary action
+      if (/(?:legendary.*disarm)|(?:disarm.*legendary)/.test(lower)) {
+        legendaryActions.push({
+          name: 'Disarm',
+          description: `The ${name} chooses one creature it can see within 30 feet. The target must succeed on a DC ${dc} Strength saving throw or drop one item it is holding.`
+        });
+      }
+
+      // Recharge ability (cone/pulse/breath)
+      if (/(?:cone|pulse|breath|blast|wave).*(?:recharge|energy)/.test(lower) || /(?:emit|unleash|release).*(?:cone|pulse|blast|wave|energy)/.test(lower)) {
+        const damageTypes = { fire: 'fire', ice: 'cold', lightning: 'lightning', poison: 'poison', necrotic: 'necrotic', radiant: 'radiant', psychic: 'psychic', force: 'force' };
+        let dmgType = 'radiant';
+        for (const [key, val] of Object.entries(damageTypes)) {
+          if (lower.includes(key)) { dmgType = val; break; }
+        }
+        if (/peace|pacif|holy|divine|sacred|celestial/.test(lower)) dmgType = 'radiant';
+        if (/corrupt|dark|shadow|necrotic/.test(lower) && dmgType === 'radiant') dmgType = 'radiant'; // corrupted radiant is still radiant
+
+        const dmgDice = Math.max(4, Math.floor(crData.dmgMax / 5));
+        actions.push({
+          name: `${isCorruptedWord(lower) ? 'Corrupted ' : ''}Energy Pulse (Recharge 5-6)`,
+          description: `The ${name} emits a cone of ${isCorruptedWord(lower) ? 'corrupted ' : ''}${dmgType === 'radiant' ? 'peace' : dmgType} energy in a 60-foot cone. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dmgDice * 10} (${dmgDice}d10) ${dmgType} damage on a failed save, or half as much damage on a successful one.${/pacif/.test(lower) ? ` Creatures that fail the save are also pacified: they cannot take hostile actions until the end of their next turn.` : ''}`
+        });
+      }
+
+      // Multiattack
+      if (lower.includes('multiattack') || crData.dmgMax > 30) {
+        const atkCount = crData.dmgMax > 80 ? 3 : 2;
+        const atkName = /peace|pacif/.test(lower) ? 'Peaceful Slam' : /claw|slash/.test(lower) ? 'Claw' : /bite/.test(lower) ? 'Bite' : 'Strike';
+        if (!actions.find(a => a.name === 'Multiattack')) {
+          actions.unshift({
+            name: 'Multiattack',
+            description: `The ${name} makes ${atkCount === 3 ? 'three' : 'two'} ${atkName} attacks.`
+          });
+        }
+      }
+
+      // Primary melee attack — themed
+      if (/peace|pacif/.test(lower)) {
+        const atkBonus = crData.atkBonus + getModifier(stats.str);
+        const dmg = Math.max(1, Math.floor(crData.dmgMin / 2));
+        actions.push({
+          name: 'Peaceful Slam',
+          description: `Melee Weapon Attack: +${atkBonus} to hit, reach 10 ft., one target. Hit: ${dmg} (4d8 + ${getModifier(stats.str)}) bludgeoning damage.`
+        });
+      }
+
+      // If legendary actions mentioned but none parsed yet, generate thematic ones
+      if (legendaryActions.length === 0 && /legendary/.test(lower)) {
+        legendaryActions.push({
+          name: 'Detect',
+          description: `The ${name} makes a Wisdom (Perception) check.`
+        });
+        if (/disarm/.test(lower)) {
+          legendaryActions.push({
+            name: 'Disarm',
+            description: `The ${name} chooses one creature it can see within 30 feet. The target must succeed on a DC ${dc} Strength saving throw or drop one item it is holding.`
+          });
+        }
+        if (/fear|fright|dread|terror/.test(lower)) {
+          legendaryActions.push({
+            name: 'Dreadful Quiet',
+            description: `The ${name} unleashes a wave of sinister calm. One creature it can see within 60 feet must succeed on a DC ${dc} Wisdom saving throw or be frightened until the end of its next turn.`
+          });
+        }
+      }
+
+      return { traits, actions, legendaryActions };
+    }
+
+    function isCorruptedWord(text) {
+      return /corrupt|twisted|tainted|dark|fallen|warped|defiled/.test(text);
+    }
+
+    // ── Rich description paragraph ──
+    function generateRichDescription(name, type, size, element, concept, isCorrupted, environments) {
+      const lower = concept.toLowerCase();
+      const sizeWords = { 'Tiny': 'diminutive', 'Small': 'compact', 'Medium': 'imposing', 'Large': 'towering', 'Huge': 'massive', 'Gargantuan': 'colossal' };
+      const sizeWord = sizeWords[size] || 'imposing';
+
+      // Extract visual cues from concept
+      const visualCues = [];
+      if (/metal|iron|steel|gleam/.test(lower)) visualCues.push('gleaming metal pipes and arcane crystals');
+      if (/oil rig|pump|well|drill/.test(lower)) visualCues.push('towers over the ground like a twisted oil rig');
+      if (/pulse|glow|light/.test(lower)) visualCues.push('from its core pulses a pale, greenish light');
+      if (/avatar|manifest|appear/.test(lower)) visualCues.push('before the pump, a serene, robed avatar of a god materializes');
+      if (/peace|calm|gentle/.test(lower)) visualCues.push('its hands open in gentle appeal yet brimming with unstoppable power');
+      if (/fire|flame|burn/.test(lower)) visualCues.push('wreathed in flickering flames that cast dancing shadows');
+      if (/ice|frost|frozen/.test(lower)) visualCues.push('encased in crystalline ice that refracts light into prismatic patterns');
+      if (/shadow|dark|void/.test(lower)) visualCues.push('surrounded by tendrils of living shadow');
+      if (/construct|golem|machine/.test(lower)) visualCues.push('of gleaming metal and arcane components');
+
+      if (visualCues.length === 0) {
+        visualCues.push(`radiating ${element || 'arcane'} energy from its form`);
+      }
+
+      const typeStr = type.includes('/') ? type.toLowerCase().replace('/', ' and ') : type.toLowerCase();
+      return `A ${sizeWord}, ${isCorrupted ? 'corrupted ' : ''}${typeStr} ${visualCues[0]}, the ${name} ${visualCues.length > 1 ? visualCues[1] : `stands as a formidable presence`}. ${isCorrupted ? 'When threatened, ' : ''}${visualCues.length > 2 ? visualCues[2] + '. ' : ''}${visualCues.length > 3 ? visualCues.slice(3).join('. ') + '.' : ''}`;
+    }
+
+    // ── Rich lore paragraph ──
+    function generateRichLore(name, type, element, concept, isCorrupted, environments, archetypes, origin) {
+      const lower = concept.toLowerCase();
+      const loreFragments = [];
+
+      // Origin story
+      if (/tribe|worship|ritual|cult/.test(lower)) {
+        loreFragments.push(`Once erected by a ${/peaceful|peace/.test(lower) ? 'peaceful' : 'devout'} desert tribe to channel their patron deity's ${element || 'sacred'} calm magic`);
+      } else if (/ancient|old|elder/.test(lower)) {
+        loreFragments.push(`Created in an age long forgotten by ${origin === 'Artificial' ? 'master artificers' : 'powerful mages'}`);
+      } else {
+        loreFragments.push(`Born from ${origin === 'Supernatural' ? 'divine intervention' : origin === 'Artificial' ? 'arcane engineering' : 'raw magical energy'}`);
+      }
+
+      // Corruption arc
+      if (isCorrupted) {
+        if (/rival|cult|dark|evil/.test(lower)) {
+          loreFragments.push(`the ${name} was warped by a rival cult's dark rites, fusing ${/construct/.test(lower) ? 'construct engineering' : 'its original nature'} with corrupted ${/celestial|divine|peace/.test(lower) ? 'celestial' : 'arcane'} power`);
+        } else {
+          loreFragments.push(`over centuries its magic became twisted and corrupted, perverting its original purpose`);
+        }
+      }
+
+      // Purpose
+      if (/pump|harvest|drain|siphon|extract|well|rig/.test(lower)) {
+        loreFragments.push(`Now known as the ${name}, it drains the earth's tranquility to fuel its guardian avatar. It seeks only to pacify all who dare assault it and to harvest every drop of ${/peace/.test(lower) ? 'peace' : 'arcane'} magic from the land`);
+      } else if (/guardian|protect|defend|sentinel/.test(lower)) {
+        loreFragments.push(`it now stands as an eternal guardian, driven by ${isCorrupted ? 'twisted' : 'unwavering'} purpose`);
+      } else {
+        loreFragments.push(`it now ${isCorrupted ? 'terrorizes the surrounding lands' : 'serves its ancient purpose'}`);
+      }
+
+      return loreFragments.join(', ') + '.';
+    }
+
+    // ── Loot generation ──
+    function generateLoot(name, type, element, cr, concept, isCorrupted) {
+      const lower = concept.toLowerCase();
+      const loot = [];
+      const gpMultiplier = Math.max(1, Math.floor(cr / 3));
+
+      // Elemental/thematic crafting material
+      const materials = {
+        fire: { name: 'Ember Core Fragment', desc: 'A smoldering crystal fragment that never cools. Used in high-level fire enchantments.' },
+        ice: { name: 'Glacial Heart Shard', desc: 'A crystalline shard of perpetual cold. Used in frost-based spellcraft.' },
+        lightning: { name: 'Storm Capacitor', desc: 'A crackling metal fragment that stores electrical energy. Used in lightning enchantments.' },
+        poison: { name: 'Venom Gland', desc: 'A preserved toxic sac. Sells as a rare alchemical reagent.' },
+        necrotic: { name: 'Death Essence Vial', desc: 'A dark, viscous liquid radiating necromantic energy. Used in dark rituals.' },
+        radiant: { name: 'Arcane Crystal Shards', desc: 'Crystalline fragments worth 50 gp each, used in high-level spellcraft.' },
+        psychic: { name: 'Mind Fragment', desc: 'A pulsing crystalline node that resonates with psionic energy.' },
+        force: { name: 'Arcane Conduit', desc: 'A resonating core of pure magical force. Valued by artificers.' }
+      };
+
+      const mat = materials[element] || materials.radiant;
+      const matDice = Math.max(1, Math.floor(cr / 4));
+      loot.push({
+        name: mat.name,
+        description: `${matDice}d6 ${mat.name.toLowerCase()} worth ${50 * gpMultiplier} gp each, ${mat.desc}`,
+        value: `${50 * gpMultiplier} gp each`
+      });
+
+      // Thematic trophy item
+      if (/peace|holy|divine|celestial|sacred/.test(lower)) {
+        loot.push({
+          name: isCorrupted ? 'Corrupted Peace Emblem' : 'Peace Emblem Fragment',
+          description: `A ${isCorrupted ? 'warped' : 'radiant'} holy symbol radiating ${isCorrupted ? 'uneasy' : 'serene'} calm. Worth ${5000 * gpMultiplier} gp to a collector of celestial relics.`,
+          value: `${5000 * gpMultiplier} gp`
+        });
+      } else if (/dragon|wyrm|drake/.test(lower)) {
+        loot.push({ name: 'Dragon Scale Trophy', description: `A pristine scale that shimmers with ${element || 'draconic'} energy. Worth ${2000 * gpMultiplier} gp.`, value: `${2000 * gpMultiplier} gp` });
+      } else if (/undead|death|necrotic/.test(lower)) {
+        loot.push({ name: 'Phylactery Fragment', description: `A shard of dark-imbued bone or metal. Worth ${3000 * gpMultiplier} gp to a necromancer.`, value: `${3000 * gpMultiplier} gp` });
+      } else {
+        loot.push({ name: `${name} Trophy`, description: `A unique trophy from the ${name}. Worth ${1000 * gpMultiplier} gp.`, value: `${1000 * gpMultiplier} gp` });
+      }
+
+      // Pump/construct-specific loot
+      if (/pump|construct|golem|machine|rig|well/.test(lower)) {
+        loot.push({
+          name: 'Pump Core Residue',
+          description: `A viscous, greenish oil used as a rare alchemical reagent. Sells for ${500 * gpMultiplier} gp per flask.`,
+          value: `${500 * gpMultiplier} gp`
+        });
+        loot.push({
+          name: 'Construct Salvage',
+          description: `Scrap metal and arcane circuitry worth ${200 * gpMultiplier} gp when sold to a skilled artificer.`,
+          value: `${200 * gpMultiplier} gp`
+        });
+      }
+
+      // High CR bonus loot
+      if (cr >= 15) {
+        const rarities = ['Very Rare', 'Legendary'];
+        const rarity = cr >= 20 ? rarities[1] : rarities[0];
+        loot.push({
+          name: `${rarity} Magic Item`,
+          description: `Roll on the ${rarity} Magic Items table (DMG) or award a thematically appropriate ${rarity.toLowerCase()} item.`,
+          value: rarity
+        });
+      }
+
+      return loot;
+    }
+
     // ── UI integration ──
+
+    // Stores full data from last generateMonsterAI() call for stat block rendering
+    let lastGeneratedMonster = null;
 
     function switchMonsterMode(mode, el) {
       document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
@@ -6210,6 +7133,9 @@
     }
 
     function populateMonsterForm(data) {
+      // Store full data for stat block rendering (description, lore, loot, etc.)
+      lastGeneratedMonster = data;
+
       document.getElementById('monsterName').value = data.name || '';
       document.getElementById('monsterSize').value = data.size || 'Medium';
       document.getElementById('monsterType').value = data.type || 'Beast';
@@ -6293,8 +7219,6 @@
         });
       }
 
-      // Auto-generate stat block
-      setTimeout(() => generateStatBlock(), 50);
     }
 
     function generateMonsterFromConcept() {
@@ -6340,15 +7264,8 @@
     }
 
     function updateMonsterMods() {
-      const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
-      abilities.forEach(ability => {
-        const scoreEl = document.getElementById(`monster${ability}`);
-        if (scoreEl) {
-          const score = parseInt(scoreEl.value) || 10;
-          const mod = getModifier(score);
-          const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
-        }
-      });
+      // Recalculate and refresh stat block when ability scores change
+      generateStatBlock();
     }
 
     function randomizeDetailedMonster() {
@@ -6441,172 +7358,220 @@
       // Senses & languages
       const darkvision = parseInt(document.getElementById('monsterDarkvision').value) || 0;
       const blindsight = parseInt(document.getElementById('monsterBlindSight').value) || 0;
-      const languages = document.getElementById('monsterLanguages').value || '—';
+      const languages = document.getElementById('monsterLanguages').value || '\u2014';
 
       // Get CR data for proficiency
       const crData = getCRData(cr);
       const prof = crData.prof;
       const xp = crData.xp;
 
+      // Rich data from last generation (description, lore, loot, saving throws, skills, hit dice)
+      const rich = lastGeneratedMonster || {};
+      const hitDice = rich.hitDice || calculateHitDice(hp, size, getModifier(con));
+      const savingThrows = rich.savingThrows || '';
+      const skills = rich.skills || '';
+      const description = rich.description || '';
+      const lore = rich.lore || '';
+      const loot = rich.loot || [];
+      const origin = rich.origin || '';
+
       // Build speed string
       let speedStr = '';
       if (walk > 0) speedStr += `${walk} ft.`;
+      else if (walk === 0 && fly === 0 && swim === 0 && climb === 0) speedStr = '0 ft. (immobile)';
       if (fly > 0) speedStr += (speedStr ? ', ' : '') + `fly ${fly} ft.`;
       if (swim > 0) speedStr += (speedStr ? ', ' : '') + `swim ${swim} ft.`;
       if (climb > 0) speedStr += (speedStr ? ', ' : '') + `climb ${climb} ft.`;
       if (!speedStr) speedStr = '0 ft.';
 
       // Build senses string
-      let sensesStr = [];
-      if (darkvision > 0) sensesStr.push(`darkvision ${darkvision} ft.`);
-      if (blindsight > 0) sensesStr.push(`blindsight ${blindsight} ft.`);
-      const passivePerc = 10 + Math.floor(wis / 2) - 5;
-      sensesStr.push(`passive Perception ${passivePerc}`);
-      const sensesLine = sensesStr.join(', ');
+      let sensesArr = [];
+      if (darkvision > 0) sensesArr.push(`darkvision ${darkvision} ft.`);
+      if (blindsight > 0) sensesArr.push(`blindsight ${blindsight} ft.`);
+      const passivePerc = 10 + getModifier(wis);
+      sensesArr.push(`passive Perception ${passivePerc}`);
+      const sensesLine = sensesArr.join(', ');
 
-      // Collect traits
+      // Format modifier helper
+      const fmtMod = (score) => { const m = getModifier(score); return m >= 0 ? `+${m}` : `${m}`; };
+
+      // Collect traits from form
       const traitsDiv = document.getElementById('monsterTraitsList');
       const traits = [];
       traitsDiv.querySelectorAll('.dynamic-item').forEach(item => {
         const inputs = item.querySelectorAll('input[type="text"], textarea');
         if (inputs.length >= 2 && inputs[0].value && inputs[1].value) {
-          traits.push({
-            name: inputs[0].value,
-            description: inputs[1].value
-          });
+          traits.push({ name: inputs[0].value, description: inputs[1].value });
         }
       });
 
-      // Collect actions
+      // Collect actions from form
       const actionsDiv = document.getElementById('monsterActionsList');
       const actions = [];
       actionsDiv.querySelectorAll('.dynamic-item').forEach(item => {
         const inputs = item.querySelectorAll('input, textarea');
         if (inputs.length >= 2 && inputs[0].value) {
-          actions.push({
-            name: inputs[0].value,
-            description: inputs[2]?.value || ''
-          });
+          actions.push({ name: inputs[0].value, description: inputs[2]?.value || '' });
         }
       });
 
-      // Collect legendary actions
+      // Collect legendary actions from form
       const legendaryDiv = document.getElementById('monsterLegendaryList');
       const legendary = [];
       legendaryDiv.querySelectorAll('.dynamic-item').forEach(item => {
         const inputs = item.querySelectorAll('input[type="text"], textarea');
         if (inputs.length >= 2 && inputs[0].value && inputs[1].value) {
-          legendary.push({
-            name: inputs[0].value,
-            description: inputs[1].value
-          });
+          legendary.push({ name: inputs[0].value, description: inputs[1].value });
         }
       });
 
-      // Build HTML stat block
+      // CR display string
+      const crDisplay = cr < 1 ? (cr === 0.5 ? '1/2' : cr === 0.25 ? '1/4' : cr === 0.125 ? '1/8' : cr) : cr;
+
+      // ─── Build the HTML stat block ───
+      // Color scheme: dark red headers (#7a200d), warm parchment body
+      const headerBg = '#7a200d';
+      const headerColor = '#fff';
+      const dividerColor = '#7a200d';
+      const bodyBg = '#fdf1dc';
+      const bodyText = '#1a1a1a';
+      const sectionHeaderColor = '#7a200d';
+
       let html = `
-        <div style="font-family: 'Times New Roman', Times, serif; max-width: 600px; background: white; color: black; padding: 20px; border: 2px solid #2a2a2a;">
+        <div class="stat-block" style="font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', serif; max-width: 620px; background: ${bodyBg}; color: ${bodyText}; padding: 0; border: 3px solid ${headerBg}; border-radius: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.3); line-height: 1.4;">
 
-          <!-- Header bar -->
-          <div style="background-color: #7a200d; color: white; padding: 8px 12px; margin: -20px -20px 15px -20px; font-weight: bold; font-size: 14px;">
-            ${name.toUpperCase()}
+          <!-- ═══ Top header bar ═══ -->
+          <div style="background: ${headerBg}; color: ${headerColor}; padding: 10px 16px 8px; margin: 0;">
+            <div style="font-size: 22px; font-weight: bold; letter-spacing: 1px; font-variant: small-caps;">${name}</div>
+            <div style="font-size: 12px; font-style: italic; opacity: 0.9; margin-top: 2px;">${size} ${type.toLowerCase()}, ${alignment}</div>
           </div>
 
-          <!-- Size, Type, Alignment -->
-          <div style="font-style: italic; margin-bottom: 12px; font-size: 13px;">
-            <em>${size} ${type.toLowerCase()}, ${alignment}</em>
-          </div>
+          <!-- ═══ Core Stats Block ═══ -->
+          <div style="padding: 12px 16px 0;">
 
-          <!-- Divider -->
-          <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
-
-          <!-- AC, HP, Speed -->
-          <div style="margin-bottom: 12px; font-size: 13px;">
-            <div><strong>Armor Class</strong> ${ac} (${acType})</div>
-            <div><strong>Hit Points</strong> ${hp} (hit dice unknown)</div>
-            <div><strong>Speed</strong> ${speedStr}</div>
-          </div>
-
-          <!-- Divider -->
-          <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
-
-          <!-- Ability Scores -->
-          <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; text-align: center; margin-bottom: 12px; font-size: 12px;">
-            <div>
-              <strong>STR</strong><br>${str}<br>${getModifier(str) >= 0 ? '+' : ''}${getModifier(str)}
+            <!-- AC, HP, Speed -->
+            <div style="font-size: 13px; line-height: 1.6; margin-bottom: 8px;">
+              <div><span style="font-weight: bold; color: ${sectionHeaderColor};">Armor Class</span> ${ac} (${acType})</div>
+              <div><span style="font-weight: bold; color: ${sectionHeaderColor};">Hit Points</span> ${hp} (${hitDice})</div>
+              <div><span style="font-weight: bold; color: ${sectionHeaderColor};">Speed</span> ${speedStr}</div>
             </div>
-            <div>
-              <strong>DEX</strong><br>${dex}<br>${getModifier(dex) >= 0 ? '+' : ''}${getModifier(dex)}
-            </div>
-            <div>
-              <strong>CON</strong><br>${con}<br>${getModifier(con) >= 0 ? '+' : ''}${getModifier(con)}
-            </div>
-            <div>
-              <strong>INT</strong><br>${int}<br>${getModifier(int) >= 0 ? '+' : ''}${getModifier(int)}
-            </div>
-            <div>
-              <strong>WIS</strong><br>${wis}<br>${getModifier(wis) >= 0 ? '+' : ''}${getModifier(wis)}
-            </div>
-            <div>
-              <strong>CHA</strong><br>${cha}<br>${getModifier(cha) >= 0 ? '+' : ''}${getModifier(cha)}
-            </div>
-          </div>
 
-          <!-- Divider -->
-          <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
+            <!-- Divider -->
+            <div style="border-top: 2px solid ${dividerColor}; border-bottom: 2px solid ${dividerColor}; height: 4px; margin: 6px 0; opacity: 0.3;"></div>
 
-          <!-- Saves, Skills, Resistances -->
-          <div style="margin-bottom: 12px; font-size: 13px;">
-            ${damageRes ? `<div><strong>Damage Resistances</strong> ${damageRes}</div>` : ''}
-            ${damageImm ? `<div><strong>Damage Immunities</strong> ${damageImm}</div>` : ''}
-            ${condImm ? `<div><strong>Condition Immunities</strong> ${condImm}</div>` : ''}
-            <div><strong>Senses</strong> ${sensesLine}</div>
-            <div><strong>Languages</strong> ${languages}</div>
-            <div><strong>Challenge</strong> ${cr} (${xp} XP)</div>
-          </div>
+            <!-- Ability Scores Table -->
+            <table style="width: 100%; text-align: center; margin: 8px 0; border-collapse: collapse; font-size: 13px;">
+              <tr style="font-weight: bold; color: ${sectionHeaderColor};">
+                <td style="padding: 4px 2px;">STR</td>
+                <td style="padding: 4px 2px;">DEX</td>
+                <td style="padding: 4px 2px;">CON</td>
+                <td style="padding: 4px 2px;">INT</td>
+                <td style="padding: 4px 2px;">WIS</td>
+                <td style="padding: 4px 2px;">CHA</td>
+              </tr>
+              <tr>
+                <td style="padding: 2px;">${str} (${fmtMod(str)})</td>
+                <td style="padding: 2px;">${dex} (${fmtMod(dex)})</td>
+                <td style="padding: 2px;">${con} (${fmtMod(con)})</td>
+                <td style="padding: 2px;">${int} (${fmtMod(int)})</td>
+                <td style="padding: 2px;">${wis} (${fmtMod(wis)})</td>
+                <td style="padding: 2px;">${cha} (${fmtMod(cha)})</td>
+              </tr>
+            </table>
 
-          <!-- Divider -->
-          <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
+            <!-- Divider -->
+            <div style="border-top: 2px solid ${dividerColor}; border-bottom: 2px solid ${dividerColor}; height: 4px; margin: 6px 0; opacity: 0.3;"></div>
 
-          <!-- Traits -->
-          ${traits.length > 0 ? `
-            <div style="margin-bottom: 12px;">
-              ${traits.map(t => `
-                <div style="margin-bottom: 8px; font-size: 13px;">
-                  <strong><em>${t.name}.</em></strong> ${t.description}
+            <!-- Saves, Skills, Resistances, Senses, Languages, CR -->
+            <div style="font-size: 13px; line-height: 1.6; margin-bottom: 8px;">
+              ${savingThrows ? `<div><span style="font-weight: bold; color: ${sectionHeaderColor};">Saving Throws</span> ${savingThrows}</div>` : ''}
+              ${skills ? `<div><span style="font-weight: bold; color: ${sectionHeaderColor};">Skills</span> ${skills}</div>` : ''}
+              ${damageRes ? `<div><span style="font-weight: bold; color: ${sectionHeaderColor};">Damage Resistances</span> ${damageRes}</div>` : ''}
+              ${damageImm ? `<div><span style="font-weight: bold; color: ${sectionHeaderColor};">Damage Immunities</span> ${damageImm}</div>` : ''}
+              ${condImm ? `<div><span style="font-weight: bold; color: ${sectionHeaderColor};">Condition Immunities</span> ${condImm}</div>` : ''}
+              <div><span style="font-weight: bold; color: ${sectionHeaderColor};">Senses</span> ${sensesLine}</div>
+              <div><span style="font-weight: bold; color: ${sectionHeaderColor};">Languages</span> ${languages}</div>
+              <div><span style="font-weight: bold; color: ${sectionHeaderColor};">Challenge</span> ${crDisplay} (${xp.toLocaleString()} XP)</div>
+              ${origin ? `<div><span style="font-weight: bold; color: ${sectionHeaderColor};">Origin</span> ${origin}</div>` : ''}
+            </div>
+
+            <!-- Divider -->
+            <div style="border-top: 2px solid ${dividerColor}; border-bottom: 2px solid ${dividerColor}; height: 4px; margin: 6px 0; opacity: 0.3;"></div>
+
+            <!-- ═══ Description ═══ -->
+            ${description ? `
+              <div style="margin: 10px 0;">
+                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Description</div>
+                <div style="font-size: 13px; font-style: italic; line-height: 1.5; color: #333;">${description}</div>
+              </div>
+            ` : ''}
+
+            <!-- ═══ Lore ═══ -->
+            ${lore ? `
+              <div style="margin: 10px 0;">
+                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Lore</div>
+                <div style="font-size: 13px; font-style: italic; line-height: 1.5; color: #333;">${lore}</div>
+              </div>
+            ` : ''}
+
+            <!-- ═══ Abilities / Traits ═══ -->
+            ${traits.length > 0 ? `
+              <div style="margin: 10px 0;">
+                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Abilities</div>
+                ${traits.map(t => `
+                  <div style="margin-bottom: 6px; font-size: 13px;">
+                    <span style="font-weight: bold; font-style: italic;">${t.name}.</span> ${t.description}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <!-- ═══ Actions ═══ -->
+            ${actions.length > 0 ? `
+              <div style="margin: 10px 0;">
+                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Actions</div>
+                ${actions.map(a => `
+                  <div style="margin-bottom: 6px; font-size: 13px;">
+                    <span style="font-weight: bold; font-style: italic;">${a.name}.</span> ${a.description}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <!-- ═══ Legendary Actions ═══ -->
+            ${legendary.length > 0 ? `
+              <div style="margin: 10px 0;">
+                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Legendary Actions</div>
+                <div style="font-size: 12px; font-style: italic; margin-bottom: 8px; color: #555;">
+                  The ${name} can take 3 legendary actions, choosing from the options below. Only one legendary action can be used at a time and only at the end of another creature's turn. The ${name} regains spent legendary actions at the start of its turn.
                 </div>
-              `).join('')}
-            </div>
-            <div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>
-          ` : ''}
+                ${legendary.map(l => `
+                  <div style="margin-bottom: 6px; font-size: 13px;">
+                    <span style="font-weight: bold; font-style: italic;">${l.name}.</span> ${l.description}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
 
-          <!-- Actions -->
-          ${actions.length > 0 ? `
-            <div style="margin-bottom: 12px;">
-              <div style="font-weight: bold; margin-bottom: 8px;">ACTIONS</div>
-              ${actions.map(a => `
-                <div style="margin-bottom: 8px; font-size: 13px;">
-                  <strong><em>${a.name}.</em></strong> ${a.description}
-                </div>
-              `).join('')}
-            </div>
-            ${legendary.length > 0 ? '<div style="border-top: 1px solid #2a2a2a; margin: 8px 0;"></div>' : ''}
-          ` : ''}
+            <!-- ═══ Loot ═══ -->
+            ${loot.length > 0 ? `
+              <div style="margin: 10px 0 14px;">
+                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Loot</div>
+                ${loot.map(l => `
+                  <div style="margin-bottom: 6px; font-size: 13px;">
+                    <span style="font-weight: bold;">${l.name}</span>${l.value ? ` <span style="color: #886622; font-size: 11px;">(${l.value})</span>` : ''}
+                    <div style="font-size: 12px; color: #444; margin-left: 8px;">${l.description}</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
 
-          <!-- Legendary Actions -->
-          ${legendary.length > 0 ? `
-            <div style="margin-bottom: 12px;">
-              <div style="font-weight: bold; margin-bottom: 8px;">LEGENDARY ACTIONS</div>
-              ${legendary.map(l => `
-                <div style="margin-bottom: 8px; font-size: 13px;">
-                  <strong><em>${l.name}.</em></strong> ${l.description}
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
+          </div>
 
-          <!-- Bottom bar -->
-          <div style="background-color: #7a200d; color: white; padding: 8px 12px; margin: 15px -20px -20px -20px;"></div>
+          <!-- ═══ Bottom bar ═══ -->
+          <div style="background: ${headerBg}; padding: 6px 16px; margin: 0;">
+            <div style="font-size: 10px; color: rgba(255,255,255,0.6); text-align: right; font-style: italic;">Phmurt Studios Monster Generator</div>
+          </div>
         </div>
       `;
 
@@ -7194,7 +8159,7 @@
     }
 
     function generateRegionMapInfo() {
-      let html = '<div class="gen-result">';
+      let html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
       html += '<div class="gen-result-item"><div class="gen-result-label">Region Name</div>';
       const regionNames = ['The Shattered Isles', 'Thornlands', 'Misty Vale', 'Ironpeak Region', 'Shadowmarch'];
       html += '<div class="gen-result-value">' + randomNth(1, regionNames)[0] + '</div></div>';
@@ -12302,7 +13267,7 @@ function generateCityMapInfo(size, sizeConfig) {
         }
     }
 
-    var html = '<div class="gen-result">';
+    var html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
     html += '<div class="gen-result-item"><div class="gen-result-label">Settlement Name</div><div class="gen-result-value">' + cityMapData.name + '</div></div>';
     html += '<div class="gen-result-item"><div class="gen-result-label">Motto</div><div class="gen-result-value" style="font-style:italic;">"' + motto + '"</div></div>';
     html += '<div class="gen-result-item"><div class="gen-result-label">Size</div><div class="gen-result-value">' + sizeConfigData.label + '</div></div>';
@@ -13103,7 +14068,7 @@ function downloadCityMap() {
         crossroads: 'A bustling trade hub where major roads intersect.'
       };
 
-      let html = '<div class="gen-result">';
+      let html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
       html += '<div class="gen-result-item"><div class="gen-result-label">Village Name</div>';
       const villageNames = ['Millbrook', 'Thornhaven', 'Harvest Gap', 'Silverpeak', 'Darkwood Crossing', 'Westmarch'];
       html += '<div class="gen-result-value">' + randomNth(1, villageNames)[0] + '</div></div>';
@@ -13681,7 +14646,7 @@ function downloadCityMap() {
         'guild-hall': 'A headquarters for a guild with meeting halls, vaults, and administrative areas.'
       };
 
-      let html = '<div class="gen-result">';
+      let html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
       html += '<div class="gen-result-item"><div class="gen-result-label">Building Type</div>';
       html += '<div class="gen-result-value">' + buildingType.charAt(0).toUpperCase() + buildingType.slice(1).replace('-', ' ') + '</div></div>';
       html += '<div class="gen-result-item"><div class="gen-result-label">Floors</div>';
@@ -13711,5 +14676,356 @@ function downloadCityMap() {
       document.getElementById('roomCountDisplay').textContent = this.value + ' rooms';
     });
 
-  </script></body>
+    // ═════════════════════════════════════════════════════════════════
+    // EXPORT TO CAMPAIGN: Core functionality
+    // ═════════════════════════════════════════════════════════════════
+
+    // Storage for the last generated data from each generator
+    let lastGeneratedData = {
+      monster: null,
+      encounter: null,
+      npc: null,
+      treasure: null,
+      plotHook: null,
+      tavern: null,
+      dungeon: null,
+      potion: null,
+      spell: null
+    };
+
+    // Get all campaigns from the new campaign registry
+    function loadCampaignsForExport() {
+      var registry = localStorage.getItem('phmurt_campaign_registry');
+      if (!registry) {
+        // Fallback: try old format for backwards compatibility
+        var oldCampaigns = localStorage.getItem('phmurt_campaigns');
+        if (oldCampaigns) {
+          try {
+            var parsed = JSON.parse(oldCampaigns);
+            var registry = {};
+            parsed.forEach(function(c, idx) {
+              if (c && c.id) {
+                registry[c.id] = c;
+              }
+            });
+            return registry;
+          } catch(e) {}
+        }
+        return {};
+      }
+      try {
+        return JSON.parse(registry);
+      } catch(e) {
+        return {};
+      }
+    }
+
+    // Main export function
+    function exportToCampaign(type, data) {
+      if (!data) {
+        showToast('No data to export. Please generate content first.', 'error');
+        return;
+      }
+
+      var campaigns = loadCampaignsForExport();
+      var campaignIds = Object.keys(campaigns);
+
+      if (campaignIds.length === 0) {
+        showToast('No campaigns found. Create one in the Campaign Manager!', 'warning');
+        return;
+      }
+
+      showCampaignSelectorModal(type, data, campaigns, campaignIds);
+    }
+
+    // Show campaign selector modal
+    function showCampaignSelectorModal(type, data, campaigns, campaignIds) {
+      var modal = document.getElementById('exportCampaignModal');
+      var list = document.getElementById('exportCampaignList');
+      list.innerHTML = '';
+
+      campaignIds.forEach(function(cid) {
+        var c = campaigns[cid];
+        var btn = document.createElement('button');
+        btn.className = 'campaign-selector-btn';
+        btn.innerHTML = c.name || 'Unnamed Campaign';
+        btn.onclick = function() {
+          saveToCampaign(cid, type, data);
+          closeExportModal();
+        };
+        list.appendChild(btn);
+      });
+
+      modal.style.display = 'flex';
+    }
+
+    // Save content to the selected campaign
+    function saveToCampaign(campaignId, type, data) {
+      var registry = localStorage.getItem('phmurt_campaign_registry');
+      if (!registry) {
+        // Fallback for old format
+        var oldCampaigns = localStorage.getItem('phmurt_campaigns');
+        if (oldCampaigns) {
+          registry = {};
+          JSON.parse(oldCampaigns).forEach(function(c) {
+            if (c && c.id) registry[c.id] = c;
+          });
+        } else {
+          showToast('Campaign not found', 'error');
+          return;
+        }
+      } else {
+        registry = JSON.parse(registry);
+      }
+
+      var campaign = registry[campaignId];
+      if (!campaign) {
+        showToast('Campaign not found', 'error');
+        return;
+      }
+
+      var dataToSave = {
+        id: 'export_' + type + '_' + Date.now(),
+        type: type,
+        data: data,
+        addedAt: new Date().toISOString()
+      };
+
+      // Route to appropriate storage based on type
+      switch(type) {
+        case 'monster':
+          saveMonsterToResources(campaignId, data);
+          break;
+        case 'npc':
+          saveNPCToResources(campaignId, data);
+          break;
+        case 'encounter':
+          saveEncounterToCampaign(campaign, data);
+          break;
+        case 'treasure':
+          saveTreasureToResources(campaignId, data);
+          break;
+        case 'plotHook':
+        case 'tavern':
+        case 'dungeon':
+        case 'potion':
+        case 'spell':
+        default:
+          saveGeneratedContentToCampaign(campaign, type, data);
+          break;
+      }
+
+      // Save registry back
+      localStorage.setItem('phmurt_campaign_registry', JSON.stringify(registry));
+      showToast('Added to campaign: ' + campaign.name, 'success');
+    }
+
+    // Save monster to campaign resources
+    function saveMonsterToResources(campaignId, monsterData) {
+      var key = 'phmurt_campaign_monsters_' + campaignId;
+      var monsters = localStorage.getItem(key);
+      var monstersList = monsters ? JSON.parse(monsters) : [];
+
+      var monster = {
+        id: 'monster_' + Date.now(),
+        name: monsterData.name || 'Unnamed Monster',
+        cr: monsterData.cr || 0,
+        type: monsterData.type || '',
+        size: monsterData.size || '',
+        hp: monsterData.hp || 0,
+        ac: monsterData.ac || 10,
+        statBlock: monsterData.statBlock || '',
+        addedAt: new Date().toISOString()
+      };
+
+      monstersList.push(monster);
+      localStorage.setItem(key, JSON.stringify(monstersList));
+    }
+
+    // Save NPC to campaign resources
+    function saveNPCToResources(campaignId, npcData) {
+      var key = 'phmurt_campaign_npcs_' + campaignId;
+      var npcs = localStorage.getItem(key);
+      var npcsList = npcs ? JSON.parse(npcs) : [];
+
+      var npc = {
+        id: 'npc_' + Date.now(),
+        name: npcData.name || 'Unnamed NPC',
+        race: npcData.race || '',
+        occupation: npcData.occupation || '',
+        alignment: npcData.alignment || '',
+        personality: npcData.personality || '',
+        appearance: npcData.appearance || '',
+        backstory: npcData.backstory || '',
+        addedAt: new Date().toISOString()
+      };
+
+      npcsList.push(npc);
+      localStorage.setItem(key, JSON.stringify(npcsList));
+    }
+
+    // Save encounter to campaign
+    function saveEncounterToCampaign(campaign, encounterData) {
+      if (!campaign.encounters) campaign.encounters = [];
+
+      var encounter = {
+        id: 'enc_' + Date.now(),
+        name: encounterData.name || 'Unnamed Encounter',
+        environment: encounterData.environment || '',
+        monsters: encounterData.monsters || [],
+        totalCR: encounterData.totalCR || 0,
+        createdAt: new Date().toISOString()
+      };
+
+      campaign.encounters.push(encounter);
+    }
+
+    // Save treasure to campaign resources
+    function saveTreasureToResources(campaignId, treasureData) {
+      var key = 'phmurt_campaign_items_' + campaignId;
+      var items = localStorage.getItem(key);
+      var itemsList = items ? JSON.parse(items) : [];
+
+      var treasure = {
+        id: 'treasure_' + Date.now(),
+        name: treasureData.name || 'Treasure Hoard',
+        type: 'treasure',
+        contents: treasureData.contents || {},
+        totalValue: treasureData.totalValue || 0,
+        addedAt: new Date().toISOString()
+      };
+
+      itemsList.push(treasure);
+      localStorage.setItem(key, JSON.stringify(itemsList));
+    }
+
+    // Save generated content (plots, taverns, dungeons, etc.) to campaign
+    function saveGeneratedContentToCampaign(campaign, contentType, contentData) {
+      if (!campaign.generatedContent) campaign.generatedContent = [];
+
+      var content = {
+        id: 'content_' + Date.now(),
+        type: contentType,
+        title: contentData.title || contentData.name || 'Generated ' + contentType,
+        content: contentData.html || contentData.content || '',
+        addedAt: new Date().toISOString(),
+        visibility: 'private'
+      };
+
+      campaign.generatedContent.push(content);
+    }
+
+    // Close the modal
+    function closeExportModal() {
+      var modal = document.getElementById('exportCampaignModal');
+      modal.style.display = 'none';
+    }
+
+    // Toast notifications
+    function showToast(message, type) {
+      var toast = document.createElement('div');
+      toast.className = 'gen-toast gen-toast-' + (type || 'info');
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(function() {
+        toast.classList.add('gen-toast-show');
+      }, 10);
+
+      setTimeout(function() {
+        toast.classList.remove('gen-toast-show');
+        setTimeout(function() {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+
+    // Close modal on background click
+    document.addEventListener('DOMContentLoaded', function() {
+      var modal = document.getElementById('exportCampaignModal');
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            closeExportModal();
+          }
+        });
+      }
+    });
+
+  </script>
+
+  <!-- Export to Campaign Modal -->
+  <div id="exportCampaignModal" class="gen-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; flex-wrap: wrap; padding: 20px;">
+    <div class="gen-modal-content" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 24px; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+      <h3 style="margin-top: 0; margin-bottom: 16px; font-family: 'Cinzel', serif; font-size: 18px; color: var(--crimson);">Add to Campaign</h3>
+      <div id="exportCampaignList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;"></div>
+      <button class="gen-button" onclick="closeExportModal()" style="width: 100%; margin-top: 12px;">Cancel</button>
+    </div>
+  </div>
+
+  <style>
+    .campaign-selector-btn {
+      padding: 12px 16px;
+      background: var(--bg-mid);
+      border: 1px solid var(--border-subtle);
+      color: var(--text);
+      font-family: 'Spectral', serif;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .campaign-selector-btn:hover {
+      background: var(--bg-dark);
+      border-color: var(--crimson);
+      color: var(--crimson);
+    }
+
+    .gen-toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 2px;
+      font-family: 'Spectral', serif;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10000;
+      max-width: 300px;
+      word-wrap: break-word;
+    }
+
+    .gen-toast-show {
+      opacity: 1;
+    }
+
+    .gen-toast-success {
+      background: rgba(39, 174, 96, 0.2);
+      color: #27ae60;
+      border: 1px solid #27ae60;
+    }
+
+    .gen-toast-error {
+      background: rgba(192, 57, 43, 0.2);
+      color: #c0392b;
+      border: 1px solid #c0392b;
+    }
+
+    .gen-toast-warning {
+      background: rgba(241, 196, 15, 0.2);
+      color: #f39c12;
+      border: 1px solid #f39c12;
+    }
+
+    .gen-toast-info {
+      background: rgba(52, 152, 219, 0.2);
+      color: #3498db;
+      border: 1px solid #3498db;
+    }
+  </style>
+
+</body>
 </html>

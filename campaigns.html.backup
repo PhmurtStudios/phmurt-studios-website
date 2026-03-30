@@ -452,194 +452,114 @@
     .campaign-resource-name { font-size: 16px; color: var(--text); margin-bottom: 8px; }
     .campaign-resource-meta { font-size: 12px; color: var(--text-muted); }
 
-    /* Timeline Styles - Interactive */
-    .timeline-interactive-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .timeline-controls {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .timeline-controls button {
-      padding: 8px 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--crimson-border);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 14px;
-      font-family: 'Cinzel', serif;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      border-radius: 2px;
-    }
-    .timeline-controls button:hover {
-      background: var(--crimson-soft);
-      border-color: var(--crimson);
-      color: var(--text);
-    }
-    .timeline-filter-buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    /* Timeline Styles */
     .timeline-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .timeline-viewport {
       position: relative;
-      width: 100%;
-      height: 180px;
-      background: var(--bg-mid);
-      border: 1px solid var(--crimson-border);
-      border-radius: 4px;
-      overflow: hidden;
-      cursor: grab;
+      padding-left: 32px;
     }
-    .timeline-viewport:active {
-      cursor: grabbing;
-    }
-    .timeline-track {
-      position: relative;
-      height: 100%;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      padding: 0 40px;
-      transition: transform 0.1s ease-out;
-    }
-    .timeline-line {
+    .timeline-container::before {
+      content: '';
       position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 2px;
+      left: 11px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
       background: var(--crimson-border);
-      transform: translateY(-50%);
-      pointer-events: none;
     }
-    .timeline-node {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 3px solid var(--bg);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      z-index: 2;
-    }
-    .timeline-node:hover {
-      transform: translateY(-50%) scale(1.3);
-      z-index: 3;
-    }
-    .timeline-node.dragging {
-      z-index: 100;
-      transform: translateY(-50%) scale(1.2);
-    }
-    .timeline-node.session { background: #7a200d; }
-    .timeline-node.major_plot { background: #b8860b; }
-    .timeline-node.minor_plot { background: #556b2f; }
-    .timeline-node.combat { background: #8b0000; }
-    .timeline-node.discovery { background: #2e8b57; }
-    .timeline-node.npc_event { background: #4682b4; }
-    .timeline-node.custom { background: #808080; }
-    .timeline-node.dm-only {
-      border-style: dashed;
-      box-shadow: inset 0 0 0 2px var(--bg-mid);
-    }
-    .timeline-node-label {
-      position: absolute;
-      top: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 11px;
-      color: var(--text-dim);
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-      background: var(--bg-mid);
-      padding: 4px 8px;
-      border-radius: 2px;
-    }
-    .timeline-node:hover .timeline-node-label {
-      opacity: 1;
-    }
-    .timeline-detail-panel {
+    .timeline-event {
+      position: relative;
+      margin-bottom: 24px;
+      padding: 20px;
       background: var(--bg-card);
       border: 1px solid var(--crimson-border);
-      border-radius: 4px;
-      padding: 20px;
-      min-height: 200px;
-      display: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
     }
-    .timeline-detail-panel.active {
-      display: block;
+    .timeline-event:hover {
+      border-color: var(--crimson);
+      transform: translateX(4px);
     }
-    .timeline-detail-panel h3 {
-      font-size: 18px;
-      color: var(--text);
-      margin-bottom: 12px;
-      margin-top: 0;
+    .timeline-event::before {
+      content: '';
+      position: absolute;
+      left: -27px;
+      top: 24px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--crimson);
+      border: 2px solid var(--bg);
+      z-index: 1;
     }
-    .timeline-detail-meta {
+    .timeline-event.dm-only {
+      border-left: 3px solid #9b59b6;
+      opacity: 0.85;
+    }
+    .timeline-event.dm-only::before {
+      background: #9b59b6;
+    }
+    .timeline-event-header {
       display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       gap: 12px;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
+      margin-bottom: 8px;
     }
-    .timeline-detail-type {
+    .timeline-event-title {
+      font-size: 16px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .timeline-event-type {
       font-size: 10px;
       letter-spacing: 1px;
       text-transform: uppercase;
       padding: 3px 8px;
       border-radius: 2px;
+      white-space: nowrap;
       font-family: 'Cinzel', serif;
     }
-    .timeline-detail-type.session { background: rgba(122,32,13,0.15); color: #7a200d; }
-    .timeline-detail-type.major_plot { background: rgba(184,134,11,0.15); color: #b8860b; }
-    .timeline-detail-type.minor_plot { background: rgba(85,107,47,0.15); color: #556b2f; }
-    .timeline-detail-type.combat { background: rgba(139,0,0,0.15); color: #8b0000; }
-    .timeline-detail-type.discovery { background: rgba(46,139,87,0.15); color: #2e8b57; }
-    .timeline-detail-type.npc_event { background: rgba(70,130,180,0.15); color: #4682b4; }
-    .timeline-detail-type.custom { background: rgba(128,128,128,0.15); color: #808080; }
-    .timeline-detail-date {
+    .timeline-event-type.session { background: var(--crimson-soft); color: var(--crimson); }
+    .timeline-event-type.major_plot { background: rgba(231,76,60,0.15); color: #e74c3c; }
+    .timeline-event-type.minor_plot { background: rgba(46,204,113,0.15); color: #2ecc71; }
+    .timeline-event-type.combat { background: rgba(241,196,15,0.15); color: #f1c40f; }
+    .timeline-event-type.discovery { background: rgba(52,152,219,0.15); color: #3498db; }
+    .timeline-event-type.npc_event { background: rgba(155,89,182,0.15); color: #9b59b6; }
+    .timeline-event-type.custom { background: rgba(149,165,166,0.15); color: #95a5a6; }
+    .timeline-event-date {
       font-size: 12px;
       color: var(--text-muted);
+      margin-bottom: 8px;
     }
-    .timeline-detail-description {
+    .timeline-event-desc {
       font-size: 14px;
       color: var(--text-dim);
       line-height: 1.7;
-      margin-bottom: 16px;
     }
-    .timeline-detail-notes {
+    .timeline-event-details {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--crimson-border);
+    }
+    .timeline-event.expanded .timeline-event-details {
+      display: block;
+    }
+    .timeline-event-notes {
       background: var(--bg-mid);
       padding: 12px;
       font-size: 13px;
       color: var(--text-dim);
       line-height: 1.6;
       border-left: 3px solid #9b59b6;
-      margin-bottom: 16px;
+      margin-top: 12px;
     }
-    .timeline-detail-actions {
+    .timeline-event-actions {
       display: flex;
       gap: 8px;
-      margin-top: 16px;
+      margin-top: 12px;
     }
-    .timeline-detail-actions button {
+    .timeline-event-actions button {
       padding: 6px 12px;
       background: var(--bg-mid);
       border: 1px solid var(--crimson-border);
@@ -649,14 +569,14 @@
       font-family: 'Spectral', serif;
       transition: all 0.2s ease;
     }
-    .timeline-detail-actions button:hover {
+    .timeline-event-actions button:hover {
       background: var(--crimson-soft);
       border-color: var(--crimson);
       color: var(--text);
     }
     .visibility-badge {
       font-size: 10px;
-      padding: 3px 8px;
+      padding: 2px 8px;
       border-radius: 2px;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -903,38 +823,24 @@
           </div>
           <div style="font-size:13px;color:var(--text-dim);margin-bottom:20px;">A chronological timeline of your campaign. Click any event to expand its details, attach notes, or manage visibility. Events marked as DM-only are hidden from players.</div>
 
-          <div class="timeline-interactive-wrapper">
-            <div class="timeline-controls">
-              <button onclick="timelineZoom(-1)">− Zoom Out</button>
-              <button onclick="timelineZoom(1)">+ Zoom In</button>
-              <div class="timeline-filter-buttons">
-                <select class="form-input" id="timelineFilterType" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))" style="width:auto;">
-                  <option value="all">All Events</option>
-                  <option value="session">Sessions</option>
-                  <option value="major_plot">Major Plot Points</option>
-                  <option value="minor_plot">Minor Plot Points</option>
-                  <option value="combat">Key Battles</option>
-                  <option value="discovery">Discoveries</option>
-                  <option value="npc_event">NPC Events</option>
-                  <option value="custom">Custom</option>
-                </select>
-                <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-dim);cursor:pointer;">
-                  <input type="checkbox" id="timelineShowDMOnly" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))"> Show DM-only events
-                </label>
-              </div>
-            </div>
-
-            <div id="timelineContainer" class="timeline-viewport">
-              <div class="timeline-track" id="timelineTrack">
-                <div class="timeline-line"></div>
-              </div>
-            </div>
-
-            <div class="timeline-detail-panel" id="timelineDetailPanel">
-            </div>
-
-            <div class="empty-state" id="timelineEmptyState" style="display:none;"><div class="empty-state-text">No timeline events yet. Start building your campaign's story!</div></div>
+          <div class="timeline-filters" style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+            <select class="form-input" id="timelineFilterType" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))" style="width:auto;">
+              <option value="all">All Events</option>
+              <option value="session">Sessions</option>
+              <option value="major_plot">Major Plot Points</option>
+              <option value="minor_plot">Minor Plot Points</option>
+              <option value="combat">Key Battles</option>
+              <option value="discovery">Discoveries</option>
+              <option value="npc_event">NPC Events</option>
+              <option value="custom">Custom</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-dim);cursor:pointer;">
+              <input type="checkbox" id="timelineShowDMOnly" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))"> Show DM-only events
+            </label>
           </div>
+
+          <div id="timelineContainer" class="timeline-container">
+            <div class="empty-state"><div class="empty-state-text">No timeline events yet. Start building your campaign's story!</div></div>
           </div>
         </div>
 
@@ -960,39 +866,49 @@
       </div>
 
 
-      <!-- Combat Tab (Initiative + Battlemap) -->
-      <div id="combatTab" class="tab-content">
-        <!-- Combat Mode Toggle -->
-        <div style="display: flex; gap: 8px; margin-bottom: 24px;">
-          <button class="filter-tag active" onclick="switchCombatMode('initiative')">Initiative Tracker</button>
-          <button class="filter-tag" onclick="switchCombatMode('battlemap')">Battle Map</button>
-        </div>
-
-        <!-- Initiative Section -->
-        <div id="combatInitiativeSection" style="display: block;">
-          <div class="section-header">
-            <div class="section-title">Initiative Tracker</div>
-            <div class="section-btns">
-              <button class="section-add-btn" onclick="addPartyToInitiative()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Add All Party</button>
-              <button class="section-add-btn" onclick="openInitiativeModal()">+ Add Combatant</button>
-            </div>
-          </div>
-          <div id="initiativeSection" class="initiative-section">
-            <div class="round-counter" id="roundCounter">Round 1</div>
-            <div id="initiativeList" class="initiative-list">
-              <div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No combatants yet. Add party members or monsters to start combat!</div></div>
-            </div>
-            <div id="initiativeControls" class="initiative-controls" style="display: none;">
-              <button class="initiative-control-btn" onclick="previousTurn()" id="prevBtn">Previous</button>
-              <button class="initiative-control-btn" onclick="nextTurn()" id="nextBtn">Next Turn</button>
-              <button class="initiative-control-btn" onclick="resetInitiative()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Reset Combat</button>
-            </div>
+      <!-- Initiative Tab -->
+      <div id="initiativeTab" class="tab-content">
+        <div class="section-header">
+          <div class="section-title">Initiative Tracker</div>
+          <div class="section-btns">
+            <button class="section-add-btn" onclick="addPartyToInitiative()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Add All Party</button>
+            <button class="section-add-btn" onclick="openInitiativeModal()">+ Add Combatant</button>
           </div>
         </div>
+        <div id="initiativeSection" class="initiative-section">
+          <div class="round-counter" id="roundCounter">Round 1</div>
+          <div id="initiativeList" class="initiative-list">
+            <div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-text">No combatants yet. Add party members or monsters to start combat!</div></div>
+          </div>
+          <div id="initiativeControls" class="initiative-controls" style="display: none;">
+            <button class="initiative-control-btn" onclick="previousTurn()" id="prevBtn">Previous</button>
+            <button class="initiative-control-btn" onclick="nextTurn()" id="nextBtn">Next Turn</button>
+            <button class="initiative-control-btn" onclick="resetInitiative()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Reset Combat</button>
+          </div>
+        </div>
+      </div>
 
-        <!-- Battlemap Section -->
-        <div id="combatBattlemapSection" style="display: none;">
-          <input type="file" id="bmMapUpload" accept="image/*" style="display:none" onchange="handleMapUpload(this)">
+      <!-- Players Tab -->
+      <div id="playersTab" class="tab-content">
+        <div class="section-header">
+          <div class="section-title">Campaign Players</div>
+        </div>
+        <div class="invite-section">
+          <div class="form-label" style="margin-bottom: 12px;">Invite Code</div>
+          <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Share this code with other players so they can join your campaign.</div>
+          <div class="invite-code-display">
+            <div class="invite-code" id="inviteCode">------</div>
+            <button class="copy-btn" onclick="copyInviteCode()">Copy</button>
+            <button class="copy-btn" onclick="regenerateInviteCode()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">New Code</button>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Players who join can link their characters to party member slots and view campaign details.</div>
+        </div>
+        <div id="playerList"></div>
+      </div>
+
+      <!-- Battlemap Tab -->
+      <div id="battlemapTab" class="tab-content">
+        <input type="file" id="bmMapUpload" accept="image/*" style="display:none" onchange="handleMapUpload(this)">
         <div class="battlemap-wrap">
           <div class="battlemap-main">
             <div class="battlemap-toolbar" id="bmToolbar">
@@ -1017,7 +933,7 @@
               </div>
               <div class="bm-sep"></div>
               <input type="color" class="bm-color-pick" id="bmDrawColor" value="#dc143c" onchange="bm.drawColor=this.value" title="Drawing color">
-              <select class="form-select" id="bmLineWidth" onchange="bm.drawWidth=parseInt(this.value, 10)" style="width:56px;padding:3px 4px;font-size:10px;">
+              <select class="form-select" id="bmLineWidth" onchange="bm.drawWidth=parseInt(this.value)" style="width:56px;padding:3px 4px;font-size:10px;">
                 <option value="2">Thin</option>
                 <option value="3" selected>Med</option>
                 <option value="6">Thick</option>
@@ -1070,7 +986,7 @@
               </div>
               <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
                 <label class="bm-label" style="margin:0;">Grid Size</label>
-                <select class="form-select" id="bmGridSizeSelect" onchange="setBmGridSize(parseInt(this.value, 10))" style="width:72px;padding:3px 4px;font-size:10px;">
+                <select class="form-select" id="bmGridSizeSelect" onchange="setBmGridSize(parseInt(this.value))" style="width:72px;padding:3px 4px;font-size:10px;">
                   <option value="20">Tiny</option>
                   <option value="30">Small</option>
                   <option value="40" selected>Medium</option>
@@ -1103,81 +1019,6 @@
               Fog: paint, Alt+click = clear &nbsp;|&nbsp; 1 square = 5 ft
             </div>
           </div>
-        </div>
-        </div>
-      </div>
-
-      <!-- Idea Generator Tab -->
-      <div id="ideasTab" class="tab-content">
-        <div class="idea-gen-section">
-          <div class="idea-gen-header">Campaign Idea Generator</div>
-          <div class="idea-gen-sub">Generate plot hooks, encounters, NPCs, locations, twists, magic items, and subplots that fit your campaign's theme. The generator reads your campaign info and notes to stay on-theme.</div>
-
-          <div class="idea-gen-controls">
-            <div>
-              <label class="idea-gen-label">What to Generate</label>
-              <select class="idea-gen-select" id="ideaGenType">
-                <option value="plot">Plot Hook</option>
-                <option value="encounter">Encounter Idea</option>
-                <option value="npc">NPC Concept</option>
-                <option value="location">Location</option>
-                <option value="twist">Plot Twist</option>
-                <option value="item">Magic Item / Loot</option>
-                <option value="subplot">Side Quest / Subplot</option>
-                <option value="mixed">Surprise Me (Mixed)</option>
-              </select>
-            </div>
-            <div>
-              <label class="idea-gen-label">Tone / Style</label>
-              <select class="idea-gen-select" id="ideaGenTone">
-                <option value="any">Any</option>
-                <option value="dark">Dark & Gritty</option>
-                <option value="heroic">Heroic & Epic</option>
-                <option value="mystery">Mysterious & Suspenseful</option>
-                <option value="whimsical">Whimsical & Lighthearted</option>
-                <option value="horror">Horror & Dread</option>
-                <option value="political">Political Intrigue</option>
-                <option value="exploration">Exploration & Wonder</option>
-              </select>
-            </div>
-            <div>
-              <label class="idea-gen-label">Theme Keywords (optional)</label>
-              <input type="text" class="idea-gen-input" id="ideaGenKeywords" placeholder="e.g. undead, forest, betrayal..." />
-            </div>
-          </div>
-          <div class="idea-gen-controls" style="grid-template-columns: 1fr 1fr;">
-            <div>
-              <label class="idea-gen-label">Party Level Range</label>
-              <select class="idea-gen-select" id="ideaGenLevel">
-                <option value="any">Any / Auto-detect</option>
-                <option value="low">Low (1-4)</option>
-                <option value="mid">Mid (5-10)</option>
-                <option value="high">High (11-16)</option>
-                <option value="epic">Epic (17-20)</option>
-              </select>
-            </div>
-            <div>
-              <label class="idea-gen-label">Environment</label>
-              <select class="idea-gen-select" id="ideaGenEnvironment">
-                <option value="any">Any</option>
-                <option value="dungeon">Dungeon / Underground</option>
-                <option value="wilderness">Wilderness / Overland</option>
-                <option value="urban">Urban / City</option>
-                <option value="coastal">Coastal / Maritime</option>
-                <option value="planar">Planar / Otherworldly</option>
-                <option value="arctic">Arctic / Frozen</option>
-                <option value="desert">Desert / Wasteland</option>
-                <option value="swamp">Swamp / Marshland</option>
-              </select>
-            </div>
-          </div>
-          <div class="idea-gen-btn-row">
-            <button class="idea-gen-btn primary" onclick="generateCampaignIdea()">Generate Idea</button>
-            <button class="idea-gen-btn secondary" onclick="generateCampaignIdeas(3)">Generate 3 Ideas</button>
-            <button class="idea-gen-btn secondary" onclick="generateFullSessionOutline()">Generate Session Outline</button>
-            <button class="idea-gen-btn secondary" onclick="clearIdeaOutput()">Clear</button>
-          </div>
-          <div class="idea-gen-output" id="ideaGenOutput"></div>
         </div>
       </div>
     </div>
@@ -1590,8 +1431,7 @@
       });
 
       // Poll for auth state changes (covers all edge cases)
-      var _authPollId = setInterval(function() { onAuthChanged(); }, 1500);
-      window.addEventListener('beforeunload', function() { clearInterval(_authPollId); });
+      setInterval(function() { onAuthChanged(); }, 1500);
     }
 
     // ═══════════════════════════════
@@ -1603,14 +1443,7 @@
 
     function loadAllCampaignsFromRegistry() {
       var reg = localStorage.getItem('phmurt_campaign_registry');
-      if (!reg) return {};
-      try {
-        return JSON.parse(reg);
-      } catch (e) {
-        console.warn('[Campaign] Failed to parse campaign registry:', e.message);
-        localStorage.removeItem('phmurt_campaign_registry');
-        return {};
-      }
+      return reg ? JSON.parse(reg) : {};
     }
 
     function saveRegistry(registry) {
@@ -1620,19 +1453,13 @@
     // ── Cloud sync helpers ──────────────────────────────────────────
     function _syncCampaignToCloud(campaign) {
       if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.saveCampaign === 'function') {
-        PhmurtDB.saveCampaign(campaign).catch(function(err) {
-          console.warn('[Campaign] Cloud sync failed:', err ? err.message : 'Unknown error');
-          // Data is still saved locally
-        });
+        PhmurtDB.saveCampaign(campaign).catch(function() {});
       }
     }
 
     function _deleteCampaignFromCloud(campaignId) {
       if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.deleteCampaign === 'function') {
-        PhmurtDB.deleteCampaign(campaignId).catch(function(err) {
-          console.warn('[Campaign] Cloud delete failed:', err ? err.message : 'Unknown error');
-          // Data is still deleted locally
-        });
+        PhmurtDB.deleteCampaign(campaignId).catch(function() {});
       }
     }
 
@@ -1663,9 +1490,7 @@
           loadCampaigns();
           renderCampaignList();
         }
-      }).catch(function(err) {
-        console.warn('[Campaign] Cloud sync failed:', err ? err.message : 'Unknown error');
-      });
+      }).catch(function() {});
     }
 
     function getMyCampaignIds() {
@@ -1673,19 +1498,7 @@
       if (!user) return [];
       var key = 'phmurt_campaign_ids_' + user.id;
       var stored = localStorage.getItem(key);
-      if (!stored) return [];
-      try {
-        var result = JSON.parse(stored);
-        if (!Array.isArray(result)) {
-          localStorage.removeItem(key);
-          return [];
-        }
-        return result;
-      } catch (e) {
-        console.warn('[Campaign] Failed to parse campaign IDs:', e.message);
-        localStorage.removeItem(key);
-        return [];
-      }
+      return stored ? JSON.parse(stored) : [];
     }
 
     function saveMyCampaignIds(ids) {
@@ -1699,22 +1512,17 @@
       // Migrate: if old 'phmurt_campaigns' exists, import into registry
       var old = localStorage.getItem('phmurt_campaigns');
       if (old) {
-        try {
-          var oldCampaigns = JSON.parse(old);
-          if (Array.isArray(oldCampaigns) && oldCampaigns.length > 0) {
-            var registry = loadAllCampaignsFromRegistry();
-            var user = getAuthUser();
-            var myIds = user ? getMyCampaignIds() : [];
-            oldCampaigns.forEach(function(c) {
-              registry[c.id] = c;
-              if (user && myIds.indexOf(c.id) === -1) myIds.push(c.id);
-            });
-            saveRegistry(registry);
-            if (user) saveMyCampaignIds(myIds);
-            localStorage.removeItem('phmurt_campaigns');
-          }
-        } catch (e) {
-          console.warn('[Campaign] Failed to migrate old campaigns:', e.message);
+        var oldCampaigns = JSON.parse(old);
+        if (oldCampaigns.length > 0) {
+          var registry = loadAllCampaignsFromRegistry();
+          var user = getAuthUser();
+          var myIds = user ? getMyCampaignIds() : [];
+          oldCampaigns.forEach(function(c) {
+            registry[c.id] = c;
+            if (user && myIds.indexOf(c.id) === -1) myIds.push(c.id);
+          });
+          saveRegistry(registry);
+          if (user) saveMyCampaignIds(myIds);
           localStorage.removeItem('phmurt_campaigns');
         }
       }
@@ -1753,22 +1561,7 @@
     }
 
     function getCampaign(id) {
-      var c = campaigns.find(function(camp) { return camp.id === id; });
-      return c ? ensureCampaignDefaults(c) : null;
-    }
-
-    function ensureCampaignDefaults(c) {
-      if (!c) return c;
-      c.party = c.party || [];
-      c.encounters = c.encounters || [];
-      c.notes = c.notes || [];
-      c.timeline = c.timeline || [];
-      c.generatedContent = c.generatedContent || [];
-      c.initiative = c.initiative || { combatants: [], currentTurn: 0, round: 1, active: false };
-      c.battlemap = c.battlemap || {};
-      c.settings = c.settings || {};
-      c.players = c.players || [];
-      return c;
+      return campaigns.find(function(c) { return c.id === id; });
     }
 
     // ═══════════════════════════════
@@ -1846,63 +1639,13 @@
       var panel = document.getElementById(tabName + 'Tab');
       if (panel) panel.classList.add('active');
       if (btn) btn.classList.add('active');
-      if (tabName === 'combat') { setTimeout(function() { initBattlemap(); }, 50); }
-    }
-
-    function filterJournalType(type) {
-      var notesSection = document.getElementById('journalNotesSection');
-      var timelineSection = document.getElementById('journalTimelineSection');
-      var dmNotesSection = document.getElementById('journalDMNotesSection');
-      var buttons = document.querySelectorAll('#journalTab .filter-tag');
-
-      buttons.forEach(function(btn) { btn.classList.remove('active'); });
-      if (type === 'all') {
-        notesSection.style.display = 'block';
-        timelineSection.style.display = 'block';
-        dmNotesSection.style.display = 'block';
-        buttons[0].classList.add('active');
-      } else if (type === 'notes') {
-        notesSection.style.display = 'block';
-        timelineSection.style.display = 'none';
-        dmNotesSection.style.display = 'none';
-        buttons[1].classList.add('active');
-      } else if (type === 'timeline') {
-        notesSection.style.display = 'none';
-        timelineSection.style.display = 'block';
-        dmNotesSection.style.display = 'none';
-        buttons[2].classList.add('active');
-      } else if (type === 'dmnotes') {
-        notesSection.style.display = 'none';
-        timelineSection.style.display = 'none';
-        dmNotesSection.style.display = 'block';
-        buttons[3].classList.add('active');
-      }
-    }
-
-    function switchCombatMode(mode) {
-      var initiativeSection = document.getElementById('combatInitiativeSection');
-      var battlemapSection = document.getElementById('combatBattlemapSection');
-      var buttons = document.querySelectorAll('#combatTab .filter-tag');
-
-      buttons.forEach(function(btn) { btn.classList.remove('active'); });
-      if (mode === 'initiative') {
-        initiativeSection.style.display = 'block';
-        battlemapSection.style.display = 'none';
-        buttons[0].classList.add('active');
-      } else if (mode === 'battlemap') {
-        initiativeSection.style.display = 'none';
-        battlemapSection.style.display = 'block';
-        buttons[1].classList.add('active');
-        setTimeout(function() { initBattlemap(); }, 50);
-      }
+      if (tabName === 'battlemap') { setTimeout(function() { initBattlemap(); }, 50); }
     }
 
     // ═══════════════════════════════
     // CAMPAIGN NAVIGATION
     // ═══════════════════════════════
     function backToCampaignList() {
-      bm._initialized = false;
-      if (bm.animId) cancelAnimationFrame(bm.animId);
       document.getElementById('campaignList').classList.add('active');
       document.getElementById('campaignDetail').style.display = 'none';
       window._activeCampaignId = null;
@@ -1912,32 +1655,24 @@
       var c = getCampaign(id);
       if (!c) return;
       window._activeCampaignId = id;
-      var campaignList = document.getElementById('campaignList');
-      var campaignDetail = document.getElementById('campaignDetail');
-      var detailName = document.getElementById('detailName');
-      var detailSystem = document.getElementById('detailSystem');
-      var detailDesc = document.getElementById('detailDesc');
-      var partySizeText = document.getElementById('partySizeText');
-      var encounterCountText = document.getElementById('encounterCountText');
-      var sessionCountText = document.getElementById('sessionCountText');
-
-      if (campaignList) campaignList.classList.remove('active');
-      if (campaignDetail) campaignDetail.style.display = 'block';
-      if (detailName) detailName.textContent = c.name;
-      if (detailSystem) detailSystem.textContent = c.system || '5E';
-      if (detailDesc) detailDesc.textContent = c.description || '';
-      if (partySizeText) partySizeText.textContent = (c.party || []).length;
-      if (encounterCountText) encounterCountText.textContent = (c.encounters || []).length;
-      if (sessionCountText) sessionCountText.textContent = (c.notes || []).length;
-
+      document.getElementById('campaignList').classList.remove('active');
+      document.getElementById('campaignDetail').style.display = 'block';
+      document.getElementById('detailName').textContent = c.name;
+      document.getElementById('detailSystem').textContent = c.system || '5E';
+      document.getElementById('detailDesc').textContent = c.description || '';
+      document.getElementById('partySizeText').textContent = (c.party || []).length;
+      document.getElementById('encounterCountText').textContent = (c.encounters || []).length;
+      document.getElementById('sessionCountText').textContent = (c.notes || []).length;
       renderOverviewTab(c);
-      renderPartyPlayersTab(c);
-      renderEncountersResourcesTab(c);
+      renderPartyTab(c);
+      renderEncountersTab(c);
       renderNotesTab(c);
       renderTimelineTab(c);
+      renderCampaignResources(c);
       renderPlayersTab(c);
+      renderInviteSection(c);
       var tabButtons = document.querySelectorAll('.campaign-tab');
-      if (tabButtons.length > 0) switchTab('overview', tabButtons[0]);
+      switchTab('overview', tabButtons[0]);
     }
 
     // ═══════════════════════════════
@@ -2108,10 +1843,10 @@
         name: document.getElementById('partyMemberName').value,
         race: document.getElementById('partyMemberRace').value,
         class: document.getElementById('partyMemberClass').value,
-        level: parseInt(document.getElementById('partyMemberLevel').value, 10) || 1,
-        hp: parseInt(document.getElementById('partyMemberHP').value, 10) || 10,
-        maxHp: parseInt(document.getElementById('partyMemberHP').value, 10) || 10,
-        ac: parseInt(document.getElementById('partyMemberAC').value, 10) || 10,
+        level: parseInt(document.getElementById('partyMemberLevel').value) || 1,
+        hp: parseInt(document.getElementById('partyMemberHP').value) || 10,
+        maxHp: parseInt(document.getElementById('partyMemberHP').value) || 10,
+        ac: parseInt(document.getElementById('partyMemberAC').value) || 10,
         initiative: 0,
         notes: ''
       };
@@ -2132,8 +1867,8 @@
     // ═══════════════════════════════
     // RENDER TABS
     // ═══════════════════════════════
-    function renderPartyPlayersTab(c) {
-      var container = document.getElementById('partyPlayersTab');
+    function renderPartyTab(c) {
+      var container = document.getElementById('partyTab');
       if (!container) return;
       var members = c.party || [];
       var html = '<div class="section-header"><div class="section-title">Party Members (' + members.length + ')</div><div class="section-btns"><button class="section-add-btn" onclick="openLinkCharacterModal()" style="background:transparent;border:1px solid var(--border);color:var(--text-muted);">Link Character</button><button class="section-add-btn" onclick="openAddPartyModal()">+ Add Member</button></div></div>';
@@ -2164,8 +1899,8 @@
       container.innerHTML = html;
     }
 
-    function renderEncountersResourcesTab(c) {
-      var container = document.getElementById('encountersResourcesTab');
+    function renderEncountersTab(c) {
+      var container = document.getElementById('encountersTab');
       if (!container) return;
       var encounters = c.encounters || [];
       var html = '<div class="section-header"><div class="section-title">Encounters (' + encounters.length + ')</div><button class="section-add-btn" onclick="openEncounterBuilderModal()">+ Build Encounter</button></div>';
@@ -2184,11 +1919,10 @@
         });
       }
       container.innerHTML = html;
-      renderCampaignResources(c);
     }
 
     function renderNotesTab(c) {
-      var container = document.getElementById('notesList');
+      var container = document.getElementById('notesTab');
       if (!container) return;
       var notes = c.notes || [];
       var html = '<div class="section-header"><div class="section-title">Session Notes (' + notes.length + ')</div><button class="section-add-btn" onclick="openAddNoteModal()">+ Add Session Note</button></div>';
@@ -2319,137 +2053,35 @@
     }
 
     function renderTimelineTab(c) {
-      var track = document.getElementById('timelineTrack');
       var container = document.getElementById('timelineContainer');
-      var emptyState = document.getElementById('timelineEmptyState');
-      var detailPanel = document.getElementById('timelineDetailPanel');
-      
-      if (!track || !container) return;
-      
+      if (!container) return;
       var timeline = c.timeline || [];
-      
+
       // Apply filters
       var filterType = document.getElementById('timelineFilterType');
       var showDM = document.getElementById('timelineShowDMOnly');
       var typeFilter = filterType ? filterType.value : 'all';
       var showDMOnly = showDM ? showDM.checked : true;
-      
+
       // Determine user role
       var user = getAuthUser();
       var isDM = c.ownerId === (user ? user.id : '');
-      
+
       var filtered = timeline.filter(function(evt) {
         if (typeFilter !== 'all' && evt.type !== typeFilter) return false;
         if (!isDM && evt.visibility === 'dm_only') return false;
         if (!showDMOnly && evt.visibility === 'dm_only') return false;
         return true;
       });
-      
-      // Sort by creation date (chronologically)
+
+      // Sort by creation date
       filtered.sort(function(a, b) { return new Date(a.createdAt) - new Date(b.createdAt); });
-      
+
       if (!filtered.length) {
-        emptyState.style.display = 'block';
-        track.innerHTML = '<div class="timeline-line"></div>';
-        detailPanel.classList.remove('active');
-        detailPanel.innerHTML = '';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-text">No timeline events match your filters.</div></div>';
         return;
       }
-      
-      emptyState.style.display = 'none';
-      
-      // Create nodes on the timeline track
-      var trackHtml = '<div class="timeline-line"></div>';
-      var baseSpacing = 120; // pixels between nodes
-      var spacing = baseSpacing * (window._timelineZoom || 1);
-      
-      filtered.forEach(function(evt, idx) {
-        var position = 40 + (idx * spacing);
-        var dmOnly = evt.visibility === 'dm_only';
-        var classes = 'timeline-node ' + evt.type + (dmOnly ? ' dm-only' : '');
-        
-        trackHtml += '<div class="' + classes + '" style="left: ' + position + 'px;" onclick="selectTimelineEvent('' + evt.id + '')" draggable="true" onmousedown="startTimelineReorder('' + evt.id + '', event)">';
-        trackHtml += '<div class="timeline-node-label">' + escapeHtml(evt.gameDate || 'No date') + '</div>';
-        trackHtml += '</div>';
-      });
-      
-      track.innerHTML = trackHtml;
-      
-      // Set data for reordering
-      window._timelineEvents = filtered;
-      window._activeCampaignTimeline = c;
-      
-      // Initialize drag handlers
-      initTimelineDrag();
-    }
 
-    function initTimelineDrag() {
-      var viewport = document.getElementById('timelineContainer');
-      if (!viewport) return;
-      
-      var isDown = false;
-      var startX = 0;
-      var scrollLeft = 0;
-      
-      viewport.addEventListener('mousedown', function(e) {
-        // Only drag if clicking on the track area, not on nodes
-        if (e.target.classList.contains('timeline-node') || e.target.closest('.timeline-node')) {
-          return;
-        }
-        isDown = true;
-        startX = e.pageX - viewport.offsetLeft;
-        scrollLeft = viewport.scrollLeft;
-        viewport.style.cursor = 'grabbing';
-      });
-      
-      viewport.addEventListener('mouseleave', function() {
-        isDown = false;
-        viewport.style.cursor = 'grab';
-      });
-      
-      viewport.addEventListener('mouseup', function() {
-        isDown = false;
-        viewport.style.cursor = 'grab';
-      });
-      
-      viewport.addEventListener('mousemove', function(e) {
-        if (!isDown) return;
-        e.preventDefault();
-        var x = e.pageX - viewport.offsetLeft;
-        var walk = (x - startX) * 1;
-        viewport.scrollLeft = scrollLeft - walk;
-      });
-      
-      // Horizontal scroll support
-      viewport.addEventListener('wheel', function(e) {
-        if (e.deltaX === 0) {
-          e.preventDefault();
-          viewport.scrollLeft += e.deltaY;
-        }
-      });
-    }
-
-    function timelineZoom(direction) {
-      window._timelineZoom = (window._timelineZoom || 1) + (direction * 0.2);
-      window._timelineZoom = Math.max(0.5, Math.min(2, window._timelineZoom)); // Clamp between 0.5 and 2
-      
-      var c = getCampaign(window._activeCampaignId);
-      if (c) renderTimelineTab(c);
-    }
-
-    function selectTimelineEvent(eventId) {
-      var c = getCampaign(window._activeCampaignId);
-      if (!c || !c.timeline) return;
-      
-      var evt = c.timeline.find(function(e) { return e.id === eventId; });
-      if (!evt) return;
-      
-      var user = getAuthUser();
-      var isDM = c.ownerId === (user ? user.id : '');
-      
-      var detailPanel = document.getElementById('timelineDetailPanel');
-      if (!detailPanel) return;
-      
       var typeLabels = {
         session: 'Session',
         major_plot: 'Major Plot',
@@ -2459,102 +2091,62 @@
         npc_event: 'NPC Event',
         custom: 'Custom'
       };
-      
-      var dmOnly = evt.visibility === 'dm_only';
-      var html = '<h3>' + escapeHtml(evt.title) + '</h3>';
-      
-      html += '<div class="timeline-detail-meta">';
-      html += '<span class="timeline-detail-type ' + evt.type + '">' + (typeLabels[evt.type] || evt.type) + '</span>';
-      if (dmOnly) html += '<span class="visibility-badge dm-only">DM Only</span>';
-      else html += '<span class="visibility-badge public">Visible</span>';
-      if (evt.gameDate) html += '<span class="timeline-detail-date">' + escapeHtml(evt.gameDate) + '</span>';
-      html += '</div>';
-      
-      if (evt.description) {
-        html += '<div class="timeline-detail-description">' + escapeHtml(evt.description) + '</div>';
-      }
-      
-      if (isDM && evt.dmNotes) {
-        html += '<div class="timeline-detail-notes"><strong>DM Notes:</strong><br>' + escapeHtml(evt.dmNotes) + '</div>';
-      }
-      
-      if (evt.linkedSession) {
-        var linkedNote = (c.notes || []).find(function(n) { return n.id === evt.linkedSession; });
-        if (linkedNote) {
-          html += '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">Linked to: <strong>' + escapeHtml(linkedNote.title) + '</strong></div>';
-        }
-      }
-      
-      if (evt.attachedItems && evt.attachedItems.length > 0) {
-        html += '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">Attached items: ' + evt.attachedItems.length + '</div>';
-      }
-      
-      if (isDM) {
-        html += '<div class="timeline-detail-actions">';
-        html += '<button onclick="openAddTimelineEventModal('' + evt.id + '')">Edit</button>';
-        html += '<button onclick="toggleTimelineEventVisibility('' + evt.id + '')">' + (dmOnly ? 'Make Public' : 'Make DM Only') + '</button>';
-        html += '<button onclick="deleteTimelineEvent('' + evt.id + '')" style="color:#e74c3c;">Delete</button>';
-        html += '</div>';
-      }
-      
-      detailPanel.innerHTML = html;
-      detailPanel.classList.add('active');
-    }
 
-    function startTimelineReorder(eventId, e) {
-      if (e.button !== 0) return; // Only left mouse button
-      
-      var node = e.target.closest('.timeline-node');
-      if (!node) return;
-      
-      node.classList.add('dragging');
-      
-      var c = getCampaign(window._activeCampaignId);
-      if (!c || !c.timeline) return;
-      
-      var evt = c.timeline.find(function(e) { return e.id === eventId; });
-      if (!evt) return;
-      
-      var track = document.getElementById('timelineTrack');
-      var startX = e.pageX;
-      var originalIndex = c.timeline.indexOf(evt);
-      
-      function handleMouseMove(moveEvent) {
-        var deltaX = moveEvent.pageX - startX;
-        var filteredIndex = window._timelineEvents.indexOf(evt);
-        if (filteredIndex === -1) return;
-        
-        var otherEvent = null;
-        if (deltaX > 40 && filteredIndex < window._timelineEvents.length - 1) {
-          otherEvent = window._timelineEvents[filteredIndex + 1];
-        } else if (deltaX < -40 && filteredIndex > 0) {
-          otherEvent = window._timelineEvents[filteredIndex - 1];
+      var html = '';
+      filtered.forEach(function(evt) {
+        var dmOnly = evt.visibility === 'dm_only';
+        html += '<div class="timeline-event ' + (dmOnly ? 'dm-only' : '') + '" onclick="toggleTimelineExpand(this)">';
+        html += '<div class="timeline-event-header">';
+        html += '<div>';
+        html += '<div class="timeline-event-title">' + escapeHtml(evt.title) + '</div>';
+        if (evt.gameDate) html += '<div class="timeline-event-date">' + escapeHtml(evt.gameDate) + '</div>';
+        html += '</div>';
+        html += '<div style="display:flex;gap:6px;align-items:center;">';
+        if (dmOnly) html += '<span class="visibility-badge dm-only">DM Only</span>';
+        else html += '<span class="visibility-badge public">Visible</span>';
+        html += '<span class="timeline-event-type ' + evt.type + '">' + (typeLabels[evt.type] || evt.type) + '</span>';
+        html += '</div></div>';
+
+        if (evt.description) {
+          var shortDesc = evt.description.length > 150 ? evt.description.substring(0, 150) + '...' : evt.description;
+          html += '<div class="timeline-event-desc">' + escapeHtml(shortDesc) + '</div>';
         }
-        
-        if (otherEvent) {
-          var idx1 = c.timeline.indexOf(evt);
-          var idx2 = c.timeline.indexOf(otherEvent);
-          if (idx1 >= 0 && idx2 >= 0) {
-            var temp = c.timeline[idx1];
-            c.timeline[idx1] = c.timeline[idx2];
-            c.timeline[idx2] = temp;
-            
-            saveCampaigns();
-            renderTimelineTab(c);
-            startX = moveEvent.pageX;
+
+        // Expandable details
+        html += '<div class="timeline-event-details">';
+        if (evt.description && evt.description.length > 150) {
+          html += '<div style="font-size:14px;color:var(--text-dim);line-height:1.7;margin-bottom:12px;">' + escapeHtml(evt.description) + '</div>';
+        }
+        if (isDM && evt.dmNotes) {
+          html += '<div class="timeline-event-notes"><strong style="color:#9b59b6;">DM Notes:</strong><br>' + escapeHtml(evt.dmNotes) + '</div>';
+        }
+        if (evt.linkedSession) {
+          var linkedNote = (c.notes || []).find(function(n) { return n.id === evt.linkedSession; });
+          if (linkedNote) {
+            html += '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">Linked to: <strong>' + escapeHtml(linkedNote.title) + '</strong></div>';
           }
         }
-      }
-      
-      function handleMouseUp() {
-        node.classList.remove('dragging');
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      }
-      
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+        if (evt.attachedItems && evt.attachedItems.length > 0) {
+          html += '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">Attached items: ' + evt.attachedItems.length + '</div>';
+        }
+        if (isDM) {
+          html += '<div class="timeline-event-actions">';
+          html += '<button onclick="event.stopPropagation();openAddTimelineEventModal(\'' + evt.id + '\')">Edit</button>';
+          html += '<button onclick="event.stopPropagation();toggleTimelineEventVisibility(\'' + evt.id + '\')">' + (dmOnly ? 'Make Public' : 'Make DM Only') + '</button>';
+          html += '<button onclick="event.stopPropagation();deleteTimelineEvent(\'' + evt.id + '\')" style="color:#e74c3c;">Delete</button>';
+          html += '</div>';
+        }
+        html += '</div>';
+
+        html += '</div>';
+      });
+
+      container.innerHTML = html;
     }
+
+    // ═══════════════════════════════
+    // CHARACTER LINKING
+    // ═══════════════════════════════
 
     function openLinkCharacterModal() {
       var user = requireAuth();
@@ -2568,22 +2160,16 @@
         keys.forEach(function(key) {
           var data = localStorage.getItem(key);
           if (data) {
-            try {
-              var parsed = JSON.parse(data);
-              if (Array.isArray(parsed)) characters = characters.concat(parsed);
-              else if (typeof parsed === 'object') {
-                Object.values(parsed).forEach(function(v) {
-                  if (v && v.name) characters.push(v);
-                });
-              }
-            } catch (parseErr) {
-              console.warn('[Campaign] Failed to parse character data from ' + key, parseErr.message);
+            var parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) characters = characters.concat(parsed);
+            else if (typeof parsed === 'object') {
+              Object.values(parsed).forEach(function(v) {
+                if (v && v.name) characters.push(v);
+              });
             }
           }
         });
-      } catch(e) {
-        console.warn('[Campaign] Error loading characters:', e.message);
-      }
+      } catch(e) {}
 
       var container = document.getElementById('linkCharacterList');
       if (!container) return;
@@ -2622,17 +2208,11 @@
         keys.forEach(function(key) {
           var data = localStorage.getItem(key);
           if (data) {
-            try {
-              var parsed = JSON.parse(data);
-              if (Array.isArray(parsed)) characters = characters.concat(parsed);
-            } catch (parseErr) {
-              console.warn('[Campaign] Failed to parse character data from ' + key, parseErr.message);
-            }
+            var parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) characters = characters.concat(parsed);
           }
         });
-      } catch(e) {
-        console.warn('[Campaign] Error loading characters for linking:', e.message);
-      }
+      } catch(e) {}
 
       var ch = characters[charIndex];
       if (!ch) return;
@@ -2711,7 +2291,7 @@
     }
 
     function renderPlayersTab(c) {
-      var container = document.getElementById('playerList');
+      var container = document.getElementById('playersTab');
       if (!container) return;
       var players = c.players || [];
       var html = '<div class="section-header"><div class="section-title">Players (' + players.length + ')</div></div>';
@@ -2852,10 +2432,8 @@
     // CR CALCULATOR
     // ═══════════════════════════════
     function calculateCR() {
-      var partySizeEl = document.getElementById('partySizeCalc');
-      var avgLevelEl = document.getElementById('avgLevelCalc');
-      var partySize = (partySizeEl && parseInt(partySizeEl.value, 10)) || 4;
-      var avgLevel = (avgLevelEl && parseInt(avgLevelEl.value, 10)) || 1;
+      var partySize = parseInt(document.getElementById('partySizeCalc').value, 10) || 4;
+      var avgLevel = parseInt(document.getElementById('avgLevelCalc').value, 10) || 1;
       var results = document.getElementById('crResults');
       if (!results) return;
 
@@ -3135,19 +2713,13 @@
       bm.bgImageData = null;
       var preview = document.getElementById('bmMapPreviewWrap');
       var uploadArea = document.getElementById('bmUploadArea');
-      var mapUpload = document.getElementById('bmMapUpload');
-      var uploadLabel = document.getElementById('bmUploadLabel');
       if (preview) preview.style.display = 'none';
-      if (uploadArea) {
-        uploadArea.classList.remove('has-image');
-        if (uploadLabel) uploadLabel.textContent = 'Click to upload a map image';
-      }
-      if (mapUpload) mapUpload.value = '';
+      if (uploadArea) { uploadArea.classList.remove('has-image'); document.getElementById('bmUploadLabel').textContent = 'Click to upload a map image'; }
+      document.getElementById('bmMapUpload').value = '';
       saveBattlemapState();
     }
 
     function initBattlemap() {
-      if (bm._initialized) return;
       if (!bm.canvas) {
         bm.canvas = document.getElementById('battlemapCanvas');
         bm.ctx = bm.canvas.getContext('2d');
@@ -3169,7 +2741,6 @@
           bm.minimapCanvas.addEventListener('mouseup', onMinimapMouseUp);
         }
       }
-      bm._initialized = true;
       resizeBmCanvas();
       loadBattlemapState();
       renderBmTokenPanel();
@@ -3369,7 +2940,7 @@
         c.fillStyle = 'rgba(0,0,0,0.78)';
         fogKeys.forEach(function(key) {
           var parts = key.split(',');
-          c.fillRect(parseInt(parts[0], 10) * gs + ox, parseInt(parts[1], 10) * gs + oy, gs + 0.5, gs + 0.5);
+          c.fillRect(parseInt(parts[0]) * gs + ox, parseInt(parts[1]) * gs + oy, gs + 0.5, gs + 0.5);
         });
       }
 
@@ -4044,7 +3615,7 @@
       var t = bm.tokens[bm.contextMenuToken];
       var newHP = prompt('Current HP:', t.hp || 10);
       if (newHP !== null) {
-        t.hp = parseInt(newHP, 10) || 10;
+        t.hp = parseInt(newHP) || 10;
         saveBattlemapState();
       }
       hideContextMenu();
@@ -4066,7 +3637,7 @@
       var t = bm.tokens[bm.contextMenuToken];
       var newSize = prompt('Token size (1-4):', t.size);
       if (newSize) {
-        t.size = Math.min(4, Math.max(1, parseInt(newSize, 10) || 1));
+        t.size = Math.min(4, Math.max(1, parseInt(newSize) || 1));
         saveBattlemapState();
       }
       hideContextMenu();
@@ -4239,7 +3810,7 @@
       if (recentEvents.length) {
         var timelineHtml = '<div class="section-header" style="margin-top:24px;"><div class="section-title">Recent Timeline Events</div></div>';
         recentEvents.forEach(function(evt) {
-          timelineHtml += '<div style="background:var(--bg-card);border:1px solid var(--crimson-border);padding:12px 16px;margin-bottom:8px;cursor:pointer;" onclick="switchTab(\'journal\',document.querySelectorAll(\'.campaign-tab\')[2]); filterJournalType(\'timeline\');">';
+          timelineHtml += '<div style="background:var(--bg-card);border:1px solid var(--crimson-border);padding:12px 16px;margin-bottom:8px;cursor:pointer;" onclick="switchTab(\'timeline\',document.querySelectorAll(\'.campaign-tab\')[4])">';
           timelineHtml += '<div style="display:flex;justify-content:space-between;align-items:center;">';
           timelineHtml += '<strong style="color:var(--text);">' + escapeHtml(evt.title) + '</strong>';
           timelineHtml += '<span class="timeline-event-type ' + evt.type + '" style="font-size:9px;">' + evt.type.replace('_',' ') + '</span>';
@@ -4409,19 +3980,7 @@
     function loadCampaignResources(campaignId, type) {
       var key = getCampaignResourcesKey(campaignId, type);
       var stored = localStorage.getItem(key);
-      if (!stored) return [];
-      try {
-        var result = JSON.parse(stored);
-        if (!Array.isArray(result)) {
-          localStorage.removeItem(key);
-          return [];
-        }
-        return result;
-      } catch (e) {
-        console.warn('[Campaign] Failed to parse campaign resources:', e.message);
-        localStorage.removeItem(key);
-        return [];
-      }
+      return stored ? JSON.parse(stored) : [];
     }
 
     function saveCampaignResources(campaignId, type, items) {
@@ -4486,61 +4045,20 @@
     }
 
     function openAddCampaignMonsterModal() {
-      if (window.psToast) {
-        psToast('Use the Generators page to create and export monsters to this campaign.');
-      } else {
-        alert('Use the Generators page to create and export monsters to this campaign.');
-      }
+      alert('Monster addition coming soon! You can add monsters to encounters, and they will be saved to your campaign.');
     }
     function openAddCampaignNPCModal() {
-      if (window.psToast) {
-        psToast('Use the Generators page to create and export NPCs to this campaign.');
-      } else {
-        alert('Use the Generators page to create and export NPCs to this campaign.');
-      }
+      alert('NPC addition coming soon! You can create custom NPCs and save them to your campaign.');
     }
     function openAddCampaignItemModal() {
-      if (window.psToast) {
-        psToast('Use the Generators page to create and export items to this campaign.');
-      } else {
-        alert('Use the Generators page to create and export items to this campaign.');
-      }
+      alert('Item addition coming soon! Create homebrew items and save them to your campaign.');
     }
     function openAddCampaignMapModal() {
-      var c = getCampaign(window._activeCampaignId);
-      var maps = c ? loadCampaignResources(c.id, 'maps') : [];
-      if (maps.length > 0) {
-        if (window.psToast) {
-          psToast('View your campaign maps in the Resources section.');
-        } else {
-          alert('View your campaign maps in the Resources section.');
-        }
-      } else {
-        if (window.psToast) {
-          psToast('Use the map generators to create maps, then they\'ll appear here.');
-        } else {
-          alert('Use the map generators to create maps, then they\'ll appear here.');
-        }
-      }
+      alert('Map management coming soon! Associate maps with locations in your campaign.');
     }
 
     function showResourceDetail(type, idx) {
-      var c = getCampaign(window._activeCampaignId);
-      if (!c) return;
-      var resources = loadCampaignResources(c.id, type);
-      var resource = resources[idx];
-      if (!resource) {
-        if (window.psToast) psToast('Resource not found.');
-        return;
-      }
-      // Show resource details in a simple toast or modal
-      var details = resource.name || 'Unnamed ' + type;
-      if (resource.description) details += '\n' + resource.description;
-      if (window.psToast) {
-        psToast(details);
-      } else {
-        alert(details);
-      }
+      alert('Resource detail view coming soon!');
     }
 
     function expandAllResources() {
@@ -4713,7 +4231,7 @@
         // Scan party for average level
         if (currentCampaign.party && currentCampaign.party.length > 0) {
           var totalLevel = 0;
-          currentCampaign.party.forEach(function(m) { totalLevel += parseInt(m.level, 10) || 1; });
+          currentCampaign.party.forEach(function(m) { totalLevel += parseInt(m.level) || 1; });
           var avg = Math.round(totalLevel / currentCampaign.party.length);
           if (avg <= 4) ctx.partyLevel = 'low';
           else if (avg <= 10) ctx.partyLevel = 'mid';

@@ -103,6 +103,23 @@ function fmRandInt(min, max) {
   return Math.floor(fmRand() * (max - min)) + min;
 }
 
+// ============================================================================
+// HTML ESCAPING FOR XSS PREVENTION
+// ============================================================================
+
+/**
+ * Escape HTML special characters to prevent XSS attacks
+ */
+function fmEscapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 /**
  * Pick random element from array
  */
@@ -2175,1196 +2192,2488 @@ function fmGetCellSize() {
   };
 }
 
-// === 1. PARCHMENT BACKGROUND ===
-function fmRenderParchment(ctx, w, h, dark) {
-  var imgData = ctx.createImageData(w, h);
-  var data = imgData.data;
 
-  // Base color (warm beige/cream or dark brown)
-  var baseR = dark ? 60 : 240;
-  var baseG = dark ? 50 : 235;
-  var baseB = dark ? 40 : 220;
+// === 1-10. TERRAIN & FEATURE RENDERING ===
+// Fantasy Map Engine - Tolkien-style Cartography Rendering Functions
+// Traditional ink on aged parchment aesthetic
 
-  // Fill with base + noise
-  for (var i = 0; i < data.length; i += 4) {
-    var noise = (fmRandInt(0, 31) - 15);
-    data[i] = Math.max(0, Math.min(255, baseR + noise));     // R
-    data[i + 1] = Math.max(0, Math.min(255, baseG + noise)); // G
-    data[i + 2] = Math.max(0, Math.min(255, baseB + noise)); // B
-    data[i + 3] = 255; // A
-  }
-  ctx.putImageData(imgData, 0, 0);
+// ============================================================================
+// 1. PARCHMENT BACKGROUND
+// ============================================================================
+var fmRenderParchment = function(ctx, w, h, dark) {
+  // Rich golden-amber aged parchment like hand-painted fantasy maps
+  var baseColor = dark ? '#2a2218' : '#d4b06a';
 
-  // Vignette effect (darker edges)
-  var vignetteGrad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
-  vignetteGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  vignetteGrad.addColorStop(1, 'rgba(0, 0, 0, 0.15)');
-  ctx.fillStyle = vignetteGrad;
+  ctx.fillStyle = baseColor;
   ctx.fillRect(0, 0, w, h);
 
-  // Stain patches using sine waves
-  ctx.fillStyle = dark ? 'rgba(40, 30, 20, 0.08)' : 'rgba(139, 100, 60, 0.06)';
-  for (var s = 0; s < 4; s++) {
-    var stainX = fmRandInt(w * 0.1, w * 0.9);
-    var stainY = fmRandInt(h * 0.1, h * 0.9);
-    var stainSize = fmRandInt(80, 200);
-    for (var angle = 0; angle < Math.PI * 2; angle += 0.05) {
-      var wave = Math.sin(angle * 4 + s) * 0.5 + 0.5;
-      var r = stainSize * (0.5 + wave * 0.3);
-      var x = stainX + Math.cos(angle) * r;
-      var y = stainY + Math.sin(angle) * r;
-      ctx.fillRect(x, y, 2, 2);
-    }
+  // Warm golden gradient — lighter center, darker edges (like old vellum)
+  var warmGrad = ctx.createRadialGradient(w * 0.45, h * 0.4, w * 0.08, w * 0.5, h * 0.5, w * 0.75);
+  warmGrad.addColorStop(0, dark ? 'rgba(60, 50, 30, 0.15)' : 'rgba(230, 205, 140, 0.35)');
+  warmGrad.addColorStop(0.6, 'rgba(0, 0, 0, 0)');
+  warmGrad.addColorStop(1, dark ? 'rgba(10, 5, 0, 0.15)' : 'rgba(80, 50, 20, 0.12)');
+  ctx.fillStyle = warmGrad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Second warm wash — asymmetric for natural unevenness
+  var wash2 = ctx.createRadialGradient(w * 0.3, h * 0.6, 0, w * 0.3, h * 0.6, w * 0.5);
+  wash2.addColorStop(0, dark ? 'rgba(50, 40, 20, 0.08)' : 'rgba(220, 190, 120, 0.15)');
+  wash2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = wash2;
+  ctx.fillRect(0, 0, w, h);
+
+  // Paper grain noise — warm tones
+  var imageData = ctx.getImageData(0, 0, w, h);
+  var data = imageData.data;
+  var noiseAmount = dark ? 10 : 16;
+
+  for (var i = 0; i < data.length; i += 4) {
+    var noise = (Math.random() - 0.5) * noiseAmount;
+    data[i] += noise;             // R
+    data[i + 1] += noise * 0.8;   // G
+    data[i + 2] += noise * 0.45;  // B (much less — keeps it warm)
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  // Large age stains — irregular warm washes like real old maps
+  var stainCount = fmRandInt(5, 8);
+  for (var s = 0; s < stainCount; s++) {
+    var stainX = fmRandInt(w * 0.02, w * 0.98);
+    var stainY = fmRandInt(h * 0.02, h * 0.98);
+    var stainRadius = fmRandInt(60, 200);
+    var stainAlpha = dark ? 0.06 : 0.1;
+
+    var gradient = ctx.createRadialGradient(stainX, stainY, 0, stainX, stainY, stainRadius);
+    gradient.addColorStop(0, 'rgba(140, 100, 40, ' + stainAlpha + ')');
+    gradient.addColorStop(0.5, 'rgba(120, 85, 35, ' + (stainAlpha * 0.4) + ')');
+    gradient.addColorStop(1, 'rgba(100, 70, 30, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(stainX - stainRadius, stainY - stainRadius, stainRadius * 2, stainRadius * 2);
   }
 
-  // Coffee ring marks
-  ctx.strokeStyle = dark ? 'rgba(100, 70, 40, 0.05)' : 'rgba(139, 100, 60, 0.05)';
-  ctx.lineWidth = 2;
-  for (var c = 0; c < 3; c++) {
-    var ringX = fmRandInt(100, w - 100);
-    var ringY = fmRandInt(100, h - 100);
-    var ringR = fmRandInt(40, 100);
+  // Fold creases — subtle dark lines
+  ctx.strokeStyle = dark ? 'rgba(0, 0, 0, 0.05)' : 'rgba(100, 70, 30, 0.06)';
+  ctx.lineWidth = 1.5;
+
+  var crease1Y = h * 0.33 + fmRandInt(-15, 15);
+  var crease2Y = h * 0.66 + fmRandInt(-15, 15);
+  ctx.beginPath(); ctx.moveTo(0, crease1Y); ctx.lineTo(w, crease1Y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, crease2Y); ctx.lineTo(w, crease2Y); ctx.stroke();
+
+  var crease1X = w * 0.33 + fmRandInt(-15, 15);
+  var crease2X = w * 0.66 + fmRandInt(-15, 15);
+  ctx.beginPath(); ctx.moveTo(crease1X, 0); ctx.lineTo(crease1X, h); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(crease2X, 0); ctx.lineTo(crease2X, h); ctx.stroke();
+
+  // Heavy edge vignette — dramatically darkened borders like the reference
+  var vignetteGradient = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.2, w / 2, h / 2, Math.sqrt(w * w + h * h) / 2);
+  vignetteGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  vignetteGradient.addColorStop(0.55, 'rgba(0, 0, 0, 0)');
+  vignetteGradient.addColorStop(0.8, 'rgba(40, 25, 5, ' + (dark ? 0.15 : 0.1) + ')');
+  vignetteGradient.addColorStop(1, 'rgba(30, 15, 0, ' + (dark ? 0.35 : 0.25) + ')');
+  ctx.fillStyle = vignetteGradient;
+  ctx.fillRect(0, 0, w, h);
+};
+
+// ============================================================================
+// 2. ORNATE BORDER
+// ============================================================================
+var fmRenderBorder = function(ctx, w, h, dark) {
+  var inkColor = dark ? '#8a7a5a' : '#1a1005';
+  var tickColor = dark ? '#6a5a4a' : '#1a1005';
+  var padding = 40;
+
+  ctx.strokeStyle = inkColor;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Outer thick border line
+  ctx.lineWidth = 3;
+  ctx.strokeRect(padding, padding, w - padding * 2, h - padding * 2);
+
+  // Inner thin border line (8px inside outer)
+  ctx.lineWidth = 1;
+  var innerPadding = padding + 8;
+  ctx.strokeRect(innerPadding, innerPadding, w - innerPadding * 2, h - innerPadding * 2);
+
+  // Edge tick marks every 50px between the two lines
+  ctx.strokeStyle = tickColor;
+  ctx.lineWidth = 1;
+  var tickLength = 6;
+
+  // Top and bottom ticks
+  for (var x = padding + 50; x < w - padding; x += 50) {
+    // Top outer
     ctx.beginPath();
-    ctx.arc(ringX, ringY, ringR, 0, Math.PI * 2);
+    ctx.moveTo(x, padding - tickLength / 2);
+    ctx.lineTo(x, padding + tickLength / 2);
+    ctx.stroke();
+    // Top inner
+    ctx.beginPath();
+    ctx.moveTo(x, innerPadding - tickLength / 2);
+    ctx.lineTo(x, innerPadding + tickLength / 2);
+    ctx.stroke();
+    // Bottom outer
+    ctx.beginPath();
+    ctx.moveTo(x, h - padding - tickLength / 2);
+    ctx.lineTo(x, h - padding + tickLength / 2);
+    ctx.stroke();
+    // Bottom inner
+    ctx.beginPath();
+    ctx.moveTo(x, h - innerPadding - tickLength / 2);
+    ctx.lineTo(x, h - innerPadding + tickLength / 2);
     ctx.stroke();
   }
-}
 
-// === 2. DECORATIVE BORDER ===
-function fmRenderBorder(ctx, w, h, dark) {
-  var borderColor = dark ? '#2a1a0a' : '#3a2a1a';
-  var margin = 55;
+  // Left and right ticks
+  for (var y = padding + 50; y < h - padding; y += 50) {
+    // Left outer
+    ctx.beginPath();
+    ctx.moveTo(padding - tickLength / 2, y);
+    ctx.lineTo(padding + tickLength / 2, y);
+    ctx.stroke();
+    // Left inner
+    ctx.beginPath();
+    ctx.moveTo(innerPadding - tickLength / 2, y);
+    ctx.lineTo(innerPadding + tickLength / 2, y);
+    ctx.stroke();
+    // Right outer
+    ctx.beginPath();
+    ctx.moveTo(w - padding - tickLength / 2, y);
+    ctx.lineTo(w - padding + tickLength / 2, y);
+    ctx.stroke();
+    // Right inner
+    ctx.beginPath();
+    ctx.moveTo(w - innerPadding - tickLength / 2, y);
+    ctx.lineTo(w - innerPadding + tickLength / 2, y);
+    ctx.stroke();
+  }
 
-  // Outer thick border (3px)
-  ctx.strokeStyle = borderColor;
-  ctx.lineWidth = 3;
-  ctx.strokeRect(margin, margin, w - 2 * margin, h - 2 * margin - 5);
-
-  // Inner thin border (1.5px), 4px gap
-  ctx.lineWidth = 1.5;
-  var inner = margin + 7;
-  ctx.strokeRect(inner, inner, w - 2 * inner, h - 2 * inner - 5);
-
-  // Corner decorations (diamond + circle flourishes)
+  // Ornate corner pieces — Tolkien-style vine/leaf flourishes
   var corners = [
-    { x: margin, y: margin },
-    { x: w - margin, y: margin },
-    { x: margin, y: h - margin - 5 },
-    { x: w - margin, y: h - margin - 5 }
+    {x: padding, y: padding, sx: 1, sy: 1},
+    {x: w - padding, y: padding, sx: -1, sy: 1},
+    {x: padding, y: h - padding, sx: 1, sy: -1},
+    {x: w - padding, y: h - padding, sx: -1, sy: -1}
   ];
 
-  ctx.fillStyle = borderColor;
-  corners.forEach(function(corner) {
-    // Diamond
-    var diamondSize = 8;
+  ctx.strokeStyle = inkColor;
+  ctx.fillStyle = inkColor;
+  ctx.lineCap = 'round';
+
+  for (var c = 0; c < corners.length; c++) {
+    var corner = corners[c];
+    var ox = corner.x;
+    var oy = corner.y;
+    var sx = corner.sx;
+    var sy = corner.sy;
+
+    // Main vine curl extending along both edges
+    ctx.lineWidth = 2.0;
+    ctx.globalAlpha = 0.85;
+
+    // Horizontal vine
     ctx.beginPath();
-    ctx.moveTo(corner.x, corner.y - diamondSize);
-    ctx.lineTo(corner.x + diamondSize, corner.y);
-    ctx.lineTo(corner.x, corner.y + diamondSize);
-    ctx.lineTo(corner.x - diamondSize, corner.y);
+    ctx.moveTo(ox, oy);
+    ctx.quadraticCurveTo(ox + 25 * sx, oy + 5 * sy, ox + 50 * sx, oy + 2 * sy);
+    ctx.stroke();
+    // Vine tendril curl
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(ox + 30 * sx, oy + 4 * sy);
+    ctx.quadraticCurveTo(ox + 35 * sx, oy + 12 * sy, ox + 25 * sx, oy + 10 * sy);
+    ctx.stroke();
+
+    // Vertical vine
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    ctx.moveTo(ox, oy);
+    ctx.quadraticCurveTo(ox + 5 * sx, oy + 25 * sy, ox + 2 * sx, oy + 50 * sy);
+    ctx.stroke();
+    // Vine tendril curl
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(ox + 4 * sx, oy + 30 * sy);
+    ctx.quadraticCurveTo(ox + 12 * sx, oy + 35 * sy, ox + 10 * sx, oy + 25 * sy);
+    ctx.stroke();
+
+    // Small leaf at corner junction
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(ox + 3 * sx, oy + 3 * sy);
+    ctx.quadraticCurveTo(ox + 10 * sx, oy + 2 * sy, ox + 12 * sx, oy + 12 * sy);
+    ctx.quadraticCurveTo(ox + 2 * sx, oy + 10 * sy, ox + 3 * sx, oy + 3 * sy);
+    ctx.fill();
+
+    // Center diamond at the corner
+    ctx.globalAlpha = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(ox, oy - 4 * sy);
+    ctx.lineTo(ox + 4 * sx, oy);
+    ctx.lineTo(ox, oy + 4 * sy);
+    ctx.lineTo(ox - 4 * sx, oy);
     ctx.closePath();
     ctx.fill();
-
-    // Circle
-    ctx.beginPath();
-    ctx.arc(corner.x, corner.y, 4, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  // Edge tick marks every 80px
-  ctx.lineWidth = 1;
-  var tickLen = 8;
-
-  // Top and bottom edges
-  for (var x = margin; x < w - margin; x += 80) {
-    ctx.beginPath();
-    ctx.moveTo(x, margin - tickLen / 2);
-    ctx.lineTo(x, margin + tickLen / 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x, h - margin - 5 - tickLen / 2);
-    ctx.lineTo(x, h - margin - 5 + tickLen / 2);
-    ctx.stroke();
   }
 
-  // Left and right edges
-  for (var y = margin; y < h - margin; y += 80) {
-    ctx.beginPath();
-    ctx.moveTo(margin - tickLen / 2, y);
-    ctx.lineTo(margin + tickLen / 2, y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(w - margin - tickLen / 2, y);
-    ctx.lineTo(w - margin + tickLen / 2, y);
-    ctx.stroke();
-  }
-}
+  ctx.globalAlpha = 1.0;
+};
 
-// === 3. TERRAIN RENDERING ===
-function fmRenderTerrain(ctx) {
-  var biomeColors = FMap.dark ? {
-    deep_ocean: '#000a1a', ocean: '#001840', coast: '#002860',
-    beach: '#6a5a3a', grassland: '#2a4a1a', forest: '#1a3810',
-    dense_forest: '#0e2a08', swamp: '#2a3020', desert: '#5a4a28',
-    tundra: '#3a3a40', mountain: '#4a4540', snow_peak: '#808080',
-    hills: '#3a3520', lake: '#0a2050'
-  } : {
-    deep_ocean: '#1a3a6b', ocean: '#2a5a9b', coast: '#4a8acc',
-    beach: '#d4b878', grassland: '#7abf60', forest: '#4a9a38',
-    dense_forest: '#2a7020', swamp: '#5a6a40', desert: '#c8a850',
-    tundra: '#a0a0a8', mountain: '#8a8580', snow_peak: '#d8d5d0',
-    hills: '#9a8a60', lake: '#4a80c0'
-  };
-
+// ============================================================================
+// 3. TERRAIN BASE TINTING — subtle color washes for water/desert/swamp
+// ============================================================================
+var fmRenderTerrain = function(ctx) {
   var cellSize = fmGetCellSize();
-  var b = FMap.mapBounds;
+  var w = cellSize.w;
+  var h = cellSize.h;
+  var dark = FMap.dark;
+
+  // Reference style: NO blue. Water is warm amber/ochre, slightly lighter than land.
+  // All colors in warm brown/gold palette to match golden parchment.
+  var waterLight = dark ? '#1a1810' : '#c8a858'; // warm golden for water areas
+  var waterDark = dark ? '#181510' : '#b09040';  // slightly darker for deep ocean
+  var desertColor = dark ? '#3a3015' : '#d8c070';
+  var swampColor = dark ? '#1a2015' : '#a0a060';
+  var forestColor = dark ? '#1a2010' : '#8a9050'; // muted olive for forests
 
   for (var row = 0; row < FMap.grid.rows; row++) {
     for (var col = 0; col < FMap.grid.cols; col++) {
       var cell = FMap.grid.cells[row * FMap.grid.cols + col];
       if (!cell) continue;
-      var biome = cell.biome || 'grassland';
-      var color = biomeColors[biome] || '#7abf60';
 
-      var x = b.x + (col / FMap.grid.cols) * b.w;
-      var y = b.y + (row / FMap.grid.rows) * b.h;
+      var screenPos = fmCellToScreen(col, row);
+      var tintColor = null;
+      var alpha = 0;
 
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, cellSize.w, cellSize.h);
+      if (cell.biome === 'deep_ocean') {
+        tintColor = waterDark;
+        alpha = 0.35;
+      } else if (cell.biome === 'ocean' || cell.isWater) {
+        tintColor = waterLight;
+        alpha = 0.28;
+      } else if (cell.isLake) {
+        tintColor = waterLight;
+        alpha = 0.3;
+      } else if (cell.biome === 'desert') {
+        tintColor = desertColor;
+        alpha = 0.15;
+      } else if (cell.biome === 'swamp') {
+        tintColor = swampColor;
+        alpha = 0.1;
+      } else if (cell.biome === 'forest' || cell.biome === 'dense_forest') {
+        tintColor = forestColor;
+        alpha = 0.08;
+      }
 
-      // Subtle texture noise overlay
-      ctx.fillStyle = 'rgba(0, 0, 0, ' + (0.02 * Math.random()) + ')';
-      ctx.fillRect(x, y, cellSize.w, cellSize.h);
+      if (tintColor) {
+        ctx.fillStyle = tintColor;
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(screenPos.x, screenPos.y, w + 0.5, h + 0.5);
+      }
     }
   }
-}
+  ctx.globalAlpha = 1.0;
+};
 
-// === 4. COASTLINES ===
-function fmRenderCoastlines(ctx) {
-  var b = FMap.mapBounds;
+// ============================================================================
+// 4. COASTLINES — smooth marching-squares contour with Catmull-Rom smoothing
+// ============================================================================
+var fmRenderCoastlines = function(ctx) {
   var cellSize = fmGetCellSize();
-  var coastColor = FMap.dark ? '#1a0a00' : '#2a0a00';
+  var w = cellSize.w;
+  var h = cellSize.h;
+  var dark = FMap.dark;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
+  var b = FMap.mapBounds;
 
-  var isWater = function(row, col) {
-    if (row < 0 || row >= FMap.grid.rows || col < 0 || col >= FMap.grid.cols) return true;
-    var cell = FMap.grid.cells[row * FMap.grid.cols + col];
-    if (!cell) return true;
-    return (cell.biome && (cell.biome.indexOf('ocean') !== -1 || cell.biome === 'coast' || cell.biome === 'lake')) || cell.isWater;
+  var inkColor = dark ? '#6a5a4a' : '#1a1005';
+
+  // Marching squares: for each 2x2 block, compute case and extract edge segments
+  // Segments are in screen coordinates
+  var allSegments = [];
+  for (var row = 0; row < rows - 1; row++) {
+    for (var col = 0; col < cols - 1; col++) {
+      var c0 = FMap.grid.cells[row * cols + col];
+      var c1 = FMap.grid.cells[row * cols + col + 1];
+      var c2 = FMap.grid.cells[(row + 1) * cols + col + 1];
+      var c3 = FMap.grid.cells[(row + 1) * cols + col];
+
+      var v0 = c0 && !c0.isWater ? 1 : 0;
+      var v1 = c1 && !c1.isWater ? 1 : 0;
+      var v2 = c2 && !c2.isWater ? 1 : 0;
+      var v3 = c3 && !c3.isWater ? 1 : 0;
+
+      var caseIdx = v0 | (v1 << 1) | (v2 << 2) | (v3 << 3);
+      if (caseIdx === 0 || caseIdx === 15) continue;
+
+      // Cell top-left in screen coords
+      var ox = b.x + (col / cols) * b.w;
+      var oy = b.y + (row / rows) * b.h;
+      var cw = b.w / cols;
+      var ch = b.h / rows;
+
+      // Midpoints of edges: top=T, right=R, bottom=B, left=L
+      var T = [ox + cw * 0.5, oy];
+      var R = [ox + cw, oy + ch * 0.5];
+      var B = [ox + cw * 0.5, oy + ch];
+      var L = [ox, oy + ch * 0.5];
+
+      // Lookup: which edges to connect for each case
+      var segs;
+      switch (caseIdx) {
+        case 1:  segs = [[L, T]]; break;
+        case 2:  segs = [[T, R]]; break;
+        case 3:  segs = [[L, R]]; break;
+        case 4:  segs = [[R, B]]; break;
+        case 5:  segs = [[L, T], [R, B]]; break; // saddle
+        case 6:  segs = [[T, B]]; break;
+        case 7:  segs = [[L, B]]; break;
+        case 8:  segs = [[B, L]]; break;
+        case 9:  segs = [[B, T]]; break;
+        case 10: segs = [[T, R], [B, L]]; break; // saddle
+        case 11: segs = [[B, R]]; break;
+        case 12: segs = [[R, L]]; break;
+        case 13: segs = [[R, T]]; break;
+        case 14: segs = [[T, L]]; break;
+        default: segs = []; break;
+      }
+
+      for (var s = 0; s < segs.length; s++) {
+        allSegments.push([segs[s][0][0], segs[s][0][1], segs[s][1][0], segs[s][1][1]]);
+      }
+    }
+  }
+
+  // Chain segments into polylines by connecting matching endpoints
+  var used = new Array(allSegments.length);
+  var chains = [];
+
+  // Build spatial index for fast endpoint lookup
+  var endpointMap = {};
+  var snapKey = function(x, y) { return Math.round(x * 2) + ',' + Math.round(y * 2); };
+
+  for (var i = 0; i < allSegments.length; i++) {
+    var seg = allSegments[i];
+    var k0 = snapKey(seg[0], seg[1]);
+    var k1 = snapKey(seg[2], seg[3]);
+    if (!endpointMap[k0]) endpointMap[k0] = [];
+    if (!endpointMap[k1]) endpointMap[k1] = [];
+    endpointMap[k0].push({idx: i, end: 0});
+    endpointMap[k1].push({idx: i, end: 1});
+  }
+
+  for (var i = 0; i < allSegments.length; i++) {
+    if (used[i]) continue;
+    used[i] = true;
+    var seg = allSegments[i];
+    var chain = [[seg[0], seg[1]], [seg[2], seg[3]]];
+
+    // Extend forward
+    var searching = true;
+    while (searching) {
+      searching = false;
+      var last = chain[chain.length - 1];
+      var key = snapKey(last[0], last[1]);
+      var candidates = endpointMap[key];
+      if (candidates) {
+        for (var ci = 0; ci < candidates.length; ci++) {
+          var c = candidates[ci];
+          if (used[c.idx]) continue;
+          used[c.idx] = true;
+          var ns = allSegments[c.idx];
+          if (c.end === 0) {
+            chain.push([ns[2], ns[3]]);
+          } else {
+            chain.push([ns[0], ns[1]]);
+          }
+          searching = true;
+          break;
+        }
+      }
+    }
+
+    // Extend backward
+    searching = true;
+    while (searching) {
+      searching = false;
+      var first = chain[0];
+      var key = snapKey(first[0], first[1]);
+      var candidates = endpointMap[key];
+      if (candidates) {
+        for (var ci = 0; ci < candidates.length; ci++) {
+          var c = candidates[ci];
+          if (used[c.idx]) continue;
+          used[c.idx] = true;
+          var ns = allSegments[c.idx];
+          if (c.end === 0) {
+            chain.unshift([ns[2], ns[3]]);
+          } else {
+            chain.unshift([ns[0], ns[1]]);
+          }
+          searching = true;
+          break;
+        }
+      }
+    }
+
+    if (chain.length >= 3) chains.push(chain);
+  }
+
+  // Smooth chains with Catmull-Rom spline
+  var smoothChain = function(pts) {
+    if (pts.length < 3) return pts;
+    var result = [];
+    for (var p = 0; p < pts.length - 1; p++) {
+      var p0 = pts[Math.max(0, p - 1)];
+      var p1 = pts[p];
+      var p2 = pts[p + 1];
+      var p3 = pts[Math.min(pts.length - 1, p + 2)];
+
+      result.push(p1);
+      var dx = p2[0] - p1[0];
+      var dy = p2[1] - p1[1];
+      var steps = Math.max(2, Math.ceil(Math.sqrt(dx * dx + dy * dy) / 3));
+
+      for (var st = 1; st < steps; st++) {
+        var t = st / steps;
+        var t2 = t * t;
+        var t3 = t2 * t;
+        var a0 = -0.5 * t3 + t2 - 0.5 * t;
+        var a1 = 1.5 * t3 - 2.5 * t2 + 1;
+        var a2 = -1.5 * t3 + 2 * t2 + 0.5 * t;
+        var a3 = 0.5 * t3 - 0.5 * t2;
+        result.push([
+          a0 * p0[0] + a1 * p1[0] + a2 * p2[0] + a3 * p3[0],
+          a0 * p0[1] + a1 * p1[1] + a2 * p2[1] + a3 * p3[1]
+        ]);
+      }
+    }
+    result.push(pts[pts.length - 1]);
+    return result;
   };
 
-  // Main coastline pass
-  var coastPoints = [];
+  // Smooth all chains once and cache
+  var smoothed = [];
+  for (var ci = 0; ci < chains.length; ci++) {
+    var s = smoothChain(chains[ci]);
+    if (s.length >= 2) smoothed.push(s);
+  }
 
-  for (var row = 0; row < FMap.grid.rows; row++) {
-    for (var col = 0; col < FMap.grid.cols; col++) {
-      var cell = FMap.grid.cells[row * FMap.grid.cols + col];
-      var cellWater = isWater(row, col);
-      var isCoast = false;
+  // Determine water-side normal direction for each chain
+  var chainWaterDir = [];
+  for (var ci = 0; ci < smoothed.length; ci++) {
+    var smooth = smoothed[ci];
+    var dir = 1;
+    if (smooth.length >= 5) {
+      var mid = Math.floor(smooth.length / 2);
+      var prev = smooth[Math.max(0, mid - 1)];
+      var curr = smooth[mid];
+      var next = smooth[Math.min(smooth.length - 1, mid + 1)];
+      var tdx = next[0] - prev[0];
+      var tdy = next[1] - prev[1];
+      var tlen = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
+      var tnx = -tdy / tlen;
+      var tny = tdx / tlen;
+      var testDist = 10;
+      var testCol1 = Math.floor(((curr[0] + tnx * testDist) - b.x) / b.w * cols);
+      var testRow1 = Math.floor(((curr[1] + tny * testDist) - b.y) / b.h * rows);
+      var testCol2 = Math.floor(((curr[0] - tnx * testDist) - b.x) / b.w * cols);
+      var testRow2 = Math.floor(((curr[1] - tny * testDist) - b.y) / b.h * rows);
+      var cell1 = null, cell2 = null;
+      if (testRow1 >= 0 && testRow1 < rows && testCol1 >= 0 && testCol1 < cols)
+        cell1 = FMap.grid.cells[testRow1 * cols + testCol1];
+      if (testRow2 >= 0 && testRow2 < rows && testCol2 >= 0 && testCol2 < cols)
+        cell2 = FMap.grid.cells[testRow2 * cols + testCol2];
+      if (cell2 && cell2.isWater && !(cell1 && cell1.isWater)) dir = -1;
+    }
+    chainWaterDir.push(dir);
+  }
 
-      if (!cellWater) {
-        // Check neighbors
-        if (isWater(row - 1, col) || isWater(row + 1, col) ||
-            isWater(row, col - 1) || isWater(row, col + 1)) {
-          isCoast = true;
-        }
-      }
+  // Draw main coastline — VERY bold ink line (the dominant feature of the reference map)
+  ctx.strokeStyle = inkColor;
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.globalAlpha = 0.95;
 
-      if (isCoast) {
-        var x = b.x + (col + 0.5) / FMap.grid.cols * b.w;
-        var y = b.y + (row + 0.5) / FMap.grid.rows * b.h;
-        coastPoints.push({ x: x, y: y, col: col, row: row });
+  for (var ci = 0; ci < smoothed.length; ci++) {
+    var smooth = smoothed[ci];
+    ctx.beginPath();
+    ctx.moveTo(smooth[0][0], smooth[0][1]);
+    for (var p = 1; p < smooth.length; p++) {
+      ctx.lineTo(smooth[p][0], smooth[p][1]);
+    }
+    ctx.stroke();
+  }
+
+  // Shore hachures — short perpendicular tick marks on the water side
+  // This is a hallmark of traditional hand-drawn fantasy maps
+  ctx.lineWidth = 0.6;
+  ctx.globalAlpha = 0.35;
+
+  for (var ci = 0; ci < smoothed.length; ci++) {
+    var smooth = smoothed[ci];
+    if (smooth.length < 5) continue;
+    var waterDir = chainWaterDir[ci];
+
+    // Draw hachures every ~8 pixels along the coast
+    var accumDist = 0;
+    var hachureSpacing = 8;
+
+    for (var p = 1; p < smooth.length; p++) {
+      var prev = smooth[p - 1];
+      var curr = smooth[p];
+      var dx = curr[0] - prev[0];
+      var dy = curr[1] - prev[1];
+      var segLen = Math.sqrt(dx * dx + dy * dy);
+      accumDist += segLen;
+
+      if (accumDist >= hachureSpacing) {
+        accumDist -= hachureSpacing;
+
+        var next = smooth[Math.min(smooth.length - 1, p + 1)];
+        var tdx = next[0] - prev[0];
+        var tdy = next[1] - prev[1];
+        var tlen = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
+
+        // Normal pointing into water
+        var nx = -tdy / tlen * waterDir;
+        var ny = tdx / tlen * waterDir;
+
+        // Hachure length varies
+        var hLen = 3 + Math.sin(p * 0.7) * 1.5;
+
+        ctx.beginPath();
+        ctx.moveTo(curr[0], curr[1]);
+        ctx.lineTo(curr[0] + nx * hLen, curr[1] + ny * hLen);
+        ctx.stroke();
       }
     }
   }
 
-  // Draw 4 parallel coastlines with decreasing prominence
-  var lineWidths = [2, 1.5, 1, 0.7];
-  var alphas = [1, 0.7, 0.5, 0.3];
-  var distances = [0, 5, 9, 14];
+  // Multiple parallel shore lines — the hallmark of hand-drawn fantasy maps
+  // Each line is progressively thinner, lighter, and further from the coast
+  var shoreLines = [
+    { offset: 5, width: 0.9, alpha: 0.3 },
+    { offset: 10, width: 0.6, alpha: 0.2 },
+    { offset: 16, width: 0.4, alpha: 0.12 }
+  ];
 
-  for (var line = 0; line < 4; line++) {
-    ctx.strokeStyle = FMap.dark ?
-      'rgba(26, 10, 0, ' + alphas[line] + ')' :
-      'rgba(42, 10, 0, ' + alphas[line] + ')';
-    ctx.lineWidth = lineWidths[line];
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+  for (var si = 0; si < shoreLines.length; si++) {
+    var sline = shoreLines[si];
+    ctx.lineWidth = sline.width;
+    ctx.globalAlpha = sline.alpha;
 
-    for (var cp = 0; cp < coastPoints.length; cp++) {
-      var point = coastPoints[cp];
-      var nextPoint = coastPoints[(cp + 1) % coastPoints.length];
-
-      var jitterX = (fmRandInt(0, 4) - 2);
-      var jitterY = (fmRandInt(0, 4) - 2);
+    for (var ci = 0; ci < smoothed.length; ci++) {
+      var smooth = smoothed[ci];
+      if (smooth.length < 5) continue;
+      var waterDir = chainWaterDir[ci];
 
       ctx.beginPath();
-      ctx.moveTo(point.x + jitterX, point.y + jitterY);
+      var started = false;
+      for (var p = 0; p < smooth.length; p++) {
+        var prev = smooth[Math.max(0, p - 1)];
+        var curr = smooth[p];
+        var next = smooth[Math.min(smooth.length - 1, p + 1)];
 
-      var cpX = (point.x + nextPoint.x) / 2 + jitterX;
-      var cpY = (point.y + nextPoint.y) / 2 + jitterY;
+        var dx = next[0] - prev[0];
+        var dy = next[1] - prev[1];
+        var len = Math.sqrt(dx * dx + dy * dy) || 1;
+        var nx = -dy / len * sline.offset * waterDir;
+        var ny = dx / len * sline.offset * waterDir;
 
-      ctx.quadraticCurveTo(cpX, cpY, nextPoint.x + jitterX, nextPoint.y + jitterY);
+        if (!started) {
+          ctx.moveTo(curr[0] + nx, curr[1] + ny);
+          started = true;
+        } else {
+          ctx.lineTo(curr[0] + nx, curr[1] + ny);
+        }
+      }
       ctx.stroke();
     }
   }
-}
 
-// === 5. MOUNTAIN SYMBOLS ===
-function fmRenderMountains(ctx) {
-  var b = FMap.mapBounds;
+  ctx.globalAlpha = 1.0;
+};
+
+// ============================================================================
+// 5. MOUNTAINS — clean triangular peaks, well-spaced, with shading
+// ============================================================================
+var fmRenderMountains = function(ctx) {
   var cellSize = fmGetCellSize();
-  var mountainColor = FMap.dark ? '#6a5a4a' : '#4a3a2a';
-  var snowColor = '#f0f0f0';
-  var shadowColor = FMap.dark ? '#2a1a0a' : '#1a0a00';
+  var w = cellSize.w;
+  var h = cellSize.h;
+  var dark = FMap.dark;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
 
-  for (var row = 0; row < FMap.grid.rows; row += 2) {
-    for (var col = 0; col < FMap.grid.cols; col += 2) {
-      var cell = FMap.grid.cells[row * FMap.grid.cols + col];
-      if (cell.biome === 'mountain' || cell.biome === 'snow_peak') {
-        var x = b.x + (col + 0.5) / FMap.grid.cols * b.w;
-        var y = b.y + (row + 0.5) / FMap.grid.rows * b.h;
+  var inkColor = dark ? '#8a7a6a' : '#1a1005';
+  var shadowFill = dark ? '#4a3a2a' : '#1a1005';
+  var lightColor = dark ? '#6a5a4a' : '#221508';
 
-        var peakHeight = cellSize.h * (0.8 + Math.random() * 0.4);
-        var peakWidth = cellSize.w * 0.6;
+  // Collect mountain/hill cells into spatial blocks for peak selection
+  // Smaller blocks = denser mountain chains. Reference has tightly packed peaks.
+  var mtBlockW = 12;
+  var mtBlockH = 12;
+  var hillBlockW = 18;
+  var hillBlockH = 18;
+  var peakGrid = {};
 
-        // Main mountain
-        ctx.fillStyle = mountainColor;
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell) continue;
+
+      var isMtn = cell.biome === 'mountain' || cell.biome === 'snow_peak';
+      var isHill = cell.biome === 'hills';
+      if (!isMtn && !isHill) continue;
+
+      var screenPos = fmCellToScreen(col, row);
+      var sx = screenPos.x + w / 2;
+      var sy = screenPos.y + h / 2;
+
+      var blockW = isHill ? hillBlockW : mtBlockW;
+      var blockH = isHill ? hillBlockH : mtBlockH;
+      var bCol = Math.floor(sx / blockW);
+      var bRow = Math.floor(sy / blockH);
+      var key = bRow + '-' + bCol;
+
+      var priority = isMtn ? 100 + cell.height : cell.height;
+      if (!peakGrid[key] || priority > peakGrid[key].priority) {
+        peakGrid[key] = {
+          x: sx, y: sy,
+          isMtn: isMtn,
+          isSnow: cell.biome === 'snow_peak',
+          isHill: isHill,
+          priority: priority,
+          height: cell.height,
+          row: row
+        };
+      }
+    }
+  }
+
+  // Sort back-to-front for proper overlapping
+  var peaks = [];
+  for (var key in peakGrid) {
+    peaks.push(peakGrid[key]);
+  }
+  peaks.sort(function(a, b) { return a.row - b.row; });
+
+  // Draw each peak — traditional fantasy cartography style
+  for (var i = 0; i < peaks.length; i++) {
+    var pk = peaks[i];
+    var cx = pk.x;
+    var cy = pk.y;
+
+    // Deterministic randomness from position
+    var hash = (cx * 73 + cy * 137 + i * 31) % 1000;
+    var rng = function() { hash = (hash * 1103515245 + 12345) & 0x7fffffff; return (hash % 1000) / 1000; };
+
+    if (pk.isHill) {
+      // Hills: gentle rounded humps with contour hatching on left side
+      var hw = 10 + rng() * 8;
+      var hh = 6 + rng() * 4;
+
+      // Rounded hump outline
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.moveTo(cx - hw, cy);
+      ctx.quadraticCurveTo(cx - hw * 0.3, cy - hh * 1.4, cx, cy - hh);
+      ctx.quadraticCurveTo(cx + hw * 0.3, cy - hh * 1.4, cx + hw, cy);
+      ctx.stroke();
+
+      // 2-4 hatching lines on left (shadow) face
+      ctx.lineWidth = 0.6;
+      ctx.globalAlpha = 0.4;
+      var hillHatch = 2 + Math.floor(rng() * 3);
+      for (var hhi = 0; hhi < hillHatch; hhi++) {
+        var ht = 0.2 + (hhi / hillHatch) * 0.55;
+        var hx = cx - hw * (1 - ht);
+        var hy = cy - hh * ht * 0.8;
+        var hLen = hh * (0.5 - ht * 0.3);
         ctx.beginPath();
-        ctx.moveTo(x - peakWidth / 2, y + peakHeight / 2);
-        ctx.lineTo(x, y - peakHeight / 2);
-        ctx.lineTo(x + peakWidth / 2, y + peakHeight / 2);
-        ctx.closePath();
-        ctx.fill();
-
-        // Shadow (right side)
-        ctx.fillStyle = shadowColor;
-        ctx.beginPath();
-        ctx.moveTo(x, y - peakHeight / 2);
-        ctx.lineTo(x + peakWidth / 2, y + peakHeight / 2);
-        ctx.lineTo(x + peakWidth / 4, y + peakHeight / 4);
-        ctx.closePath();
-        ctx.fill();
-
-        // Highlight (left edge)
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(x - peakWidth / 2, y + peakHeight / 2);
-        ctx.lineTo(x, y - peakHeight / 2);
+        ctx.moveTo(hx, hy);
+        ctx.lineTo(hx + hLen * 0.15, hy + hLen);
         ctx.stroke();
+      }
+      ctx.globalAlpha = 1.0;
+      continue;
+    }
 
-        // Snow cap
-        if (cell.biome === 'snow_peak') {
-          ctx.fillStyle = snowColor;
-          ctx.beginPath();
-          ctx.moveTo(x - peakWidth / 4, y - peakHeight / 4);
-          ctx.lineTo(x, y - peakHeight / 2);
-          ctx.lineTo(x + peakWidth / 4, y - peakHeight / 4);
-          ctx.closePath();
-          ctx.fill();
+    // === MOUNTAIN PEAK - Heavy ink illustration like reference map ===
+    // Tall dramatic peaks with heavy dark shading
+    var peakH = pk.isSnow ? 50 + rng() * 40 : 38 + rng() * 32;
+    var baseW = peakH * (0.5 + rng() * 0.3);
+    var lean = (rng() - 0.5) * 0.12;
+
+    var tipX = cx + lean * baseW;
+    var tipY = cy - peakH;
+    var leftX = cx - baseW * 0.6;
+    var rightX = cx + baseW * 0.5;
+    var baseY = cy;
+
+    // Shaded left face fill — heavy dark shadow like reference
+    ctx.fillStyle = shadowFill;
+    ctx.globalAlpha = 0.65;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(leftX, baseY);
+    ctx.lineTo(cx - baseW * 0.05, baseY);
+    ctx.closePath();
+    ctx.fill();
+
+    // Bold ink outline — left slope (heavy ink like reference)
+    ctx.strokeStyle = inkColor;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.globalAlpha = 1.0;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(leftX, baseY);
+    ctx.lineTo(tipX, tipY);
+    ctx.stroke();
+
+    // Right slope — lighter line
+    ctx.lineWidth = 1.6;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(rightX, baseY);
+    ctx.stroke();
+
+    // === CONTOUR HATCHING — dense heavy lines like reference map mountains ===
+    ctx.strokeStyle = inkColor;
+    var hatchCount = 7 + Math.floor(rng() * 6);
+    for (var hi = 0; hi < hatchCount; hi++) {
+      var hatchT = 0.15 + (hi / hatchCount) * 0.75;
+
+      // Start point on left slope
+      var hStartX = tipX + (leftX - tipX) * hatchT;
+      var hStartY = tipY + (baseY - tipY) * hatchT;
+
+      // End point on centerline (creates lines across the shadow face)
+      var centerX = tipX + (cx - baseW * 0.05 - tipX) * hatchT;
+      var hEndX = hStartX + (centerX - hStartX) * (0.6 + rng() * 0.3);
+      var hEndY = hStartY + (baseY - hStartY) * 0.08;
+
+      // Line width tapers: heavy near tip, medium at base
+      ctx.lineWidth = 1.8 - hatchT * 0.8;
+      ctx.globalAlpha = 0.75 - hatchT * 0.25;
+
+      ctx.beginPath();
+      ctx.moveTo(hStartX, hStartY);
+      // Slight curve to follow contour
+      var cpX = (hStartX + hEndX) / 2;
+      var cpY = (hStartY + hEndY) / 2 + peakH * 0.03;
+      ctx.quadraticCurveTo(cpX, cpY, hEndX, hEndY);
+      ctx.stroke();
+    }
+
+    // Optional: a few short hatching strokes on right side near base for depth
+    ctx.globalAlpha = 0.2;
+    ctx.lineWidth = 0.5;
+    var rightHatch = 2 + Math.floor(rng() * 2);
+    for (var rh = 0; rh < rightHatch; rh++) {
+      var rt = 0.5 + (rh / rightHatch) * 0.4;
+      var rsx = tipX + (rightX - tipX) * rt;
+      var rsy = tipY + (baseY - tipY) * rt;
+      var rl = peakH * 0.06;
+      ctx.beginPath();
+      ctx.moveTo(rsx, rsy);
+      ctx.lineTo(rsx - rl * 0.3, rsy + rl);
+      ctx.stroke();
+    }
+
+    // Snow cap with jagged edge
+    if (pk.isSnow) {
+      var snowH = peakH * 0.3;
+      var snowT = snowH / peakH;
+      var sLeft = tipX + (leftX - tipX) * snowT;
+      var sRight = tipX + (rightX - tipX) * snowT;
+
+      ctx.fillStyle = dark ? '#d0d0d8' : '#f8f6f0';
+      ctx.globalAlpha = 0.92;
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      // Jagged snow edge
+      var snowMidL = (tipX + sLeft) / 2;
+      var snowMidR = (tipX + sRight) / 2;
+      var snowMidY = tipY + snowH;
+      ctx.lineTo(sLeft, snowMidY - rng() * 3);
+      ctx.lineTo(snowMidL, snowMidY + rng() * 2);
+      ctx.lineTo(tipX - 1, snowMidY - rng() * 2);
+      ctx.lineTo(snowMidR, snowMidY + rng() * 2);
+      ctx.lineTo(sRight, snowMidY - rng() * 3);
+      ctx.closePath();
+      ctx.fill();
+
+      // Thin outline around snow cap
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 0.5;
+      ctx.globalAlpha = 0.3;
+      ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1.0;
+  }
+};
+
+// ============================================================================
+// 6. FORESTS — Poisson-disc sampled tree icons with egg-shaped canopies
+// ============================================================================
+var fmRenderForests = function(ctx) {
+  var dark = FMap.dark;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
+
+  var inkColor = dark ? '#7a6a5a' : '#1a1005';
+  var fillColor = dark ? '#5a4a3a' : '#1a1005';
+  var lightFill = dark ? '#6a5a4a' : '#221508';
+
+  // Build coarse grid lookup for forest areas
+  var lookupSize = 5;
+  var forestLookup = {};
+
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell) continue;
+      var isDense = cell.biome === 'dense_forest';
+      var isForest = cell.biome === 'forest';
+      if (!isDense && !isForest) continue;
+
+      var sp = fmCellToScreen(col, row);
+      var lx = Math.floor(sp.x / lookupSize);
+      var ly = Math.floor(sp.y / lookupSize);
+      var lk = ly + ',' + lx;
+      if (!forestLookup[lk]) forestLookup[lk] = isDense ? 2 : 1;
+    }
+  }
+
+  var isForestAt = function(px, py) {
+    var lk = Math.floor(py / lookupSize) + ',' + Math.floor(px / lookupSize);
+    return forestLookup[lk] || 0;
+  };
+
+  // Poisson-disc sampling — tighter packing for dense forest coverage like reference
+  var minDist = 11;
+  var cellSizePD = minDist / Math.SQRT2;
+  var gridPD = {};
+  var active = [];
+  var samples = [];
+
+  var pdKey = function(px, py) { return Math.floor(py / cellSizePD) + ',' + Math.floor(px / cellSizePD); };
+
+  var isValidPD = function(px, py) {
+    var gx = Math.floor(px / cellSizePD);
+    var gy = Math.floor(py / cellSizePD);
+    for (var dy = -2; dy <= 2; dy++) {
+      for (var dx = -2; dx <= 2; dx++) {
+        var gk = (gy + dy) + ',' + (gx + dx);
+        if (gridPD[gk]) {
+          var s = gridPD[gk];
+          var ddx = px - s[0], ddy = py - s[1];
+          if (ddx * ddx + ddy * ddy < minDist * minDist) return false;
         }
       }
     }
-  }
+    return true;
+  };
 
-  // Hills
-  for (var row = 0; row < FMap.grid.rows; row += 2) {
-    for (var col = 0; col < FMap.grid.cols; col += 2) {
-      var cell = FMap.grid.cells[row * FMap.grid.cols + col];
-      if (cell.biome === 'hills') {
-        var x = b.x + (col + 0.5) / FMap.grid.cols * b.w;
-        var y = b.y + (row + 0.5) / FMap.grid.rows * b.h;
+  var addSamplePD = function(px, py) {
+    var pt = [px, py];
+    samples.push(pt);
+    gridPD[pdKey(px, py)] = pt;
+    active.push(pt);
+  };
 
-        ctx.fillStyle = FMap.dark ? '#5a4a3a' : '#8a7a5a';
-        ctx.beginPath();
-        ctx.arc(x, y + cellSize.h / 4, cellSize.w * 0.35, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = FMap.dark ? '#2a1a0a' : '#3a2a1a';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+  // Seed from grid
+  var b = FMap.mapBounds;
+  for (var sy = b.y; sy < b.y + b.h; sy += minDist * 3) {
+    for (var sx = b.x; sx < b.x + b.w; sx += minDist * 3) {
+      if (isForestAt(sx, sy) && isValidPD(sx, sy)) {
+        addSamplePD(sx, sy);
       }
     }
   }
-}
 
-// === 6. FOREST SYMBOLS ===
-function fmRenderForests(ctx) {
-  var b = FMap.mapBounds;
+  // Expand
+  var maxAttempts = 25;
+  while (active.length > 0) {
+    var idx = Math.floor(Math.random() * active.length);
+    var point = active[idx];
+    var found = false;
+
+    for (var att = 0; att < maxAttempts; att++) {
+      var angle = Math.random() * Math.PI * 2;
+      var dist = minDist + Math.random() * minDist;
+      var nx = point[0] + Math.cos(angle) * dist;
+      var ny = point[1] + Math.sin(angle) * dist;
+
+      if (isForestAt(nx, ny) && isValidPD(nx, ny)) {
+        addSamplePD(nx, ny);
+        found = true;
+      }
+    }
+    if (!found) active.splice(idx, 1);
+  }
+
+  // Sort back to front for overlapping
+  samples.sort(function(a, b) { return a[1] - b[1]; });
+
+  // Draw each tree — classic fantasy cartography: bold iconic lollipop/conifer symbols
+  // Reference style uses simple, dark, clearly readable tree symbols
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  for (var ti = 0; ti < samples.length; ti++) {
+    var tx = samples[ti][0];
+    var ty = samples[ti][1];
+
+    // Deterministic properties from position
+    var treeType = Math.floor((tx * 3.7 + ty * 5.3) % 3);
+    var sizeVar = 0.95 + ((tx * 7 + ty * 13) % 10) / 60; // 0.95-1.12
+
+    if (treeType === 0 || treeType === 2) {
+      // === DECIDUOUS / BROADLEAF: Classic lollipop tree ===
+      // Simple filled circle on a short stem — the iconic fantasy map tree
+      var r = (4.0 + ((tx * 11 + ty * 3) % 10) / 4) * sizeVar;
+      var stemH = r * 1.4;
+
+      // Trunk — visible short stem
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty + stemH * 0.3);
+      ctx.lineTo(tx, ty - r * 0.3);
+      ctx.stroke();
+
+      // Crown — solid filled circle with bumpy organic edge
+      ctx.fillStyle = fillColor;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      var bumpCount = 10;
+      for (var bi = 0; bi <= bumpCount; bi++) {
+        var ba = (bi / bumpCount) * Math.PI * 2;
+        var bumpR = r * (0.85 + Math.sin(ba * 3.1 + tx * 0.7) * 0.15 + Math.sin(ba * 5.3 + ty * 0.3) * 0.08);
+        var bx = tx + Math.cos(ba) * bumpR;
+        var by = ty - r * 0.35 + Math.sin(ba) * bumpR * 0.85;
+        if (bi === 0) ctx.moveTo(bx, by);
+        else ctx.lineTo(bx, by);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      // Crown outline — bold dark ink
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 1.6;
+      ctx.globalAlpha = 0.9;
+      ctx.stroke();
+
+      // Left-side shadow crescent for depth (like hand-drawn maps)
+      ctx.fillStyle = inkColor;
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.arc(tx - r * 0.15, ty - r * 0.35, r * 0.65, Math.PI * 0.6, Math.PI * 1.4);
+      ctx.fill();
+
+    } else {
+      // === CONIFER: classic pointed evergreen ===
+      // Bold triangular silhouette — the classic pine/fir symbol
+      var tH = (11 + ((tx * 13 + ty * 7) % 10) / 2.5) * sizeVar;
+      var tW = tH * 0.32;
+      var stemH = tH * 0.15;
+
+      // Trunk
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 1.3;
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty + stemH);
+      ctx.lineTo(tx, ty - tH * 0.1);
+      ctx.stroke();
+
+      // Two-tier foliage — overlapping triangles
+      // Bottom tier
+      ctx.fillStyle = fillColor;
+      ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty - tH * 0.55);
+      ctx.lineTo(tx - tW, ty + 2);
+      ctx.lineTo(tx + tW, ty + 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 1.4;
+      ctx.globalAlpha = 0.85;
+      ctx.stroke();
+
+      // Top tier (narrower, overlaps bottom)
+      ctx.fillStyle = fillColor;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty - tH * 0.85);
+      ctx.lineTo(tx - tW * 0.55, ty - tH * 0.2);
+      ctx.lineTo(tx + tW * 0.55, ty - tH * 0.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 1.3;
+      ctx.globalAlpha = 0.85;
+      ctx.stroke();
+    }
+  }
+
+  ctx.globalAlpha = 1.0;
+};
+
+// ============================================================================
+// 7. WATER — sparse wave lines in deep water, clean and subtle
+// ============================================================================
+var fmRenderWater = function(ctx) {
   var cellSize = fmGetCellSize();
-  var forestColor = FMap.dark ? '#2a5a1a' : '#3a7a28';
-  var denseForestColor = FMap.dark ? '#1a3a0a' : '#1a5a10';
-  var trunkColor = FMap.dark ? '#4a3a2a' : '#3a2a1a';
+  var w = cellSize.w;
+  var h = cellSize.h;
+  var dark = FMap.dark;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
+  var b = FMap.mapBounds;
 
-  for (var row = 0; row < FMap.grid.rows; row++) {
-    for (var col = 0; col < FMap.grid.cols; col++) {
-      var cell = FMap.grid.cells[row * FMap.grid.cols + col];
-      if (cell.biome === 'forest' || cell.biome === 'dense_forest') {
-        var isDense = cell.biome === 'dense_forest';
-        var treeCount = isDense ? 5 : 3;
-        var spacing = isDense ? 0.25 : 0.35;
-        var baseX = b.x + (col + 0.5) / FMap.grid.cols * b.w;
-        var baseY = b.y + (row + 0.5) / FMap.grid.rows * b.h;
+  // Traditional fantasy maps use horizontal line shading for water
+  // Lines follow the coastline contour and get sparser away from land
+  var lineColor = dark ? '#4a4030' : '#4a3518';
 
-        var color = isDense ? denseForestColor : forestColor;
+  ctx.strokeStyle = lineColor;
+  ctx.lineCap = 'round';
 
-        for (var t = 0; t < treeCount; t++) {
-          var tX = baseX + (Math.random() - 0.5) * cellSize.w * spacing;
-          var tY = baseY + (Math.random() - 0.5) * cellSize.h * spacing;
-          var canopySize = (0.85 + Math.random() * 0.3) * cellSize.h * 0.25;
+  // First pass: build a simple distance-from-land grid for water cells
+  // We'll approximate by tracking distance from nearest land cell in each row scan
+  var distFromLand = new Array(rows * cols);
+  for (var i = 0; i < distFromLand.length; i++) distFromLand[i] = 999;
 
-          // Canopy (oval/egg shape)
-          ctx.fillStyle = color;
-          ctx.beginPath();
-          ctx.ellipse(tX, tY - canopySize * 0.1, canopySize * 0.6, canopySize, 0, 0, Math.PI * 2);
-          ctx.fill();
+  // Horizontal scan (left-to-right, then right-to-left)
+  for (var row = 0; row < rows; row++) {
+    var dist = 999;
+    for (var col = 0; col < cols; col++) {
+      var idx = row * cols + col;
+      var cell = FMap.grid.cells[idx];
+      if (!cell || !cell.isWater) { dist = 0; continue; }
+      dist++;
+      if (dist < distFromLand[idx]) distFromLand[idx] = dist;
+    }
+    dist = 999;
+    for (var col = cols - 1; col >= 0; col--) {
+      var idx = row * cols + col;
+      var cell = FMap.grid.cells[idx];
+      if (!cell || !cell.isWater) { dist = 0; continue; }
+      dist++;
+      if (dist < distFromLand[idx]) distFromLand[idx] = dist;
+    }
+  }
+  // Vertical scan
+  for (var col = 0; col < cols; col++) {
+    var dist = 999;
+    for (var row = 0; row < rows; row++) {
+      var idx = row * cols + col;
+      var cell = FMap.grid.cells[idx];
+      if (!cell || !cell.isWater) { dist = 0; continue; }
+      dist++;
+      if (dist < distFromLand[idx]) distFromLand[idx] = dist;
+    }
+    dist = 999;
+    for (var row = rows - 1; row >= 0; row--) {
+      var idx = row * cols + col;
+      var cell = FMap.grid.cells[idx];
+      if (!cell || !cell.isWater) { dist = 0; continue; }
+      dist++;
+      if (dist < distFromLand[idx]) distFromLand[idx] = dist;
+    }
+  }
 
-          // Trunk (if perimeter or random)
-          if (Math.random() > 0.6) {
-            ctx.fillStyle = trunkColor;
-            ctx.fillRect(tX - 1.5, tY + canopySize * 0.3, 3, canopySize * 0.4);
+  // Draw horizontal wave lines across water — BOLD visible hatching like reference maps
+  // Reference has very prominent, closely-spaced horizontal lines in water areas
+  // Near coast: every row, dense and dark
+  // Medium: every 2 rows
+  // Far: every 3 rows — still clearly visible
+  for (var row = 0; row < rows; row++) {
+    var inWater = false;
+    var startCol = 0;
+    var minDist = 999;
+
+    for (var col = 0; col <= cols; col++) {
+      var cell = col < cols ? FMap.grid.cells[row * cols + col] : null;
+      var isWater = cell && cell.isWater;
+
+      if (isWater && !inWater) {
+        startCol = col;
+        minDist = distFromLand[row * cols + col];
+        inWater = true;
+      } else if (isWater && inWater) {
+        var d = distFromLand[row * cols + col];
+        if (d < minDist) minDist = d;
+      } else if (!isWater && inWater) {
+        var spanLen = col - startCol;
+        if (spanLen > 2) {
+          // Much denser spacing — reference has very tight horizontal lines
+          var spacing;
+          if (minDist <= 3) spacing = 1;
+          else if (minDist <= 8) spacing = 2;
+          else if (minDist <= 15) spacing = 3;
+          else spacing = 4;
+
+          if (row % spacing === 0) {
+            var sp1 = fmCellToScreen(startCol, row);
+            var sp2 = fmCellToScreen(col, row);
+            var midY = sp1.y + h / 2;
+            var firstX = sp1.x + w * 0.5;
+            var lastX = sp2.x;
+
+            // Much higher alpha — lines should be clearly visible
+            var baseAlpha = minDist <= 3 ? 0.55 : (minDist <= 8 ? 0.4 : (minDist <= 15 ? 0.3 : 0.22));
+            var baseWidth = minDist <= 3 ? 1.0 : (minDist <= 8 ? 0.8 : (minDist <= 15 ? 0.65 : 0.5));
+
+            ctx.lineWidth = baseWidth;
+            ctx.globalAlpha = baseAlpha;
+            ctx.beginPath();
+            ctx.moveTo(firstX, midY);
+
+            // Gentle wave with slight variation
+            for (var px = firstX; px <= lastX; px += 2.5) {
+              var waveAmp = 0.6 + Math.sin(px * 0.012 + row * 0.8) * 0.35;
+              var wy = midY + Math.sin(px * 0.05 + row * 0.3) * waveAmp;
+              ctx.lineTo(px, wy);
+            }
+            ctx.stroke();
           }
         }
+        inWater = false;
+        minDist = 999;
       }
     }
   }
-}
 
-// === 7. WATER DETAILS ===
-function fmRenderWater(ctx) {
-  var b = FMap.mapBounds;
-  var cellSize = fmGetCellSize();
+  // Scattered wave marks in open ocean — more frequent and bolder
+  ctx.lineWidth = 0.9;
+  ctx.globalAlpha = 0.35;
+  for (var row = 2; row < rows - 2; row += 4) {
+    for (var col = 2; col < cols - 2; col += 7) {
+      var idx = row * cols + col;
+      var cell = FMap.grid.cells[idx];
+      if (!cell || !cell.isWater) continue;
+      if (distFromLand[idx] < 6) continue;
 
-  // Wave patterns in deep ocean
-  ctx.strokeStyle = FMap.dark ? 'rgba(100, 150, 200, 0.15)' : 'rgba(100, 150, 200, 0.1)';
-  ctx.lineWidth = 1;
+      var sp = fmCellToScreen(col, row);
+      var wx = sp.x + w / 2;
+      var wy = sp.y + h / 2;
 
-  for (var row = 0; row < FMap.grid.rows; row += 4) {
-    for (var col = 0; col < FMap.grid.cols; col++) {
-      var cell = FMap.grid.cells[row * FMap.grid.cols + col];
-      if (cell.biome === 'deep_ocean') {
-        var x = b.x + (col / FMap.grid.cols) * b.w;
-        var y = b.y + (row / FMap.grid.rows) * b.h;
+      // Short curved wave dash — slightly larger
+      ctx.beginPath();
+      ctx.moveTo(wx - 6, wy);
+      ctx.quadraticCurveTo(wx, wy - 2.2, wx + 6, wy);
+      ctx.stroke();
+    }
+  }
+
+  ctx.globalAlpha = 1.0;
+};
+
+// ============================================================================
+// 8. RIVERS — smooth flowing lines, widening toward mouth
+// ============================================================================
+var fmRenderRivers = function(ctx) {
+  if (!FMap.world || !FMap.world.rivers) return;
+
+  var dark = FMap.dark;
+  var riverColor = dark ? '#5a4a3a' : '#1a1005';
+  var labelColor = dark ? '#6a5a4a' : '#1a1005';
+
+  for (var r = 0; r < FMap.world.rivers.length; r++) {
+    var river = FMap.world.rivers[r];
+    if (!river.path || river.path.length < 2) continue;
+
+    var cs = fmGetCellSize();
+    var screenPath = [];
+    for (var p = 0; p < river.path.length; p++) {
+      var pathPoint = river.path[p];
+      var col = pathPoint[1];
+      var row = pathPoint[0];
+      var sp = fmCellToScreen(col, row);
+      screenPath.push({x: sp.x + cs.w / 2, y: sp.y + cs.h / 2});
+    }
+
+    if (screenPath.length < 2) continue;
+
+    // Draw as smooth path with widening stroke
+    // More prominent river lines for traditional fantasy feel
+    var passes = [
+      { widthStart: 0.8, widthEnd: 3.5, alpha: 0.75 },
+      { widthStart: 0.4, widthEnd: 2.0, alpha: 0.25 }
+    ];
+
+    for (var pass = 0; pass < passes.length; pass++) {
+      var p_cfg = passes[pass];
+      ctx.strokeStyle = riverColor;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.globalAlpha = p_cfg.alpha;
+
+      // Draw segments with interpolated width
+      for (var sp_idx = 0; sp_idx < screenPath.length - 1; sp_idx++) {
+        var t = screenPath.length > 1 ? sp_idx / (screenPath.length - 1) : 0;
+        ctx.lineWidth = p_cfg.widthStart + (p_cfg.widthEnd - p_cfg.widthStart) * t;
+
+        var cur = screenPath[sp_idx];
+        var nxt = screenPath[sp_idx + 1];
 
         ctx.beginPath();
-        for (var wx = 0; wx < cellSize.w; wx += 8) {
-          var waveY = y + Math.sin(wx * 0.1 + row) * 2;
-          if (wx === 0) ctx.moveTo(x + wx, waveY);
-          else ctx.lineTo(x + wx, waveY);
+        ctx.moveTo(cur.x, cur.y);
+
+        // Use midpoint for smooth curve if we have a next-next point
+        if (sp_idx < screenPath.length - 2) {
+          var nxt2 = screenPath[sp_idx + 2];
+          var mx = (nxt.x + nxt2.x) / 2;
+          var my = (nxt.y + nxt2.y) / 2;
+          ctx.quadraticCurveTo(nxt.x, nxt.y, mx, my);
+        } else {
+          ctx.lineTo(nxt.x, nxt.y);
         }
         ctx.stroke();
       }
     }
-  }
 
-  // Stipple dots near coast
-  ctx.fillStyle = FMap.dark ? 'rgba(100, 150, 200, 0.2)' : 'rgba(100, 150, 200, 0.15)';
-  for (var row = 0; row < FMap.grid.rows; row++) {
-    for (var col = 0; col < FMap.grid.cols; col++) {
-      var cell = FMap.grid.cells[row * FMap.grid.cols + col];
-      if (cell.biome === 'ocean' || cell.biome === 'coast') {
-        if (Math.random() > 0.7) {
-          var x = b.x + (col / FMap.grid.cols) * b.w + Math.random() * cellSize.w;
-          var y = b.y + (row / FMap.grid.rows) * b.h + Math.random() * cellSize.h;
-          ctx.fillRect(x, y, 1.5, 1.5);
-        }
-      }
-    }
-  }
-}
+    // River name label
+    if (river.name && screenPath.length > 4) {
+      var midIdx = Math.floor(screenPath.length / 2);
+      var midPt = screenPath[midIdx];
+      var nxtPt = screenPath[Math.min(midIdx + 1, screenPath.length - 1)];
 
-// === 8. RIVER RENDERING ===
-function fmRenderRivers(ctx) {
-  if (!FMap.world.rivers || FMap.world.rivers.length === 0) return;
-
-  var b = FMap.mapBounds;
-  var riverColor = FMap.dark ? '#0a1a4a' : '#1a3a6a';
-
-  FMap.world.rivers.forEach(function(river) {
-    var path = river.path || river;
-    if (!path || path.length === 0) return;
-
-    var points = path.map(function(pt) {
-      // River path points are [row, col, flow] tuples or {row, col} objects
-      var ptRow = Array.isArray(pt) ? pt[0] : pt.row;
-      var ptCol = Array.isArray(pt) ? pt[1] : pt.col;
-      var x = b.x + (ptCol + 0.5) / FMap.grid.cols * b.w;
-      var y = b.y + (ptRow + 0.5) / FMap.grid.rows * b.h;
-      return { x: x, y: y };
-    });
-
-    // Draw river with width increasing downstream
-    ctx.strokeStyle = riverColor;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    for (var i = 0; i < points.length - 1; i++) {
-      var ratio = i / points.length;
-      var width = 1 + ratio * 3;
-      ctx.lineWidth = width;
-
-      ctx.beginPath();
-      ctx.moveTo(points[i].x, points[i].y);
-
-      if (i < points.length - 1) {
-        var cp = points[i + 1];
-        ctx.quadraticCurveTo(cp.x, cp.y, points[i + 1].x, points[i + 1].y);
-      }
-      ctx.stroke();
-    }
-
-    // River labels (optional, along midpoint)
-    if (river.name && points.length > 0) {
-      var midIdx = Math.floor(points.length / 2);
-      var midPoint = points[midIdx];
-      var nextPoint = points[Math.min(midIdx + 1, points.length - 1)];
-      var angle = Math.atan2(nextPoint.y - midPoint.y, nextPoint.x - midPoint.x);
+      var angle = Math.atan2(nxtPt.y - midPt.y, nxtPt.x - midPt.x);
+      // Flip if upside down
+      if (angle > Math.PI / 2 || angle < -Math.PI / 2) angle += Math.PI;
 
       ctx.save();
-      ctx.translate(midPoint.x, midPoint.y);
+      ctx.translate(midPt.x, midPt.y);
       ctx.rotate(angle);
-      ctx.fillStyle = FMap.dark ? '#4a6a9a' : '#1a3a6a';
-      ctx.font = 'italic 9px Cinzel';
+
+      ctx.font = 'italic 9px serif';
+      ctx.fillStyle = labelColor;
+      ctx.globalAlpha = 0.55;
       ctx.textAlign = 'center';
-      ctx.fillText(river.name, 0, -5);
+      ctx.fillText(river.name, 0, -4);
+
       ctx.restore();
     }
-  });
-}
+  }
+  ctx.globalAlpha = 1.0;
+};
 
-// === 9. KINGDOM BORDERS ===
-function fmRenderKingdomBorders(ctx) {
-  if (!FMap.world.kingdoms || FMap.world.kingdoms.length === 0) return;
-
-  var b = FMap.mapBounds;
+// ============================================================================
+// 9. KINGDOM BORDERS WITH DASHED LINES
+// ============================================================================
+// ============================================================================
+// 8b. TERRAIN FEATURES — desert stipple, swamp marks, grassland dots
+// ============================================================================
+var fmRenderTerrainFeatures = function(ctx) {
   var cellSize = fmGetCellSize();
-  var drawn = {};
+  var w = cellSize.w;
+  var h = cellSize.h;
+  var dark = FMap.dark;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
+
+  var inkColor = dark ? '#6a5a4a' : '#5a4520';
+
+  // Desert stippling — scattered dots
+  ctx.fillStyle = inkColor;
+  for (var row = 0; row < rows; row += 3) {
+    for (var col = 0; col < cols; col += 3) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell || cell.biome !== 'desert') continue;
+
+      var sp = fmCellToScreen(col, row);
+      var cx = sp.x + w * 1.5;
+      var cy = sp.y + h * 1.5;
+
+      // 2-3 small dots per sample point
+      ctx.globalAlpha = 0.3;
+      var dotCount = 2 + Math.floor((col * 7 + row * 13) % 3);
+      for (var d = 0; d < dotCount; d++) {
+        var dx = ((col * 11 + row * 3 + d * 17) % 20) / 20 * w * 2 - w;
+        var dy = ((col * 7 + row * 13 + d * 23) % 20) / 20 * h * 2 - h;
+        var r = 0.5 + ((col + row + d) % 3) * 0.3;
+        ctx.beginPath();
+        ctx.arc(cx + dx, cy + dy, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // Swamp marks — horizontal lines with grass tufts
+  ctx.strokeStyle = inkColor;
+  for (var row = 0; row < rows; row += 4) {
+    for (var col = 0; col < cols; col += 4) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell || cell.biome !== 'swamp') continue;
+
+      var sp = fmCellToScreen(col, row);
+      var cx = sp.x + w * 2;
+      var cy = sp.y + h * 2;
+
+      // Short horizontal lines
+      ctx.lineWidth = 0.5;
+      ctx.globalAlpha = 0.25;
+      ctx.beginPath();
+      ctx.moveTo(cx - 4, cy);
+      ctx.lineTo(cx + 4, cy);
+      ctx.stroke();
+
+      // Grass tuft (3 short vertical lines)
+      ctx.lineWidth = 0.6;
+      ctx.globalAlpha = 0.3;
+      ctx.beginPath();
+      ctx.moveTo(cx - 1, cy);
+      ctx.lineTo(cx - 2, cy - 3);
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx, cy - 4);
+      ctx.moveTo(cx + 1, cy);
+      ctx.lineTo(cx + 2, cy - 3);
+      ctx.stroke();
+    }
+  }
+
+  ctx.globalAlpha = 1.0;
+};
+
+var fmRenderKingdomBorders = function(ctx) {
+  if (!FMap.world || !FMap.world.kingdoms) return;
+
+  var cellSize = fmGetCellSize();
+  var w = cellSize.w;
+  var h = cellSize.h;
+  var bounds = FMap.mapBounds;
+  var drawnBorders = {};
+
+  ctx.lineWidth = 0.6;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.globalAlpha = 0.3;
+  ctx.setLineDash([4, 6]);
 
   for (var row = 0; row < FMap.grid.rows; row++) {
     for (var col = 0; col < FMap.grid.cols; col++) {
       var cell = FMap.grid.cells[row * FMap.grid.cols + col];
-      var kingdomId = cell.kingdomId;
+      if (!cell || !cell.kingdomId) continue;
+
+      var currentKingdom = cell.kingdomId;
+      var screenPos = fmCellToScreen(col, row);
+      var x = screenPos.x;
+      var y = screenPos.y;
 
       // Check right neighbor
-      if (col < FMap.grid.cols - 1) {
-        var rightCell = FMap.grid.cells[row * FMap.grid.cols + (col + 1)];
-        if (rightCell.kingdomId !== kingdomId && rightCell.kingdomId) {
-          var kingdom = FMap.world.kingdoms.find(function(k) { return k.id === kingdomId; });
-          if (kingdom) {
-            var x = b.x + (col + 1) / FMap.grid.cols * b.w;
-            var y1 = b.y + row / FMap.grid.rows * b.h;
-            var y2 = b.y + (row + 1) / FMap.grid.rows * b.h;
-
-            ctx.strokeStyle = kingdom.color || '#666666';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([8, 4]);
-            ctx.beginPath();
-            ctx.moveTo(x, y1);
-            ctx.lineTo(x, y2);
-            ctx.stroke();
-            ctx.setLineDash([]);
-          }
+      var rightCell = (col + 1 < FMap.grid.cols) ? FMap.grid.cells[row * FMap.grid.cols + col + 1] : null;
+      if (rightCell && rightCell.kingdomId && rightCell.kingdomId !== currentKingdom) {
+        var borderKey = Math.min(currentKingdom, rightCell.kingdomId) + '-' + Math.max(currentKingdom, rightCell.kingdomId) + '-right-' + row + '-' + col;
+        if (!drawnBorders[borderKey]) {
+          var kingdom = FMap.world.kingdoms.find(function(k) { return k.id === currentKingdom; });
+          var borderColor = kingdom && kingdom.color && kingdom.color.border ? kingdom.color.border : '#8a7a6a';
+          ctx.strokeStyle = borderColor;
+          ctx.beginPath();
+          ctx.moveTo(x + w, y);
+          ctx.lineTo(x + w, y + h);
+          ctx.stroke();
+          drawnBorders[borderKey] = true;
         }
       }
 
       // Check bottom neighbor
-      if (row < FMap.grid.rows - 1) {
-        var bottomCell = FMap.grid.cells[(row + 1) * FMap.grid.cols + col];
-        if (bottomCell.kingdomId !== kingdomId && bottomCell.kingdomId) {
-          var kingdom = FMap.world.kingdoms.find(function(k) { return k.id === kingdomId; });
-          if (kingdom) {
-            var x1 = b.x + col / FMap.grid.cols * b.w;
-            var x2 = b.x + (col + 1) / FMap.grid.cols * b.w;
-            var y = b.y + (row + 1) / FMap.grid.rows * b.h;
-
-            ctx.strokeStyle = kingdom.color || '#666666';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([8, 4]);
-            ctx.beginPath();
-            ctx.moveTo(x1, y);
-            ctx.lineTo(x2, y);
-            ctx.stroke();
-            ctx.setLineDash([]);
-          }
+      var bottomCell = (row + 1 < FMap.grid.rows) ? FMap.grid.cells[(row + 1) * FMap.grid.cols + col] : null;
+      if (bottomCell && bottomCell.kingdomId && bottomCell.kingdomId !== currentKingdom) {
+        var borderKey = Math.min(currentKingdom, bottomCell.kingdomId) + '-' + Math.max(currentKingdom, bottomCell.kingdomId) + '-bottom-' + row + '-' + col;
+        if (!drawnBorders[borderKey]) {
+          var kingdom = FMap.world.kingdoms.find(function(k) { return k.id === currentKingdom; });
+          var borderColor = kingdom && kingdom.color && kingdom.color.border ? kingdom.color.border : '#8a7a6a';
+          ctx.strokeStyle = borderColor;
+          ctx.beginPath();
+          ctx.moveTo(x, y + h);
+          ctx.lineTo(x + w, y + h);
+          ctx.stroke();
+          drawnBorders[borderKey] = true;
         }
       }
     }
   }
-}
 
-// === 10. ROADS ===
-function fmRenderRoads(ctx) {
-  if (!FMap.world.roads || FMap.world.roads.length === 0) return;
+  ctx.setLineDash([]);
+  ctx.globalAlpha = 1.0;
+};
 
-  var b = FMap.mapBounds;
+// ============================================================================
+// 10. ROADS WITH DOTTED/DASHED PATTERNS
+// ============================================================================
+var fmRenderRoads = function(ctx) {
+  if (!FMap.world || !FMap.world.roads) return;
 
-  FMap.world.roads.forEach(function(road) {
-    if (!road.path || road.path.length === 0) return;
+  var dark = FMap.dark;
+  var majorRoadColor = dark ? '#5a4a3a' : '#4a3015';
+  var minorRoadColor = dark ? '#4a3a2a' : '#5a4020';
+  var trailColor = dark ? '#3a2a1a' : '#6a5030';
 
-    var points = road.path.map(function(pt) {
-      var x = b.x + (pt.col + 0.5) / FMap.grid.cols * b.w;
-      var y = b.y + (pt.row + 0.5) / FMap.grid.rows * b.h;
-      return { x: x, y: y };
-    });
+  for (var road_idx = 0; road_idx < FMap.world.roads.length; road_idx++) {
+    var road = FMap.world.roads[road_idx];
+    if (!road.path || road.path.length < 2) continue;
 
-    var roadColor = FMap.dark ? '#4a3a2a' : '#5a4a3a';
-    var roadLightColor = FMap.dark ? '#6a5a4a' : '#8a7a6a';
+    // Convert path to screen coordinates
+    var screenPath = [];
+    for (var p = 0; p < road.path.length; p++) {
+      var pathPoint = road.path[p];
+      var col = pathPoint.col;
+      var row = pathPoint.row;
+      var screenPos = fmCellToScreen(col, row);
+      screenPath.push({x: screenPos.x + fmGetCellSize().w / 2, y: screenPos.y + fmGetCellSize().h / 2});
+    }
 
-    ctx.strokeStyle = road.type === 'major' ? roadColor : (road.type === 'minor' ? roadLightColor : roadColor);
-    ctx.lineWidth = road.type === 'major' ? 2 : (road.type === 'minor' ? 1.5 : 1);
+    if (screenPath.length < 2) continue;
+
+    // Set road style based on type
+    var roadColor = majorRoadColor;
+    var roadWidth = 1.5;
+    var dashPattern = [];
+
+    if (road.type === 'major') {
+      roadColor = majorRoadColor;
+      roadWidth = 1.2;
+      dashPattern = [2, 5]; // Dotted like reference
+    } else if (road.type === 'minor') {
+      roadColor = minorRoadColor;
+      roadWidth = 1;
+      dashPattern = [1.5, 5];
+    } else if (road.type === 'trail') {
+      roadColor = trailColor;
+      roadWidth = 0.8;
+      dashPattern = [1, 6];
+    }
+
+    ctx.strokeStyle = roadColor;
+    ctx.lineWidth = roadWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    ctx.setLineDash(dashPattern);
 
-    if (road.type === 'trail') {
-      ctx.setLineDash([4, 4]);
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-
-    for (var i = 1; i < points.length; i++) {
-      var prevIdx = i - 1;
-      var nextIdx = i + 1 < points.length ? i + 1 : i;
-
-      var cp = {
-        x: (points[prevIdx].x + points[i].x) / 2,
-        y: (points[prevIdx].y + points[i].y) / 2
-      };
-
-      ctx.quadraticCurveTo(cp.x, cp.y, points[i].x, points[i].y);
-    }
-
-    ctx.stroke();
-    ctx.setLineDash([]);
-  });
-}
-
-// === 11. SETTLEMENT ICONS ===
-function fmRenderSettlements(ctx) {
-  if (!FMap.world.cities || FMap.world.cities.length === 0) return;
-
-  var b = FMap.mapBounds;
-
-  FMap.world.cities.forEach(function(city) {
-    var x = b.x + (city.col + 0.5) / FMap.grid.cols * b.w;
-    var y = b.y + (city.row + 0.5) / FMap.grid.rows * b.h;
-
-    var iconSize = 14;
-    var labelOffset = 15;
-    var labelSize = 13;
-
-    if (city.type === 'capital') {
-      iconSize = 14;
-      labelSize = 13;
-
-      // Castle: towers and keep
-      ctx.fillStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-
-      // Left tower
-      ctx.fillRect(x - 7, y - 8, 4, 14);
-      // Right tower
-      ctx.fillRect(x + 3, y - 8, 4, 14);
-      // Center keep
-      ctx.fillRect(x - 2, y - 6, 4, 12);
-
-      // Crenellations
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-      for (var c = -7; c <= 3; c += 4) {
-        ctx.strokeRect(x + c, y - 8, 3, 2);
-      }
-
-      // Flag
-      ctx.fillStyle = '#c41e3a';
+    // Draw road with bezier smoothing
+    if (screenPath.length === 2) {
       ctx.beginPath();
-      ctx.moveTo(x - 2, y - 8);
-      ctx.lineTo(x - 2, y - 14);
-      ctx.lineTo(x + 2, y - 12);
-      ctx.lineTo(x - 2, y - 10);
-      ctx.closePath();
-      ctx.fill();
-
-    } else if (city.type === 'city') {
-      iconSize = 10;
-      labelSize = 11;
-
-      // Walled cluster
-      ctx.strokeStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(x - 5, y - 5, 10, 10);
-
-      // Peaked roofs
-      ctx.fillStyle = FMap.dark ? '#5a4a3a' : '#4a3a2a';
-      for (var r = 0; r < 3; r++) {
-        var rx = x - 3 + r * 3;
-        ctx.beginPath();
-        ctx.moveTo(rx - 1, y - 1);
-        ctx.lineTo(rx, y - 3);
-        ctx.lineTo(rx + 1, y - 1);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-    } else if (city.type === 'town') {
-      iconSize = 7;
-      labelSize = 10;
-
-      ctx.fillStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-      ctx.fillRect(x - 3, y - 2, 6, 4);
-      ctx.fillRect(x - 1, y - 4, 2, 4);
-
-    } else if (city.type === 'hamlet') {
-      iconSize = 5;
-      labelSize = 9;
-
-      ctx.fillStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-      ctx.beginPath();
-      ctx.moveTo(x - 2, y);
-      ctx.lineTo(x - 2, y + 2);
-      ctx.lineTo(x, y + 3);
-      ctx.lineTo(x + 2, y + 2);
-      ctx.lineTo(x + 2, y);
-      ctx.closePath();
-      ctx.fill();
-
-      // Smoke
-      ctx.strokeStyle = FMap.dark ? 'rgba(150, 150, 150, 0.4)' : 'rgba(150, 150, 150, 0.3)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(x - 1, y - 2, 1, 0, Math.PI * 2);
+      ctx.moveTo(screenPath[0].x, screenPath[0].y);
+      ctx.lineTo(screenPath[1].x, screenPath[1].y);
       ctx.stroke();
-    }
-
-    // Label with halo background
-    if (city.name) {
-      var labelColor = FMap.dark ? '#d4a574' : '#8a6a3a';
-      ctx.font = (city.type === 'capital' ? 'bold ' : '') + labelSize + 'px Cinzel';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-
-      // Halo
-      ctx.fillStyle = FMap.dark ? 'rgba(80, 60, 40, 0.6)' : 'rgba(240, 235, 220, 0.7)';
-      var textWidth = ctx.measureText(city.name).width;
-      ctx.fillRect(x + labelOffset - 2, y - labelSize / 2 - 1, textWidth + 4, labelSize + 2);
-
-      // Text
-      ctx.fillStyle = labelColor;
-      ctx.fillText(city.name, x + labelOffset, y);
-    }
-  });
-}
-
-// === 12. POI ICONS ===
-function fmRenderPOIs(ctx) {
-  if (!FMap.world.pois || FMap.world.pois.length === 0) return;
-
-  var b = FMap.mapBounds;
-  var iconSize = 8;
-  var labelSize = 8;
-
-  FMap.world.pois.forEach(function(poi) {
-    var x = b.x + (poi.col + 0.5) / FMap.grid.cols * b.w;
-    var y = b.y + (poi.row + 0.5) / FMap.grid.rows * b.h;
-
-    var poiColor = FMap.dark ? '#4a4a4a' : '#2a2a2a';
-
-    switch (poi.type) {
-      case 'dungeon':
-        // Skull
-        ctx.fillStyle = poiColor;
-        ctx.beginPath();
-        ctx.arc(x, y - 2, 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Crossed bones
-        ctx.strokeStyle = poiColor;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x - 3, y + 2);
-        ctx.lineTo(x + 3, y + 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x - 3, y + 2);
-        ctx.lineTo(x + 3, y + 4);
-        ctx.stroke();
-        break;
-
-      case 'ruins':
-        // Broken column
-        ctx.fillStyle = poiColor;
-        ctx.fillRect(x - 1, y - 3, 2, 6);
-        ctx.strokeStyle = poiColor;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x - 2, y - 2);
-        ctx.lineTo(x + 2, y);
-        ctx.stroke();
-        break;
-
-      case 'temple':
-        // Triangle with cross
-        ctx.fillStyle = poiColor;
-        ctx.beginPath();
-        ctx.moveTo(x, y - 4);
-        ctx.lineTo(x - 3, y + 2);
-        ctx.lineTo(x + 3, y + 2);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = '#f0f0f0';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, y - 2);
-        ctx.lineTo(x, y + 1);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x - 1, y - 0.5);
-        ctx.lineTo(x + 1, y - 0.5);
-        ctx.stroke();
-        break;
-
-      case 'tower':
-        // Narrow rectangle with pointed top
-        ctx.fillStyle = poiColor;
-        ctx.fillRect(x - 1.5, y - 2, 3, 5);
-        ctx.beginPath();
-        ctx.moveTo(x - 1.5, y - 2);
-        ctx.lineTo(x, y - 4);
-        ctx.lineTo(x + 1.5, y - 2);
-        ctx.closePath();
-        ctx.fill();
-        break;
-
-      case 'cave':
-        // Dark semicircle
-        ctx.fillStyle = poiColor;
-        ctx.beginPath();
-        ctx.arc(x, y, 3, Math.PI, 0);
-        ctx.lineTo(x + 3, y);
-        ctx.closePath();
-        ctx.fill();
-        break;
-
-      case 'shrine':
-        // Star/sparkle
-        ctx.fillStyle = poiColor;
-        for (var s = 0; s < 8; s++) {
-          var angle = (s / 8) * Math.PI * 2;
-          var rad = s % 2 === 0 ? 3 : 1.5;
-          var px = x + Math.cos(angle) * rad;
-          var py = y + Math.sin(angle) * rad;
-          if (s === 0) ctx.beginPath();
-          if (s === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-        ctx.fill();
-        break;
-
-      case 'battlefield':
-        // Crossed swords
-        ctx.strokeStyle = poiColor;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(x - 3, y - 2);
-        ctx.lineTo(x + 3, y + 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x + 3, y - 2);
-        ctx.lineTo(x - 3, y + 2);
-        ctx.stroke();
-        break;
-
-      case 'mine':
-        // Pickaxe
-        ctx.strokeStyle = poiColor;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(x - 2, y - 3);
-        ctx.lineTo(x + 2, y - 3);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x, y - 3);
-        ctx.lineTo(x, y + 3);
-        ctx.stroke();
-        break;
-
-      case 'camp':
-        // Tent triangle
-        ctx.fillStyle = poiColor;
-        ctx.beginPath();
-        ctx.moveTo(x, y - 3);
-        ctx.lineTo(x - 3, y + 2);
-        ctx.lineTo(x + 3, y + 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = '#f0f0f0';
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(x, y - 3);
-        ctx.lineTo(x, y + 2);
-        ctx.stroke();
-        break;
-
-      case 'portal':
-        // Concentric circles
-        ctx.strokeStyle = poiColor;
-        ctx.lineWidth = 1;
-        for (var p = 1; p <= 3; p++) {
-          ctx.beginPath();
-          ctx.arc(x, y, p * 1.3, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-        break;
-
-      case 'dragon_lair':
-        // Simplified dragon
-        ctx.fillStyle = poiColor;
-        ctx.beginPath();
-        ctx.arc(x - 1, y, 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(x + 1, y - 1);
-        ctx.lineTo(x + 3, y - 2);
-        ctx.lineTo(x + 3, y);
-        ctx.closePath();
-        ctx.fill();
-        break;
-    }
-
-    // Label below
-    if (poi.name) {
-      ctx.font = 'italic ' + labelSize + 'px Spectral';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = FMap.dark ? '#8a8a8a' : '#4a4a4a';
-      ctx.fillText(poi.name, x, y + 12);
-    }
-  });
-}
-
-// === 13. FEATURE LABELS ===
-function fmRenderFeatureLabels(ctx) {
-  if (!FMap.world.features) return;
-
-  var b = FMap.mapBounds;
-  var labelColor = FMap.dark ? '#6a8aaa' : '#2a4a7a';
-
-  // Mountain ranges
-  if (FMap.world.features.mountains && FMap.world.features.mountains.length > 0) {
-    FMap.world.features.mountains.forEach(function(range) {
-      if (!range.name || range.cells.length === 0) return;
-
-      var avgCol = 0, avgRow = 0;
-      range.cells.forEach(function(cell) {
-        avgCol += cell.col;
-        avgRow += cell.row;
-      });
-      avgCol /= range.cells.length;
-      avgRow /= range.cells.length;
-
-      var x = b.x + (avgCol + 0.5) / FMap.grid.cols * b.w;
-      var y = b.y + (avgRow + 0.5) / FMap.grid.rows * b.h;
-
-      ctx.font = 'italic bold 14px Cinzel';
-      ctx.fillStyle = FMap.dark ? '#9a7a5a' : '#6a4a2a';
-      ctx.textAlign = 'center';
-      ctx.fillText(range.name, x, y);
-    });
-  }
-
-  // Forests
-  if (FMap.world.features.forests && FMap.world.features.forests.length > 0) {
-    FMap.world.features.forests.forEach(function(forest) {
-      if (!forest.name || forest.cells.length === 0) return;
-
-      var avgCol = 0, avgRow = 0;
-      forest.cells.forEach(function(cell) {
-        avgCol += cell.col;
-        avgRow += cell.row;
-      });
-      avgCol /= forest.cells.length;
-      avgRow /= forest.cells.length;
-
-      var x = b.x + (avgCol + 0.5) / FMap.grid.cols * b.w;
-      var y = b.y + (avgRow + 0.5) / FMap.grid.rows * b.h;
-
-      ctx.font = 'italic 12px Cinzel';
-      ctx.fillStyle = FMap.dark ? '#3a7a28' : '#2a5a18';
-      ctx.textAlign = 'center';
-      ctx.fillText(forest.name, x, y);
-    });
-  }
-
-  // Seas/Oceans
-  if (FMap.world.features.seas && FMap.world.features.seas.length > 0) {
-    FMap.world.features.seas.forEach(function(sea) {
-      if (!sea.name || sea.cells.length === 0) return;
-
-      var avgCol = 0, avgRow = 0;
-      sea.cells.forEach(function(cell) {
-        avgCol += cell.col;
-        avgRow += cell.row;
-      });
-      avgCol /= sea.cells.length;
-      avgRow /= sea.cells.length;
-
-      var x = b.x + (avgCol + 0.5) / FMap.grid.cols * b.w;
-      var y = b.y + (avgRow + 0.5) / FMap.grid.rows * b.h;
-
-      ctx.font = 'italic 16px Cinzel';
-      ctx.fillStyle = FMap.dark ? '#4a8aaa' : '#1a4a7a';
-      ctx.textAlign = 'center';
-      ctx.fillText(sea.name, x, y);
-    });
-  }
-}
-
-// === 14. COMPASS ROSE ===
-function fmRenderCompass(ctx, cx, cy, size) {
-  var mainArrowLen = size * 0.35;
-  var ordinalArrowLen = size * 0.25;
-  var minorArrowLen = size * 0.15;
-
-  // Outer circle
-  ctx.strokeStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, size * 0.45, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Inner circle
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(cx, cy, size * 0.35, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Cardinal points (NESW)
-  var cardinals = [
-    { angle: -Math.PI / 2, letter: 'N', isNorth: true },
-    { angle: 0, letter: 'E', isNorth: false },
-    { angle: Math.PI / 2, letter: 'S', isNorth: false },
-    { angle: Math.PI, letter: 'W', isNorth: false }
-  ];
-
-  cardinals.forEach(function(cardinal) {
-    var angle = cardinal.angle;
-    var arrowColor = cardinal.isNorth ? '#c41e3a' : (FMap.dark ? '#3a2a1a' : '#2a1a0a');
-
-    // Arrow
-    ctx.fillStyle = arrowColor;
-    var tipX = cx + Math.cos(angle) * mainArrowLen;
-    var tipY = cy + Math.sin(angle) * mainArrowLen;
-    var baseAngle1 = angle + Math.PI / 6;
-    var baseAngle2 = angle - Math.PI / 6;
-    var baseX1 = cx + Math.cos(baseAngle1) * (size * 0.15);
-    var baseY1 = cy + Math.sin(baseAngle1) * (size * 0.15);
-    var baseX2 = cx + Math.cos(baseAngle2) * (size * 0.15);
-    var baseY2 = cy + Math.sin(baseAngle2) * (size * 0.15);
-
-    ctx.beginPath();
-    ctx.moveTo(tipX, tipY);
-    ctx.lineTo(baseX1, baseY1);
-    ctx.lineTo(baseX2, baseY2);
-    ctx.closePath();
-    ctx.fill();
-
-    // Letter
-    ctx.font = 'bold 12px Cinzel';
-    ctx.fillStyle = cardinal.isNorth ? '#c41e3a' : (FMap.dark ? '#3a2a1a' : '#2a1a0a');
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    var labelDist = size * 0.55;
-    ctx.fillText(cardinal.letter, cx + Math.cos(angle) * labelDist, cy + Math.sin(angle) * labelDist);
-  });
-
-  // Ordinal points
-  var ordinals = [
-    -Math.PI / 4, Math.PI / 4, 3 * Math.PI / 4, 5 * Math.PI / 4
-  ];
-
-  ctx.fillStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-  ordinals.forEach(function(angle) {
-    var tipX = cx + Math.cos(angle) * ordinalArrowLen;
-    var tipY = cy + Math.sin(angle) * ordinalArrowLen;
-    var baseAngle1 = angle + Math.PI / 8;
-    var baseAngle2 = angle - Math.PI / 8;
-    var baseX1 = cx + Math.cos(baseAngle1) * (size * 0.1);
-    var baseY1 = cy + Math.sin(baseAngle1) * (size * 0.1);
-    var baseX2 = cx + Math.cos(baseAngle2) * (size * 0.1);
-    var baseY2 = cy + Math.sin(baseAngle2) * (size * 0.1);
-
-    ctx.beginPath();
-    ctx.moveTo(tipX, tipY);
-    ctx.lineTo(baseX1, baseY1);
-    ctx.lineTo(baseX2, baseY2);
-    ctx.closePath();
-    ctx.fill();
-  });
-
-  // Minor points
-  for (var angle = 0; angle < Math.PI * 2; angle += Math.PI / 8) {
-    var isCardinal = Math.abs(angle % (Math.PI / 2)) < 0.1 || Math.abs(angle % (Math.PI / 2) - Math.PI / 2) < 0.1;
-    var isOrdinal = Math.abs((angle + Math.PI / 4) % (Math.PI / 2) - Math.PI / 4) < 0.1;
-
-    if (!isCardinal && !isOrdinal) {
-      var tipX = cx + Math.cos(angle) * minorArrowLen;
-      var tipY = cy + Math.sin(angle) * minorArrowLen;
-      ctx.fillStyle = FMap.dark ? 'rgba(58, 42, 26, 0.5)' : 'rgba(42, 26, 10, 0.5)';
-      ctx.fillRect(tipX - 0.5, tipY - 0.5, 1, 1);
-    }
-  }
-
-  // Center ornament
-  ctx.fillStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-  ctx.beginPath();
-  ctx.arc(cx, cy, size * 0.08, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-// === 15. TITLE CARTOUCHE ===
-function fmRenderCartouche(ctx, x, y, title, subtitle) {
-  var width = 300;
-  var height = 80;
-  var curveWidth = 40;
-  var textSize = 24;
-  var subtextSize = 12;
-
-  // Scroll background
-  ctx.fillStyle = FMap.dark ? 'rgba(100, 90, 70, 0.8)' : 'rgba(240, 235, 220, 0.9)';
-  ctx.fillRect(x - width / 2 + curveWidth, y - height / 2, width - 2 * curveWidth, height);
-
-  // Left curl
-  ctx.beginPath();
-  ctx.bezierCurveTo(
-    x - width / 2, y - height / 2,
-    x - width / 2 - curveWidth, y,
-    x - width / 2, y + height / 2
-  );
-  ctx.fill();
-
-  // Right curl
-  ctx.beginPath();
-  ctx.bezierCurveTo(
-    x + width / 2, y - height / 2,
-    x + width / 2 + curveWidth, y,
-    x + width / 2, y + height / 2
-  );
-  ctx.fill();
-
-  // Decorative border
-  ctx.strokeStyle = FMap.dark ? '#2a1a0a' : '#2a1a0a';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x - width / 2 + curveWidth + 2, y - height / 2 + 2, width - 2 * curveWidth - 4, height - 4);
-
-  // Inner line
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x - width / 2 + curveWidth + 5, y - height / 2 + 5, width - 2 * curveWidth - 10, height - 10);
-
-  // Title text
-  ctx.font = 'bold ' + textSize + 'px Cinzel';
-  ctx.fillStyle = '#c41e3a';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(title || 'World Map', x, y - 15);
-
-  // Subtitle text
-  ctx.font = 'italic ' + subtextSize + 'px Cinzel';
-  ctx.fillStyle = FMap.dark ? '#6a4a3a' : '#3a2a1a';
-  ctx.fillText(subtitle || '', x, y + 15);
-}
-
-// === 16. SCALE BAR ===
-function fmRenderScaleBar(ctx, x, y, label) {
-  var barWidth = 100;
-  var segmentWidth = barWidth / 6;
-  var barHeight = 10;
-
-  // Segments
-  for (var s = 0; s < 6; s++) {
-    ctx.fillStyle = s % 2 === 0 ? '#000000' : '#ffffff';
-    ctx.fillRect(x + s * segmentWidth, y, segmentWidth, barHeight);
-  }
-
-  // Border
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, barWidth, barHeight);
-
-  // End markers
-  ctx.beginPath();
-  ctx.moveTo(x, y - 3);
-  ctx.lineTo(x, y + barHeight + 3);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x + barWidth, y - 3);
-  ctx.lineTo(x + barWidth, y + barHeight + 3);
-  ctx.stroke();
-
-  // Label
-  ctx.font = '10px Cinzel';
-  ctx.textAlign = 'center';
-  ctx.fillStyle = FMap.dark ? '#8a8a8a' : '#2a2a2a';
-  ctx.fillText(label || 'Scale', x + barWidth / 2, y + barHeight + 15);
-}
-
-// === 17. LEGEND ===
-function fmRenderLegend(ctx, x, y) {
-  var boxWidth = 140;
-  var boxHeight = 200;
-  var padding = 8;
-  var lineHeight = 14;
-
-  // Background parchment
-  ctx.fillStyle = FMap.dark ? 'rgba(80, 70, 50, 0.7)' : 'rgba(240, 235, 220, 0.8)';
-  ctx.fillRect(x, y, boxWidth, boxHeight);
-
-  // Border
-  ctx.strokeStyle = FMap.dark ? '#3a2a1a' : '#2a1a0a';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(x, y, boxWidth, boxHeight);
-
-  // Title
-  ctx.font = 'bold 12px Cinzel';
-  ctx.fillStyle = FMap.dark ? '#d4a574' : '#2a1a0a';
-  ctx.textAlign = 'left';
-  ctx.fillText('Legend', x + padding, y + padding + 10);
-
-  // Legend items
-  var items = [
-    { label: 'Capital', color: '#3a2a1a', size: 6 },
-    { label: 'City', color: '#3a2a1a', size: 5 },
-    { label: 'Town', color: '#3a2a1a', size: 4 },
-    { label: 'Hamlet', color: '#3a2a1a', size: 3 },
-    { label: 'Mountain', color: '#4a4540', size: 5 },
-    { label: 'Forest', color: '#1a3810', size: 4 },
-    { label: 'Road', color: '#4a3a2a', size: 2 },
-    { label: 'River', color: '#0a1a4a', size: 2 },
-    { label: 'Dungeon', color: '#2a2a2a', size: 3 }
-  ];
-
-  ctx.font = '9px Cinzel';
-  ctx.fillStyle = FMap.dark ? '#a08a6a' : '#3a2a1a';
-  ctx.textAlign = 'left';
-
-  for (var i = 0; i < items.length; i++) {
-    var itemY = y + padding + 25 + i * lineHeight;
-    var item = items[i];
-
-    // Icon
-    ctx.fillStyle = item.color;
-    if (item.label === 'Road' || item.label === 'River') {
-      ctx.fillRect(x + padding, itemY - 1, item.size * 3, item.size);
     } else {
       ctx.beginPath();
-      ctx.arc(x + padding + 3, itemY + 2, item.size, 0, Math.PI * 2);
+      ctx.moveTo(screenPath[0].x, screenPath[0].y);
+
+      for (var sp = 1; sp < screenPath.length - 1; sp++) {
+        var xc = (screenPath[sp].x + screenPath[sp + 1].x) / 2;
+        var yc = (screenPath[sp].y + screenPath[sp + 1].y) / 2;
+        ctx.quadraticCurveTo(screenPath[sp].x, screenPath[sp].y, xc, yc);
+      }
+
+      ctx.quadraticCurveTo(
+        screenPath[screenPath.length - 2].x,
+        screenPath[screenPath.length - 2].y,
+        screenPath[screenPath.length - 1].x,
+        screenPath[screenPath.length - 1].y
+      );
+      ctx.stroke();
+    }
+  }
+
+  ctx.setLineDash([]);
+};
+
+
+// === 11-17. SETTLEMENTS, POIS, LABELS & UI ===
+// ============================================================================
+// FANTASY MAP ENGINE - UI/DECORATION RENDERING LAYER
+// Tolkien-style cartography with warm sepia, hand-drawn parchment aesthetic
+// ============================================================================
+
+var fmRenderSettlements = function(ctx) {
+  var settlements = FMap.world.cities || [];
+  var isLight = !FMap.dark;
+  var inkColor = isLight ? '#1a1005' : '#a89070';
+  var parchmentHalo = isLight ? '#d0a860' : '#3a2a1a';
+
+  // Reference map style: simple filled circles with name labels
+  // Capitals = large circle with star/cross, Cities = medium filled circle,
+  // Towns = small filled circle, Hamlets = tiny dot
+
+  for (var i = 0; i < settlements.length; i++) {
+    var city = settlements[i];
+    var screen = fmCellToScreen(city.col, city.row);
+    var x = screen.x;
+    var y = screen.y;
+
+    ctx.fillStyle = inkColor;
+    ctx.strokeStyle = inkColor;
+
+    if (city.type === 'capital') {
+      // Large filled circle with star burst
+      var r = 5;
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Small radiating lines (star burst) around the dot
+      ctx.lineWidth = 1.2;
+      for (var s = 0; s < 8; s++) {
+        var a = (s / 8) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(x + Math.cos(a) * (r + 1), y + Math.sin(a) * (r + 1));
+        ctx.lineTo(x + Math.cos(a) * (r + 4), y + Math.sin(a) * (r + 4));
+        ctx.stroke();
+      }
+
+      // Label — bold small caps
+      ctx.font = 'bold small-caps 12px Palatino, Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = 1.0;
+      ctx.strokeStyle = parchmentHalo;
+      ctx.lineWidth = 3;
+      ctx.strokeText(city.name, x, y + 16);
+      ctx.fillStyle = inkColor;
+      ctx.fillText(city.name, x, y + 16);
+
+    } else if (city.type === 'city') {
+      // Medium filled circle
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer ring
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Label
+      ctx.font = 'small-caps 11px Palatino, Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = 1.0;
+      ctx.strokeStyle = parchmentHalo;
+      ctx.lineWidth = 2.5;
+      ctx.strokeText(city.name, x, y + 13);
+      ctx.fillStyle = inkColor;
+      ctx.fillText(city.name, x, y + 13);
+
+    } else if (city.type === 'town') {
+      // Small filled circle
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label
+      ctx.font = '10px Palatino, Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = 1.0;
+      ctx.strokeStyle = parchmentHalo;
+      ctx.lineWidth = 2;
+      ctx.strokeText(city.name, x, y + 11);
+      ctx.fillStyle = inkColor;
+      ctx.fillText(city.name, x, y + 11);
+
+    } else if (city.type === 'hamlet') {
+      // Tiny dot
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label — small italic
+      ctx.font = 'italic 9px Palatino, Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = 0.8;
+      ctx.strokeStyle = parchmentHalo;
+      ctx.lineWidth = 1.5;
+      ctx.strokeText(city.name, x, y + 9);
+      ctx.fillStyle = inkColor;
+      ctx.fillText(city.name, x, y + 9);
+    }
+    ctx.globalAlpha = 1.0;
+  }
+};
+
+var fmRenderPOIs = function(ctx) {
+  var pois = FMap.world.pois || [];
+  var isLight = !FMap.dark;
+  var inkColor = isLight ? '#4a3a2a' : '#b8a890';
+
+  for (var i = 0; i < pois.length; i++) {
+    var poi = pois[i];
+    var screen = fmCellToScreen(poi.col, poi.row);
+    var x = screen.x;
+    var y = screen.y;
+
+    ctx.fillStyle = inkColor;
+    ctx.strokeStyle = inkColor;
+    ctx.lineWidth = 1;
+
+    var size = 8;
+    var sx = x - size / 2, sy = y - size / 2;
+
+    if (poi.type === 'dungeon') {
+      // Skull icon
+      ctx.beginPath();
+      ctx.arc(x, y - 1, 2, 0, Math.PI * 2);
+      ctx.fill();
+      // Jaw
+      ctx.beginPath();
+      ctx.moveTo(x - 1.5, y + 1);
+      ctx.lineTo(x + 1.5, y + 1);
+      ctx.stroke();
+
+    } else if (poi.type === 'ruins') {
+      // Broken column
+      ctx.beginPath();
+      ctx.moveTo(x, sy);
+      ctx.lineTo(x, y - 1);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y + 1);
+      ctx.lineTo(x, sy + size);
+      ctx.stroke();
+
+    } else if (poi.type === 'temple') {
+      // Triangle with cross
+      ctx.beginPath();
+      ctx.moveTo(x, sy);
+      ctx.lineTo(sx + size, sy + size);
+      ctx.lineTo(sx, sy + size);
+      ctx.closePath();
+      ctx.stroke();
+      // Cross
+      ctx.beginPath();
+      ctx.moveTo(x, y - 1);
+      ctx.lineTo(x, y + 1);
+      ctx.moveTo(x - 1, y);
+      ctx.lineTo(x + 1, y);
+      ctx.stroke();
+
+    } else if (poi.type === 'tower') {
+      // Narrow rectangle with pointed top
+      ctx.fillRect(x - 1.5, y, 3, 3);
+      ctx.beginPath();
+      ctx.moveTo(x - 1.5, y);
+      ctx.lineTo(x, y - 1.5);
+      ctx.lineTo(x + 1.5, y);
+      ctx.stroke();
+
+    } else if (poi.type === 'cave') {
+      // Arch/semicircle
+      ctx.beginPath();
+      ctx.arc(x, y + 0.5, 2.5, Math.PI, 0);
+      ctx.stroke();
+
+    } else if (poi.type === 'shrine') {
+      // 4-point star
+      ctx.beginPath();
+      ctx.moveTo(x, sy);
+      ctx.lineTo(x + 1.5, y - 0.5);
+      ctx.lineTo(sx + size, y);
+      ctx.lineTo(x + 0.5, y + 1.5);
+      ctx.lineTo(x, sy + size);
+      ctx.lineTo(x - 0.5, y + 1.5);
+      ctx.lineTo(sx, y);
+      ctx.lineTo(x - 1.5, y - 0.5);
+      ctx.closePath();
+      ctx.fill();
+
+    } else if (poi.type === 'battlefield') {
+      // Crossed swords (X)
+      ctx.beginPath();
+      ctx.moveTo(sx + 1, sy + 1);
+      ctx.lineTo(sx + size - 1, sy + size - 1);
+      ctx.moveTo(sx + size - 1, sy + 1);
+      ctx.lineTo(sx + 1, sy + size - 1);
+      ctx.stroke();
+
+    } else if (poi.type === 'mine') {
+      // Pickaxe
+      ctx.beginPath();
+      ctx.moveTo(x - 2, y - 1);
+      ctx.lineTo(x + 1, y + 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x - 1.5, y - 2);
+      ctx.lineTo(x, y - 0.5);
+      ctx.stroke();
+
+    } else if (poi.type === 'camp') {
+      // Tent (triangle)
+      ctx.beginPath();
+      ctx.moveTo(x, sy);
+      ctx.lineTo(sx, sy + size);
+      ctx.lineTo(sx + size, sy + size);
+      ctx.closePath();
+      ctx.stroke();
+
+    } else if (poi.type === 'portal') {
+      // Concentric circles
+      ctx.beginPath();
+      ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.stroke();
+
+    } else if (poi.type === 'dragon_lair') {
+      // S-curve dragon silhouette
+      ctx.beginPath();
+      ctx.moveTo(sx, y);
+      ctx.quadraticCurveTo(x - 1, y - 2, x, y - 1);
+      ctx.quadraticCurveTo(x + 1, y, sx + size, y + 2);
+      ctx.stroke();
+      // Wing
+      ctx.beginPath();
+      ctx.moveTo(x, y - 1);
+      ctx.lineTo(x + 2, y - 2);
+      ctx.lineTo(x + 1, y);
+      ctx.closePath();
       ctx.fill();
     }
 
     // Label
-    ctx.fillStyle = FMap.dark ? '#a08a6a' : '#3a2a1a';
-    ctx.fillText(item.label, x + padding + 15, itemY + 3);
+    ctx.font = 'italic 8px Palatino, Georgia, serif';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = inkColor;
+    ctx.fillText(poi.name, x + 6, y + 2);
   }
-}
+};
+
+var fmRenderFeatureLabels = function(ctx) {
+  var isLight = !FMap.dark;
+
+  // Kingdom names
+  var kingdoms = FMap.world.kingdoms || [];
+  for (var k = 0; k < kingdoms.length; k++) {
+    var kingdom = kingdoms[k];
+    if (!kingdom.bounds || !kingdom.name) continue;
+
+    // Center of kingdom
+    var centerCol = (kingdom.bounds.minCol + kingdom.bounds.maxCol) / 2;
+    var centerRow = (kingdom.bounds.minRow + kingdom.bounds.maxRow) / 2;
+    var screen = fmCellToScreen(centerCol, centerRow);
+
+    ctx.font = 'small-caps 16px Palatino, Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.letterSpacing = '6px';
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = kingdom.color && kingdom.color.text ? kingdom.color.text : (isLight ? '#3a2a1a' : '#a89070');
+    ctx.fillText(kingdom.name.toUpperCase(), screen.x, screen.y);
+    ctx.globalAlpha = 1;
+  }
+
+  // Geographic features
+  var features = FMap.world.features || [];
+  for (var f = 0; f < features.length; f++) {
+    var feature = features[f];
+    if (!feature.bounds || !feature.name) continue;
+
+    var fCenterCol = (feature.bounds.minCol + feature.bounds.maxCol) / 2;
+    var fCenterRow = (feature.bounds.minRow + feature.bounds.maxRow) / 2;
+    var fScreen = fmCellToScreen(fCenterCol, fCenterRow);
+
+    var fSize = 12, fColor = isLight ? '#3a2a1a' : '#b8a890', fStyle = 'italic';
+
+    if (feature.type === 'mountain') {
+      fSize = 12;
+      fColor = isLight ? '#3a2a1a' : '#a89070';
+      fStyle = 'italic';
+    } else if (feature.type === 'forest') {
+      fSize = 12;
+      fColor = isLight ? '#4a3a2a' : '#a89070';
+      fStyle = 'italic';
+    } else if (feature.type === 'ocean' || feature.type === 'sea') {
+      fSize = 18;
+      fColor = isLight ? '#4a3518' : '#9db0c8';
+      fStyle = 'italic';
+    } else if (feature.type === 'river') {
+      fSize = 10;
+      fColor = isLight ? '#5a6a80' : '#9db0c8';
+      fStyle = 'italic';
+      var rotation = fRand() * 0.3 - 0.15;
+      ctx.save();
+      ctx.translate(fScreen.x, fScreen.y);
+      ctx.rotate(rotation);
+      ctx.font = fStyle + ' ' + fSize + 'px Palatino, Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = fColor;
+      ctx.fillText(feature.name, 0, 0);
+      ctx.restore();
+      continue;
+    } else if (feature.type === 'desert') {
+      fSize = 14;
+      fColor = isLight ? '#8b7a5a' : '#d4c4a0';
+      fStyle = 'italic';
+    } else if (feature.type === 'swamp') {
+      fSize = 12;
+      fColor = isLight ? '#5a6a4a' : '#9db090';
+      fStyle = 'italic';
+    }
+
+    ctx.font = fStyle + ' ' + fSize + 'px Palatino, Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = fColor;
+    ctx.fillText(feature.name, fScreen.x, fScreen.y);
+  }
+};
+
+var fmRenderCompass = function(ctx, cx, cy, size) {
+  var isLight = !FMap.dark;
+  var inkColor = isLight ? '#1a1005' : '#a89070';
+  var accentColor = '#6a1800';
+  var lightInk = isLight ? '#4a3a2a' : '#b8a890';
+  var parchColor = isLight ? '#d4b06a' : '#2a1a0a';
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  var s = size / 100;
+
+  // === OUTER DECORATIVE RING with tick marks ===
+  ctx.strokeStyle = inkColor;
+  ctx.lineWidth = 2.5 * s;
+  ctx.globalAlpha = 0.9;
+  ctx.beginPath();
+  ctx.arc(0, 0, 48 * s, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Inner ring
+  ctx.lineWidth = 1.2 * s;
+  ctx.beginPath();
+  ctx.arc(0, 0, 44 * s, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // 32 tick marks between rings
+  ctx.lineWidth = 0.8 * s;
+  ctx.globalAlpha = 0.7;
+  for (var t = 0; t < 32; t++) {
+    var ta = (t / 32) * Math.PI * 2;
+    var inner = (t % 4 === 0) ? 42 : (t % 2 === 0) ? 43 : 44;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(ta) * inner * s, Math.sin(ta) * inner * s);
+    ctx.lineTo(Math.cos(ta) * 48 * s, Math.sin(ta) * 48 * s);
+    ctx.stroke();
+  }
+
+  // === 16-POINT STAR ===
+  // 4 cardinal points — long, bold, with half-dark/half-light fill (Tolkien style)
+  var cardAngles = [-Math.PI / 2, 0, Math.PI / 2, Math.PI]; // N, E, S, W
+  var cardLabels = ['N', 'E', 'S', 'W'];
+
+  for (var c = 0; c < 4; c++) {
+    var a = cardAngles[c];
+    var tipDist = 42 * s;
+    var halfW = 0.18;
+
+    var tipX = Math.cos(a) * tipDist;
+    var tipY = Math.sin(a) * tipDist;
+    var leftX = Math.cos(a + halfW) * 8 * s;
+    var leftY = Math.sin(a + halfW) * 8 * s;
+    var rightX = Math.cos(a - halfW) * 8 * s;
+    var rightY = Math.sin(a - halfW) * 8 * s;
+
+    // Dark half (left side looking outward)
+    ctx.fillStyle = (c === 0) ? accentColor : inkColor;
+    ctx.globalAlpha = 0.95;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(leftX, leftY);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Light half (right side)
+    ctx.fillStyle = parchColor;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(rightX, rightY);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Outline the light half
+    ctx.strokeStyle = inkColor;
+    ctx.lineWidth = 1.0 * s;
+    ctx.globalAlpha = 0.8;
+    ctx.stroke();
+  }
+
+  // 4 ordinal points — shorter, thinner
+  var ordAngles = [-Math.PI / 4, Math.PI / 4, 3 * Math.PI / 4, -3 * Math.PI / 4];
+  for (var o = 0; o < 4; o++) {
+    var a = ordAngles[o];
+    var tipDist = 30 * s;
+    var halfW = 0.15;
+
+    var tipX = Math.cos(a) * tipDist;
+    var tipY = Math.sin(a) * tipDist;
+    var leftX = Math.cos(a + halfW) * 6 * s;
+    var leftY = Math.sin(a + halfW) * 6 * s;
+    var rightX = Math.cos(a - halfW) * 6 * s;
+    var rightY = Math.sin(a - halfW) * 6 * s;
+
+    ctx.fillStyle = inkColor;
+    ctx.globalAlpha = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(leftX, leftY);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = parchColor;
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(rightX, rightY);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = inkColor;
+    ctx.lineWidth = 0.7 * s;
+    ctx.globalAlpha = 0.7;
+    ctx.stroke();
+  }
+
+  // 8 minor points — fine lines
+  for (var m = 0; m < 8; m++) {
+    var a = (m / 8) * Math.PI * 2 + Math.PI / 8;
+    ctx.strokeStyle = lightInk;
+    ctx.lineWidth = 1.0 * s;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 6 * s, Math.sin(a) * 6 * s);
+    ctx.lineTo(Math.cos(a) * 20 * s, Math.sin(a) * 20 * s);
+    ctx.stroke();
+  }
+
+  // === CENTER ORNAMENT ===
+  ctx.fillStyle = inkColor;
+  ctx.globalAlpha = 1.0;
+  ctx.beginPath();
+  ctx.arc(0, 0, 5 * s, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = parchColor;
+  ctx.lineWidth = 1.5 * s;
+  ctx.beginPath();
+  ctx.arc(0, 0, 3 * s, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Decorative inner ring
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = 1.5 * s;
+  ctx.globalAlpha = 0.8;
+  ctx.beginPath();
+  ctx.arc(0, 0, 8 * s, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // === CARDINAL LABELS — ornate serif ===
+  ctx.globalAlpha = 1.0;
+  ctx.fillStyle = inkColor;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  var labelDist = 54 * s;
+  ctx.font = 'bold ' + Math.round(14 * s) + 'px Palatino, Georgia, serif';
+  ctx.fillText('N', 0, -labelDist);
+  ctx.font = Math.round(11 * s) + 'px Palatino, Georgia, serif';
+  ctx.fillText('S', 0, labelDist);
+  ctx.fillText('E', labelDist, 0);
+  ctx.fillText('W', -labelDist, 0);
+
+  // === FLEUR-DE-LIS above north point ===
+  ctx.strokeStyle = accentColor;
+  ctx.fillStyle = accentColor;
+  ctx.lineWidth = 1.2 * s;
+  ctx.globalAlpha = 0.9;
+  var fY = -43 * s;
+  // Center petal
+  ctx.beginPath();
+  ctx.moveTo(0, fY - 5 * s);
+  ctx.quadraticCurveTo(2 * s, fY - 2 * s, 0.5 * s, fY + 1 * s);
+  ctx.quadraticCurveTo(0, fY, -0.5 * s, fY + 1 * s);
+  ctx.quadraticCurveTo(-2 * s, fY - 2 * s, 0, fY - 5 * s);
+  ctx.fill();
+  // Left petal
+  ctx.beginPath();
+  ctx.moveTo(-1 * s, fY - 1 * s);
+  ctx.quadraticCurveTo(-5 * s, fY - 3 * s, -4 * s, fY + 2 * s);
+  ctx.quadraticCurveTo(-2 * s, fY, -1 * s, fY - 1 * s);
+  ctx.fill();
+  // Right petal
+  ctx.beginPath();
+  ctx.moveTo(1 * s, fY - 1 * s);
+  ctx.quadraticCurveTo(5 * s, fY - 3 * s, 4 * s, fY + 2 * s);
+  ctx.quadraticCurveTo(2 * s, fY, 1 * s, fY - 1 * s);
+  ctx.fill();
+
+  ctx.globalAlpha = 1.0;
+  ctx.restore();
+};
+
+var fmRenderCartouche = function(ctx, x, y, title, subtitle) {
+  var isLight = !FMap.dark;
+  var inkColor = isLight ? '#1a1005' : '#a89070';
+  var parchmentColor = isLight ? '#d4b06a' : '#3a2a1a';
+  var borderColor = isLight ? '#3a2a1a' : '#b8a890';
+  var lightInk = isLight ? '#5a4a3a' : '#9a8a70';
+
+  var width = 240;
+  var height = 90;
+
+  ctx.save();
+
+  // === PARCHMENT BANNER SHAPE — scroll with curled ends ===
+  // Main banner body
+  ctx.fillStyle = parchmentColor;
+  ctx.globalAlpha = 0.95;
+  ctx.beginPath();
+  ctx.moveTo(x - width / 2 + 15, y - height / 2);
+  ctx.lineTo(x + width / 2 - 15, y - height / 2);
+  ctx.quadraticCurveTo(x + width / 2, y - height / 2, x + width / 2, y - height / 2 + 12);
+  ctx.lineTo(x + width / 2, y + height / 2 - 12);
+  ctx.quadraticCurveTo(x + width / 2, y + height / 2, x + width / 2 - 15, y + height / 2);
+  ctx.lineTo(x - width / 2 + 15, y + height / 2);
+  ctx.quadraticCurveTo(x - width / 2, y + height / 2, x - width / 2, y + height / 2 - 12);
+  ctx.lineTo(x - width / 2, y - height / 2 + 12);
+  ctx.quadraticCurveTo(x - width / 2, y - height / 2, x - width / 2 + 15, y - height / 2);
+  ctx.closePath();
+  ctx.fill();
+
+  // Double border — outer thick, inner thin
+  ctx.strokeStyle = borderColor;
+  ctx.lineWidth = 2.5;
+  ctx.globalAlpha = 0.9;
+  ctx.stroke();
+
+  // Inner border line (inset 5px)
+  ctx.lineWidth = 0.8;
+  ctx.globalAlpha = 0.7;
+  ctx.beginPath();
+  ctx.moveTo(x - width / 2 + 20, y - height / 2 + 5);
+  ctx.lineTo(x + width / 2 - 20, y - height / 2 + 5);
+  ctx.quadraticCurveTo(x + width / 2 - 5, y - height / 2 + 5, x + width / 2 - 5, y - height / 2 + 16);
+  ctx.lineTo(x + width / 2 - 5, y + height / 2 - 16);
+  ctx.quadraticCurveTo(x + width / 2 - 5, y + height / 2 - 5, x + width / 2 - 20, y + height / 2 - 5);
+  ctx.lineTo(x - width / 2 + 20, y + height / 2 - 5);
+  ctx.quadraticCurveTo(x - width / 2 + 5, y + height / 2 - 5, x - width / 2 + 5, y + height / 2 - 16);
+  ctx.lineTo(x - width / 2 + 5, y - height / 2 + 16);
+  ctx.quadraticCurveTo(x - width / 2 + 5, y - height / 2 + 5, x - width / 2 + 20, y - height / 2 + 5);
+  ctx.closePath();
+  ctx.stroke();
+
+  // === CORNER ORNAMENTS — small floral/leaf flourishes ===
+  ctx.strokeStyle = lightInk;
+  ctx.lineWidth = 1.2;
+  ctx.globalAlpha = 0.65;
+  var corners = [
+    { cx: x - width / 2 + 14, cy: y - height / 2 + 10, sx: 1, sy: 1 },
+    { cx: x + width / 2 - 14, cy: y - height / 2 + 10, sx: -1, sy: 1 },
+    { cx: x - width / 2 + 14, cy: y + height / 2 - 10, sx: 1, sy: -1 },
+    { cx: x + width / 2 - 14, cy: y + height / 2 - 10, sx: -1, sy: -1 }
+  ];
+  for (var ci = 0; ci < corners.length; ci++) {
+    var co = corners[ci];
+    // Small vine curl
+    ctx.beginPath();
+    ctx.moveTo(co.cx, co.cy);
+    ctx.quadraticCurveTo(co.cx + 6 * co.sx, co.cy - 3 * co.sy, co.cx + 10 * co.sx, co.cy + 2 * co.sy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(co.cx, co.cy);
+    ctx.quadraticCurveTo(co.cx + 3 * co.sx, co.cy + 6 * co.sy, co.cx - 2 * co.sx, co.cy + 8 * co.sy);
+    ctx.stroke();
+  }
+
+  // === TITLE TEXT — bold serif with letter spacing ===
+  ctx.globalAlpha = 1.0;
+  ctx.font = 'bold small-caps 20px Palatino, Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Text halo for readability
+  ctx.strokeStyle = parchmentColor;
+  ctx.lineWidth = 3;
+  ctx.strokeText(title, x, y - 12);
+  ctx.fillStyle = inkColor;
+  ctx.fillText(title, x, y - 12);
+
+  // === ORNAMENTAL DIVIDER — flourish line with diamond center ===
+  ctx.strokeStyle = lightInk;
+  ctx.lineWidth = 1.0;
+  ctx.globalAlpha = 0.8;
+  // Left flourish
+  ctx.beginPath();
+  ctx.moveTo(x - 50, y + 4);
+  ctx.quadraticCurveTo(x - 30, y + 2, x - 8, y + 4);
+  ctx.stroke();
+  // Right flourish
+  ctx.beginPath();
+  ctx.moveTo(x + 50, y + 4);
+  ctx.quadraticCurveTo(x + 30, y + 2, x + 8, y + 4);
+  ctx.stroke();
+  // Center diamond
+  ctx.fillStyle = lightInk;
+  ctx.globalAlpha = 0.7;
+  ctx.beginPath();
+  ctx.moveTo(x, y + 1);
+  ctx.lineTo(x + 4, y + 4);
+  ctx.lineTo(x, y + 7);
+  ctx.lineTo(x - 4, y + 4);
+  ctx.closePath();
+  ctx.fill();
+  // Small dots flanking diamond
+  ctx.beginPath();
+  ctx.arc(x - 7, y + 4, 1.2, 0, Math.PI * 2);
+  ctx.arc(x + 7, y + 4, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // === SUBTITLE TEXT ===
+  ctx.globalAlpha = 0.85;
+  ctx.font = 'italic 11px Palatino, Georgia, serif';
+  ctx.fillStyle = inkColor;
+  ctx.fillText(subtitle, x, y + 22);
+
+  ctx.globalAlpha = 1.0;
+  ctx.restore();
+};
+
+var fmRenderScaleBar = function(ctx, x, y, label) {
+  var isLight = !FMap.dark;
+  var inkColor = isLight ? '#1a1005' : '#a89070';
+  var parchmentColor = isLight ? '#d4b06a' : '#3a2a1a';
+
+  var segmentWidth = 20;
+  var segmentHeight = 8;
+  var numSegments = 6;
+  var totalWidth = segmentWidth * numSegments;
+
+  // Draw alternating filled/empty segments
+  for (var seg = 0; seg < numSegments; seg++) {
+    var segX = x + seg * segmentWidth;
+
+    // Border
+    ctx.strokeStyle = inkColor;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(segX, y, segmentWidth, segmentHeight);
+
+    // Fill alternating segments
+    if (seg % 2 === 0) {
+      ctx.fillStyle = inkColor;
+      ctx.fillRect(segX, y, segmentWidth, segmentHeight);
+    }
+  }
+
+  // End markers (small vertical lines)
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(x - 2, y - 3);
+  ctx.lineTo(x - 2, y + segmentHeight + 3);
+  ctx.moveTo(x + totalWidth + 2, y - 3);
+  ctx.lineTo(x + totalWidth + 2, y + segmentHeight + 3);
+  ctx.stroke();
+
+  // Label
+  ctx.font = '9px Palatino, Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = inkColor;
+  ctx.fillText(label || '0 ——— 100 leagues', x + totalWidth / 2, y + segmentHeight + 16);
+};
+
+var fmRenderLegend = function(ctx, x, y) {
+  var isLight = !FMap.dark;
+  var inkColor = isLight ? '#1a1005' : '#a89070';
+  var borderColor = isLight ? '#5a4a3a' : '#b8a890';
+  var parchmentColor = isLight ? '#d4b06a' : '#3a2a1a';
+  var bgColor = isLight ? 'rgba(212,176,106,0.92)' : 'rgba(58,42,26,0.9)';
+
+  var width = 140;
+  var itemHeight = 18;
+  var numItems = 10;
+  var height = 30 + numItems * itemHeight;
+
+  // Semi-transparent background
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(x, y, width, height);
+
+  // Border
+  ctx.strokeStyle = borderColor;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(x, y, width, height);
+
+  // Title
+  ctx.font = 'bold 11px Palatino, Georgia, serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = inkColor;
+  ctx.fillText('Legend', x + 8, y + 16);
+
+  // Legend items
+  var legendItems = [
+    { icon: 'capital', label: 'Capital' },
+    { icon: 'city', label: 'City' },
+    { icon: 'town', label: 'Town' },
+    { icon: 'hamlet', label: 'Hamlet' },
+    { icon: 'mountain', label: 'Mountain' },
+    { icon: 'forest', label: 'Forest' },
+    { icon: 'road', label: 'Major Road' },
+    { icon: 'river', label: 'River' },
+    { icon: 'dungeon', label: 'Dungeon' },
+    { icon: 'poi', label: 'Point of Interest' }
+  ];
+
+  for (var item = 0; item < legendItems.length; item++) {
+    var itemY = y + 30 + item * itemHeight;
+    var iconX = x + 8;
+    var iconY = itemY + 4;
+
+    ctx.lineWidth = 1;
+    ctx.fillStyle = inkColor;
+    ctx.strokeStyle = inkColor;
+
+    // Draw tiny icons
+    if (legendItems[item].icon === 'capital') {
+      ctx.fillRect(iconX, iconY, 2, 2);
+      ctx.beginPath();
+      ctx.moveTo(iconX + 1, iconY);
+      ctx.lineTo(iconX + 2, iconY - 1);
+      ctx.lineTo(iconX + 3, iconY);
+      ctx.stroke();
+    } else if (legendItems[item].icon === 'city') {
+      ctx.beginPath();
+      ctx.arc(iconX + 1.5, iconY + 1, 1.5, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (legendItems[item].icon === 'town') {
+      ctx.fillRect(iconX, iconY, 1.5, 1.5);
+      ctx.fillRect(iconX + 2, iconY, 1.5, 1.5);
+    } else if (legendItems[item].icon === 'hamlet') {
+      ctx.fillRect(iconX + 0.5, iconY + 0.5, 2, 1);
+    } else if (legendItems[item].icon === 'mountain') {
+      ctx.beginPath();
+      ctx.moveTo(iconX, iconY + 2);
+      ctx.lineTo(iconX + 1.5, iconY);
+      ctx.lineTo(iconX + 3, iconY + 2);
+      ctx.stroke();
+    } else if (legendItems[item].icon === 'forest') {
+      ctx.beginPath();
+      ctx.moveTo(iconX + 1, iconY);
+      ctx.lineTo(iconX, iconY + 2);
+      ctx.lineTo(iconX + 2, iconY + 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(iconX + 2, iconY + 0.5);
+      ctx.lineTo(iconX + 1.5, iconY + 2);
+      ctx.lineTo(iconX + 2.5, iconY + 2);
+      ctx.closePath();
+      ctx.fill();
+    } else if (legendItems[item].icon === 'road') {
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(iconX, iconY + 1.5);
+      ctx.lineTo(iconX + 3, iconY + 1.5);
+      ctx.stroke();
+    } else if (legendItems[item].icon === 'river') {
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = inkColor;
+      ctx.beginPath();
+      ctx.moveTo(iconX, iconY + 1);
+      ctx.quadraticCurveTo(iconX + 1.5, iconY, iconX + 3, iconY + 1.5);
+      ctx.stroke();
+    } else if (legendItems[item].icon === 'dungeon') {
+      ctx.beginPath();
+      ctx.arc(iconX + 1.5, iconY + 1, 1, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (legendItems[item].icon === 'poi') {
+      ctx.beginPath();
+      ctx.moveTo(iconX + 1.5, iconY);
+      ctx.lineTo(iconX + 3, iconY + 1.5);
+      ctx.lineTo(iconX + 1.5, iconY + 3);
+      ctx.lineTo(iconX, iconY + 1.5);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Label
+    ctx.font = '9px Palatino, Georgia, serif';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = inkColor;
+    ctx.fillText(legendItems[item].label, x + 24, itemY + 6);
+  }
+};
+
+// ============================================================================
+// ============================================================================
+// SEA SERPENT / DRAGON DECORATION — Tolkien-esque sea creature in ocean areas
+// ============================================================================
+var fmRenderSeaSerpent = function(ctx) {
+  var isLight = !FMap.dark;
+  var inkColor = isLight ? '#1a1005' : '#a89070';
+  var b = FMap.mapBounds;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
+
+  // Find a large ocean area to place the serpent
+  // Scan for a region with lots of water cells
+  var bestX = -1, bestY = -1, bestCount = 0;
+  var scanStep = 20;
+
+  for (var row = scanStep; row < rows - scanStep; row += scanStep) {
+    for (var col = scanStep; col < cols - scanStep; col += scanStep) {
+      var waterCount = 0;
+      for (var dr = -scanStep; dr <= scanStep; dr += 4) {
+        for (var dc = -scanStep; dc <= scanStep; dc += 4) {
+          var r2 = row + dr, c2 = col + dc;
+          if (r2 >= 0 && r2 < rows && c2 >= 0 && c2 < cols) {
+            var cell = FMap.grid.cells[r2 * cols + c2];
+            if (cell && cell.isWater) waterCount++;
+          }
+        }
+      }
+      if (waterCount > bestCount) {
+        bestCount = waterCount;
+        bestX = col;
+        bestY = row;
+      }
+    }
+  }
+
+  // Only draw if there's a decent ocean area
+  if (bestCount < 30) return;
+
+  var sp = fmCellToScreen(bestX, bestY);
+  var cx = sp.x;
+  var cy = sp.y;
+
+  ctx.strokeStyle = inkColor;
+  ctx.fillStyle = inkColor;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Serpent body — sinuous S-curve
+  ctx.lineWidth = 3.0;
+  ctx.globalAlpha = 0.55;
+
+  // Scale factor for overall serpent size
+  var sc = 1.8;
+
+  ctx.beginPath();
+  // Head
+  var headX = cx - 35 * sc;
+  var headY = cy - 8 * sc;
+  ctx.moveTo(headX, headY);
+  // Body curves — large sinuous S-shape
+  ctx.bezierCurveTo(cx - 20 * sc, cy - 25 * sc, cx - 5 * sc, cy + 15 * sc, cx + 10 * sc, cy - 10 * sc);
+  ctx.bezierCurveTo(cx + 25 * sc, cy - 30 * sc, cx + 35 * sc, cy + 5 * sc, cx + 50 * sc, cy - 5 * sc);
+  // Tail
+  ctx.bezierCurveTo(cx + 60 * sc, cy - 12 * sc, cx + 65 * sc, cy + 8 * sc, cx + 70 * sc, cy - 2 * sc);
+  ctx.stroke();
+
+  // Tail fin
+  ctx.lineWidth = 2.0;
+  ctx.beginPath();
+  ctx.moveTo(cx + 70 * sc, cy - 2 * sc);
+  ctx.lineTo(cx + 80 * sc, cy - 12 * sc);
+  ctx.moveTo(cx + 70 * sc, cy - 2 * sc);
+  ctx.lineTo(cx + 80 * sc, cy + 7 * sc);
+  ctx.stroke();
+
+  // Head — dragon head shape
+  ctx.globalAlpha = 0.6;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  // Snout — open jaw
+  ctx.moveTo(headX - 18 * sc, headY - 4 * sc);
+  ctx.lineTo(headX - 4, headY);
+  ctx.stroke();
+  // Upper jaw with teeth hint
+  ctx.beginPath();
+  ctx.moveTo(headX - 18 * sc, headY - 4 * sc);
+  ctx.quadraticCurveTo(headX - 12 * sc, headY - 12 * sc, headX - 2, headY - 6 * sc);
+  ctx.stroke();
+  // Lower jaw
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(headX - 16 * sc, headY + 2 * sc);
+  ctx.quadraticCurveTo(headX - 10 * sc, headY + 4 * sc, headX - 4, headY);
+  ctx.stroke();
+
+  // Eye
+  ctx.beginPath();
+  ctx.arc(headX - 8 * sc, headY - 5 * sc, 2.0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Horn/crest
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(headX - 3, headY - 6 * sc);
+  ctx.lineTo(headX, headY - 16 * sc);
+  ctx.lineTo(headX + 5, headY - 7 * sc);
+  ctx.stroke();
+
+  // Second smaller horn
+  ctx.lineWidth = 1.0;
+  ctx.beginPath();
+  ctx.moveTo(headX + 4, headY - 6 * sc);
+  ctx.lineTo(headX + 6, headY - 12 * sc);
+  ctx.stroke();
+
+  // Dorsal spines along body humps
+  ctx.lineWidth = 1.2;
+  ctx.globalAlpha = 0.45;
+  for (var si = 0; si < 8; si++) {
+    var t = 0.1 + si * 0.1;
+    var spX = cx - 25 * sc + t * 80 * sc;
+    var spY = cy - 15 * sc - Math.sin(t * Math.PI * 1.5) * 12 * sc;
+    var spH = 5 + Math.sin(t * Math.PI) * 4;
+    ctx.beginPath();
+    ctx.moveTo(spX - 1, spY + 2);
+    ctx.lineTo(spX + 0.5, spY - spH);
+    ctx.lineTo(spX + 2, spY + 2);
+    ctx.stroke();
+  }
+
+  // Water splash near head
+  ctx.globalAlpha = 0.3;
+  ctx.lineWidth = 1.0;
+  for (var wi = 0; wi < 3; wi++) {
+    var wAngle = -0.8 + wi * 0.4;
+    var wLen = 8 + wi * 3;
+    ctx.beginPath();
+    ctx.moveTo(headX - 14 * sc, headY + 2 * sc);
+    ctx.quadraticCurveTo(
+      headX - 14 * sc + Math.cos(wAngle) * wLen * 0.6,
+      headY + 2 * sc + Math.sin(wAngle) * wLen * 0.6,
+      headX - 14 * sc + Math.cos(wAngle) * wLen,
+      headY + 2 * sc + Math.sin(wAngle) * wLen
+    );
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha = 1.0;
+};
+
+// End of Fantasy Map Engine UI/Decoration Rendering Layer
+// ============================================================================
+
+
 
 // === 18. MASTER RENDER FUNCTION ===
 function fmRenderWorldMap() {
@@ -3395,38 +4704,67 @@ function fmRenderWorldMap() {
 
   var ctx = FMap.ctx;
 
-  // Render in order
-  fmRenderParchment(ctx, FMap.W, FMap.H, FMap.dark);
-  fmRenderTerrain(ctx);
-  fmRenderCoastlines(ctx);
-  fmRenderWater(ctx);
-  fmRenderRivers(ctx);
-  fmRenderMountains(ctx);
-  fmRenderForests(ctx);
-  fmRenderKingdomBorders(ctx);
-  fmRenderRoads(ctx);
-  fmRenderSettlements(ctx);
-  fmRenderPOIs(ctx);
-  fmRenderFeatureLabels(ctx);
+  // Reset seed for reproducible random in render
+  fmSeed(FMap.seed);
 
+  // 1. Parchment background
+  fmRenderParchment(ctx, FMap.W, FMap.H, FMap.dark);
+
+  // 2. Decorative border
   fmRenderBorder(ctx, FMap.W, FMap.H, FMap.dark);
 
-  // Cartouche at top center
-  fmRenderCartouche(ctx, FMap.W / 2, 50, 'The Known World', 'A Realm of Adventure');
+  // 3. Terrain tints (subtle washes, not colored blocks)
+  fmRenderTerrain(ctx);
 
-  // Compass at bottom-right
-  var compassX = FMap.W - 80;
-  var compassY = FMap.H - 80;
-  fmRenderCompass(ctx, compassX, compassY, 50);
+  // 4. Water textures (wave lines, stipple dots)
+  fmRenderWater(ctx);
 
-  // Scale bar at bottom-left
-  fmRenderScaleBar(ctx, 70, FMap.H - 50, '100 leagues');
+  // 5. Coastline hatching (parallel lines)
+  fmRenderCoastlines(ctx);
 
-  // Legend at bottom-right (above compass)
-  fmRenderLegend(ctx, FMap.W - 155, FMap.H - 260);
+  // 6. Rivers
+  fmRenderRivers(ctx);
+
+  // 7. Mountains (individual peak illustrations)
+  fmRenderMountains(ctx);
+
+  // 8. Forests (individual tree symbols)
+  fmRenderForests(ctx);
+
+  // 8b. Terrain features (desert stipple, swamp marks)
+  fmRenderTerrainFeatures(ctx);
+
+  // 9. Kingdom borders (subtle dashed lines)
+  fmRenderKingdomBorders(ctx);
+
+  // 10. Roads (dotted/dashed paths)
+  fmRenderRoads(ctx);
+
+  // 11. Settlement icons
+  fmRenderSettlements(ctx);
+
+  // 12. POI icons
+  fmRenderPOIs(ctx);
+
+  // 13. Feature labels (kingdom names, geographic features)
+  fmRenderFeatureLabels(ctx);
+
+  // 14. Compass rose (bottom-left area, larger and more ornate)
+  fmRenderCompass(ctx, 120, FMap.H - 120, 65);
+
+  // 15. Title cartouche (top center)
+  fmRenderCartouche(ctx, FMap.W / 2, 32, FMap.world.name || 'Unnamed World', 'Here be Dragons & Ancient Realms');
+
+  // 16. Scale bar (bottom-center-left)
+  fmRenderScaleBar(ctx, 200, FMap.H - 50, '100 leagues');
+
+  // 17. Legend (bottom-right)
+  fmRenderLegend(ctx, FMap.W - 155, FMap.H - 310);
+
+  // 18. Tolkien-esque sea serpent decoration in ocean areas
+  fmRenderSeaSerpent(ctx);
 }
 
-// === END PART 3: RENDERING ENGINE ===
 
 // === PART 4: ZOOM SYSTEM, KINGDOM VIEW, CITY VIEW, INTERACTION HANDLERS, USER INPUT UI ===
 
@@ -4174,16 +5512,16 @@ function fmUpdateBreadcrumb() {
   let html = '';
 
   if (FMap.level === 'world') {
-    html = `<span style="color: crimson; font-weight: bold;">${FMap.world.name || 'World'}</span>`;
+    html = `<span style="color: crimson; font-weight: bold;">${fmEscapeHtml(FMap.world.name || 'World')}</span>`;
   } else if (FMap.level === 'kingdom') {
     const kingdom = FMap.world.kingdoms.find(k => k.id === FMap.view.currentKingdom);
     if (kingdom) {
       html = `
         <span style="cursor: pointer; color: var(--text);" onclick="fmRenderWorldMap(); fmUpdateBreadcrumb(); fmUpdateInfoPanel();">
-          ${FMap.world.name || 'World'}
+          ${fmEscapeHtml(FMap.world.name || 'World')}
         </span>
         <span style="margin: 0 6px;">></span>
-        <span style="color: crimson; font-weight: bold;">${kingdom.name}</span>
+        <span style="color: crimson; font-weight: bold;">${fmEscapeHtml(kingdom.name)}</span>
       `;
     }
   } else if (FMap.level === 'city') {
@@ -4192,14 +5530,14 @@ function fmUpdateBreadcrumb() {
     if (kingdom && city) {
       html = `
         <span style="cursor: pointer; color: var(--text);" onclick="fmRenderWorldMap(); fmUpdateBreadcrumb(); fmUpdateInfoPanel();">
-          ${FMap.world.name || 'World'}
+          ${fmEscapeHtml(FMap.world.name || 'World')}
         </span>
         <span style="margin: 0 6px;">></span>
         <span style="cursor: pointer; color: var(--text);" onclick="fmRenderKingdomMap('${kingdom.id}'); fmUpdateBreadcrumb(); fmUpdateInfoPanel();">
-          ${kingdom.name}
+          ${fmEscapeHtml(kingdom.name)}
         </span>
         <span style="margin: 0 6px;">></span>
-        <span style="color: crimson; font-weight: bold;">${city.name}</span>
+        <span style="color: crimson; font-weight: bold;">${fmEscapeHtml(city.name)}</span>
       `;
     }
   }
@@ -4236,7 +5574,7 @@ function fmUpdateInfoPanel() {
 
 function fmBuildWorldInfoPanel() {
   let html = `
-    <h3>${FMap.world.name || 'World'}</h3>
+    <h3>${fmEscapeHtml(FMap.world.name || 'World')}</h3>
     <p>Total Kingdoms: ${FMap.world.kingdoms.length}</p>
     <p>Total Settlements: ${FMap.world.cities.length}</p>
 
@@ -4248,8 +5586,8 @@ function fmBuildWorldInfoPanel() {
     const capital = k.capital ? FMap.world.cities.find(c => c.id === k.capital) : null;
     html += `
       <li style="cursor: pointer; margin: 4px 0;" onclick="fmRenderKingdomMap('${k.id}'); fmUpdateBreadcrumb(); fmUpdateInfoPanel();">
-        <strong>${k.name}</strong> - Ruler: ${k.ruler || 'Unknown'}
-        ${capital ? `<br/>Capital: ${capital.name}` : ''}
+        <strong>${fmEscapeHtml(k.name)}</strong> - Ruler: ${fmEscapeHtml(k.ruler || 'Unknown')}
+        ${capital ? `<br/>Capital: ${fmEscapeHtml(capital.name)}` : ''}
       </li>
     `;
   });
@@ -4263,9 +5601,9 @@ function fmBuildKingdomInfoPanel(kingdom) {
   const pois = FMap.world.pois.filter(p => p.kingdomId === kingdom.id);
 
   let html = `
-    <h3>${kingdom.name}</h3>
-    <p><strong>Ruler:</strong> ${kingdom.ruler || 'Unknown'}</p>
-    <p><strong>Culture:</strong> ${kingdom.culture || 'Unknown'}</p>
+    <h3>${fmEscapeHtml(kingdom.name)}</h3>
+    <p><strong>Ruler:</strong> ${fmEscapeHtml(kingdom.ruler || 'Unknown')}</p>
+    <p><strong>Culture:</strong> ${fmEscapeHtml(kingdom.culture || 'Unknown')}</p>
     <p><strong>Settlements:</strong> ${cities.length}</p>
 
     <h4>Cities & Towns</h4>
@@ -4275,7 +5613,7 @@ function fmBuildKingdomInfoPanel(kingdom) {
   cities.forEach(city => {
     html += `
       <li style="cursor: pointer; margin: 3px 0;" onclick="fmRenderCityMap({...${JSON.stringify(city)}}); fmUpdateBreadcrumb(); fmUpdateInfoPanel();">
-        <strong>${city.name}</strong> (${city.type}, Pop ~${city.population})
+        <strong>${fmEscapeHtml(city.name)}</strong> (${fmEscapeHtml(city.type)}, Pop ~${city.population})
       </li>
     `;
   });
@@ -4285,7 +5623,7 @@ function fmBuildKingdomInfoPanel(kingdom) {
   if (pois.length > 0) {
     html += `<h4>Points of Interest</h4><ul style="font-size: 11px;">`;
     pois.slice(0, 5).forEach(poi => {
-      html += `<li>${poi.name} (${poi.type})</li>`;
+      html += `<li>${fmEscapeHtml(poi.name)} (${fmEscapeHtml(poi.type)})</li>`;
     });
     if (pois.length > 5) {
       html += `<li><em>...and ${pois.length - 5} more</em></li>`;
@@ -4300,10 +5638,10 @@ function fmBuildCityInfoPanel(city) {
   const pois = FMap.world.pois.filter(p => p.nearestSettlement === city.id);
 
   let html = `
-    <h3>${city.name}</h3>
-    <p><strong>Type:</strong> ${city.type}</p>
+    <h3>${fmEscapeHtml(city.name)}</h3>
+    <p><strong>Type:</strong> ${fmEscapeHtml(city.type)}</p>
     <p><strong>Population:</strong> ~${city.population}</p>
-    <p><strong>Ruler:</strong> ${city.ruler || 'Unknown'}</p>
+    <p><strong>Ruler:</strong> ${fmEscapeHtml(city.ruler || 'Unknown')}</p>
 
     <h4>Notable Landmarks</h4>
     <ul style="font-size: 11px;">
@@ -4317,7 +5655,7 @@ function fmBuildCityInfoPanel(city) {
     ${pois.length > 0 ? `
     <h4>Nearby POIs</h4>
     <ul style="font-size: 11px;">
-      ${pois.slice(0, 3).map(p => `<li>${p.name} (${p.type})</li>`).join('')}
+      ${pois.slice(0, 3).map(p => `<li>${fmEscapeHtml(p.name)} (${fmEscapeHtml(p.type)})</li>`).join('')}
     </ul>
     ` : ''}
   `;
@@ -4330,19 +5668,19 @@ function fmBuildCityInfoPanel(city) {
 // ============================================================================
 
 function fmShowPOIDetail(poi) {
-  fmShowDetailPanel('POI', poi.name, `
-    <p><strong>Type:</strong> ${poi.type}</p>
+  fmShowDetailPanel('POI', fmEscapeHtml(poi.name), `
+    <p><strong>Type:</strong> ${fmEscapeHtml(poi.type)}</p>
     <p><strong>Difficulty:</strong> Level ${poi.difficulty || '?'}</p>
-    <p><strong>Description:</strong> ${poi.description || 'No description available.'}</p>
-    <p><strong>Loot:</strong> ${poi.loot || 'Unknown'}</p>
-    <p><strong>Nearest Settlement:</strong> ${fmGetCityName(poi.nearestSettlement)}</p>
+    <p><strong>Description:</strong> ${fmEscapeHtml(poi.description || 'No description available.')}</p>
+    <p><strong>Loot:</strong> ${fmEscapeHtml(poi.loot || 'Unknown')}</p>
+    <p><strong>Nearest Settlement:</strong> ${fmEscapeHtml(fmGetCityName(poi.nearestSettlement))}</p>
   `);
 }
 
 function fmShowLandmarkDetail(landmark) {
-  fmShowDetailPanel('Landmark', landmark.name, `
-    <p><strong>Type:</strong> ${landmark.type}</p>
-    <p><strong>Part of:</strong> ${FMap.view.currentCity.name}</p>
+  fmShowDetailPanel('Landmark', fmEscapeHtml(landmark.name), `
+    <p><strong>Type:</strong> ${fmEscapeHtml(landmark.type)}</p>
+    <p><strong>Part of:</strong> ${fmEscapeHtml(FMap.view.currentCity.name)}</p>
     <p>A notable location in the city.</p>
   `);
 }
@@ -4372,8 +5710,8 @@ function fmShowDetailPanel(title, name, content) {
 
   panel.innerHTML = `
     <button onclick="document.getElementById('mapDetailPanel').style.display='none';" style="float:right; background:none; border:none; font-size:18px; cursor:pointer;">×</button>
-    <h2 style="margin-top:0; color:var(--accent);">${title}</h2>
-    <h3 style="color:var(--text);">${name}</h3>
+    <h2 style="margin-top:0; color:var(--accent);">${fmEscapeHtml(title)}</h2>
+    <h3 style="color:var(--text);">${fmEscapeHtml(name)}</h3>
     ${content}
   `;
   panel.style.display = 'block';
@@ -4393,13 +5731,13 @@ function fmShowEditPanel(entityId, currentName) {
   const modal = fmCreateModal('Edit Entity', `
     <label style="display:block; margin-bottom:8px;">
       <strong>Rename:</strong><br/>
-      <input type="text" id="editNameInput" value="${currentName}" style="width:100%; padding:6px; box-sizing:border-box; margin-top:4px;">
+      <input type="text" id="editNameInput" value="${fmEscapeHtml(currentName)}" style="width:100%; padding:6px; box-sizing:border-box; margin-top:4px;">
     </label>
     <label style="display:block; margin-bottom:12px;">
       <strong>Notes:</strong><br/>
       <textarea id="editNoteInput" style="width:100%; height:80px; padding:6px; box-sizing:border-box; margin-top:4px; resize:vertical;"></textarea>
     </label>
-    <button onclick="fmSaveEntityEdit('${entityId}'); this.closest('.mapModal').remove();" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:4px; cursor:pointer; margin-right:8px;">Save</button>
+    <button data-entity-id="${fmEscapeHtml(entityId)}" class="fmSaveEditBtn" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:4px; cursor:pointer; margin-right:8px;">Save</button>
     <button onclick="this.closest('.mapModal').remove();" style="padding:8px 16px; background:#999; color:#fff; border:none; border-radius:4px; cursor:pointer;">Cancel</button>
   `);
 
@@ -4407,12 +5745,23 @@ function fmShowEditPanel(entityId, currentName) {
   if (FMap.userEdits.notes[entityId]) {
     document.getElementById('editNoteInput').value = FMap.userEdits.notes[entityId];
   }
+
+  // Attach event listener to save button
+  setTimeout(() => {
+    const saveBtn = modal.querySelector('.fmSaveEditBtn');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function() {
+        fmSaveEntityEdit(entityId);
+        this.closest('.mapModal').remove();
+      });
+    }
+  }, 0);
 }
 
 function fmShowNotePanel(entityId) {
   const modal = fmCreateModal('Add Note', `
     <textarea id="noteInput" placeholder="Add a note..." style="width:100%; height:100px; padding:6px; box-sizing:border-box; resize:vertical;"></textarea><br/><br/>
-    <button onclick="fmSaveEntityNote('${entityId}'); this.closest('.mapModal').remove();" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:4px; cursor:pointer; margin-right:8px;">Save Note</button>
+    <button data-entity-id="${fmEscapeHtml(entityId)}" class="fmSaveNoteBtn" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:4px; cursor:pointer; margin-right:8px;">Save Note</button>
     <button onclick="this.closest('.mapModal').remove();" style="padding:8px 16px; background:#999; color:#fff; border:none; border-radius:4px; cursor:pointer;">Cancel</button>
   `);
 
@@ -4421,6 +5770,17 @@ function fmShowNotePanel(entityId) {
   }
 
   setTimeout(() => document.getElementById('noteInput').focus(), 100);
+
+  // Attach event listener to save button
+  setTimeout(() => {
+    const saveBtn = modal.querySelector('.fmSaveNoteBtn');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function() {
+        fmSaveEntityNote(entityId);
+        this.closest('.mapModal').remove();
+      });
+    }
+  }, 0);
 }
 
 function fmAddUserPOI(row, col) {
@@ -4488,7 +5848,7 @@ function fmCreateModal(title, content) {
   `;
 
   modal.innerHTML = `
-    <h2 style="margin-top:0; color:var(--accent);">${title}</h2>
+    <h2 style="margin-top:0; color:var(--accent);">${fmEscapeHtml(title)}</h2>
     ${content}
   `;
 

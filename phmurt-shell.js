@@ -13,9 +13,10 @@
     try {
       var raw = localStorage.getItem('phmurt_auth_session');
       var s = raw ? JSON.parse(raw) : null;
-      if (!s) return false;
+      if (!s || !s.email) return false;
+      // Always verify against the canonical admin list, not the stored isAdmin flag
       var email = (s.email || '').trim().toLowerCase();
-      return s.isAdmin === true || SHELL_ADMIN_EMAILS.indexOf(email) !== -1;
+      return SHELL_ADMIN_EMAILS.indexOf(email) !== -1;
     } catch(e) { return false; }
   }
 
@@ -391,7 +392,7 @@
 
       if (dd) {
         dd.innerHTML =
-          '<div style="font-family:Spectral,serif;font-size:12px;color:var(--text-muted);padding:9px 14px 8px;border-bottom:1px solid var(--border-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">' + display + '</div>' +
+          '<div style="font-family:Spectral,serif;font-size:12px;color:var(--text-muted);padding:9px 14px 8px;border-bottom:1px solid var(--border-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">' + psEscapeHtml(display) + '</div>' +
           '<a href="my-characters.html">My Characters</a>' +
           '<button id="nav-signout-btn">Sign Out</button>';
 

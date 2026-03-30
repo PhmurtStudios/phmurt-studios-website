@@ -56,7 +56,13 @@ var PhmurtDB = (function () {
   }
 
   function _fireChange() {
-    _listeners.forEach(function (fn) { try { fn(); } catch (e) {} });
+    _listeners.forEach(function (fn) {
+      try {
+        fn();
+      } catch (e) {
+        console.warn('[PhmurtAuth] Listener error:', e.message || e);
+      }
+    });
     window.dispatchEvent(new Event('phmurt-auth-change'));
   }
 
@@ -66,7 +72,10 @@ var PhmurtDB = (function () {
     if (!sb) return Promise.resolve(null);
     return sb.from('profiles').select('*').eq('id', userId).maybeSingle()
       .then(function (r) { return r.data || null; })
-      .catch(function () { return null; });
+      .catch(function (err) {
+        console.warn('[PhmurtAuth] Failed to fetch profile:', err ? err.message : 'Unknown error');
+        return null;
+      });
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -82,7 +91,8 @@ var PhmurtDB = (function () {
         });
       }
       _fireChange();
-    }).catch(function () {
+    }).catch(function (err) {
+      console.warn('[PhmurtAuth] Supabase init failed:', err ? err.message : 'Unknown error');
       _initLegacy();
     });
 
@@ -129,7 +139,9 @@ var PhmurtDB = (function () {
     try {
       var e = d ? '; expires=' + (function () { var x = new Date(); x.setTime(x.getTime() + d * 864e5); return x.toUTCString(); }()) : '';
       document.cookie = n + '=' + encodeURIComponent(v || '') + e + '; path=/; SameSite=Strict';
-    } catch (e) {}
+    } catch (err) {
+      console.warn('[PhmurtAuth] Failed to set cookie:', err.message || err);
+    }
   }
   function _getCk(n) {
     try {
@@ -138,17 +150,28 @@ var PhmurtDB = (function () {
         var c = parts[i].replace(/^\s+/, '');
         if (c.indexOf(p) === 0) return decodeURIComponent(c.substring(p.length));
       }
-    } catch (e) {}
+    } catch (err) {
+      console.warn('[PhmurtAuth] Failed to read cookie:', err.message || err);
+    }
     return null;
   }
   function _delCk(n) { _setCk(n, '', -1); }
 
   function _lsGet(key) {
-    try { var r = localStorage.getItem(key); if (r) return JSON.parse(r); } catch (e) {}
+    try {
+      var r = localStorage.getItem(key);
+      if (r) return JSON.parse(r);
+    } catch (err) {
+      console.warn('[PhmurtAuth] Failed to read localStorage:', err.message || err);
+    }
     return null;
   }
   function _lsSet(key, val) {
-    try { localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val)); } catch (e) {}
+    try {
+      localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
+    } catch (err) {
+      console.warn('[PhmurtAuth] Failed to write localStorage:', err.message || err);
+    }
   }
 
   function _legacyGetSession() {
@@ -156,8 +179,17 @@ var PhmurtDB = (function () {
     if (s && s.userId) return s;
     try {
       var cr = _getCk(CK_SESSION);
-      if (cr) { var cp = JSON.parse(cr); if (cp && cp.userId) { _lsSet(LS_SESSION, cp); return cp; } }
-    } catch (e) {}
+      if (cr) {
+        try {
+          var cp = JSON.parse(cr);
+          if (cp && cp.userId) { _lsSet(LS_SESSION, cp); return cp; }
+        } catch (parseErr) {
+          console.warn('[PhmurtAuth] Failed to parse session cookie:', parseErr.message || parseErr);
+        }
+      }
+    } catch (err) {
+      console.warn('[PhmurtAuth] Error getting legacy session:', err.message || err);
+    }
     return null;
   }
   function _legacySetSession(data) {
@@ -166,7 +198,11 @@ var PhmurtDB = (function () {
       _lsSet(LS_SESSION, j);
       _setCk(CK_SESSION, j, 30);
     } else {
-      try { localStorage.removeItem(LS_SESSION); } catch (e) {}
+      try {
+        localStorage.removeItem(LS_SESSION);
+      } catch (err) {
+        console.warn('[PhmurtAuth] Failed to remove session:', err.message || err);
+      }
       _delCk(CK_SESSION);
     }
   }
@@ -175,8 +211,17 @@ var PhmurtDB = (function () {
     if (u && typeof u === 'object') return u;
     try {
       var cr = _getCk(CK_USERS);
-      if (cr) { var cp = JSON.parse(cr); if (cp && typeof cp === 'object') { _lsSet(LS_USERS, cp); return cp; } }
-    } catch (e) {}
+      if (cr) {
+        try {
+          var cp = JSON.parse(cr);
+          if (cp && typeof cp === 'object') { _lsSet(LS_USERS, cp); return cp; }
+        } catch (parseErr) {
+          console.warn('[PhmurtAuth] Failed to parse users cookie:', parseErr.message || parseErr);
+        }
+      }
+    } catch (err) {
+      console.warn('[PhmurtAuth] Error getting legacy users:', err.message || err);
+    }
     return {};
   }
   function _legacySaveUsers(users) {
@@ -260,6 +305,10 @@ var PhmurtDB = (function () {
               _fireChange();
               return sess;
             });
+          })
+          .catch(function (err) {
+            console.warn('[PhmurtAuth] Sign-up error:', err.message || err);
+            throw err;
           });
       }
 
@@ -292,7 +341,9 @@ var PhmurtDB = (function () {
             var user = r.data.user;
             return _fetchProfile(user.id).then(function (profile) {
               if (profile && profile.is_banned) {
-                sb.auth.signOut().catch(function () {});
+                sb.auth.signOut().catch(function (err) {
+                  console.warn('[PhmurtAuth] Sign-out after ban check failed:', err.message || err);
+                });
                 throw new Error('This account has been suspended.');
               }
               var sess = _makeSession(user, profile);
@@ -300,6 +351,10 @@ var PhmurtDB = (function () {
               _fireChange();
               return sess;
             });
+          })
+          .catch(function (err) {
+            console.warn('[PhmurtAuth] Sign-in error:', err.message || err);
+            throw err;
           });
       }
 
@@ -320,7 +375,11 @@ var PhmurtDB = (function () {
     /* ── Sign Out ─────────────────────────────────────────────── */
     signOut: function () {
       var sb = _sb();
-      if (sb) sb.auth.signOut().catch(function () {});
+      if (sb) {
+        sb.auth.signOut().catch(function (err) {
+          console.warn('[PhmurtAuth] Supabase sign-out failed:', err.message || err);
+        });
+      }
       _legacySetSession(null);
       _session = null;
       _fireChange();

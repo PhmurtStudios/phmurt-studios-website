@@ -11,6 +11,12 @@
 var SUPABASE_URL      = 'https://zrfmboqoyrqsyckktgpv.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyZm1ib3FveXJxc3lja2t0Z3B2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5OTY0MzQsImV4cCI6MjA4OTU3MjQzNH0.1tzr_vD7wF2tjFw9fCyqYsAs_EZ_hJ1zlKERwrTFi5I';
 
+/* ── Centralised admin email list ────────────────────────────────
+   This list is the source of truth for admin access across all pages.
+   Must be kept in sync with phmurt-auth.js and phmurt-shell.js
+   ─────────────────────────────────────────────────────────────────── */
+var PHMURT_ADMIN_EMAILS = ['dreverad@icloud.com', 'dreverad18@gmail.com'];
+
 /* ── Initialise the Supabase client ────────────────────────────────
    Self-loads the CDN if it hasn't been included on the page yet.
    Fires 'phmurt-supabase-ready' on window when the client is live.
