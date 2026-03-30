@@ -5972,6 +5972,23 @@
         { name: 'Energy Discharge (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} releases a burst of arcane energy in a 30-foot radius. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} force damage on a failed save, or half as much on a success.` },
         { name: 'Overload', dmgDiceFactor: 1.3, descGen: (name, dc, dice) => `${name} overloads with energy, forcing each creature within 15 feet to make a DC ${dc} Constitution saving throw, taking ${dice} force damage on a failed save, or half as much on a success.` },
       ],
+      arcane: [
+        { name: 'Arcane Blast (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} unleashes a surge of raw magical energy in a 30-foot cone. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} force damage on a failed save, or half as much on a success.` },
+        { name: 'Eldritch Bolt', dmgDiceFactor: 1.2, descGen: (name, dc, dice, atkBonus) => `Ranged Spell Attack: +${atkBonus} to hit, range 120 ft., one target. Hit: ${dice} force damage. If the target is concentrating on a spell, it has disadvantage on the saving throw to maintain concentration.` },
+        { name: 'Mana Surge (Recharge 6)', dmgDiceFactor: 1.4, descGen: (name, dc, dice) => `${name} releases a wave of unstable arcane energy in a 20-foot radius. Each creature in that area must make a DC ${dc} Intelligence saving throw, taking ${dice} force damage on a failed save, or half as much on a success. On a failed save, the creature also can't cast spells until the end of its next turn.` },
+      ],
+      water: [
+        { name: 'Tidal Wave (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} conjures a massive wave of water in a 30-foot cone. Each creature in that area must make a DC ${dc} Strength saving throw, taking ${dice} bludgeoning damage on a failed save and being knocked prone, or half damage and not knocked prone on a success.` },
+        { name: 'Drowning Grasp', dmgDiceFactor: 1.2, descGen: (name, dc, dice, atkBonus) => `Melee Weapon Attack: +${atkBonus} to hit, reach 10 ft., one target. Hit: ${dice} bludgeoning damage, and the target is grappled (escape DC ${dc}). While grappled, the target can't breathe.` },
+      ],
+      earth: [
+        { name: 'Seismic Slam (Recharge 5-6)', dmgDiceFactor: 1.5, descGen: (name, dc, dice) => `${name} strikes the ground, sending a shockwave in a 30-foot radius. Each creature on the ground in that area must make a DC ${dc} Dexterity saving throw, taking ${dice} bludgeoning damage on a failed save and being knocked prone, or half damage on a success.` },
+        { name: 'Rock Hurl', dmgDiceFactor: 1.2, descGen: (name, dc, dice, atkBonus) => `Ranged Weapon Attack: +${atkBonus} to hit, range 60/120 ft., one target. Hit: ${dice} bludgeoning damage.` },
+      ],
+      poison: [
+        { name: 'Poison Cloud (Recharge 5-6)', dmgDiceFactor: 1.4, descGen: (name, dc, dice) => `${name} exhales a cloud of toxic gas in a 20-foot radius. Each creature in that area must make a DC ${dc} Constitution saving throw, taking ${dice} poison damage on a failed save and being poisoned for 1 minute, or half damage and not poisoned on a success.` },
+        { name: 'Venomous Strike', dmgDiceFactor: 1.2, descGen: (name, dc, dice, atkBonus) => `Melee Weapon Attack: +${atkBonus} to hit, reach 5 ft., one target. Hit: ${dice} piercing damage plus 1d6 poison damage, and the target must succeed on a DC ${dc} Constitution saving throw or be poisoned until the end of its next turn.` },
+      ],
     };
 
     function getAttackNameForConcept(concept, type, isRanged) {
@@ -6067,6 +6084,9 @@
         else if (/nature|plant|forest|tree|growth/.test(lower)) themeKey = 'nature';
         else if (/psychic|mind|thought|mental|madness/.test(lower)) themeKey = 'psychic';
         else if (/construct|golem|machine|mechanical/.test(lower)) themeKey = 'mechanical';
+        else if (/water|ocean|sea|aquatic|wave|tsunami/.test(lower)) themeKey = 'water';
+        else if (/earth|stone|rock|mountain|quake/.test(lower)) themeKey = 'earth';
+        else if (/poison|venom|toxic|plague/.test(lower)) themeKey = 'poison';
 
         const actionPool = THEMED_ACTION_TEMPLATES[themeKey] || THEMED_ACTION_TEMPLATES.arcane;
         const actionTemplate = actionPool[Math.floor(Math.random() * actionPool.length)];
@@ -6827,7 +6847,7 @@
           const shuffled = template.actions.sort(() => Math.random() - 0.5);
           shuffled.slice(0, actionLimit).forEach(action => {
             const filledAction = {
-              name: fillAbilityPlaceholders(action, creatureName, cr, crData, element),
+              name: action.name,
               description: fillAbilityPlaceholders(action, creatureName, cr, crData, element)
             };
             actions.push(filledAction);
