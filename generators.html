@@ -7101,7 +7101,7 @@
         conditionImmunities,
         senses, languages, cr, xp: crData.xp, origin,
         traits, actions, legendaryActions, description, lore, loot,
-        isStationary, isCorrupted
+        isStationary, isCorrupted, concept
       };
     }
 
@@ -7109,114 +7109,297 @@
     function parseConceptAbilities(concept, name, crData, stats) {
       const lower = concept.toLowerCase();
       const dc = crData.saveDC;
+      const atkBonus = crData.atkBonus + getModifier(stats.str);
       const traits = [];
       const actions = [];
       const legendaryActions = [];
 
-      // Adaptive/reactive resistance
-      if (/resistance.*(?:last|whatever|damage type.*hit)|(?:when|if).*hit.*(?:gain|get).*resistance/.test(lower)) {
-        traits.push({
-          name: 'Adaptive Resistance',
-          description: `When the ${name} is hit by an attack that deals damage, it gains resistance to that damage type until the end of its next turn.`
-        });
+      // Detect damage type from concept
+      const damageTypeMap = {
+        fire: 'fire', flame: 'fire', burn: 'fire',
+        ice: 'cold', frost: 'cold', frozen: 'cold',
+        lightning: 'lightning', electric: 'lightning',
+        poison: 'poison', venom: 'poison', toxic: 'poison',
+        necrotic: 'necrotic', death: 'necrotic', dark: 'necrotic', shadow: 'necrotic',
+        radiant: 'radiant', holy: 'radiant', divine: 'radiant', light: 'radiant',
+        psychic: 'psychic', mental: 'psychic', mind: 'psychic',
+        force: 'force', arcane: 'force'
+      };
+      let primaryDmgType = 'bludgeoning';
+      for (const [key, val] of Object.entries(damageTypeMap)) {
+        if (lower.includes(key)) { primaryDmgType = val; break; }
       }
 
-      // Pacifism/stun on attack
-      if (/(?:attack|hit).*(?:constitution|con).*(?:saving throw|save).*(?:stun|pacif)|pacif.*(?:stun|cannot attack)/.test(lower)) {
-        traits.push({
-          name: 'Pacifying Counter',
-          description: `Whenever a creature targets the ${name} with an attack, the attacker must succeed on a DC ${dc} Constitution saving throw or be stunned with overwhelming pacifism until the end of its next turn.`
-        });
-      }
-
-      // Magic resistance
-      if (/magic resistance|advantage.*saving throw.*spell|resist.*magic/.test(lower)) {
-        traits.push({
-          name: 'Magic Resistance',
-          description: `The ${name} has advantage on saving throws against spells and other magical effects.`
-        });
-      }
-
-      // Stationary/immobile
-      if (/stationary|immobile|cannot move|rooted|fixed|attached/.test(lower)) {
-        traits.push({
-          name: 'Immovable',
-          description: `The ${name} is anchored in place and cannot be moved by any means. Its speed is 0 and cannot be changed.`
-        });
-      }
-
-      // Fear/frightened legendary action
-      if (/(?:legendary.*(?:fear|fright|dread))|(?:fear|fright|dread).*legendary/.test(lower)) {
-        legendaryActions.push({
-          name: 'Dreadful Quiet',
-          description: `The ${name} unleashes a wave of sinister calm. One creature it can see within 60 feet must succeed on a DC ${dc} Wisdom saving throw or be frightened until the end of its next turn.`
-        });
-      }
-
-      // Disarm legendary action
-      if (/(?:legendary.*disarm)|(?:disarm.*legendary)/.test(lower)) {
-        legendaryActions.push({
-          name: 'Disarm',
-          description: `The ${name} chooses one creature it can see within 30 feet. The target must succeed on a DC ${dc} Strength saving throw or drop one item it is holding.`
-        });
-      }
-
-      // Recharge ability (cone/pulse/breath)
-      if (/(?:cone|pulse|breath|blast|wave).*(?:recharge|energy)/.test(lower) || /(?:emit|unleash|release).*(?:cone|pulse|blast|wave|energy)/.test(lower)) {
-        const damageTypes = { fire: 'fire', ice: 'cold', lightning: 'lightning', poison: 'poison', necrotic: 'necrotic', radiant: 'radiant', psychic: 'psychic', force: 'force' };
-        let dmgType = 'radiant';
-        for (const [key, val] of Object.entries(damageTypes)) {
-          if (lower.includes(key)) { dmgType = val; break; }
-        }
-        if (/peace|pacif|holy|divine|sacred|celestial/.test(lower)) dmgType = 'radiant';
-        if (/corrupt|dark|shadow|necrotic/.test(lower) && dmgType === 'radiant') dmgType = 'radiant'; // corrupted radiant is still radiant
-
-        const dmgDice = Math.max(4, Math.floor(crData.dmgMax / 5));
+      // ═════════════════════════════════════════════════════════════════════
+      // BREATH WEAPONS
+      // ═════════════════════════════════════════════════════════════════════
+      if (/breath|breathes|exhales|cone of|blast of/.test(lower)) {
+        const dmgType = primaryDmgType;
+        const dmgDice = Math.max(3, Math.floor(crData.dmgMax / 4));
+        const dmgTotal = dmgDice * (dmgType === 'fire' || dmgType === 'cold' ? 6 : dmgType === 'lightning' || dmgType === 'poison' ? 5 : 6);
         actions.push({
-          name: `${isCorruptedWord(lower) ? 'Corrupted ' : ''}Energy Pulse (Recharge 5-6)`,
-          description: `The ${name} emits a cone of ${isCorruptedWord(lower) ? 'corrupted ' : ''}${dmgType === 'radiant' ? 'peace' : dmgType} energy in a 60-foot cone. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dmgDice * 10} (${dmgDice}d10) ${dmgType} damage on a failed save, or half as much damage on a successful one.${/pacif/.test(lower) ? ` Creatures that fail the save are also pacified: they cannot take hostile actions until the end of their next turn.` : ''}`
+          name: `${dmgType.charAt(0).toUpperCase() + dmgType.slice(1)} Breath (Recharge 5–6)`,
+          description: `The ${name} exhales ${dmgType} in a 60-foot cone. Each creature in that area must make a DC ${dc} Dexterity saving throw, taking ${dmgTotal} (${dmgDice}d6) ${dmgType} damage on a failed save, or half as much damage on a successful one.`
         });
       }
 
-      // Multiattack
-      if (lower.includes('multiattack') || crData.dmgMax > 30) {
-        const atkCount = crData.dmgMax > 80 ? 3 : 2;
-        const atkName = /peace|pacif/.test(lower) ? 'Peaceful Slam' : /claw|slash/.test(lower) ? 'Claw' : /bite/.test(lower) ? 'Bite' : 'Strike';
+      // ═════════════════════════════════════════════════════════════════════
+      // TELEPORTATION
+      // ═════════════════════════════════════════════════════════════════════
+      if (/teleport|blink|phase|shadow step|misty step|dimension door/.test(lower)) {
+        traits.push({
+          name: 'Shadow Stride',
+          description: `The ${name} can use a bonus action to teleport up to 60 feet to an unoccupied space it can see. If it's in dim light or darkness, it can teleport up to 120 feet instead.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // FLIGHT
+      // ═════════════════════════════════════════════════════════════════════
+      if (/fl(y|ies)|wing|soar|hover|airborne/.test(lower)) {
+        // Note: Flight speed should be added to monster speed elsewhere
+        traits.push({
+          name: 'Aerial Master',
+          description: `The ${name} has exceptional control over its flight and can hover in place. It can fly even in areas of heavy fog or darkness without losing its way.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // INVISIBILITY
+      // ═════════════════════════════════════════════════════════════════════
+      if (/invisib|vanish|unseen|fade|cloak/.test(lower)) {
+        actions.push({
+          name: 'Become Invisible',
+          description: `The ${name} becomes invisible until it attacks or until its concentration ends (as if concentrating on a spell). Equipment the ${name} is wearing or carrying is invisible with it.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // HEALING / REGENERATION
+      // ═════════════════════════════════════════════════════════════════════
+      if (/heal|regenerat|mend|restore|recover/.test(lower)) {
+        traits.push({
+          name: 'Regeneration',
+          description: `The ${name} regains ${Math.max(3, Math.floor(crData.hpMax / 10))} hit points at the start of its turn. If the ${name} takes fire or radiant damage, this trait doesn't function at the start of the ${name}'s next turn.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // SUMMONING / CONJURING
+      // ═════════════════════════════════════════════════════════════════════
+      if (/summon|call|conjure|raise|spawn/.test(lower)) {
+        actions.push({
+          name: 'Summon Minions (1/Day)',
+          description: `The ${name} casts conjure animals without needing material components. It summons 2d4 creatures of challenge rating 1/2 or lower. The summoned creatures obey the ${name}'s verbal commands.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // LIFE DRAIN
+      // ═════════════════════════════════════════════════════════════════════
+      if (/drain life|life steal|siphon|absorb life|life force/.test(lower)) {
+        const dmgDice = Math.max(2, Math.floor(crData.dmgMax / 6));
+        const dmgTotal = dmgDice * 6;
+        actions.push({
+          name: 'Life Drain',
+          description: `Melee Spell Attack: +${atkBonus} to hit, reach 5 ft., one creature. Hit: ${dmgTotal} (${dmgDice}d6) necrotic damage, and the target must succeed on a DC ${dc} Constitution saving throw or its hit point maximum is reduced by an amount equal to the necrotic damage taken. The ${name} regains hit points equal to half the amount of necrotic damage dealt.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // SHAPESHIFTING
+      // ═════════════════════════════════════════════════════════════════════
+      if (/shapeshift|polymorph|transform|morph|take the form/.test(lower)) {
+        actions.push({
+          name: 'Change Shape',
+          description: `The ${name} magically polymorphs into a beast or humanoid it has seen, or back into its true form. Its statistics remain the same in each form. Any equipment it is wearing or carrying isn't transformed. It reverts to its true form if it dies.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // FEAR / FRIGHTENING PRESENCE
+      // ═════════════════════════════════════════════════════════════════════
+      if (/frighten|terrify|dread|fear aura|presence/.test(lower)) {
+        traits.push({
+          name: 'Frightening Presence',
+          description: `Any creature that starts its turn within 60 feet of the ${name} and can see it must succeed on a DC ${dc} Wisdom saving throw or be frightened until the end of its next turn.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // CHARM
+      // ═════════════════════════════════════════════════════════════════════
+      if (/charm|mesmerize|entrance|beguile|enchant|hypnotic/.test(lower)) {
+        actions.push({
+          name: 'Charm',
+          description: `One humanoid the ${name} can see within 30 feet must succeed on a DC ${dc} Wisdom saving throw or be charmed by the ${name} for 1 hour. The charmed creature regards the ${name} as a friendly acquaintance. The ${name} can have up to three creatures charmed at a time.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // PETRIFICATION
+      // ═════════════════════════════════════════════════════════════════════
+      if (/petrif|turn to stone|stone gaze/.test(lower)) {
+        actions.push({
+          name: 'Petrifying Gaze',
+          description: `The ${name} can use its action to target one creature it can see within 30 feet. If the target can see the ${name}, it must succeed on a DC ${dc} Constitution saving throw or begin to turn to stone and is restrained. It must repeat the save at the end of its next turn, becoming petrified on a failure or ending the effect on a success.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // SWALLOWING
+      // ═════════════════════════════════════════════════════════════════════
+      if (/swallow|devour|consume|engulf/.test(lower)) {
+        const dmgDice = Math.max(2, Math.floor(crData.dmgMax / 8));
+        const dmgTotal = dmgDice * 6;
+        actions.push({
+          name: 'Swallow',
+          description: `The ${name} makes one bite attack against a Large or smaller creature it can see. If the attack hits and the target is Medium or smaller, the target is grappled (escape DC ${dc}), and the ${name} can't bite another target until the grapple ends. Until this grapple ends, the target is restrained and unable to breathe unless it can breathe water. If the ${name} moves, the grappled creature moves with it.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // WEB
+      // ═════════════════════════════════════════════════════════════════════
+      if (/web|silk|entangle|snare|sticky/.test(lower)) {
+        const dmgDice = Math.max(1, Math.floor(crData.dmgMax / 8));
+        actions.push({
+          name: 'Web (Recharge 5–6)',
+          description: `Ranged Weapon Attack: +${atkBonus} to hit, range 30/60 ft., one creature. Hit: ${dmgDice * 5} (${dmgDice}d10) bludgeoning damage, and the target is restrained by webbing. As an action, the restrained creature can make a DC ${dc} Strength check to break the webbing.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // BURROWING
+      // ═════════════════════════════════════════════════════════════════════
+      if (/burrow|dig|tunnel|underground/.test(lower)) {
+        traits.push({
+          name: 'Tunneler',
+          description: `The ${name} can burrow through solid rock at half its burrowing speed and leaves a 5-foot-diameter tunnel in its wake.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // GRAPPLE / CONSTRICT
+      // ═════════════════════════════════════════════════════════════════════
+      if (/grapple|constrict|crush|squeeze/.test(lower)) {
+        const dmgDice = Math.max(2, Math.floor(crData.dmgMax / 5));
+        const dmgTotal = dmgDice * 6;
+        actions.push({
+          name: 'Constrict',
+          description: `Melee Weapon Attack: +${atkBonus} to hit, reach 5 ft., one creature. Hit: ${dmgTotal} (${dmgDice}d6) bludgeoning damage, and the target is grappled (escape DC ${dc}). Until this grapple ends, the target is restrained and unable to breathe unless it can breathe without a mouth.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // RANGED ATTACKS
+      // ═════════════════════════════════════════════════════════════════════
+      if (/shoot|throw|hurl|launch|projectile|arrow/.test(lower)) {
+        const dmgDice = Math.max(2, Math.floor(crData.dmgMax / 4));
+        const dmgTotal = dmgDice * 6;
+        actions.push({
+          name: 'Ranged Attack',
+          description: `Ranged Weapon Attack: +${atkBonus} to hit, range 60/120 ft., one target. Hit: ${dmgTotal} (${dmgDice}d6) ${primaryDmgType} damage.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // SPELLCASTING
+      // ═════════════════════════════════════════════════════════════════════
+      if (/cast spells?|spellcaster|wizard|sorcerer|warlock|cleric/.test(lower)) {
+        const spellSlots = Math.ceil(crData.saveDC / 2);
+        traits.push({
+          name: 'Spellcasting',
+          description: `The ${name} is a ${Math.random() > 0.5 ? 'wizard' : 'sorcerer'} that uses Intelligence (${Math.random() > 0.5 ? 'Arcana' : 'Spellcraft'}) to cast spells (spell save DC ${dc}, ${atkBonus} to hit with spell attacks). It has the following spells prepared or known: ${spellSlots * 2} cantrips, ${spellSlots} 1st-level spells, and ${Math.max(0, spellSlots - 2)} 2nd-level spells.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // AURA EFFECTS
+      // ═════════════════════════════════════════════════════════════════════
+      if (/aura of|radiate|emanate|exude|field/.test(lower)) {
+        traits.push({
+          name: `${primaryDmgType.charAt(0).toUpperCase() + primaryDmgType.slice(1)} Aura`,
+          description: `The ${name} emanates a ${primaryDmgType} aura that extends 30 feet from it. Any creature that starts its turn within the aura must succeed on a DC ${dc} Constitution saving throw or take ${Math.max(3, Math.floor(crData.dmgMin / 3))} (${Math.max(1, Math.floor(crData.dmgMin / 3) / 2)}d6) ${primaryDmgType} damage.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // RESISTANCE / IMMUNITY TRAITS
+      // ═════════════════════════════════════════════════════════════════════
+      if (/resist|immune to|cannot be|protection|ward/.test(lower)) {
+        traits.push({
+          name: 'Damage Resistance',
+          description: `The ${name} has resistance to ${primaryDmgType} damage.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // MULTIATTACK
+      // ═════════════════════════════════════════════════════════════════════
+      if (/multiattack|attack twice|two attacks|flurry|assault/.test(lower) || crData.dmgMax > 30) {
+        const atkCount = crData.dmgMax > 80 ? 3 : crData.dmgMax > 50 ? 2 : 2;
         if (!actions.find(a => a.name === 'Multiattack')) {
           actions.unshift({
             name: 'Multiattack',
-            description: `The ${name} makes ${atkCount === 3 ? 'three' : 'two'} ${atkName} attacks.`
+            description: `The ${name} makes ${atkCount} attacks, using Melee Attack, Ranged Attack, or Breath Weapon in any combination.`
           });
         }
       }
 
-      // Primary melee attack — themed
-      if (/peace|pacif/.test(lower)) {
-        const atkBonus = crData.atkBonus + getModifier(stats.str);
-        const dmg = Math.max(1, Math.floor(crData.dmgMin / 2));
+      // ═════════════════════════════════════════════════════════════════════
+      // PRIMARY MELEE ATTACK (if no specific abilities matched)
+      // ═════════════════════════════════════════════════════════════════════
+      if (actions.length === 0 || !actions.some(a => a.name.includes('Bite') || a.name.includes('Claw') || a.name.includes('Attack'))) {
+        const dmgDice = Math.max(1, Math.floor(crData.dmgMax / 6));
+        const dmgTotal = dmgDice * 6;
+        const atkName = /bite|teeth|fang/.test(lower) ? 'Bite' : /claw|talons|scratch/.test(lower) ? 'Claw' : 'Melee Attack';
         actions.push({
-          name: 'Peaceful Slam',
-          description: `Melee Weapon Attack: +${atkBonus} to hit, reach 10 ft., one target. Hit: ${dmg} (4d8 + ${getModifier(stats.str)}) bludgeoning damage.`
+          name: atkName,
+          description: `Melee Weapon Attack: +${atkBonus} to hit, reach 5 ft., one target. Hit: ${dmgTotal} (${dmgDice}d6) ${primaryDmgType} damage.`
         });
       }
 
-      // If legendary actions mentioned but none parsed yet, generate thematic ones
-      if (legendaryActions.length === 0 && /legendary/.test(lower)) {
-        legendaryActions.push({
-          name: 'Detect',
-          description: `The ${name} makes a Wisdom (Perception) check.`
-        });
-        if (/disarm/.test(lower)) {
-          legendaryActions.push({
-            name: 'Disarm',
-            description: `The ${name} chooses one creature it can see within 30 feet. The target must succeed on a DC ${dc} Strength saving throw or drop one item it is holding.`
+      // ═════════════════════════════════════════════════════════════════════
+      // PASSIVE TRAITS (existing patterns)
+      // ═════════════════════════════════════════════════════════════════════
+      if (/magic resistance|advantage.*saving throw.*spell/.test(lower)) {
+        if (!traits.find(t => t.name === 'Magic Resistance')) {
+          traits.push({
+            name: 'Magic Resistance',
+            description: `The ${name} has advantage on saving throws against spells and other magical effects.`
           });
         }
-        if (/fear|fright|dread|terror/.test(lower)) {
+      }
+
+      if (/stationary|immobile|cannot move|rooted|fixed/.test(lower)) {
+        traits.push({
+          name: 'Immobile',
+          description: `The ${name} can't move, and it can't be moved by any means.`
+        });
+      }
+
+      // ═════════════════════════════════════════════════════════════════════
+      // LEGENDARY ACTIONS
+      // ═════════════════════════════════════════════════════════════════════
+      if (/legendary/.test(lower)) {
+        if (legendaryActions.length === 0) {
           legendaryActions.push({
-            name: 'Dreadful Quiet',
-            description: `The ${name} unleashes a wave of sinister calm. One creature it can see within 60 feet must succeed on a DC ${dc} Wisdom saving throw or be frightened until the end of its next turn.`
+            name: 'Detect',
+            description: `The ${name} makes a Wisdom (Perception) check.`
           });
+          if (/attack|strike|hit/.test(lower)) {
+            legendaryActions.push({
+              name: 'Attack',
+              description: `The ${name} makes a melee attack.`
+            });
+          }
+          if (/move|dash/.test(lower)) {
+            legendaryActions.push({
+              name: 'Move',
+              description: `The ${name} moves up to its speed without provoking opportunity attacks.`
+            });
+          }
         }
       }
 
@@ -7227,62 +7410,115 @@
       return /corrupt|twisted|tainted|dark|fallen|warped|defiled/.test(text);
     }
 
-    // ── Rich description paragraph ──
+    // ── Rich description paragraph — derived from user's concept ──
     function generateRichDescription(name, type, size, element, concept, isCorrupted, environments) {
       const lower = concept.toLowerCase();
-      const sizeWords = { 'Tiny': 'diminutive', 'Small': 'compact', 'Medium': 'imposing', 'Large': 'towering', 'Huge': 'massive', 'Gargantuan': 'colossal' };
-      const sizeWord = sizeWords[size] || 'imposing';
 
-      // Extract visual cues from concept
-      const visualCues = [];
-      if (/metal|iron|steel|gleam/.test(lower)) visualCues.push('gleaming metal pipes and arcane crystals');
-      if (/oil rig|pump|well|drill/.test(lower)) visualCues.push('towers over the ground like a twisted oil rig');
-      if (/pulse|glow|light/.test(lower)) visualCues.push('from its core pulses a pale, greenish light');
-      if (/avatar|manifest|appear/.test(lower)) visualCues.push('before the pump, a serene, robed avatar of a god materializes');
-      if (/peace|calm|gentle/.test(lower)) visualCues.push('its hands open in gentle appeal yet brimming with unstoppable power');
-      if (/fire|flame|burn/.test(lower)) visualCues.push('wreathed in flickering flames that cast dancing shadows');
-      if (/ice|frost|frozen/.test(lower)) visualCues.push('encased in crystalline ice that refracts light into prismatic patterns');
-      if (/shadow|dark|void/.test(lower)) visualCues.push('surrounded by tendrils of living shadow');
-      if (/construct|golem|machine/.test(lower)) visualCues.push('of gleaming metal and arcane components');
+      // Polish the concept into proper D&D flavor text
+      // Remove redundant words like "a" at the beginning
+      let polished = concept.trim();
 
-      if (visualCues.length === 0) {
-        visualCues.push(`radiating ${element || 'arcane'} energy from its form`);
+      // Capitalize first letter
+      polished = polished.charAt(0).toUpperCase() + polished.slice(1);
+
+      // If it doesn't mention the creature name, work it in naturally
+      if (!polished.toLowerCase().includes(name.toLowerCase())) {
+        polished = `The ${name} is a ${polished.toLowerCase()}.`;
+      } else {
+        // If the concept mentions the name, ensure it's capitalized properly
+        polished = polished.replace(new RegExp(name, 'gi'), name);
       }
 
-      const typeStr = type.includes('/') ? type.toLowerCase().replace('/', ' and ') : type.toLowerCase();
-      return `A ${sizeWord}, ${isCorrupted ? 'corrupted ' : ''}${typeStr} ${visualCues[0]}, the ${name} ${visualCues.length > 1 ? visualCues[1] : `stands as a formidable presence`}. ${isCorrupted ? 'When threatened, ' : ''}${visualCues.length > 2 ? visualCues[2] + '. ' : ''}${visualCues.length > 3 ? visualCues.slice(3).join('. ') + '.' : ''}`;
+      // Expand terse descriptions into more evocative prose
+      if (!/\. /.test(polished) && polished.length < 150) {
+        // Single-sentence concept — expand it
+        const expansions = [];
+
+        if (/fire|flame|burn|blaze/.test(lower)) {
+          expansions.push("Tongues of flame lick across its form, leaving trails of ash in the air.");
+        } else if (/ice|frost|frozen|cold|chill/.test(lower)) {
+          expansions.push("Its very presence chills the air, and frost spreads beneath its feet.");
+        } else if (/shadow|dark|void|night/.test(lower)) {
+          expansions.push("Shadows pool around it, as if light itself fears to touch its frame.");
+        } else if (/lightning|electric|storm|thunder/.test(lower)) {
+          expansions.push("Crackling electricity arcs across its surface, and the smell of ozone fills the air.");
+        } else if (/poison|toxic|venom/.test(lower)) {
+          expansions.push("A sickly miasma surrounds it, and noxious fumes seep from its form.");
+        } else if (/holy|divine|radiant|celestial|sacred/.test(lower)) {
+          expansions.push("An aura of divine light surrounds it, filling the hearts of observers with awe and reverence.");
+        } else if (/undead|death|necrotic|bones|corpse/.test(lower)) {
+          expansions.push("The stench of the grave clings to it, and its movements are accompanied by an eerie wail.");
+        } else if (/dragon|wyrm|drake|draconic/.test(lower)) {
+          expansions.push("Its scales shimmer with an otherworldly iridescence, and ancient power radiates from within.");
+        }
+
+        if (expansions.length > 0) {
+          polished = polished + " " + expansions[0];
+        }
+      }
+
+      // Ensure it ends with proper punctuation
+      if (!polished.endsWith('.')) {
+        polished += '.';
+      }
+
+      // Limit to 2-3 sentences max
+      const sentences = polished.split(/(?<=[.!?])\s+/);
+      polished = sentences.slice(0, 3).join(' ');
+
+      return polished;
     }
 
-    // ── Rich lore paragraph ──
+    // ── Rich lore paragraph — derived from concept ──
     function generateRichLore(name, type, element, concept, isCorrupted, environments, archetypes, origin) {
       const lower = concept.toLowerCase();
       const loreFragments = [];
 
-      // Origin story
-      if (/tribe|worship|ritual|cult/.test(lower)) {
-        loreFragments.push(`Once erected by a ${/peaceful|peace/.test(lower) ? 'peaceful' : 'devout'} desert tribe to channel their patron deity's ${element || 'sacred'} calm magic`);
-      } else if (/ancient|old|elder/.test(lower)) {
-        loreFragments.push(`Created in an age long forgotten by ${origin === 'Artificial' ? 'master artificers' : 'powerful mages'}`);
+      // ═════════════════════════════════════════════════════════════════════
+      // ORIGIN STORY — hook from concept keywords
+      // ═════════════════════════════════════════════════════════════════════
+      if (/ancient|primordial|elder|old|forgotten|ages? past/.test(lower)) {
+        loreFragments.push(`Created in a forgotten age by ${origin === 'Artificial' ? 'master artificers' : origin === 'Supernatural' ? 'ancient deities' : 'powerful mages'}`);
+      } else if (/tribe|clan|people|civilization|culture/.test(lower)) {
+        loreFragments.push(`Forged by a ${/peace|peaceful|serene/.test(lower) ? 'peaceful' : 'proud'} culture as a guardian of their most sacred values`);
+      } else if (/temple|shrine|sanctum|holy|divine|sacred/.test(lower)) {
+        loreFragments.push(`Manifested within a holy sanctum, bound to the sacred ${element || 'arcane'} forces that dwell there`);
+      } else if (/curse|cursed|doom|fate/.test(lower)) {
+        loreFragments.push(`Cursed into existence as punishment for ancient sins`);
+      } else if (/experiment|creation|craft|forge|build/.test(lower)) {
+        loreFragments.push(`Deliberately crafted by ${origin === 'Artificial' ? 'skilled artificers' : 'powerful sorcerers'} to be the ultimate ${type.toLowerCase()}`);
       } else {
         loreFragments.push(`Born from ${origin === 'Supernatural' ? 'divine intervention' : origin === 'Artificial' ? 'arcane engineering' : 'raw magical energy'}`);
       }
 
-      // Corruption arc
+      // ═════════════════════════════════════════════════════════════════════
+      // CORRUPTION ARC — if applicable
+      // ═════════════════════════════════════════════════════════════════════
       if (isCorrupted) {
-        if (/rival|cult|dark|evil/.test(lower)) {
-          loreFragments.push(`the ${name} was warped by a rival cult's dark rites, fusing ${/construct/.test(lower) ? 'construct engineering' : 'its original nature'} with corrupted ${/celestial|divine|peace/.test(lower) ? 'celestial' : 'arcane'} power`);
+        if (/fell|darkness|tainted|twisted|warped|corrupted|dark ritual/.test(lower)) {
+          loreFragments.push(`but over time it fell to corruption, twisted by dark rituals and malevolent magic`);
+        } else if (/betrayed|forsaken|abandoned|forgotten/.test(lower)) {
+          loreFragments.push(`until it was betrayed by those who created it, and in its despair, it turned to darker purposes`);
         } else {
-          loreFragments.push(`over centuries its magic became twisted and corrupted, perverting its original purpose`);
+          loreFragments.push(`though over centuries its magic soured, twisting its original noble purpose into something sinister`);
         }
       }
 
-      // Purpose
-      if (/pump|harvest|drain|siphon|extract|well|rig/.test(lower)) {
-        loreFragments.push(`Now known as the ${name}, it drains the earth's tranquility to fuel its guardian avatar. It seeks only to pacify all who dare assault it and to harvest every drop of ${/peace/.test(lower) ? 'peace' : 'arcane'} magic from the land`);
-      } else if (/guardian|protect|defend|sentinel/.test(lower)) {
-        loreFragments.push(`it now stands as an eternal guardian, driven by ${isCorrupted ? 'twisted' : 'unwavering'} purpose`);
+      // ═════════════════════════════════════════════════════════════════════
+      // PURPOSE / ROLE — what it does now
+      // ═════════════════════════════════════════════════════════════════════
+      if (/guardian|protect|defend|defend|sentinel|watchman/.test(lower)) {
+        loreFragments.push(`Now it stands as ${isCorrupted ? 'a twisted guardian of forbidden knowledge' : 'an eternal sentinel, fierce and unwavering'}`);
+      } else if (/hunt|hunt|predator|prey/.test(lower)) {
+        loreFragments.push(`It now stalks the lands as a relentless predator, driven by ${isCorrupted ? 'malice' : 'its ancient nature'}`);
+      } else if (/seek|quest|search|wander/.test(lower)) {
+        loreFragments.push(`It wanders the realm, forever seeking ${isCorrupted ? 'revenge or chaos' : 'its true purpose'}`);
+      } else if (/dwell|lair|nest|home|roost/.test(lower)) {
+        loreFragments.push(`It has made its lair in the deepest, most dangerous places, ${isCorrupted ? 'a blight upon the land' : 'where few dare to venture'}`);
+      } else if (/plague|curse|scourge|bane|terror/.test(lower)) {
+        loreFragments.push(`It has become a scourge upon the land, ${isCorrupted ? 'feared and reviled by all' : 'respected for its power and majesty'}`);
       } else {
-        loreFragments.push(`it now ${isCorrupted ? 'terrorizes the surrounding lands' : 'serves its ancient purpose'}`);
+        loreFragments.push('Now it ' + (isCorrupted ? 'spreads darkness and despair wherever it goes' : 'represents ' + (element || 'ancient') + ' power incarnate'));
       }
 
       return loreFragments.join(', ') + '.';
@@ -7467,22 +7703,38 @@
 
       const button = event?.target;
       if (button) {
-        button.textContent = 'Generating...';
+        button.textContent = 'Analyzing concept...';
         button.disabled = true;
+      }
+
+      // Show loading state in output
+      const output = document.getElementById('statBlockOutput');
+      if (output) {
+        output.innerHTML = '<div style="padding: 40px; text-align: center; font-style: italic; color: #666;">Analyzing your concept and generating a fearsome creature...</div>';
       }
 
       // Small timeout for UI update
       setTimeout(() => {
         try {
           const monster = generateMonsterAI(concept);
+          // Store the original concept for display in stat block
+          monster.concept = concept;
+          lastGeneratedMonster = monster;
           populateMonsterForm(monster);
           updateMonsterMods();
           // Switch to detailed mode and show stat block
           switchMonsterMode('detailed');
           generateStatBlock();
+          // Scroll to output
+          setTimeout(() => {
+            output?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }, 100);
         } catch (err) {
           console.error('Monster generation error:', err);
           alert('Error generating monster. Please try again.');
+          if (output) {
+            output.innerHTML = '';
+          }
         }
         if (button) {
           button.textContent = 'Generate from Description';
@@ -7669,18 +7921,23 @@
       // Color scheme: dark red headers (#7a200d), warm parchment body
       const headerBg = '#7a200d';
       const headerColor = '#fff';
-      const dividerColor = '#7a200d';
-      const bodyBg = '#fdf1dc';
+      const dividerColor = '#c9302c';
+      const bodyBg = '#fdf5e6';
       const bodyText = '#1a1a1a';
       const sectionHeaderColor = '#7a200d';
+      const conceptText = rich.concept || lastGeneratedMonster?.concept || '';
+
+      // Create gradient for header
+      const headerGradient = 'linear-gradient(135deg, #7a200d 0%, #a02c1d 100%)';
 
       let html = `
-        <div class="stat-block" style="font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', serif; max-width: 620px; background: ${bodyBg}; color: ${bodyText}; padding: 0; border: 3px solid ${headerBg}; border-radius: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.3); line-height: 1.4;">
+        <div class="stat-block" style="font-family: 'Libre Baskerville', 'Georgia', 'Times New Roman', serif; max-width: 620px; background: ${bodyBg}; color: ${bodyText}; padding: 0; border: 2px solid ${headerBg}; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); line-height: 1.4; overflow: hidden;">
 
-          <!-- ═══ Top header bar ═══ -->
-          <div style="background: ${headerBg}; color: ${headerColor}; padding: 10px 16px 8px; margin: 0;">
+          <!-- ═══ Top header bar with gradient ═══ -->
+          <div style="background: ${headerGradient}; color: ${headerColor}; padding: 14px 16px 12px; margin: 0;">
             <div style="font-size: 22px; font-weight: bold; letter-spacing: 1px; font-variant: small-caps;">${name}</div>
-            <div style="font-size: 12px; font-style: italic; opacity: 0.9; margin-top: 2px;">${size} ${type.toLowerCase()}, ${alignment}</div>
+            <div style="font-size: 12px; font-style: italic; opacity: 0.85; margin-top: 3px;">${size} ${type.toLowerCase()}, ${alignment}</div>
+            ${conceptText ? `<div style="font-size: 11px; font-style: italic; opacity: 0.75; margin-top: 4px; font-weight: normal;">"${escapeHtml(conceptText)}"</div>` : ''}
           </div>
 
           <!-- ═══ Core Stats Block ═══ -->
@@ -7694,30 +7951,30 @@
             </div>
 
             <!-- Divider -->
-            <div style="border-top: 2px solid ${dividerColor}; border-bottom: 2px solid ${dividerColor}; height: 4px; margin: 6px 0; opacity: 0.3;"></div>
+            <div style="border-top: 1px solid ${dividerColor}; margin: 8px 0;"></div>
 
             <!-- Ability Scores Table -->
-            <table style="width: 100%; text-align: center; margin: 8px 0; border-collapse: collapse; font-size: 13px;">
+            <table style="width: 100%; text-align: center; margin: 10px 0; border-collapse: collapse; font-size: 13px;">
               <tr style="font-weight: bold; color: ${sectionHeaderColor};">
-                <td style="padding: 4px 2px;">STR</td>
-                <td style="padding: 4px 2px;">DEX</td>
-                <td style="padding: 4px 2px;">CON</td>
-                <td style="padding: 4px 2px;">INT</td>
-                <td style="padding: 4px 2px;">WIS</td>
-                <td style="padding: 4px 2px;">CHA</td>
+                <td style="padding: 6px 4px;">STR</td>
+                <td style="padding: 6px 4px;">DEX</td>
+                <td style="padding: 6px 4px;">CON</td>
+                <td style="padding: 6px 4px;">INT</td>
+                <td style="padding: 6px 4px;">WIS</td>
+                <td style="padding: 6px 4px;">CHA</td>
               </tr>
               <tr>
-                <td style="padding: 2px;">${str} (${fmtMod(str)})</td>
-                <td style="padding: 2px;">${dex} (${fmtMod(dex)})</td>
-                <td style="padding: 2px;">${con} (${fmtMod(con)})</td>
-                <td style="padding: 2px;">${int} (${fmtMod(int)})</td>
-                <td style="padding: 2px;">${wis} (${fmtMod(wis)})</td>
-                <td style="padding: 2px;">${cha} (${fmtMod(cha)})</td>
+                <td style="padding: 4px;">${str} (${fmtMod(str)})</td>
+                <td style="padding: 4px;">${dex} (${fmtMod(dex)})</td>
+                <td style="padding: 4px;">${con} (${fmtMod(con)})</td>
+                <td style="padding: 4px;">${int} (${fmtMod(int)})</td>
+                <td style="padding: 4px;">${wis} (${fmtMod(wis)})</td>
+                <td style="padding: 4px;">${cha} (${fmtMod(cha)})</td>
               </tr>
             </table>
 
             <!-- Divider -->
-            <div style="border-top: 2px solid ${dividerColor}; border-bottom: 2px solid ${dividerColor}; height: 4px; margin: 6px 0; opacity: 0.3;"></div>
+            <div style="border-top: 1px solid ${dividerColor}; margin: 8px 0;"></div>
 
             <!-- Saves, Skills, Resistances, Senses, Languages, CR -->
             <div style="font-size: 13px; line-height: 1.6; margin-bottom: 8px;">
@@ -7733,31 +7990,31 @@
             </div>
 
             <!-- Divider -->
-            <div style="border-top: 2px solid ${dividerColor}; border-bottom: 2px solid ${dividerColor}; height: 4px; margin: 6px 0; opacity: 0.3;"></div>
+            <div style="border-top: 1px solid ${dividerColor}; margin: 8px 0;"></div>
 
             <!-- ═══ Description ═══ -->
             ${description ? `
-              <div style="margin: 10px 0;">
-                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Description</div>
-                <div style="font-size: 13px; font-style: italic; line-height: 1.5; color: #333;">${description}</div>
+              <div style="margin: 12px 0;">
+                <div style="font-size: 14px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 5px; margin-bottom: 8px;">Description</div>
+                <div style="font-size: 13px; font-style: italic; line-height: 1.6; color: #2a2a2a;">${escapeHtml(description)}</div>
               </div>
             ` : ''}
 
             <!-- ═══ Lore ═══ -->
             ${lore ? `
-              <div style="margin: 10px 0;">
-                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Lore</div>
-                <div style="font-size: 13px; font-style: italic; line-height: 1.5; color: #333;">${lore}</div>
+              <div style="margin: 12px 0;">
+                <div style="font-size: 14px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 5px; margin-bottom: 8px;">Lore</div>
+                <div style="font-size: 13px; font-style: italic; line-height: 1.6; color: #2a2a2a;">${escapeHtml(lore)}</div>
               </div>
             ` : ''}
 
             <!-- ═══ Abilities / Traits ═══ -->
             ${traits.length > 0 ? `
-              <div style="margin: 10px 0;">
-                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Abilities</div>
+              <div style="margin: 12px 0;">
+                <div style="font-size: 14px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 5px; margin-bottom: 8px;">Abilities</div>
                 ${traits.map(t => `
-                  <div style="margin-bottom: 6px; font-size: 13px;">
-                    <span style="font-weight: bold; font-style: italic;">${t.name}.</span> ${t.description}
+                  <div style="margin-bottom: 8px; font-size: 13px; line-height: 1.5;">
+                    <span style="font-weight: bold; font-style: italic;">${escapeHtml(t.name)}.</span> ${escapeHtml(t.description)}
                   </div>
                 `).join('')}
               </div>
@@ -7765,11 +8022,11 @@
 
             <!-- ═══ Actions ═══ -->
             ${actions.length > 0 ? `
-              <div style="margin: 10px 0;">
-                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Actions</div>
+              <div style="margin: 12px 0;">
+                <div style="font-size: 14px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 5px; margin-bottom: 8px;">Actions</div>
                 ${actions.map(a => `
-                  <div style="margin-bottom: 6px; font-size: 13px;">
-                    <span style="font-weight: bold; font-style: italic;">${a.name}.</span> ${a.description}
+                  <div style="margin-bottom: 8px; font-size: 13px; line-height: 1.5;">
+                    <span style="font-weight: bold; font-style: italic;">${escapeHtml(a.name)}.</span> ${escapeHtml(a.description)}
                   </div>
                 `).join('')}
               </div>
@@ -7777,14 +8034,14 @@
 
             <!-- ═══ Legendary Actions ═══ -->
             ${legendary.length > 0 ? `
-              <div style="margin: 10px 0;">
-                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Legendary Actions</div>
-                <div style="font-size: 12px; font-style: italic; margin-bottom: 8px; color: #555;">
+              <div style="margin: 12px 0;">
+                <div style="font-size: 14px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 5px; margin-bottom: 8px;">Legendary Actions</div>
+                <div style="font-size: 12px; font-style: italic; margin-bottom: 8px; color: #444; line-height: 1.5;">
                   The ${name} can take 3 legendary actions, choosing from the options below. Only one legendary action can be used at a time and only at the end of another creature's turn. The ${name} regains spent legendary actions at the start of its turn.
                 </div>
                 ${legendary.map(l => `
-                  <div style="margin-bottom: 6px; font-size: 13px;">
-                    <span style="font-weight: bold; font-style: italic;">${l.name}.</span> ${l.description}
+                  <div style="margin-bottom: 8px; font-size: 13px; line-height: 1.5;">
+                    <span style="font-weight: bold; font-style: italic;">${escapeHtml(l.name)}.</span> ${escapeHtml(l.description)}
                   </div>
                 `).join('')}
               </div>
@@ -7792,8 +8049,8 @@
 
             <!-- ═══ Loot ═══ -->
             ${loot.length > 0 ? `
-              <div style="margin: 10px 0 14px;">
-                <div style="font-size: 15px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 4px; margin-bottom: 8px;">Loot</div>
+              <div style="margin: 12px 0 14px;">
+                <div style="font-size: 14px; font-weight: bold; color: ${sectionHeaderColor}; font-variant: small-caps; border-bottom: 1px solid ${dividerColor}; padding-bottom: 5px; margin-bottom: 8px;">Loot</div>
                 ${loot.map(l => `
                   <div style="margin-bottom: 6px; font-size: 13px;">
                     <span style="font-weight: bold;">${l.name}</span>${l.value ? ` <span style="color: #886622; font-size: 11px;">(${l.value})</span>` : ''}

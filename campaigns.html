@@ -33,31 +33,56 @@
     .campaign-container { padding: 0 56px 56px; }
 
     .campaign-tabs {
-      display: flex; gap: 2px; background: var(--crimson-border);
-      border-bottom: 1px solid var(--crimson-border); margin-bottom: 32px;
+      display: flex; gap: 0; background: transparent;
+      border-bottom: 1px solid var(--border); margin-bottom: 32px;
     }
     .campaign-tab {
-      flex: 1; padding: 16px; background: var(--bg-card); border: none; cursor: pointer;
+      flex: 1; padding: 16px; background: transparent; border: none; cursor: pointer;
       font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px;
       text-transform: uppercase; color: var(--text-muted); position: relative;
-      transition: background 0.3s, color 0.3s;
+      transition: all 0.3s ease;
     }
-    .campaign-tab:hover { background: var(--bg-hover); color: var(--text); }
-    .campaign-tab.active { background: var(--crimson); color: var(--white); }
+    .campaign-tab:hover { color: var(--text); }
+    .campaign-tab.active { color: var(--crimson); }
+    .campaign-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--crimson);
+    }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
     /* Campaign Grid */
     .campaign-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
-      background: var(--crimson-border); border: 1px solid var(--crimson-border); margin-bottom: 56px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      background: transparent;
+      border: none;
+      margin-bottom: 56px;
     }
     .campaign-card {
-      background: var(--bg-card); padding: 32px 26px; cursor: pointer;
-      position: relative; overflow: hidden; transition: background 0.3s;
+      background: var(--bg-card);
+      padding: 32px 26px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 6px;
     }
-    .campaign-card:hover { background: var(--bg-hover); }
+    .campaign-card:hover {
+      background: var(--bg-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border-color: var(--crimson-border);
+    }
     .campaign-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
     .campaign-card-system {
       font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; color: var(--crimson);
@@ -75,29 +100,49 @@
     .form-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
     .form-input, .form-textarea, .form-select {
       width: 100%; padding: 12px 14px; background: var(--bg-input); border: 1px solid var(--border);
-      color: var(--text); font-family: 'Spectral', serif; font-size: 14px; border-radius: 2px;
-      transition: border-color 0.2s; box-sizing: border-box;
+      color: var(--text); font-family: 'Spectral', serif; font-size: 14px; border-radius: 4px;
+      transition: all 0.2s ease; box-sizing: border-box;
     }
-    .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--crimson-border); }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--crimson);
+      box-shadow: 0 0 0 3px rgba(122, 32, 13, 0.08);
+    }
     .form-textarea { resize: vertical; min-height: 100px; }
     .form-button {
       padding: 12px 28px; background: var(--crimson); border: none; color: var(--white);
       font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px;
-      text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: background 0.2s; margin-right: 8px;
+      text-transform: uppercase; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; margin-right: 8px;
     }
-    .form-button:hover { background: var(--crimson-dim); }
-    .form-button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
-    .form-button.secondary:hover { border-color: var(--crimson); color: var(--crimson); }
+    .form-button:hover {
+      background: var(--crimson-dim);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(122, 32, 13, 0.2);
+    }
+    .form-button.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .form-button.secondary:hover {
+      border-color: var(--crimson);
+      color: var(--crimson);
+      background: rgba(122, 32, 13, 0.05);
+    }
 
     /* Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal.active { display: flex; }
-    .modal-content { background: var(--bg); border: 1px solid var(--crimson-border); border-radius: 2px; padding: 40px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
+    .modal-content { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .modal-content.wide { max-width: 900px; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-    .modal-title { font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); }
-    .modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 0; }
-    .modal-close:hover { color: var(--crimson); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 28px 32px; border-bottom: 1px solid var(--border); background: var(--bg-mid); }
+    .modal-title { font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); }
+    .modal-body { padding: 28px 32px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 32px; border-top: 1px solid var(--border); background: var(--bg-mid); }
+    .modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 0; transition: color 0.2s; }
+    .modal-close:hover { color: var(--text); }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
     .modal-overlay.active { display: flex; }
     .modal-overlay .modal { position: static; display: flex; width: auto; max-width: 90vw; max-height: 90vh; background: var(--bg); border: 1px solid var(--crimson-border); border-radius: 2px; flex-direction: column; padding: 0; }
@@ -106,21 +151,69 @@
     .modal-overlay .modal-footer { display: flex; gap: 12px; justify-content: flex-end; padding: 0 32px 32px; }
 
     /* Section Headers */
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--crimson-border); }
-    .section-title { font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); }
-    .section-add-btn {
-      padding: 8px 18px; background: var(--crimson); border: none; color: var(--white);
-      font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px;
-      text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: background 0.2s;
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
     }
-    .section-add-btn:hover { background: var(--crimson-dim); }
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .section-add-btn {
+      padding: 10px 20px;
+      background: var(--crimson);
+      border: none;
+      color: var(--white);
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+    .section-add-btn:hover {
+      background: var(--crimson-dim);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(122, 32, 13, 0.2);
+    }
     .section-btns { display: flex; gap: 8px; }
 
     /* Party Cards */
-    .party-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); margin-bottom: 32px; }
-    .party-card { background: var(--bg-card); padding: 24px; position: relative; }
+    .party-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; background: transparent; border: none; margin-bottom: 32px; }
+    .party-card {
+      background: var(--bg-card);
+      padding: 24px;
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .party-card:hover {
+      border-color: var(--crimson-border);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
     .party-card-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
-    .party-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 4px; transition: color 0.2s; }
+    .party-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      transition: color 0.2s;
+    }
     .party-btn:hover { color: var(--crimson); }
     .party-card-name { font-size: 18px; color: var(--text); font-weight: 300; margin-bottom: 8px; }
     .party-card-info { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 12px; }
@@ -136,19 +229,62 @@
     .monster-search-bar .form-select { width: 160px; flex: none; }
     .monster-filter-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
     .filter-tag {
-      padding: 4px 12px; border: 1px solid var(--border); background: transparent;
-      color: var(--text-muted); font-family: 'Cinzel', serif; font-size: 8px;
-      letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: all 0.2s;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      font-weight: 500;
     }
-    .filter-tag.active { background: var(--crimson); border-color: var(--crimson); color: var(--white); }
-    .filter-tag:hover { border-color: var(--crimson); color: var(--crimson); }
-    .filter-tag.active:hover { background: var(--crimson-dim); }
+    .filter-tag.active {
+      background: var(--crimson);
+      border-color: var(--crimson);
+      color: var(--white);
+    }
+    .filter-tag:hover {
+      border-color: var(--crimson);
+      color: var(--crimson);
+    }
+    .filter-tag.active:hover {
+      background: var(--crimson-dim);
+    }
     .monster-results-count { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
 
     /* Monster Grid & Cards */
-    .monster-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--crimson-border); border: 1px solid var(--crimson-border); margin: 0 0 28px; max-height: 400px; overflow-y: auto; }
-    .monster-card { background: var(--bg-card); padding: 16px; cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; }
-    .monster-card:hover { background: var(--bg-hover); }
+    .monster-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      background: transparent;
+      border: none;
+      margin: 0 0 28px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .monster-card {
+      background: var(--bg-card);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .monster-card:hover {
+      background: var(--bg-hover);
+      border-color: var(--crimson-border);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
     .monster-info { flex: 1; }
     .monster-name { font-size: 14px; color: var(--text); margin-bottom: 4px; }
     .monster-stats { font-size: 11px; color: var(--text-muted); }
@@ -452,12 +588,13 @@
     .campaign-resource-name { font-size: 16px; color: var(--text); margin-bottom: 8px; }
     .campaign-resource-meta { font-size: 12px; color: var(--text-muted); }
 
-    /* Timeline Styles - Interactive */
+    /* Timeline Styles - Vertical Obsidian-Inspired */
     .timeline-interactive-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 28px;
     }
+
     .timeline-controls {
       display: flex;
       gap: 12px;
@@ -465,193 +602,300 @@
       flex-wrap: wrap;
     }
     .timeline-controls button {
-      padding: 8px 12px;
+      padding: 8px 14px;
       background: var(--bg-card);
-      border: 1px solid var(--crimson-border);
+      border: 1px solid var(--border);
       color: var(--text);
       cursor: pointer;
-      font-size: 14px;
+      font-size: 11px;
       font-family: 'Cinzel', serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
       font-weight: 500;
       transition: all 0.2s ease;
-      border-radius: 2px;
+      border-radius: 4px;
     }
     .timeline-controls button:hover {
       background: var(--crimson-soft);
       border-color: var(--crimson);
       color: var(--text);
     }
+
+    .timeline-search {
+      flex: 1;
+      max-width: 300px;
+      padding: 8px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Spectral', serif;
+      border-radius: 4px;
+      transition: border-color 0.2s;
+    }
+    .timeline-search:focus {
+      outline: none;
+      border-color: var(--crimson-border);
+    }
+
     .timeline-filter-buttons {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
     }
-    .timeline-container {
+    .timeline-filter-btn {
+      padding: 6px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 10px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    .timeline-filter-btn:hover {
+      border-color: var(--crimson);
+      color: var(--crimson);
+    }
+    .timeline-filter-btn.active {
+      background: var(--crimson);
+      color: var(--white);
+      border-color: var(--crimson);
+    }
+
+    /* Vertical Timeline */
+    .timeline-vertical {
       display: flex;
       flex-direction: column;
       gap: 20px;
-    }
-    .timeline-viewport {
       position: relative;
-      width: 100%;
-      height: 180px;
-      background: var(--bg-mid);
-      border: 1px solid var(--crimson-border);
-      border-radius: 4px;
-      overflow: hidden;
-      cursor: grab;
+      padding-left: 40px;
     }
-    .timeline-viewport:active {
-      cursor: grabbing;
-    }
-    .timeline-track {
-      position: relative;
-      height: 100%;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      padding: 0 40px;
-      transition: transform 0.1s ease-out;
-    }
-    .timeline-line {
+
+    .timeline-stem {
       position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 2px;
+      left: 16px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
       background: var(--crimson-border);
-      transform: translateY(-50%);
-      pointer-events: none;
     }
-    .timeline-node {
+
+    .timeline-event {
+      display: flex;
+      gap: 16px;
+      position: relative;
+      animation: slideInTimeline 0.3s ease-out;
+    }
+
+    @keyframes slideInTimeline {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .timeline-event-dot {
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 24px;
-      height: 24px;
+      left: -32px;
+      top: 8px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       border: 3px solid var(--bg);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
+      background: var(--crimson-border);
       z-index: 2;
+      transition: all 0.2s ease;
     }
-    .timeline-node:hover {
-      transform: translateY(-50%) scale(1.3);
-      z-index: 3;
+
+    .timeline-event:hover .timeline-event-dot {
+      width: 16px;
+      height: 16px;
+      left: -34px;
+      top: 6px;
+      box-shadow: 0 0 0 3px rgba(122, 32, 13, 0.1);
     }
-    .timeline-node.dragging {
-      z-index: 100;
-      transform: translateY(-50%) scale(1.2);
-    }
-    .timeline-node.session { background: #7a200d; }
-    .timeline-node.major_plot { background: #b8860b; }
-    .timeline-node.minor_plot { background: #556b2f; }
-    .timeline-node.combat { background: #8b0000; }
-    .timeline-node.discovery { background: #2e8b57; }
-    .timeline-node.npc_event { background: #4682b4; }
-    .timeline-node.custom { background: #808080; }
-    .timeline-node.dm-only {
-      border-style: dashed;
-      box-shadow: inset 0 0 0 2px var(--bg-mid);
-    }
-    .timeline-node-label {
-      position: absolute;
-      top: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 11px;
-      color: var(--text-dim);
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-      background: var(--bg-mid);
-      padding: 4px 8px;
-      border-radius: 2px;
-    }
-    .timeline-node:hover .timeline-node-label {
-      opacity: 1;
-    }
-    .timeline-detail-panel {
+
+    .timeline-event-card {
+      flex: 1;
       background: var(--bg-card);
-      border: 1px solid var(--crimson-border);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--crimson-border);
       border-radius: 4px;
-      padding: 20px;
-      min-height: 200px;
+      padding: 16px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .timeline-event:hover .timeline-event-card {
+      border-color: var(--crimson-border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .timeline-event-card.completed {
+      opacity: 0.65;
+    }
+    .timeline-event-card.completed .timeline-event-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    /* Type-specific left border colors */
+    .timeline-event.session .timeline-event-card { border-left-color: #7a200d; }
+    .timeline-event.major_plot .timeline-event-card { border-left-color: #b8860b; }
+    .timeline-event.minor_plot .timeline-event-card { border-left-color: #556b2f; }
+    .timeline-event.combat .timeline-event-card { border-left-color: #8b0000; }
+    .timeline-event.discovery .timeline-event-card { border-left-color: #2e8b57; }
+    .timeline-event.npc_event .timeline-event-card { border-left-color: #4682b4; }
+    .timeline-event.custom .timeline-event-card { border-left-color: #808080; }
+    .timeline-event.dm-only .timeline-event-card { border-left-color: #9b59b6; }
+
+    .timeline-event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .timeline-event-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      margin: 0;
+      font-family: 'Cinzel', serif;
+      flex: 1;
+    }
+
+    .timeline-event-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .timeline-event-type {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+    .timeline-event-type.session { background: rgba(122,32,13,0.15); color: #7a200d; }
+    .timeline-event-type.major_plot { background: rgba(184,134,11,0.15); color: #b8860b; }
+    .timeline-event-type.minor_plot { background: rgba(85,107,47,0.15); color: #556b2f; }
+    .timeline-event-type.combat { background: rgba(139,0,0,0.15); color: #8b0000; }
+    .timeline-event-type.discovery { background: rgba(46,139,87,0.15); color: #2e8b57; }
+    .timeline-event-type.npc_event { background: rgba(70,130,180,0.15); color: #4682b4; }
+    .timeline-event-type.custom { background: rgba(128,128,128,0.15); color: #808080; }
+
+    .timeline-event-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'Spectral', serif;
+    }
+
+    .timeline-event-body {
+      display: none;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .timeline-event-body.expanded {
+      display: block;
+    }
+
+    .timeline-event-description {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 12px;
+      font-family: 'Spectral', serif;
+    }
+
+    .timeline-event-dm-notes {
+      background: rgba(155, 89, 182, 0.08);
+      border-left: 3px solid #9b59b6;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border-radius: 2px;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      font-family: 'Spectral', serif;
+    }
+
+    .timeline-event-dm-notes strong {
+      color: #9b59b6;
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .timeline-event-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .timeline-event-action-btn {
+      padding: 4px 10px;
+      background: var(--bg-mid);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 10px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .timeline-event-action-btn:hover {
+      background: var(--crimson-soft);
+      border-color: var(--crimson);
+      color: var(--crimson);
+    }
+
+    .timeline-event-action-btn.danger:hover {
+      background: rgba(231, 76, 60, 0.15);
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+    .timeline-detail-panel {
       display: none;
     }
     .timeline-detail-panel.active {
       display: block;
     }
-    .timeline-detail-panel h3 {
-      font-size: 18px;
-      color: var(--text);
-      margin-bottom: 12px;
-      margin-top: 0;
-    }
-    .timeline-detail-meta {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-    .timeline-detail-type {
-      font-size: 10px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 2px;
-      font-family: 'Cinzel', serif;
-    }
-    .timeline-detail-type.session { background: rgba(122,32,13,0.15); color: #7a200d; }
-    .timeline-detail-type.major_plot { background: rgba(184,134,11,0.15); color: #b8860b; }
-    .timeline-detail-type.minor_plot { background: rgba(85,107,47,0.15); color: #556b2f; }
-    .timeline-detail-type.combat { background: rgba(139,0,0,0.15); color: #8b0000; }
-    .timeline-detail-type.discovery { background: rgba(46,139,87,0.15); color: #2e8b57; }
-    .timeline-detail-type.npc_event { background: rgba(70,130,180,0.15); color: #4682b4; }
-    .timeline-detail-type.custom { background: rgba(128,128,128,0.15); color: #808080; }
-    .timeline-detail-date {
-      font-size: 12px;
+
+    .timeline-empty {
+      text-align: center;
+      padding: 40px 20px;
       color: var(--text-muted);
     }
-    .timeline-detail-description {
-      font-size: 14px;
-      color: var(--text-dim);
-      line-height: 1.7;
-      margin-bottom: 16px;
+
+    .timeline-empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.4;
     }
-    .timeline-detail-notes {
-      background: var(--bg-mid);
-      padding: 12px;
-      font-size: 13px;
-      color: var(--text-dim);
-      line-height: 1.6;
-      border-left: 3px solid #9b59b6;
-      margin-bottom: 16px;
-    }
-    .timeline-detail-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-    }
-    .timeline-detail-actions button {
-      padding: 6px 12px;
-      background: var(--bg-mid);
-      border: 1px solid var(--crimson-border);
-      color: var(--text-dim);
-      cursor: pointer;
-      font-size: 11px;
-      font-family: 'Spectral', serif;
-      transition: all 0.2s ease;
-    }
-    .timeline-detail-actions button:hover {
-      background: var(--crimson-soft);
-      border-color: var(--crimson);
       color: var(--text);
     }
     .visibility-badge {
@@ -896,45 +1140,33 @@
         </div>
 
         <!-- Timeline Section -->
-        <div id="journalTimelineSection" style="display: block; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--crimson-border);">
+        <div id="journalTimelineSection" style="display: block; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border);">
           <div class="section-header">
             <div class="section-title">Campaign Timeline</div>
             <button class="section-add-btn" onclick="openAddTimelineEventModal()">+ Add Event</button>
           </div>
-          <div style="font-size:13px;color:var(--text-dim);margin-bottom:20px;">A chronological timeline of your campaign. Click any event to expand its details, attach notes, or manage visibility. Events marked as DM-only are hidden from players.</div>
+          <div style="font-size:13px;color:var(--text-dim);margin-bottom:24px;">Click any event to expand its details. Events marked as DM-only are hidden from players.</div>
 
           <div class="timeline-interactive-wrapper">
             <div class="timeline-controls">
-              <button onclick="timelineZoom(-1)">− Zoom Out</button>
-              <button onclick="timelineZoom(1)">+ Zoom In</button>
-              <div class="timeline-filter-buttons">
-                <select class="form-input" id="timelineFilterType" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))" style="width:auto;">
-                  <option value="all">All Events</option>
-                  <option value="session">Sessions</option>
-                  <option value="major_plot">Major Plot Points</option>
-                  <option value="minor_plot">Minor Plot Points</option>
-                  <option value="combat">Key Battles</option>
-                  <option value="discovery">Discoveries</option>
-                  <option value="npc_event">NPC Events</option>
-                  <option value="custom">Custom</option>
-                </select>
-                <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-dim);cursor:pointer;">
-                  <input type="checkbox" id="timelineShowDMOnly" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))"> Show DM-only events
-                </label>
-              </div>
+              <select class="form-input" id="timelineFilterType" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))" style="width:auto;">
+                <option value="all">All Events</option>
+                <option value="session">Sessions</option>
+                <option value="major_plot">Major Plot Points</option>
+                <option value="minor_plot">Minor Plot Points</option>
+                <option value="combat">Key Battles</option>
+                <option value="discovery">Discoveries</option>
+                <option value="npc_event">NPC Events</option>
+                <option value="custom">Custom</option>
+              </select>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-dim);cursor:pointer;margin-left:12px;">
+                <input type="checkbox" id="timelineShowDMOnly" onchange="renderTimelineTab(getCampaign(window._activeCampaignId))"> Show DM-only events
+              </label>
             </div>
 
-            <div id="timelineContainer" class="timeline-viewport">
-              <div class="timeline-track" id="timelineTrack">
-                <div class="timeline-line"></div>
-              </div>
-            </div>
-
-            <div class="timeline-detail-panel" id="timelineDetailPanel">
-            </div>
+            <div id="timelineContainer" style="margin-top:24px;"></div>
 
             <div class="empty-state" id="timelineEmptyState" style="display:none;"><div class="empty-state-text">No timeline events yet. Start building your campaign's story!</div></div>
-          </div>
           </div>
         </div>
 
@@ -2322,241 +2554,158 @@
     }
 
     function renderTimelineTab(c) {
-      var track = document.getElementById('timelineTrack');
       var container = document.getElementById('timelineContainer');
       var emptyState = document.getElementById('timelineEmptyState');
-      var detailPanel = document.getElementById('timelineDetailPanel');
-      
-      if (!track || !container) return;
-      
+
+      if (!container) return;
+
       var timeline = c.timeline || [];
-      
+
       // Apply filters
       var filterType = document.getElementById('timelineFilterType');
       var showDM = document.getElementById('timelineShowDMOnly');
       var typeFilter = filterType ? filterType.value : 'all';
       var showDMOnly = showDM ? showDM.checked : true;
-      
+
       // Determine user role
       var user = getAuthUser();
       var isDM = c.ownerId === (user ? user.id : '');
-      
+
       var filtered = timeline.filter(function(evt) {
         if (typeFilter !== 'all' && evt.type !== typeFilter) return false;
         if (!isDM && evt.visibility === 'dm_only') return false;
         if (!showDMOnly && evt.visibility === 'dm_only') return false;
         return true;
       });
-      
-      // Sort by creation date (chronologically)
-      filtered.sort(function(a, b) { return new Date(a.createdAt) - new Date(b.createdAt); });
-      
+
+      // Sort by date (newest first by default)
+      filtered.sort(function(a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
+
       if (!filtered.length) {
-        emptyState.style.display = 'block';
-        track.innerHTML = '<div class="timeline-line"></div>';
-        detailPanel.classList.remove('active');
-        detailPanel.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        container.innerHTML = '<div class="timeline-empty"><div class="timeline-empty-icon">📜</div><div class="empty-state-text">No timeline events yet. Start building your campaign story!</div></div>';
         return;
       }
-      
-      emptyState.style.display = 'none';
-      
-      // Create nodes on the timeline track
-      var trackHtml = '<div class="timeline-line"></div>';
-      var baseSpacing = 120; // pixels between nodes
-      var spacing = baseSpacing * (window._timelineZoom || 1);
-      
-      filtered.forEach(function(evt, idx) {
-        var position = 40 + (idx * spacing);
+
+      if (emptyState) emptyState.style.display = 'none';
+
+      // Generate vertical timeline HTML
+      var html = '<div class="timeline-vertical">';
+      html += '<div class="timeline-stem"></div>';
+
+      filtered.forEach(function(evt) {
         var dmOnly = evt.visibility === 'dm_only';
-        var classes = 'timeline-node ' + evt.type + (dmOnly ? ' dm-only' : '');
-        
-        trackHtml += '<div class="' + classes + '" style="left: ' + position + 'px;" onclick="selectTimelineEvent(\x27' + evt.id + '\x27)" draggable="true" onmousedown="startTimelineReorder(\x27' + evt.id + '\x27, event)">';
-        trackHtml += '<div class="timeline-node-label">' + escapeHtml(evt.gameDate || 'No date') + '</div>';
-        trackHtml += '</div>';
+        var typeClass = evt.type;
+        var dmOnlyClass = dmOnly ? ' dm-only' : '';
+        var completedClass = evt.completed ? ' completed' : '';
+        var classes = 'timeline-event ' + typeClass + dmOnlyClass + completedClass;
+
+        var eventId = escapeHtml(evt.id);
+        var typeLabels = {
+          session: 'Session',
+          major_plot: 'Major Plot',
+          minor_plot: 'Minor Plot',
+          combat: 'Battle',
+          discovery: 'Discovery',
+          npc_event: 'NPC Event',
+          custom: 'Custom'
+        };
+
+        var eventTitle = escapeHtml(evt.title || 'Untitled');
+        var eventDate = evt.gameDate ? escapeHtml(evt.gameDate) : '';
+        var eventDesc = evt.description ? escapeHtml(evt.description) : '';
+        var eventNotes = evt.dmNotes ? escapeHtml(evt.dmNotes) : '';
+        var typeLabel = typeLabels[evt.type] || evt.type;
+
+        html += '<div class="' + classes + '" data-timeline-id="' + eventId + '">';
+        html += '<div class="timeline-event-dot"></div>';
+        html += '<div class="timeline-event-card">';
+
+        // Header
+        html += '<div class="timeline-event-header">';
+        html += '<h3 class="timeline-event-title">' + eventTitle + '</h3>';
+        html += '</div>';
+
+        // Meta
+        html += '<div class="timeline-event-meta">';
+        html += '<span class="timeline-event-type ' + evt.type + '">' + typeLabel + '</span>';
+        if (dmOnly) html += '<span style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:3px;background:rgba(155,89,182,0.15);color:#9b59b6;">DM Only</span>';
+        if (eventDate) html += '<span class="timeline-event-date">' + eventDate + '</span>';
+        html += '</div>';
+
+        // Body (collapsed by default, expanded when clicked)
+        html += '<div class="timeline-event-body">';
+        if (eventDesc) {
+          html += '<div class="timeline-event-description">' + eventDesc + '</div>';
+        }
+        if (isDM && eventNotes) {
+          html += '<div class="timeline-event-dm-notes"><strong>DM Notes:</strong><br>' + eventNotes + '</div>';
+        }
+
+        // Actions
+        if (isDM) {
+          html += '<div class="timeline-event-actions">';
+          html += '<button class="timeline-event-action-btn" onclick="openAddTimelineEventModal(\x27' + evt.id + '\x27)">Edit</button>';
+          html += '<button class="timeline-event-action-btn" onclick="toggleTimelineEventVisibility(\x27' + evt.id + '\x27)">' + (dmOnly ? 'Make Public' : 'Make DM Only') + '</button>';
+          html += '<button class="timeline-event-action-btn danger" onclick="deleteTimelineEvent(\x27' + evt.id + '\x27)">Delete</button>';
+          html += '</div>';
+        }
+        html += '</div>';
+
+        html += '</div>';
+        html += '</div>';
       });
-      
-      track.innerHTML = trackHtml;
-      
+
+      html += '</div>';
+      container.innerHTML = html;
+
+      // Add click handlers for expand/collapse
+      var eventCards = container.querySelectorAll('.timeline-event-card');
+      eventCards.forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          // Don't expand if clicking on a button
+          if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+
+          var body = card.querySelector('.timeline-event-body');
+          if (body) {
+            body.classList.toggle('expanded');
+          }
+        });
+      });
+
       // Set data for reordering
       window._timelineEvents = filtered;
       window._activeCampaignTimeline = c;
-      
-      // Initialize drag handlers
-      initTimelineDrag();
     }
 
     function initTimelineDrag() {
-      var viewport = document.getElementById('timelineContainer');
-      if (!viewport) return;
-      
-      var isDown = false;
-      var startX = 0;
-      var scrollLeft = 0;
-      
-      viewport.addEventListener('mousedown', function(e) {
-        // Only drag if clicking on the track area, not on nodes
-        if (e.target.classList.contains('timeline-node') || e.target.closest('.timeline-node')) {
-          return;
-        }
-        isDown = true;
-        startX = e.pageX - viewport.offsetLeft;
-        scrollLeft = viewport.scrollLeft;
-        viewport.style.cursor = 'grabbing';
-      });
-      
-      viewport.addEventListener('mouseleave', function() {
-        isDown = false;
-        viewport.style.cursor = 'grab';
-      });
-      
-      viewport.addEventListener('mouseup', function() {
-        isDown = false;
-        viewport.style.cursor = 'grab';
-      });
-      
-      viewport.addEventListener('mousemove', function(e) {
-        if (!isDown) return;
-        e.preventDefault();
-        var x = e.pageX - viewport.offsetLeft;
-        var walk = (x - startX) * 1;
-        viewport.scrollLeft = scrollLeft - walk;
-      });
-      
-      // Horizontal scroll support
-      viewport.addEventListener('wheel', function(e) {
-        if (e.deltaX === 0) {
-          e.preventDefault();
-          viewport.scrollLeft += e.deltaY;
-        }
-      });
+      // Drag handlers removed - new vertical timeline doesn't use drag-to-reorder
+      // Events are reordered via edit modal or future UI enhancements
     }
 
     function timelineZoom(direction) {
-      window._timelineZoom = (window._timelineZoom || 1) + (direction * 0.2);
-      window._timelineZoom = Math.max(0.5, Math.min(2, window._timelineZoom)); // Clamp between 0.5 and 2
-      
-      var c = getCampaign(window._activeCampaignId);
-      if (c) renderTimelineTab(c);
+      // Zoom removed - new vertical timeline doesn't need zoom
+      // All events are visible in a scrollable list
     }
 
     function selectTimelineEvent(eventId) {
-      var c = getCampaign(window._activeCampaignId);
-      if (!c || !c.timeline) return;
-      
-      var evt = c.timeline.find(function(e) { return e.id === eventId; });
-      if (!evt) return;
-      
-      var user = getAuthUser();
-      var isDM = c.ownerId === (user ? user.id : '');
-      
-      var detailPanel = document.getElementById('timelineDetailPanel');
-      if (!detailPanel) return;
-      
-      var typeLabels = {
-        session: 'Session',
-        major_plot: 'Major Plot',
-        minor_plot: 'Minor Plot',
-        combat: 'Battle',
-        discovery: 'Discovery',
-        npc_event: 'NPC Event',
-        custom: 'Custom'
-      };
-      
-      var dmOnly = evt.visibility === 'dm_only';
-      var html = '<h3>' + escapeHtml(evt.title) + '</h3>';
-      
-      html += '<div class="timeline-detail-meta">';
-      html += '<span class="timeline-detail-type ' + evt.type + '">' + (typeLabels[evt.type] || evt.type) + '</span>';
-      if (dmOnly) html += '<span class="visibility-badge dm-only">DM Only</span>';
-      else html += '<span class="visibility-badge public">Visible</span>';
-      if (evt.gameDate) html += '<span class="timeline-detail-date">' + escapeHtml(evt.gameDate) + '</span>';
-      html += '</div>';
-      
-      if (evt.description) {
-        html += '<div class="timeline-detail-description">' + escapeHtml(evt.description) + '</div>';
-      }
-      
-      if (isDM && evt.dmNotes) {
-        html += '<div class="timeline-detail-notes"><strong>DM Notes:</strong><br>' + escapeHtml(evt.dmNotes) + '</div>';
-      }
-      
-      if (evt.linkedSession) {
-        var linkedNote = (c.notes || []).find(function(n) { return n.id === evt.linkedSession; });
-        if (linkedNote) {
-          html += '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">Linked to: <strong>' + escapeHtml(linkedNote.title) + '</strong></div>';
+      // In the new vertical timeline, expansion happens inline via card click
+      // This function is kept for backwards compatibility but the expansion
+      // is now handled by the click event listener in renderTimelineTab
+      var container = document.getElementById('timelineContainer');
+      if (!container) return;
+
+      var card = container.querySelector('[data-timeline-id="' + eventId + '"] .timeline-event-card');
+      if (card) {
+        var body = card.querySelector('.timeline-event-body');
+        if (body) {
+          body.classList.toggle('expanded');
         }
       }
-      
-      if (evt.attachedItems && evt.attachedItems.length > 0) {
-        html += '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">Attached items: ' + evt.attachedItems.length + '</div>';
-      }
-      
-      if (isDM) {
-        html += '<div class="timeline-detail-actions">';
-        html += '<button onclick="openAddTimelineEventModal(\x27' + evt.id + '\x27)">Edit</button>';
-        html += '<button onclick="toggleTimelineEventVisibility(\x27' + evt.id + '\x27)">' + (dmOnly ? 'Make Public' : 'Make DM Only') + '</button>';
-        html += '<button onclick="deleteTimelineEvent(\x27' + evt.id + '\x27)" style="color:#e74c3c;">Delete</button>';
-        html += '</div>';
-      }
-      
-      detailPanel.innerHTML = html;
-      detailPanel.classList.add('active');
     }
 
     function startTimelineReorder(eventId, e) {
-      if (e.button !== 0) return; // Only left mouse button
-      
-      var node = e.target.closest('.timeline-node');
-      if (!node) return;
-      
-      node.classList.add('dragging');
-      
-      var c = getCampaign(window._activeCampaignId);
-      if (!c || !c.timeline) return;
-      
-      var evt = c.timeline.find(function(e) { return e.id === eventId; });
-      if (!evt) return;
-      
-      var track = document.getElementById('timelineTrack');
-      var startX = e.pageX;
-      var originalIndex = c.timeline.indexOf(evt);
-      
-      function handleMouseMove(moveEvent) {
-        var deltaX = moveEvent.pageX - startX;
-        var filteredIndex = window._timelineEvents.indexOf(evt);
-        if (filteredIndex === -1) return;
-        
-        var otherEvent = null;
-        if (deltaX > 40 && filteredIndex < window._timelineEvents.length - 1) {
-          otherEvent = window._timelineEvents[filteredIndex + 1];
-        } else if (deltaX < -40 && filteredIndex > 0) {
-          otherEvent = window._timelineEvents[filteredIndex - 1];
-        }
-        
-        if (otherEvent) {
-          var idx1 = c.timeline.indexOf(evt);
-          var idx2 = c.timeline.indexOf(otherEvent);
-          if (idx1 >= 0 && idx2 >= 0) {
-            var temp = c.timeline[idx1];
-            c.timeline[idx1] = c.timeline[idx2];
-            c.timeline[idx2] = temp;
-            
-            saveCampaigns();
-            renderTimelineTab(c);
-            startX = moveEvent.pageX;
-          }
-        }
-      }
-      
-      function handleMouseUp() {
-        node.classList.remove('dragging');
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      }
-      
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      // Reorder functionality moved to edit modal - drag-to-reorder removed from vertical timeline
     }
 
     function openLinkCharacterModal() {
