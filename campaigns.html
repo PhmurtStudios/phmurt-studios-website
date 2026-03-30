@@ -321,8 +321,10 @@
       display: none;
     }
 
+    .campaign-detail-view[style*="display: block"],
+    .campaign-detail-view[style*="display:block"],
     .campaign-detail-view.active {
-      display: block;
+      display: block !important;
     }
 
     .campaign-detail-header {
@@ -3059,9 +3061,9 @@
 
       <!-- Tabs -->
       <div class="campaign-tabs">
-        <button class="campaign-tab active" onclick="switchTab(\x27hub\x27, this)">Campaign Hub</button>
-        <button class="campaign-tab" onclick="switchTab(\x27journal\x27, this)">Journal & World</button>
-        <button class="campaign-tab" onclick="switchTab(\x27play\x27, this)">Play</button>
+        <button class="campaign-tab active" onclick="switchTab('hub', this)">Campaign Hub</button>
+        <button class="campaign-tab" onclick="switchTab('journal', this)">Journal &amp; World</button>
+        <button class="campaign-tab" onclick="switchTab('play', this)">Play</button>
       </div>
 
       <!-- TAB 1: Campaign Hub -->
@@ -3179,13 +3181,13 @@
       <div id="journalTab" class="tab-content">
         <!-- Sub-navigation -->
         <div class="journal-subnav">
-          <button class="journal-subnav-btn active" data-section="timeline" onclick="switchJournalSection(\x27timeline\x27, this)">Timeline</button>
-          <button class="journal-subnav-btn" data-section="notes" onclick="switchJournalSection(\x27notes\x27, this)">Notes</button>
-          <button class="journal-subnav-btn" data-section="dmnotes" onclick="switchJournalSection(\x27dmnotes\x27, this)">DM Notes</button>
-          <button class="journal-subnav-btn" data-section="handouts" onclick="switchJournalSection(\x27handouts\x27, this)">Handouts</button>
-          <button class="journal-subnav-btn" data-section="encounters" onclick="switchJournalSection(\x27encounters\x27, this)">Encounters</button>
-          <button class="journal-subnav-btn" data-section="resources" onclick="switchJournalSection(\x27resources\x27, this)">Resources</button>
-          <button class="journal-subnav-btn" data-section="lore" onclick="switchJournalSection(\x27lore\x27, this)">Lore</button>
+          <button class="journal-subnav-btn active" data-section="timeline" onclick="switchJournalSection('timeline', this)">Timeline</button>
+          <button class="journal-subnav-btn" data-section="notes" onclick="switchJournalSection('notes', this)">Notes</button>
+          <button class="journal-subnav-btn" data-section="dmnotes" onclick="switchJournalSection('dmnotes', this)">DM Notes</button>
+          <button class="journal-subnav-btn" data-section="handouts" onclick="switchJournalSection('handouts', this)">Handouts</button>
+          <button class="journal-subnav-btn" data-section="encounters" onclick="switchJournalSection('encounters', this)">Encounters</button>
+          <button class="journal-subnav-btn" data-section="resources" onclick="switchJournalSection('resources', this)">Resources</button>
+          <button class="journal-subnav-btn" data-section="lore" onclick="switchJournalSection('lore', this)">Lore</button>
         </div>
 
         <!-- Timeline Section -->
@@ -3368,7 +3370,7 @@
                 <div class="quick-ref-section">
                   <strong>Cover</strong>
                   <div style="font-size:11px;color:var(--text-dim);line-height:1.6;">
-                    Half Cover: +2 AC/DEX saves · Three-Quarters: +5 AC/DEX saves · Full: Can\x27t be targeted
+                    Half Cover: +2 AC/DEX saves · Three-Quarters: +5 AC/DEX saves · Full: Can't be targeted
                   </div>
                 </div>
               </div>
@@ -3383,23 +3385,23 @@
                 <!-- Battlemap Toolbar -->
                 <div class="battlemap-toolbar" id="bmToolbar">
                   <div class="bm-toolbar-group">
-                    <button class="bm-tool active" data-bm-tool="select" onclick="setBmTool(\x27select\x27)" title="Select & Move tokens">Select</button>
-                    <button class="bm-tool" data-bm-tool="draw" onclick="setBmTool(\x27draw\x27)" title="Freehand draw">Draw</button>
-                    <button class="bm-tool" data-bm-tool="line" onclick="setBmTool(\x27line\x27)" title="Straight line">Line</button>
-                    <button class="bm-tool" data-bm-tool="rect" onclick="setBmTool(\x27rect\x27)" title="Rectangle">Rect</button>
-                    <button class="bm-tool" data-bm-tool="circle" onclick="setBmTool(\x27circle\x27)" title="Circle/ellipse">Circle</button>
-                    <button class="bm-tool" data-bm-tool="cone" onclick="setBmTool(\x27cone\x27)" title="Spell cone">Cone</button>
+                    <button class="bm-tool active" data-bm-tool="select" onclick="setBmTool('select')" title="Select & Move tokens">Select</button>
+                    <button class="bm-tool" data-bm-tool="draw" onclick="setBmTool('draw')" title="Freehand draw">Draw</button>
+                    <button class="bm-tool" data-bm-tool="line" onclick="setBmTool('line')" title="Straight line">Line</button>
+                    <button class="bm-tool" data-bm-tool="rect" onclick="setBmTool('rect')" title="Rectangle">Rect</button>
+                    <button class="bm-tool" data-bm-tool="circle" onclick="setBmTool('circle')" title="Circle/ellipse">Circle</button>
+                    <button class="bm-tool" data-bm-tool="cone" onclick="setBmTool('cone')" title="Spell cone">Cone</button>
                   </div>
                   <div class="bm-toolbar-group">
-                    <button class="bm-tool" data-bm-tool="polygon" onclick="setBmTool(\x27polygon\x27)" title="Draw polygon">Polygon</button>
-                    <button class="bm-tool" data-bm-tool="text" onclick="setBmTool(\x27text\x27)" title="Add text">Text</button>
-                    <button class="bm-tool" data-bm-tool="stamp" onclick="setBmTool(\x27stamp\x27)" title="Add stamp">Stamp</button>
+                    <button class="bm-tool" data-bm-tool="polygon" onclick="setBmTool('polygon')" title="Draw polygon">Polygon</button>
+                    <button class="bm-tool" data-bm-tool="text" onclick="setBmTool('text')" title="Add text">Text</button>
+                    <button class="bm-tool" data-bm-tool="stamp" onclick="setBmTool('stamp')" title="Add stamp">Stamp</button>
                   </div>
                   <div class="bm-toolbar-group">
-                    <button class="bm-tool" data-bm-tool="ruler" onclick="setBmTool(\x27ruler\x27)" title="Measure distance">Ruler</button>
-                    <button class="bm-tool" data-bm-tool="radius" onclick="setBmTool(\x27radius\x27)" title="Measure radius">Radius</button>
-                    <button class="bm-tool" data-bm-tool="fog" onclick="setBmTool(\x27fog\x27)" title="Paint fog of war">Fog</button>
-                    <button class="bm-tool" data-bm-tool="eraser" onclick="setBmTool(\x27eraser\x27)" title="Erase">Eraser</button>
+                    <button class="bm-tool" data-bm-tool="ruler" onclick="setBmTool('ruler')" title="Measure distance">Ruler</button>
+                    <button class="bm-tool" data-bm-tool="radius" onclick="setBmTool('radius')" title="Measure radius">Radius</button>
+                    <button class="bm-tool" data-bm-tool="fog" onclick="setBmTool('fog')" title="Paint fog of war">Fog</button>
+                    <button class="bm-tool" data-bm-tool="eraser" onclick="setBmTool('eraser')" title="Erase">Eraser</button>
                   </div>
                   <div class="bm-sep"></div>
                   <input type="color" class="bm-color-pick" id="bmDrawColor" value="#dc143c" onchange="bm.drawColor=this.value" title="Drawing color">
@@ -3437,7 +3439,7 @@
                 </div>
                 <div>
                   <div class="bm-sidebar-title">Map Background</div>
-                  <div class="bm-upload-area" id="bmUploadArea" onclick="document.getElementById(\x27bmMapUpload\x27).click()">
+                  <div class="bm-upload-area" id="bmUploadArea" onclick="document.getElementById('bmMapUpload').click()">
                     <span id="bmUploadLabel">Click to upload a map image</span>
                   </div>
                   <div id="bmMapPreviewWrap" style="display:none;">
@@ -3446,11 +3448,11 @@
                   </div>
                   <div style="display:flex;gap:4px;align-items:center;margin-top:8px;flex-wrap:wrap;">
                     <input type="color" class="bm-color-pick" id="bmBgColor" value="#1a1a2e" onchange="bm.bgColor=this.value" title="Background color">
-                    <button class="bm-tool" onclick="setBmBgPreset(\x27#1a1a2e\x27)" style="padding:3px 7px;">Dark</button>
-                    <button class="bm-tool" onclick="setBmBgPreset(\x27#2d4a2d\x27)" style="padding:3px 7px;">Forest</button>
-                    <button class="bm-tool" onclick="setBmBgPreset(\x27#3a3020\x27)" style="padding:3px 7px;">Cave</button>
-                    <button class="bm-tool" onclick="setBmBgPreset(\x27#1a3a4a\x27)" style="padding:3px 7px;">Water</button>
-                    <button class="bm-tool" onclick="setBmBgPreset(\x27#5a4a3a\x27)" style="padding:3px 7px;">Sand</button>
+                    <button class="bm-tool" onclick="setBmBgPreset('#1a1a2e')" style="padding:3px 7px;">Dark</button>
+                    <button class="bm-tool" onclick="setBmBgPreset('#2d4a2d')" style="padding:3px 7px;">Forest</button>
+                    <button class="bm-tool" onclick="setBmBgPreset('#3a3020')" style="padding:3px 7px;">Cave</button>
+                    <button class="bm-tool" onclick="setBmBgPreset('#1a3a4a')" style="padding:3px 7px;">Water</button>
+                    <button class="bm-tool" onclick="setBmBgPreset('#5a4a3a')" style="padding:3px 7px;">Sand</button>
                   </div>
                   <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
                     <label class="bm-label" style="margin:0;">Grid Size</label>
@@ -3495,7 +3497,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Create Campaign</h2>
-        <button class="modal-close" onclick="closeModal(\x27createCampaignModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('createCampaignModal')">×</button>
       </div>
       <div class="modal-body">
         <label class="form-label">Campaign Name *</label>
@@ -3516,7 +3518,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveNewCampaign()">Create</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27createCampaignModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('createCampaignModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -3526,7 +3528,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Party Member</h2>
-        <button class="modal-close" onclick="closeModal(\x27addPartyModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('addPartyModal')">×</button>
       </div>
       <div class="modal-body">
         <label class="form-label">Character Name *</label>
@@ -3564,7 +3566,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveNewPartyMember()">Add</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27addPartyModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('addPartyModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -3574,7 +3576,7 @@
     <div class="modal-content modal-wide">
       <div class="modal-header">
         <h2>Encounter Builder</h2>
-        <button class="modal-close" onclick="closeModal(\x27encounterBuilderModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('encounterBuilderModal')">×</button>
       </div>
       <div class="modal-body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
@@ -3632,7 +3634,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveEncounter()">Save Encounter</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27encounterBuilderModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('encounterBuilderModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -3642,13 +3644,13 @@
     <div class="modal-content modal-wide">
       <div class="modal-header">
         <h2 id="statBlockTitle">Monster Stats</h2>
-        <button class="modal-close" onclick="closeModal(\x27statBlockModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('statBlockModal')">×</button>
       </div>
       <div class="modal-body" id="statBlockContent" style="max-height:70vh;overflow-y:auto;">
         <!-- Stat block content populated by JS -->
       </div>
       <div class="modal-footer">
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27statBlockModal\x27)">Close</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('statBlockModal')">Close</button>
       </div>
     </div>
   </div>
@@ -3658,7 +3660,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Session Note</h2>
-        <button class="modal-close" onclick="closeModal(\x27addNoteModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('addNoteModal')">×</button>
       </div>
       <div class="modal-body">
         <label class="form-label">Note Title</label>
@@ -3672,7 +3674,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveSessionNote()">Add Note</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27addNoteModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('addNoteModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -3682,7 +3684,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Timeline Event</h2>
-        <button class="modal-close" onclick="closeModal(\x27addTimelineEventModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('addTimelineEventModal')">×</button>
       </div>
       <div class="modal-body">
         <label class="form-label">Event Title *</label>
@@ -3704,7 +3706,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveTimelineEvent()">Add Event</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27addTimelineEventModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('addTimelineEventModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -3714,7 +3716,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Link Character to Party</h2>
-        <button class="modal-close" onclick="closeModal(\x27linkCharacterModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('linkCharacterModal')">×</button>
       </div>
       <div class="modal-body">
         <label class="form-label">Select Character</label>
@@ -3726,7 +3728,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveLinkCharacter()">Link</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27linkCharacterModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('linkCharacterModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -3736,7 +3738,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Combatant</h2>
-        <button class="modal-close" onclick="closeModal(\x27initiativeModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('initiativeModal')">×</button>
       </div>
       <div class="modal-body">
         <label class="form-label">Combatant Type</label>
@@ -3796,7 +3798,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveInitiativeCombatant(event)">Add to Combat</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27initiativeModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('initiativeModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -3806,7 +3808,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Handout</h2>
-        <button class="modal-close" onclick="closeModal(\x27addHandoutModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('addHandoutModal')">×</button>
       </div>
       <div class="modal-body">
         <label class="form-label">Title *</label>
@@ -3823,7 +3825,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveHandout()">Save Handout</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27addHandoutModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('addHandoutModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -3833,7 +3835,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Add Lore Entry</h2>
-        <button class="modal-close" onclick="closeModal(\x27addLoreModal\x27)">×</button>
+        <button class="modal-close" onclick="closeModal('addLoreModal')">×</button>
       </div>
       <div class="modal-body">
         <label class="form-label">Entry Name *</label>
@@ -3859,7 +3861,7 @@
       </div>
       <div class="modal-footer">
         <button class="form-button" onclick="saveLoreEntry()">Save Entry</button>
-        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal(\x27addLoreModal\x27)">Cancel</button>
+        <button class="form-button" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text);" onclick="closeModal('addLoreModal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -4147,7 +4149,24 @@ function saveCampaigns() {
 }
 
 function getCampaign(id) {
+  if (!id) return null;
+  // Search primary campaigns array
   var c = campaigns.find(function(camp) { return camp.id === id; });
+  // Fallback: search window._campaigns if different reference
+  if (!c && window._campaigns && window._campaigns !== campaigns) {
+    c = window._campaigns.find(function(camp) { return camp.id === id; });
+  }
+  // Fallback: look directly in registry
+  if (!c) {
+    try {
+      var registry = loadAllCampaignsFromRegistry();
+      if (registry[id]) {
+        c = registry[id];
+        campaigns.push(c);
+        window._campaigns = campaigns;
+      }
+    } catch (e) { /* ignore */ }
+  }
   return c ? ensureCampaignDefaults(c) : null;
 }
 
@@ -4175,10 +4194,28 @@ function ensureCampaignDefaults(c) {
 function buildTypeFilterTags() { /* no-op: timeline filter tags are now inline in renderJournalContent */ }
 
 function init() {
+  console.log('[Campaign] init() starting');
   loadCampaigns();
+  console.log('[Campaign] campaigns loaded:', campaigns.length);
   renderCampaignList();
   populateMonsterTypeFilter();
   updateAuthUI();
+
+  // Delegated click handler as fallback for campaign cards
+  var grid = document.getElementById('campaignGrid');
+  if (grid) {
+    grid.addEventListener('click', function(e) {
+      var card = e.target.closest('.campaign-card');
+      if (!card) return;
+      // Don't interfere with delete button
+      if (e.target.closest('.campaign-card-delete')) return;
+      var cid = card.getAttribute('data-campaign-id');
+      if (cid) {
+        console.log('[Campaign] Delegated click handler fired for:', cid);
+        openCampaign(cid);
+      }
+    });
+  }
 
   if (typeof PhmurtDB !== 'undefined' && typeof PhmurtDB.onAuthStateChange === 'function') {
     PhmurtDB.onAuthStateChange(function() { onAuthChanged(); });
@@ -4197,6 +4234,7 @@ function init() {
 
   var _authPollId = setInterval(function() { onAuthChanged(); }, 1500);
   window.addEventListener('beforeunload', function() { clearInterval(_authPollId); });
+  console.log('[Campaign] init() complete');
 }
 
 // ═══════════════════════════════
@@ -4285,52 +4323,69 @@ function backToCampaignList() {
   try { bm._initialized = false; if (bm.animId) cancelAnimationFrame(bm.animId); } catch(e) {}
   var list = document.getElementById('campaignList');
   var detail = document.getElementById('campaignDetail');
-  if (list) { list.classList.add('active'); list.style.display = ''; }
-  if (detail) detail.style.display = 'none';
+  if (list) { list.classList.add('active'); list.style.display = 'block'; }
+  if (detail) { detail.classList.remove('active'); detail.style.display = 'none'; }
   window._activeCampaignId = null;
   renderCampaignList();
 }
 
 function openCampaign(id) {
-  try {
-    var c = getCampaign(id);
-    if (!c) { console.error('[Campaign] Campaign not found:', id); return; }
-    window._activeCampaignId = id;
-    var campaignList = document.getElementById('campaignList');
-    var campaignDetail = document.getElementById('campaignDetail');
-    var detailName = document.getElementById('detailName');
-    var detailSystem = document.getElementById('detailSystem');
-    var detailDesc = document.getElementById('detailDesc');
-
-    // Hide list, show detail
-    if (campaignList) {
-      campaignList.classList.remove('active');
-      campaignList.style.display = 'none';
+  console.log('[Campaign] openCampaign called with id:', id);
+  var c = getCampaign(id);
+  if (!c) {
+    console.error('[Campaign] Campaign not found:', id, 'campaigns array length:', campaigns.length);
+    // Last resort: try reloading campaigns and finding again
+    loadCampaigns();
+    c = getCampaign(id);
+    if (!c) {
+      console.error('[Campaign] Campaign still not found after reload:', id);
+      if (window.psToast) psToast('Campaign not found. Try refreshing the page.');
+      return;
     }
-    if (campaignDetail) {
-      campaignDetail.style.display = 'block';
-    }
-    if (detailName) detailName.textContent = c.name;
-    if (detailSystem) detailSystem.textContent = c.system || '5E';
-    if (detailDesc) detailDesc.textContent = c.description || '';
-
-    // Update stat pills
-    var statParty = document.getElementById('statPartyCount');
-    var statSessions = document.getElementById('statSessionCount');
-    var statStart = document.getElementById('statStartDate');
-    if (statParty) statParty.textContent = (c.party || []).length;
-    if (statSessions) statSessions.textContent = (c.notes || []).length;
-    if (statStart) statStart.textContent = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—';
-
-    renderHubTab();
-    renderJournalContent();
-    renderPlayTab();
-
-    var tabButtons = document.querySelectorAll('.campaign-tab');
-    if (tabButtons.length > 0) switchTab('hub', tabButtons[0]);
-  } catch (err) {
-    console.error('[Campaign] Error opening campaign:', err.message, err.stack);
   }
+  window._activeCampaignId = id;
+
+  // CRITICAL: Switch views first, before any rendering
+  var campaignList = document.getElementById('campaignList');
+  var campaignDetail = document.getElementById('campaignDetail');
+  console.log('[Campaign] DOM elements - list:', !!campaignList, 'detail:', !!campaignDetail);
+
+  if (campaignList) {
+    campaignList.classList.remove('active');
+    campaignList.style.display = 'none';
+  }
+  if (campaignDetail) {
+    campaignDetail.classList.add('active');
+    campaignDetail.style.display = 'block';
+    campaignDetail.style.visibility = 'visible';
+  }
+
+  // Populate header info
+  var detailName = document.getElementById('detailName');
+  var detailSystem = document.getElementById('detailSystem');
+  var detailDesc = document.getElementById('detailDesc');
+  if (detailName) detailName.textContent = c.name || 'Untitled Campaign';
+  if (detailSystem) detailSystem.textContent = c.system || '5E';
+  if (detailDesc) detailDesc.textContent = c.description || '';
+
+  // Update stat pills
+  var statParty = document.getElementById('statPartyCount');
+  var statSessions = document.getElementById('statSessionCount');
+  var statStart = document.getElementById('statStartDate');
+  if (statParty) statParty.textContent = (c.party || []).length;
+  if (statSessions) statSessions.textContent = (c.notes || []).length;
+  if (statStart) statStart.textContent = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '\u2014';
+
+  // Render tabs in try/catch so failures don't break the view
+  try { renderHubTab(); } catch (e) { console.error('[Campaign] renderHubTab error:', e.message, e.stack); }
+  try { renderJournalContent(); } catch (e) { console.error('[Campaign] renderJournalContent error:', e.message, e.stack); }
+  try { renderPlayTab(); } catch (e) { console.error('[Campaign] renderPlayTab error:', e.message, e.stack); }
+
+  var tabButtons = document.querySelectorAll('.campaign-tab');
+  if (tabButtons.length > 0) {
+    try { switchTab('hub', tabButtons[0]); } catch (e) { console.error('[Campaign] switchTab error:', e.message); }
+  }
+  console.log('[Campaign] openCampaign complete for:', c.name);
 }
 
 function deleteCampaign(id) {
@@ -4364,10 +4419,10 @@ function renderCampaignList() {
     return;
   }
   grid.innerHTML = campaigns.map(function(c) {
-    return '<div class="campaign-card" onclick="openCampaign(\'' + c.id + '\')">' +
+    return '<div class="campaign-card" data-campaign-id="' + c.id + '" onclick="openCampaign(\x27' + c.id + '\x27)">' +
       '<div class="campaign-card-header">' +
         '<span class="campaign-card-system">' + (c.system || '5E') + '</span>' +
-        '<button class="campaign-card-delete" onclick="event.stopPropagation();deleteCampaign(\'' + c.id + '\')" title="Delete campaign">&times;</button>' +
+        '<button class="campaign-card-delete" onclick="event.stopPropagation();deleteCampaign(\x27' + c.id + '\x27)" title="Delete campaign">&times;</button>' +
       '</div>' +
       '<div class="campaign-card-title">' + escapeHtml(c.name) + '</div>' +
       '<div class="campaign-card-desc">' + escapeHtml(c.description || 'No description') + '</div>' +
@@ -7577,7 +7632,7 @@ function generateIdea() { generateCampaignIdea(); }
 function openTimelineEventModal(id) { openAddTimelineEventModal(id); }
 function resetBattlemapView() { resetBmView(); }
 function zoomBattlemap(d) { bmZoom(d); }
-function generateInviteCode() { regenerateInviteCode(); }
+// generateInviteCode alias removed — it was overwriting the real generateInviteCode via hoisting
 
 // Handout modal opener
 function openAddHandoutModal() { openModal('addHandoutModal'); }
@@ -7600,20 +7655,26 @@ function editNextSession() {
     '</div><button class="form-button" onclick="saveNextSession()" style="margin-top:8px;">Save</button>';
 }
 
-// Ensure campaign defaults include new fields
-var _origEnsureDefaults = ensureCampaignDefaults;
-function ensureCampaignDefaults(c) {
-  c = _origEnsureDefaults(c);
-  c.handouts = c.handouts || [];
-  c.lore = c.lore || [];
-  c.nextSession = c.nextSession || {};
-  return c;
-}
+// handouts, lore, nextSession defaults are now in the main ensureCampaignDefaults function
 
 // ═══════════════════════════════
 // DOM READY
 // ═══════════════════════════════
-window.addEventListener('DOMContentLoaded', init);
+// Global error handler for debugging
+window.addEventListener('error', function(e) {
+  console.error('[Campaign] Unhandled error:', e.message, 'at', e.filename, 'line', e.lineno);
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+  try {
+    init();
+  } catch (e) {
+    console.error('[Campaign] init() failed:', e.message, e.stack);
+    // Try to at least show the campaign list even if init partially failed
+    var list = document.getElementById('campaignList');
+    if (list) { list.classList.add('active'); list.style.display = 'block'; }
+  }
+});
   </script>
 
 </body>
