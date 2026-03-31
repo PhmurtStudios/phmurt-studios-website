@@ -2917,8 +2917,9 @@ function SettingsView({ data, setData }) {
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FANTASY MAP GENERATOR EXPANDED — "Map Forge Pro"
-// Comprehensive procedural fantasy world generator with 11 major systems
+// ═══════════════════════════════════════════════════════════════════════════
+// FANTASY MAP GENERATOR — "Map Forge"
+// Comprehensive procedural fantasy world generator with SVG cartography
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ─── SEEDED PRNG ────────────────────────────────────────────────────────────
@@ -2961,210 +2962,338 @@ function dist(x1, y1, x2, y2) { return Math.sqrt((x2-x1)**2 + (y2-y1)**2); }
 
 const GEN_NAMES = {
   prefixes: {
-    dwarven: ["Gran", "Dur", "Mor", "Grim", "Bor", "Thro", "Kel", "Kha", "Bra", "Hal", "Gor", "Vor", "Kro", "Del", "Bal"],
-    elven: ["Ara", "Cel", "Ela", "Gal", "Ith", "Lae", "Mal", "Sil", "The", "Var", "Wen", "Xan", "Ylo", "Zel", "Aen"],
-    human: ["Ada", "Bea", "Cai", "Dan", "Elis", "Fay", "Gar", "Hel", "Ian", "Jad", "Kab", "Lau", "Marc", "Nan", "Ove"],
-    orcish: ["Dro", "Gra", "Hug", "Jad", "Kar", "Lar", "Mag", "Nag", "Og", "Rag", "Sag", "Tag", "Ugh", "Var", "Wag"],
-    halfling: ["Bid", "Com", "Daf", "Fin", "Gal", "Hay", "Jan", "Kil", "Lup", "Mel", "Nel", "Pim", "Rad", "Sam", "Tel"],
-  },
-  middles: {
-    dwarven: ["son", "hammer", "beard", "foot", "stone", "iron", "gold", "silver", "fire", "forge", "helm", "axe", "shield"],
-    elven: ["eth", "iel", "ion", "wen", "iar", "ara", "ara", "ath", "ior", "iel", "ara", "eth", "ion", "wen"],
-    human: ["a", "bert", "cia", "da", "ed", "fred", "gate", "hart", "i", "jan", "kin", "la", "ma", "na", "o"],
-    orcish: ["gut", "nok", "rag", "tuk", "zag", "bog", "dug", "huk", "jag", "kag", "lag", "mug", "nug", "pug", "rug"],
-    halfling: ["kin", "ley", "man", "vin", "way", "by", "ty", "cy", "dy", "fy", "gy", "hy", "joy", "key", "ly"],
+    mountain:  ["Iron","Storm","Thunder","Grey","Black","White","Frost","Stone","Dragon","Eagle","Cloud","Silver","Shadow","Red","Dark","Ancient","Bone","Fire","Wind","Grim","Broken","Sheer","Jagged","Crimson","Frozen","Granite","Obsidian","Basalt","Marble","Slate","Copper","Crystal","Sapphire","Ruby","Amber","Jade","Onyx","Scarlet","Azure","Emerald"],
+    forest:    ["Green","Dark","Whisper","Ancient","Shadow","Thorn","Moss","Silver","Twilight","Elder","Deep","Wild","Fey","Moon","Mystic","Pale","Amber","Golden","Hollow","Twisted","Winding","Misty","Silent","Tangled","Verdant","Enchanted","Sacred","Primeval","Haunted","Singing","Weeping","Dancing","Dreaming","Sleeping","Waking","Rooted","Branching","Canopied","Dappled","Shaded"],
+    city:      ["King's","Queen's","Gold","Silver","Iron","Bright","High","Storm","River","Lake","Star","Crown","Shield","Dragon","Lion","Eagle","Falcon","Wolf","Crimson","Azure","Grand","Noble","Royal","Sacred","Holy","Blessed","Radiant","Shining","Gleaming","Eternal","Dawn","Dusk","Sun","Moon","Crystal","Ivory","Marble","Gilded","Jeweled","Emerald"],
+    town:      ["Mill","Oak","Elm","Ash","Fox","Deer","Copper","Stone","Brook","Green","Thorn","Rose","Ivy","Fern","Birch","Willow","Reed","Moss","Hazel","Clover","Berry","Raven","Sparrow","Lark","Wren","Finch","Badger","Otter","Hare","Hart","Honey","Apple","Pear","Plum","Cherry","Wheat","Barley","Rye","Flax","Hemp"],
+    ruins:     ["Lost","Fallen","Broken","Forsaken","Cursed","Shattered","Silent","Forgotten","Dead","Hollow","Blighted","Sunken","Buried","Haunted","Void","Doom","Ash","Ghost","Shadow","Wither","Crumbling","Desolate","Ravaged","Abandoned","Forlorn","Decrepit","Decaying","Ruined","Collapsed","Shunned","Accursed","Blasted","Scorched","Rotting","Infested","Defiled","Desecrated","Profane","Unholy","Damned"],
+    dungeon:   ["Shadow","Deep","Dark","Bone","Skull","Doom","Dread","Iron","Black","Blood","Void","Worm","Spider","Rot","Crypt","Tomb","Pit","Abyss","Nether","Plague","Wyrm","Serpent","Demon","Devil","Lich","Wraith","Specter","Ghoul","Phantom","Horror","Terror","Gloom","Night","Death","Grave","Corpse","Marrow","Sinew","Bile","Venom"],
+    lake:      ["Crystal","Mirror","Silver","Moon","Still","Deep","Blue","Clear","Silent","Glass","Frost","Starlight","Azure","Sapphire","Mist","Dream","Shimmer","Pale","Dawn","Twilight","Serene","Tranquil","Placid","Glimmering","Sparkling","Luminous","Opal","Pearl","Diamond","Emerald"],
+    river:     ["Silver","Serpent","Swift","Rush","Winding","Long","Dark","Cold","White","Wild","Rapid","Gentle","Broad","Deep","Clear","Bright","Spring","Storm","Thunder","Iron","Singing","Laughing","Roaring","Murmuring","Whispering","Dancing","Leaping","Tumbling","Cascading","Surging"],
+    swamp:     ["Murk","Black","Dead","Rot","Mire","Foul","Bog","Slime","Stink","Gloom","Blight","Dread","Vile","Dark","Poison","Plague","Wither","Stagnant","Fetid","Rank","Reeking","Sour","Brackish","Mouldering","Festering","Seeping","Oozing","Crawling","Choking","Drowning"],
+    desert:    ["Sun","Scorched","Burning","Red","Golden","Dry","Dust","Sand","Bone","Fire","Blaze","Ember","Heat","Wither","Ash","Shimmering","Barren","Desolate","Parched","Blazing","Searing","Molten","Blistering","Cracked","Windswept","Howling","Merciless","Endless","Vast","Eternal"],
+    island:    ["Storm","Sea","Coral","Pearl","Shell","Tide","Wave","Wind","Salt","Spray","Mist","Fog","Drift","Anchor","Harbor","Haven","Lost","Forgotten","Hidden","Phantom","Emerald","Sapphire","Jade","Golden","Sunken","Floating","Wandering","Lonely","Distant","Sacred"],
+    kingdom:   ["Grand","High","Noble","Royal","Ancient","Mighty","Golden","Silver","Iron","Crystal","Sacred","Eternal","Divine","Blessed","Sovereign","Imperial","Hallowed","Radiant","Glorious","Celestial","Sublime","Exalted","Resplendent","Magnificent","Illustrious","Venerable","August","Majestic","Paramount","Supreme"],
+    tavern:    ["Prancing","Golden","Silver","Rusty","Jolly","Drunken","Sleeping","Dancing","Singing","Laughing","Weeping","Howling","Roaring","Whispering","Stumbling","Leaping","Flying","Wandering","Lucky","Proud","Broken","Gilded","Tattered","Merry","Crooked","Crimson","Azure","Emerald","Ivory","Obsidian"],
+    npc_first: ["Aldric","Brenna","Cedric","Dahlia","Edric","Fiona","Gareth","Helena","Idris","Jasper","Keira","Lysander","Mira","Nolan","Ophelia","Percival","Quinn","Rowan","Sienna","Theron","Ursula","Viktor","Wren","Xander","Yelena","Zephyr","Aric","Isolde","Tormund","Elara","Fenwick","Gwendolyn","Hadrian","Ingrid","Jareth","Katarina","Leoric","Maeve","Nathaniel","Oriana"],
+    npc_last:  ["Ashford","Blackwood","Cromwell","Darkmore","Eldergrove","Fairweather","Greymane","Hawthorne","Ironwood","Jasperstone","Kingsley","Lancaster","Moonshadow","Nightingale","Oakenheart","Proudmoor","Queensbury","Ravencrest","Stormwind","Thornwall","Underhill","Valenthorne","Whitecliff","Xaviermont","Youngblood","Zephyrsteel","Battleborn","Covenlight","Dragonsbane","Emberheart"],
   },
   suffixes: {
-    dwarven: ["son", "sson", "dottir", "berg", "strand", "stad", "field", "wood", "ford", "gate", "helm", "hold"],
-    elven: ["eth", "wen", "ara", "ion", "iel", "ath", "and", "iel", "ior", "ara", "ian", "iel", "wen", "ara"],
-    human: ["son", "sen", "ford", "field", "wick", "ham", "land", "ton", "wood", "worth", "side", "stone", "hurst"],
-    orcish: ["nok", "rak", "tuk", "zag", "bog", "dug", "huk", "jag", "kag", "lag", "mug", "nug", "pug", "rug", "gar"],
-    halfling: ["kin", "ley", "wood", "ton", "ham", "field", "side", "way", "town", "fold", "path", "gate", "hall"],
+    mountain:  ["peak","crag","horn","spire","fang","ridge","tor","summit","mount","cliff","crest","needle","crown","tooth","pillar","stone","fall","reach","top","throne","spine","backbone","rampart","bulwark","sentinel","warden","watch","guard","bastion","keep"],
+    forest:    ["wood","grove","weald","glen","thicket","copse","shade","hollow","dell","brake","glade","holt","bough","leaf","vale","wild","deep","heart","tangle","root","canopy","bower","arbor","garden","maze","labyrinth","realm","domain","sanctuary","haven"],
+    city:      ["haven","gate","hold","keep","port","ford","burg","vale","ward","cross","bridge","tower","hall","march","stead","borough","court","reach","field","throne","citadel","bastion","fortress","stronghold","palace","capitol","crown","spire","pinnacle","summit"],
+    town:      ["shire","bury","dale","ton","wick","ham","ford","well","field","vale","stead","bridge","hollow","croft","thorpe","leigh","worth","mere","mead","beck","mill","cross","green","end","hill","bottom","pool","spring","marsh","moor"],
+    ruins:     ["spire","gate","keep","hold","hall","throne","temple","altar","sanctum","vault","bastion","tower","citadel","palace","crypt","tomb","barrow","cairn","mound","obelisk","monument","memorial","reliquary","ossuary","catacomb","labyrinth","warren","chamber","gallery","rotunda"],
+    dungeon:   ["depths","pit","lair","den","cave","hollow","warren","maze","labyrinth","catacomb","dungeon","vault","cell","chamber","grotto","abyss","chasm","burrow","tunnels","maw","gullet","throat","bowels","heart","core","nexus","sanctum","prison","cage","tomb"],
+    lake:      ["lake","mere","pool","waters","pond","loch","tarn","basin","depths","bay","reservoir","spring","font","well","lagoon","sea","shallows","expanse","mirror","reach"],
+    river:     ["river","run","stream","flow","creek","brook","channel","rapids","falls","current","course","branch","fork","bend","crossing","wash","waters","rill","cascade","torrent"],
+    swamp:     ["mire","bog","fen","marsh","swamp","slough","moor","quag","morass","wetland","bayou","hollow","bottoms","flats","reach","sink","waste","pool","seep","muck"],
+    desert:    ["waste","sands","dunes","expanse","flats","badlands","barrens","reach","stretch","void","plains","steppe","wastes","wilds","frontier","desolation","scape","basin","canyon","mesa"],
+    island:    ["isle","island","atoll","cay","key","rock","reef","shoal","point","head","cape","haven","refuge","sanctuary","berth","landing","rest","watch","vigil","roost"],
+    kingdom:   ["realm","domain","empire","sovereignty","dominion","dynasty","confederation","alliance","union","republic","principality","duchy","barony","march","protectorate","federation","commonwealth","territory","province","lands"],
+    tavern:    ["Pony","Dragon","Griffin","Unicorn","Phoenix","Barrel","Tankard","Flagon","Goblet","Shield","Sword","Dagger","Helm","Boot","Lantern","Candle","Star","Moon","Sun","Rose","Lily","Thistle","Crown","Stag","Boar","Bear","Wolf","Fox","Hawk","Raven"],
+  },
+  standalone: {
+    mountain:  ["Dragonspine","Worldpeak","Skyreach","Cloudpiercer","Thundertop","Stormcrown","Ironspire","Frostfang","Shadowcrest","Eaglenest","Bonecrag","Firehorn","Windshear","Grimtooth","Stonethrone","Doomcrag","Voidpeak","Starshatter","Mooncrest","Sunspire"],
+    forest:    ["Thornwood","Darkhollow","Greenmantle","Shadowbark","Moongrove","Elderweald","Whisperleaf","Silverbough","Deeproot","Fernglade","Nightshade","Mistwood","Hexwood","Briarheart","Dreamcanopy","Starweave","Gloomheart","Sunveil","Duskmantle","Dawntangle"],
+    city:      ["Astoria","Meridian","Valdris","Ironhaven","Stormgate","Brighthollow","Kingsreach","Solara","Nordheim","Caldera","Arcanis","Luminara","Thronehall","Dragoncrest","Starfall","Crystalholm","Runewall","Embervault","Frostmere","Goldcrown"],
+    sea:       ["The Sapphire Deep","The Endless Blue","Mare Tenebris","The Churning Expanse","The Abyssal Main","The Crystal Tide","The Storm Sea","The Dragon's Wake","The Frozen Deep","The Merchant's Way","The Siren's Veil","The Leviathan's Rest","The Moonlit Waters","The Crimson Strait","The Jade Passage"],
+    tavern:    ["The Salty Dog","The Broken Compass","Rest for the Wicked","The Last Drop","The Wanderer's End","Ye Olde Flask","The Tipsy Troll","Dragon's Breath Inn","The Copper Cup","The Velvet Curtain","The Rusty Anchor","The Gilded Lily","The Cracked Cauldron","The Blind Bard","The Silent Knight"],
   },
 };
 
-function genName(race, rng) {
-  const names = GEN_NAMES;
-  const r = race || "human";
-  const pre = pick(names.prefixes[r] || names.prefixes.human, rng);
-  const mid = pick(names.middles[r] || names.middles.human, rng);
-  const suf = pick(names.suffixes[r] || names.suffixes.human, rng);
-  return pre + mid + suf;
+function genName(rng, type) {
+  const r = rng();
+  if (r < 0.25 && GEN_NAMES.standalone[type]) return pick(GEN_NAMES.standalone[type], rng);
+  const pre = pick(GEN_NAMES.prefixes[type] || GEN_NAMES.prefixes.city, rng);
+  const suf = pick(GEN_NAMES.suffixes[type] || GEN_NAMES.suffixes.city, rng);
+  if (rng() < 0.4) return pre + suf.toLowerCase();
+  if (rng() < 0.5) return pre + " " + suf.charAt(0).toUpperCase() + suf.slice(1);
+  return "The " + pre + " " + suf.charAt(0).toUpperCase() + suf.slice(1);
 }
 
 function genKingdomName(rng) {
-  const adj = ["The Grand", "The Ancient", "The Vast", "The Holy", "The Wild", "The Golden", "The Iron", "The Silver", "The Dark", "The Bright"];
-  const noun = ["Kingdom", "Realm", "Empire", "Dominion", "Lands", "Territories", "Crown", "Dynasty", "Federation", "Commonwealth"];
-  return pick(adj, rng) + " " + pick(noun, rng);
+  const r = rng();
+  const pre = pick(GEN_NAMES.prefixes.kingdom, rng);
+  const suf = pick(GEN_NAMES.suffixes.kingdom, rng);
+  const city = genName(rng, "city");
+  if (r < 0.15) return "The " + pre + " " + suf.charAt(0).toUpperCase() + suf.slice(1);
+  if (r < 0.30) return pre + " " + suf.charAt(0).toUpperCase() + suf.slice(1) + " of " + city;
+  if (r < 0.45) return "Kingdom of " + city;
+  if (r < 0.60) return "The " + pre + " " + suf.charAt(0).toUpperCase() + suf.slice(1) + " of " + city;
+  if (r < 0.75) return city + " " + suf.charAt(0).toUpperCase() + suf.slice(1);
+  if (r < 0.85) return "The Free " + suf.charAt(0).toUpperCase() + suf.slice(1) + " of " + city;
+  return "United " + suf.charAt(0).toUpperCase() + suf.slice(1) + " of " + city;
 }
 
 function genNPCName(rng) {
-  const races = Object.keys(GEN_NAMES.prefixes);
-  const race = pick(races, rng);
-  return genName(race, rng);
+  return pick(GEN_NAMES.prefixes.npc_first, rng) + " " + pick(GEN_NAMES.prefixes.npc_last, rng);
 }
 
 function genTavernName(rng) {
-  const adjectives = ["The Drunken", "The Rusty", "The Golden", "The Silver", "The Sleepy", "The Cheerful", "The Lonely", "The Rowdy", "The Red", "The Green"];
-  const nouns = ["Dragon", "Griffin", "Phoenix", "Wyvern", "Basilisk", "Manticore", "Pegasus", "Chimera", "Golem", "Knight"];
-  return pick(adjectives, rng) + " " + pick(nouns, rng);
+  if (rng() < 0.35) return pick(GEN_NAMES.standalone.tavern, rng);
+  return "The " + pick(GEN_NAMES.prefixes.tavern, rng) + " " + pick(GEN_NAMES.suffixes.tavern, rng);
 }
 
 // ─── NPC GENERATION ─────────────────────────────────────────────────────────
 
-const NPC_RACES = ["Human", "Elf", "Dwarf", "Halfling", "Orc", "Tiefling", "Dragonborn", "Gnome", "Half-Orc", "Half-Elf"];
+const NPC_RACES = ["Human","Elf","Dwarf","Halfling","Half-Elf","Half-Orc","Gnome","Tiefling","Dragonborn","Aasimar","Goliath","Tabaxi","Firbolg","Kenku","Lizardfolk","Genasi","Changeling","Warforged","Tortle","Triton"];
+const NPC_CLASSES = ["Fighter","Wizard","Rogue","Cleric","Ranger","Paladin","Barbarian","Bard","Druid","Sorcerer","Warlock","Monk","Artificer","Blood Hunter","None","None","None","None","None","None"];
+const NPC_ROLES = ["Blacksmith","Innkeeper","Merchant","Guard Captain","Herbalist","Scholar","Priest","Farmer","Hunter","Fisher","Sailor","Miner","Noble","Thief","Spy","Healer","Alchemist","Enchanter","Beastmaster","Bounty Hunter","Caravan Master","Diplomat","Entertainer","Fortune Teller","Gravedigger","Jailer","Librarian","Mason","Navigator","Oracle","Quartermaster","Scribe","Tanner","Undertaker","Vintner","Weaver","Woodcutter","Apothecary","Brewer","Cartographer"];
+const NPC_TRAITS = ["brave","cunning","loyal","treacherous","wise","foolish","kind","cruel","generous","greedy","patient","impulsive","honest","deceptive","proud","humble","ambitious","content","curious","cautious","jovial","melancholic","stoic","passionate","reclusive","social","pious","skeptical","superstitious","pragmatic"];
+const NPC_QUIRKS = ["speaks in riddles","collects unusual trinkets","always humming a tune","has a noticeable scar","never makes eye contact","laughs at inappropriate times","obsessively clean","perpetually disheveled","speaks very quietly","gestures wildly when talking","always eating something","fidgets with a coin","tells long-winded stories","forgets names constantly","overly formal in speech","uses strange idioms","pauses mid-sentence often","whistles while working","taps fingers rhythmically","always looking over shoulder"];
+const NPC_MOTIVATIONS = ["wealth","power","knowledge","revenge","redemption","love","duty","freedom","glory","survival","curiosity","justice","faith","family","legacy","adventure","peace","protection","creation","destruction"];
 
-const NPC_CLASSES = ["Barbarian", "Bard", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard", "Artificer"];
-
-const NPC_ROLES = ["Merchant", "Guard", "Innkeeper", "Blacksmith", "Clergyman", "Scholar", "Laborer", "Hunter", "Farmer", "Adventurer", "Thief", "Spy"];
-
-const NPC_TRAITS = ["greed", "honor", "ambition", "kindness", "cunning", "courage", "loyalty", "vanity", "wisdom", "stubbornness", "curiosity", "paranoia"];
-
-const NPC_QUIRKS = ["speaks in riddles", "always smells of sulfur", "fears water", "obsessive about cleanliness", "tells terrible jokes", "whistles constantly", "collects strange items", "never makes eye contact", "talks to themselves", "has unusual eating habits"];
-
-const NPC_MOTIVATIONS = ["seeking revenge", "protecting loved ones", "gaining power", "acquiring wealth", "finding redemption", "uncovering secrets", "proving themselves", "helping others", "surviving", "exploring the world"];
-
-function generateNPC(rng) {
+function generateNPC(rng, settlement) {
+  const race = pick(NPC_RACES, rng);
+  const cls = pick(NPC_CLASSES, rng);
+  const role = pick(NPC_ROLES, rng);
+  const trait1 = pick(NPC_TRAITS, rng);
+  let trait2 = pick(NPC_TRAITS, rng);
+  while (trait2 === trait1) trait2 = pick(NPC_TRAITS, rng);
   return {
     name: genNPCName(rng),
-    race: pick(NPC_RACES, rng),
-    class: pick(NPC_CLASSES, rng),
-    role: pick(NPC_ROLES, rng),
-    trait: pick(NPC_TRAITS, rng),
+    race, class: cls === "None" ? null : cls, role,
+    level: cls !== "None" ? randInt(1, 15, rng) : null,
+    traits: [trait1, trait2],
     quirk: pick(NPC_QUIRKS, rng),
     motivation: pick(NPC_MOTIVATIONS, rng),
-    age: randInt(18, 80, rng),
-    alignment: pick(["LG", "NG", "CG", "LN", "N", "CN", "LE", "NE", "CE"], rng),
+    settlement: settlement?.name || null,
+    attitude: pick(["friendly","neutral","hostile","cautious","helpful","indifferent"], rng),
+    alive: rng() > 0.05,
+    age: randInt(18, 85, rng),
+    gender: pick(["male","female","non-binary"], rng),
   };
 }
 
-// ─── ENCOUNTER TABLE ────────────────────────────────────────────────────────
+// ─── ENCOUNTER TABLE GENERATION ─────────────────────────────────────────────
 
 const ENCOUNTER_TABLES = {
-  easy: ["2d4 Goblin Scouts", "1d3 Giant Spiders", "2d4 Bandits", "1d6 Wolves", "1d4 Cultists"],
-  medium: ["1d3 Ogres", "2d4 Hobgoblins", "1d4 Wyverns", "2d6 Bugbears", "1d3 Chimeras"],
-  hard: ["1d2 Giants", "1d3 Dragons", "2d4 Demons", "1d4 Liches", "1d3 Ancient Dragons"],
+  deepOcean:   { monsters:["Kraken","Sea Serpent","Aboleth","Dragon Turtle","Merrow","Sahuagin","Storm Giant","Water Elemental"], cr:[8,6,10,12,4,2,9,5] },
+  ocean:       { monsters:["Giant Shark","Merfolk Patrol","Ghost Ship","Sea Hag","Pirate Crew","Water Weird","Reef Drake","Plesiosaur"], cr:[5,3,7,4,4,3,6,5] },
+  shallows:    { monsters:["Merfolk Scout","Giant Crab","Sahuagin Raider","Sea Hag","Kuo-toa","Reef Shark","Swarm of Quippers","Water Mephit"], cr:[1,2,2,3,1,1,1,1] },
+  beach:       { monsters:["Giant Crab","Sand Worm","Pirate Scout","Bandit","Merfolk Emissary","Sea Drake Hatchling","Coconut Crab","Hermit Druid"], cr:[1,3,1,1,2,2,1,2] },
+  tundra:      { monsters:["Frost Giant","Winter Wolf","Ice Mephit","Yeti","Remorhaz","White Dragon Wyrmling","Snow Owlbear","Frost Troll"], cr:[8,3,1,3,6,2,4,5] },
+  snowfield:   { monsters:["Yeti","Ice Elemental","Frost Salamander","Chill Touch Specter","Arctic Fox Pack","Snow Golem","Frozen Revenant","Glacier Worm"], cr:[3,5,6,3,2,4,5,7] },
+  grassland:   { monsters:["Centaur Patrol","Griffon","Worg Pack","Gnoll War Band","Ankheg","Giant Eagle","Peryton","Bulette"], cr:[2,2,3,4,2,1,2,5] },
+  plains:      { monsters:["Bandit Highwayman","Traveling Merchant (Guard)","Wild Horse Herd","Gnoll Scout","Giant Vulture","Prairie Drake","Dust Devil","Nomad Raider"], cr:[1,2,0,2,1,3,2,3] },
+  savanna:     { monsters:["Lion Pride","Giant Hyena Pack","Werelion","Gnoll Fang","Yuan-ti Scout","Thri-kreen Hunter","Giant Scorpion","Fire Snake"], cr:[1,2,4,3,3,3,3,2] },
+  desert:      { monsters:["Blue Dragon","Purple Worm","Giant Scorpion","Mummy Lord","Lamia","Dust Mephit","Sand Golem","Brass Dragon Wyrmling"], cr:[9,15,3,8,4,1,5,3] },
+  forest:      { monsters:["Owlbear","Green Hag","Displacer Beast","Treant","Dire Wolf","Giant Spider","Dryad","Ettercap"], cr:[3,5,3,9,1,1,1,2] },
+  denseForest: { monsters:["Young Green Dragon","Shambling Mound","Ettercap Nest","Grick Alpha","Assassin Vine","Wood Woad","Korred","Dryad Circle"], cr:[8,5,4,7,3,5,7,6] },
+  jungle:      { monsters:["Yuan-ti Abomination","Giant Ape","Couatl","Tyrannosaurus Rex","Giant Constrictor","Grung War Party","Vegepygmy Colony","Eblis"], cr:[7,7,4,8,2,3,2,1] },
+  swamp:       { monsters:["Black Dragon","Hydra","Shambling Mound","Will-o'-Wisp","Bullywug Chief","Giant Crocodile","Froghemoth","Catoblepas"], cr:[7,8,5,2,3,5,10,5] },
+  hills:       { monsters:["Hill Giant","Manticore","Chimera","Ogre Gang","Harpy Flock","Stone Giant","Galeb Duhr","Wyvern"], cr:[5,3,6,4,2,7,6,6] },
+  highlands:   { monsters:["Stone Giant Elder","Roc Juvenile","Cyclops","Mountain Troll","Highland Barbarian War Band","Air Elemental","Griffon Rider","Storm Herald"], cr:[7,5,6,5,4,5,6,7] },
+  mountain:    { monsters:["Red Dragon","Roc","Cloud Giant","Fire Giant","Mountain Troll","Air Elemental","Galeb Duhr","Chimera"], cr:[10,11,9,9,5,5,6,6] },
+  snowMountain:{ monsters:["Ancient White Dragon","Frost Giant Everlasting One","Abominable Yeti","Remorhaz","Ice Devil","Bheur Hag","Frost Worm","Crystal Dragon"], cr:[17,12,9,11,11,7,10,8] },
+  volcanic:    { monsters:["Red Dragon","Fire Giant","Fire Elemental","Salamander","Magma Mephit","Azer","Phoenix","Efreeti"], cr:[10,9,5,5,1,2,16,11] },
 };
 
-function generateEncounterTable(difficulty, rng) {
-  const table = ENCOUNTER_TABLES[difficulty] || ENCOUNTER_TABLES.medium;
-  return pick(table, rng);
+function generateEncounterTable(rng, biome, partyLevel) {
+  const table = ENCOUNTER_TABLES[biome] || ENCOUNTER_TABLES.grassland;
+  const encounters = [];
+  for (let i = 0; i < table.monsters.length; i++) {
+    const monster = table.monsters[i];
+    const cr = table.cr[i];
+    const difficulty = cr <= partyLevel - 3 ? "trivial" : cr <= partyLevel - 1 ? "easy" : cr <= partyLevel + 1 ? "medium" : cr <= partyLevel + 3 ? "hard" : "deadly";
+    encounters.push({
+      monster, cr, difficulty,
+      count: cr <= partyLevel ? randInt(1, 4, rng) : 1,
+      notes: pick([
+        "Ambush from concealment","Territorial dispute","Hunting for prey","Guarding a lair entrance",
+        "Migrating through the area","Wounded and desperate","Performing a ritual","Accompanied by young",
+        "In conflict with another group","Fleeing from something worse","Setting up camp","Patrolling territory",
+      ], rng),
+      treasure: cr >= 3 ? pick(["Small hoard","Magic item","Rare materials","Ancient coins","Gems","Scroll","Potion","Weapon"], rng) : pick(["Trinkets","A few coins","Nothing of value","Odd keepsake"], rng),
+    });
+  }
+  return encounters.sort((a, b) => a.cr - b.cr);
 }
 
 // ─── LORE GENERATION ────────────────────────────────────────────────────────
 
-const LORE_TEMPLATES = [
-  "In ages past, {AGENT} discovered {OBJECT} and used it to {ACTION}.",
-  "The legend speaks of {AGENT} who {ACTION} {OBJECT} to save {PLACE}.",
-  "Long ago, {AGENT} was cursed to {ACTION} {OBJECT} for all eternity.",
-  "It is said that {PLACE} was built by {AGENT} to {ACTION} {OBJECT}.",
-];
-
-const LORE_FRAGMENTS = {
-  AGENT: ["an ancient wizard", "a forgotten king", "a dragonborn paladin", "an elven mage", "a dwarven smith"],
-  OBJECT: ["a ring of power", "a crystal of light", "a sword of legend", "a tome of secrets", "a crown of dominion"],
-  ACTION: ["forge", "destroy", "seal", "awaken", "bind"],
-  PLACE: ["this realm", "the deepest dungeon", "the highest mountain", "the lost city", "the enchanted forest"],
+const LORE_TEMPLATES = {
+  kingdom_founding: [
+    "Founded {years} years ago by {founder}, who united the warring clans through {method}.",
+    "Established when {founder} discovered {artifact} in the {location}, granting divine right to rule.",
+    "Born from the ashes of the {old_realm} after the {cataclysm}, {founder} forged a new order.",
+    "Created through a pact between {founder} and the {entity}, binding the land to {purpose}.",
+  ],
+  settlement_history: [
+    "Originally a {origin} established by {people}, {name} grew into a {type} when {event}.",
+    "Known for its {feature}, {name} has been a center of {activity} since the {era}.",
+    "{name} was built atop the ruins of {ancient_site}, and strange {phenomena} still occur here.",
+    "Three times destroyed and three times rebuilt, {name} earned its nickname: The {epithet}.",
+  ],
+  ruin_legend: [
+    "Once the seat of {ruler}, {name} fell when {disaster} struck during the {event}.",
+    "Legend says {name} was cursed by {entity} after {transgression}. None who enter return unchanged.",
+    "The {artifact} is said to still lie within {name}, guarded by {guardian}.",
+    "{name} was the site of the Battle of {battle}, where {outcome}.",
+  ],
+  dungeon_rumor: [
+    "They say {creature} lairs in the deepest level, guarding {treasure}.",
+    "Adventurers who've returned speak of {hazard} and {feature} in the {area}.",
+    "The {faction} has been sending expeditions to {name}. They seek {objective}.",
+    "A map to {name}'s hidden vault was recently found in {location}. It's likely a trap.",
+  ],
 };
 
-function generateLore(rng) {
-  const template = pick(LORE_TEMPLATES, rng);
-  let lore = template;
-  Object.keys(LORE_FRAGMENTS).forEach(key => {
-    lore = lore.replace(`{${key}}`, pick(LORE_FRAGMENTS[key], rng));
+const LORE_FRAGMENTS = {
+  years: [100,200,300,500,800,1000,1500,2000,3000],
+  method: ["diplomacy","conquest","a sacred oath","dragon-slaying","divine intervention","an arcane ritual","marriage alliance","a tournament of champions"],
+  artifact: ["the Crown of Stars","an ancient scepter","the First Blade","a dragonstone","the Book of Ages","a divine relic","the Heartstone","an elder scroll"],
+  old_realm: ["Ar'Kaneth","the Sunless Empire","the Dragon Kingdoms","Dwarfholt","the Elder Dominion","the Fey Courts","the Shadow Concordance","the Titan's Domain"],
+  cataclysm: ["Great Sundering","Dragon Wars","Planar Convergence","Arcane Cataclysm","Divine Silence","Undying Night","Worldquake","Demon Incursion"],
+  entity: ["an ancient dragon","a primordial being","the Fey Queen","a lich king","an elder god","the Spirit of the Land","a celestial patron","a bound demon"],
+  purpose: ["eternal protection","magical prosperity","arcane research","divine service","military dominance","trade supremacy","knowledge preservation","planar stability"],
+  origin: ["frontier outpost","fishing village","mining camp","trading post","religious retreat","military fort","refugee settlement","wizard's retreat"],
+  people: ["human settlers","dwarven miners","elven exiles","halfling traders","mixed refugees","military veterans","religious pilgrims","arcane scholars"],
+  event: ["gold was discovered nearby","a major trade route shifted","a dragon was slain in the region","a holy site was revealed","refugees flooded in from the wars","a powerful wizard established a tower","the old kingdom collapsed","a portal was discovered"],
+  feature: ["ancient architecture","magical wellspring","defensible position","natural harbor","hot springs","crystal caverns","ancient library","dragonbone foundations"],
+  activity: ["trade","scholarship","worship","military training","magical research","artisan crafts","brewing","shipbuilding"],
+  era: ["First Age","Age of Dragons","Great Migration","after the Sundering","Time of Heroes","Golden Era","Age of Shadows","Dawn of Magic"],
+  ruler: ["a mad king","an elven archmage","a dwarven war-chief","a dragon cult","a lich","a celestial being","a forgotten god","a powerful sorcerer"],
+  disaster: ["a great earthquake","dark magic","a dragon attack","a demonic invasion","plague","civil war","divine punishment","an arcane experiment gone wrong"],
+  creature: ["a dracolich","an elder beholder","a mind flayer colony","a bound demon","undead legions","a vampire lord","an aboleth","a death knight"],
+  treasure: ["an ancient artifact","mountains of gold","a trapped soul","a planar gate","the key to immortality","a divine weapon","forbidden knowledge","a dragon egg"],
+  hazard: ["shifting walls","poisonous gas","magical darkness","time distortions","gravity anomalies","psychic interference","arcane traps","living architecture"],
+  guardian: ["animated suits of armor","a spectral army","bound elementals","construct guardians","a sphinx","cursed champions","shadow duplicates","a trapped deity"],
+  faction: ["Thieves' Guild","Crown's agents","a cult","mercenary company","scholarly order","religious sect","merchant consortium","rebel faction"],
+  objective: ["a weapon of mass destruction","an ancient prophecy","the secret to lichdom","a planar portal","political leverage","arcane secrets","buried treasure","a seal that must not be broken"],
+  epithet: ["Undying","Phoenix City","Stubborn Stone","Cockroach","Defiant","Rising","Eternal Ember","Last Bastion"],
+  phenomena: ["at midnight","during full moons","when storms gather","in deep winter","at the equinox","during eclipses","when magic surges","in complete silence"],
+  battle: ["the Broken Banner","Last Stand","Crimson Fields","Shattered Gates","Dragon's Fall","the Burning Sky","the Silent Dawn","the Red Wedding"],
+  outcome: ["both sides were destroyed","the victor vanished into legend","the dead rose and fought for neither side","a dragon ended the battle","the gods intervened","reality itself cracked","time stopped for a year","the battlefield became cursed ground"],
+};
+
+function generateLore(rng, template, context) {
+  const templates = LORE_TEMPLATES[template] || LORE_TEMPLATES.settlement_history;
+  let text = pick(templates, rng);
+  // Replace all {placeholders}
+  text = text.replace(/\{(\w+)\}/g, (match, key) => {
+    if (context && context[key]) return context[key];
+    const options = LORE_FRAGMENTS[key];
+    if (options) return Array.isArray(options) ? pick(options, rng) : options;
+    return match;
   });
-  return lore;
+  return text;
 }
 
-// ─── TREASURE GENERATION ───────────────────────────────────────────────────
+// ─── TREASURE & LOOT GENERATION ─────────────────────────────────────────────
 
-const MAGIC_ITEMS = [
-  "Amulet of Health", "Boots of Speed", "Cloak of Elvenkind", "Dagger of Venom", "Eyes of Eagle",
-  "Gauntlets of Ogre Power", "Helmet of Telepathy", "Immovable Rod", "Javelin of Lightning",
-  "Keyring of Invisibility", "Longsword of Flame", "Mace of Disruption", "Necklace of Fireballs",
-  "Orb of Dragonkind", "Pendant of Wisdom", "Quarterstaff of Charming", "Ring of Fire",
-  "Staff of Sorcery", "Tome of Understanding", "Umbrella of Invulnerability", "Vial of Antitoxin",
-  "Wand of Fireballs", "Wondrous Bag of Holding", "Yoke of Strength", "Zealot's Armor",
-];
+const MAGIC_ITEMS = {
+  common: ["Potion of Healing","Scroll of Identify","Driftglobe","Cloak of Many Fashions","Hat of Wizardry","Mystery Key","Tankard of Sobriety","Pole of Collapsing","Wand of Smiles","Instrument of Illusions"],
+  uncommon: ["Bag of Holding","+1 Weapon","Cloak of Protection","Boots of Elvenkind","Goggles of Night","Gauntlets of Ogre Power","Pearl of Power","Ring of Jumping","Immovable Rod","Winged Boots"],
+  rare: ["+2 Weapon","Flame Tongue","Ring of Protection","Amulet of Health","Belt of Giant Strength","Cape of the Mountebank","Helm of Teleportation","Instrument of the Bards","Staff of Healing","Wand of Fireballs"],
+  veryRare: ["+3 Weapon","Holy Avenger","Staff of Power","Robe of Stars","Ring of Regeneration","Crystal Ball","Rod of Absorption","Tome of Understanding","Cloak of Invisibility","Dancing Sword"],
+  legendary: ["Vorpal Sword","Staff of the Magi","Luck Blade","Ring of Three Wishes","Robe of the Archmagi","Talisman of Pure Good","Deck of Many Things","Sphere of Annihilation","Rod of Lordly Might","Apparatus of Kwalish"],
+};
 
-function generateTreasureHoard(rng) {
-  const items = randInt(1, 5, rng);
-  const hoard = {
-    gold: randInt(100, 5000, rng),
-    items: [],
+function generateTreasureHoard(rng, cr) {
+  const coins = {
+    copper: cr < 5 ? randInt(100, 600, rng) : 0,
+    silver: cr < 10 ? randInt(50, 300, rng) : randInt(0, 100, rng),
+    gold: randInt(cr * 10, cr * 100, rng),
+    platinum: cr >= 10 ? randInt(1, cr * 5, rng) : 0,
   };
-  for (let i = 0; i < items; i++) {
-    hoard.items.push(pick(MAGIC_ITEMS, rng));
+  const gems = [];
+  const gemCount = randInt(0, Math.ceil(cr / 3), rng);
+  const gemTypes = ["Ruby","Sapphire","Emerald","Diamond","Amethyst","Topaz","Opal","Pearl","Garnet","Aquamarine","Tourmaline","Jade","Moonstone","Bloodstone","Tiger's Eye","Lapis Lazuli"];
+  for (let i = 0; i < gemCount; i++) {
+    gems.push({ type: pick(gemTypes, rng), value: randInt(10, cr * 50, rng) });
   }
-  return hoard;
+  const items = [];
+  const itemCount = randInt(0, Math.ceil(cr / 5) + 1, rng);
+  for (let i = 0; i < itemCount; i++) {
+    const rarity = cr < 5 ? "common" : cr < 10 ? (rng() < 0.6 ? "uncommon" : "common") : cr < 15 ? (rng() < 0.5 ? "rare" : "uncommon") : (rng() < 0.3 ? "veryRare" : "rare");
+    items.push({ name: pick(MAGIC_ITEMS[rarity], rng), rarity });
+  }
+  return { coins, gems, items, totalGPValue: coins.gold + coins.platinum * 10 + coins.silver / 10 + gems.reduce((s, g) => s + g.value, 0) };
 }
 
-// ─── HEIGHTMAP GENERATION ──────────────────────────────────────────────────
+// ─── TERRAIN GENERATION ENGINE ──────────────────────────────────────────────
 
-function generateHeightmap(w, h, rng, octaves = 4, persistence = 0.5, lacunarity = 2.0) {
-  const noise = (x, y) => {
-    const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-    return n - Math.floor(n);
-  };
-  const perlin = (x, y) => {
-    const xi = Math.floor(x), yi = Math.floor(y);
-    const xf = x - xi, yf = y - yi;
-    const u = smoothstep(xf), v = smoothstep(yf);
-    const n00 = noise(xi, yi), n10 = noise(xi+1, yi), n01 = noise(xi, yi+1), n11 = noise(xi+1, yi+1);
-    const nx0 = lerp(n00, n10, u), nx1 = lerp(n01, n11, u);
-    return lerp(nx0, nx1, v);
-  };
-  const heightmap = [];
-  for (let y = 0; y < h; y++) {
-    heightmap[y] = [];
-    for (let x = 0; x < w; x++) {
-      let value = 0, amp = 1, freq = 1, maxVal = 0;
-      for (let oct = 0; oct < octaves; oct++) {
-        value += perlin(x*freq/w, y*freq/h) * amp;
-        maxVal += amp;
-        amp *= persistence;
-        freq *= lacunarity;
+function generateHeightmap(width, height, rng, octaves, persistence, lacunarity) {
+  const grid = Array.from({ length: height }, () => new Float32Array(width));
+  for (let oct = 0; oct < octaves; oct++) {
+    const freq = Math.pow(lacunarity, oct);
+    const amp = Math.pow(persistence, oct);
+    const noiseW = Math.ceil(width / (32 / freq)) + 2;
+    const noiseH = Math.ceil(height / (32 / freq)) + 2;
+    const noise = Array.from({ length: noiseH }, () => {
+      const row = new Float32Array(noiseW);
+      for (let i = 0; i < noiseW; i++) row[i] = rng();
+      return row;
+    });
+    const cellSize = 32 / freq;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const nx = x / cellSize, ny = y / cellSize;
+        const ix = Math.floor(nx), iy = Math.floor(ny);
+        const fx = nx - ix, fy = ny - iy;
+        const sx = smoothstep(fx), sy = smoothstep(fy);
+        const n00 = noise[iy % noiseH]?.[ix % noiseW] || 0;
+        const n10 = noise[iy % noiseH]?.[(ix + 1) % noiseW] || 0;
+        const n01 = noise[(iy + 1) % noiseH]?.[ix % noiseW] || 0;
+        const n11 = noise[(iy + 1) % noiseH]?.[(ix + 1) % noiseW] || 0;
+        grid[y][x] += ((n00*(1-sx)+n10*sx)*(1-sy)+(n01*(1-sx)+n11*sx)*sy) * amp;
       }
-      heightmap[y][x] = clamp(value/maxVal, 0, 1);
     }
   }
-  return heightmap;
+  let min = Infinity, max = -Infinity;
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) { if (grid[y][x]<min) min=grid[y][x]; if (grid[y][x]>max) max=grid[y][x]; }
+  const range = max - min || 1;
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) grid[y][x] = (grid[y][x] - min) / range;
+  return grid;
 }
 
-function applyErosion(heightmap, iterations = 100) {
-  const w = heightmap[0].length, h = heightmap.length;
-  const erosionRate = 0.1, gravity = 9.81, evaporation = 0.01;
-  let px = Math.random() * w, py = Math.random() * h;
-  let water = 1, sediment = 0;
-  for (let it = 0; it < iterations; it++) {
-    const x = Math.floor(px), y = Math.floor(py);
-    if (x < 0 || x >= w-1 || y < 0 || y >= h-1) {
-      px = Math.random() * w;
-      py = Math.random() * h;
-      continue;
+// Hydraulic erosion simulation
+function applyErosion(heightmap, width, height, rng, iterations) {
+  const inertia = 0.3, capacity = 8, deposition = 0.02, erosionRate = 0.3, evaporation = 0.01, gravity = 4, minSlope = 0.01;
+  for (let iter = 0; iter < iterations; iter++) {
+    let px = rng() * (width - 2) + 1, py = rng() * (height - 2) + 1;
+    let dx = 0, dy = 0, speed = 1, water = 1, sediment = 0;
+    for (let step = 0; step < 64; step++) {
+      const ix = Math.floor(px), iy = Math.floor(py);
+      if (ix < 1 || ix >= width-1 || iy < 1 || iy >= height-1) break;
+      const fx = px - ix, fy = py - iy;
+      // Gradient
+      const h00 = heightmap[iy][ix], h10 = heightmap[iy][ix+1], h01 = heightmap[iy+1][ix], h11 = heightmap[iy+1][ix+1];
+      const gx = (h10-h00)*(1-fy)+(h11-h01)*fy;
+      const gy = (h01-h00)*(1-fx)+(h11-h10)*fx;
+      dx = dx*inertia - gx*(1-inertia);
+      dy = dy*inertia - gy*(1-inertia);
+      const len = Math.sqrt(dx*dx+dy*dy);
+      if (len < 0.0001) break;
+      dx /= len; dy /= len;
+      const npx = px + dx, npy = py + dy;
+      if (npx < 1 || npx >= width-1 || npy < 1 || npy >= height-1) break;
+      const oldH = h00*(1-fx)*(1-fy)+h10*fx*(1-fy)+h01*(1-fx)*fy+h11*fx*fy;
+      const nix = Math.floor(npx), niy = Math.floor(npy), nfx = npx-nix, nfy = npy-niy;
+      const newH = (heightmap[niy]?.[nix]||0)*(1-nfx)*(1-nfy)+(heightmap[niy]?.[nix+1]||0)*nfx*(1-nfy)+(heightmap[niy+1]?.[nix]||0)*(1-nfx)*nfy+(heightmap[niy+1]?.[nix+1]||0)*nfx*nfy;
+      const dh = newH - oldH;
+      const cap = Math.max(-dh, minSlope) * speed * water * capacity;
+      if (sediment > cap || dh > 0) {
+        const deposit = dh > 0 ? Math.min(sediment, dh) : (sediment - cap) * deposition;
+        sediment -= deposit;
+        heightmap[iy][ix] += deposit * (1-fx)*(1-fy);
+        heightmap[iy][ix+1] += deposit * fx*(1-fy);
+        heightmap[iy+1][ix] += deposit * (1-fx)*fy;
+        heightmap[iy+1][ix+1] += deposit * fx*fy;
+      } else {
+        const erode = Math.min((cap-sediment)*erosionRate, -dh);
+        sediment += erode;
+        heightmap[iy][ix] -= erode*(1-fx)*(1-fy);
+        heightmap[iy][ix+1] -= erode*fx*(1-fy);
+        heightmap[iy+1][ix] -= erode*(1-fx)*fy;
+        heightmap[iy+1][ix+1] -= erode*fx*fy;
+      }
+      speed = Math.sqrt(Math.max(0, speed*speed + dh*gravity));
+      water *= (1 - evaporation);
+      px = npx; py = npy;
     }
-    const fx = px - x, fy = py - y;
-    const h00 = heightmap[y][x], h10 = heightmap[y][x+1], h01 = heightmap[y+1][x], h11 = heightmap[y+1][x+1];
-    const ch = h00*(1-fx)*(1-fy) + h10*fx*(1-fy) + h01*(1-fx)*fy + h11*fx*fy;
-    const slopes = [h00 - ch, h10 - ch, h01 - ch, h11 - ch];
-    const minH = Math.min(...slopes);
-    let npx = px + slopes[1] - slopes[0], npy = py + slopes[3] - slopes[1];
-    npx = clamp(npx, 0, w-1);
-    npy = clamp(npy, 0, h-1);
-    const cap = water * 0.1 * Math.max(dist(px, py, npx, npy), 0.01);
-    if (sediment > cap) {
-      sediment -= (sediment - cap) * 0.5;
-    } else {
-      const erode = Math.min((cap-sediment)*erosionRate, -minH);
-      sediment += erode;
-      heightmap[y][x] -= erode*(1-fx)*(1-fy);
-      heightmap[y][x+1] -= erode*fx*(1-fy);
-      heightmap[y+1][x] -= erode*(1-fx)*fy;
-      heightmap[y+1][x+1] -= erode*fx*fy;
-    }
-    px = npx;
-    py = npy;
-    water *= (1 - evaporation);
   }
   return heightmap;
 }
@@ -3173,15 +3302,14 @@ function generateMoisture(w, h, rng) { return generateHeightmap(w, h, rng, 4, 0.
 
 function generateTemperature(w, h, rng, latBias) {
   const base = generateHeightmap(w, h, rng, 3, 0.5, 2.0);
-  if (latBias) for (let y = 0; y < h; y++) {
-    const lat = Math.abs(y/h-0.5)*2;
-    for (let x = 0; x < w; x++) base[y][x] = base[y][x]*0.4+(1-lat)*0.6;
-  }
+  if (latBias) for (let y = 0; y < h; y++) { const lat = Math.abs(y/h-0.5)*2; for (let x = 0; x < w; x++) base[y][x] = base[y][x]*0.4+(1-lat)*0.6; }
   return base;
 }
 
+// Wind map for weather patterns
 function generateWindMap(w, h, rng) {
   const base = generateHeightmap(w, h, rng, 3, 0.4, 2.0);
+  // Prevailing westerlies pattern
   for (let y = 0; y < h; y++) {
     const lat = (y / h - 0.5) * 2;
     for (let x = 0; x < w; x++) {
@@ -3252,9 +3380,9 @@ function classifyBiome(h, m, t) {
   return "plains";
 }
 
+// Hack to add variety without extra rng param
 function rng_temp_hack(h) { return (Math.sin(h * 127.1) * 43758.5453) % 1; }
 
-// ═══════════════════════════════════════════════════════════════════════════
 // PART 1: WEATHER SYSTEM (~300 lines)
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -7905,6 +8033,354 @@ function placeCities(hmap, mmap, rivers, gW, gH, rng, config) {
   }
   return settlements;
 }
+
+// ─── ROAD NETWORK ───────────────────────────────────────────────────────────
+
+function generateRoads(settlements, hmap, gW, gH, rng) {
+  const roads = [];
+  const seaLevel = 0.38;
+
+  function findPath(s1, s2) {
+    const pts = [];
+    const dx = s2.x-s1.x, dy = s2.y-s1.y, steps = Math.max(Math.abs(dx),Math.abs(dy));
+    if (steps===0) return [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i/steps;
+      let x = Math.round(s1.x+dx*t), y = Math.round(s1.y+dy*t);
+      const h = hmap[y]?.[x]||0;
+      if (h<seaLevel||h>0.75) for (const off of [-1,1,-2,2]) { const ny=y+off; if ((hmap[ny]?.[x]||0)>=seaLevel&&(hmap[ny]?.[x]||0)<0.75) { y=ny; break; } }
+      pts.push({x,y});
+    }
+    return pts;
+  }
+
+  const majors = settlements.filter(s=>s.type==="capital"||s.type==="city");
+  for (let i = 0; i < majors.length; i++) {
+    const nearest = majors.map((s,j)=>({s,j,d:dist(s.x,s.y,majors[i].x,majors[i].y)})).filter(x=>x.j!==i).sort((a,b)=>a.d-b.d).slice(0,3);
+    for (const {s:target} of nearest) {
+      const exists = roads.some(r => (r.from===majors[i].name&&r.to===target.name)||(r.from===target.name&&r.to===majors[i].name));
+      if (!exists) roads.push({ path:findPath(majors[i],target), type:"major", from:majors[i].name, to:target.name });
+    }
+  }
+
+  const towns = settlements.filter(s=>s.type==="town");
+  for (const town of towns) {
+    const near = majors.map(s=>({s,d:dist(s.x,s.y,town.x,town.y)})).sort((a,b)=>a.d-b.d)[0];
+    if (near&&near.d<60) roads.push({ path:findPath(town,near.s), type:"minor", from:town.name, to:near.s.name });
+  }
+
+  // Trade routes between distant cities (long-range connections)
+  const tradeRoutes = [];
+  if (majors.length > 3) {
+    for (let i = 0; i < Math.min(4, majors.length); i++) {
+      const far = majors.map((s,j)=>({s,j,d:dist(s.x,s.y,majors[i].x,majors[i].y)})).filter(x=>x.j!==i).sort((a,b)=>b.d-a.d)[0];
+      if (far && far.d > 40) {
+        const exists = tradeRoutes.some(r => (r.from===majors[i].name&&r.to===far.s.name)||(r.from===far.s.name&&r.to===majors[i].name));
+        if (!exists) tradeRoutes.push({ path:findPath(majors[i],far.s), type:"trade", from:majors[i].name, to:far.s.name });
+      }
+    }
+  }
+
+  return [...roads, ...tradeRoutes];
+}
+
+// ─── KINGDOM / TERRITORY GENERATION ─────────────────────────────────────────
+
+const KINGDOM_COLORS = [
+  { fill:"rgba(148,57,57,0.12)", stroke:"rgba(148,57,57,0.45)", accent:"#944039" },
+  { fill:"rgba(57,100,148,0.12)", stroke:"rgba(57,100,148,0.45)", accent:"#396494" },
+  { fill:"rgba(57,148,80,0.12)", stroke:"rgba(57,148,80,0.45)", accent:"#399450" },
+  { fill:"rgba(148,120,57,0.12)", stroke:"rgba(148,120,57,0.45)", accent:"#947839" },
+  { fill:"rgba(120,57,148,0.12)", stroke:"rgba(120,57,148,0.45)", accent:"#783994" },
+  { fill:"rgba(57,148,140,0.12)", stroke:"rgba(57,148,140,0.45)", accent:"#39948c" },
+  { fill:"rgba(148,57,120,0.12)", stroke:"rgba(148,57,120,0.45)", accent:"#943978" },
+  { fill:"rgba(80,120,57,0.12)", stroke:"rgba(80,120,57,0.45)", accent:"#507839" },
+  { fill:"rgba(100,80,140,0.12)", stroke:"rgba(100,80,140,0.45)", accent:"#64508c" },
+  { fill:"rgba(140,100,80,0.12)", stroke:"rgba(140,100,80,0.45)", accent:"#8c6450" },
+];
+
+function generateKingdoms(settlements, hmap, gW, gH, rng, count) {
+  const capitals = settlements.filter(s=>s.type==="capital");
+  const kingdoms = [];
+
+  for (let i = 0; i < Math.min(count, capitals.length); i++) {
+    const cap = capitals[i];
+    const mySettlements = [cap];
+    for (const s of settlements) {
+      if (s===cap) continue;
+      const d = dist(s.x,s.y,cap.x,cap.y);
+      let isNearest = true;
+      for (let j = 0; j < Math.min(count,capitals.length); j++) {
+        if (j===i) continue;
+        if (dist(s.x,s.y,capitals[j].x,capitals[j].y) < d) { isNearest=false; break; }
+      }
+      if (isNearest && d < 80) mySettlements.push(s);
+    }
+
+    const pts = mySettlements.map(s=>({x:s.x,y:s.y}));
+    if (pts.length < 3) { const r=15; for (let a=0;a<Math.PI*2;a+=Math.PI/5) pts.push({x:cap.x+Math.cos(a)*r,y:cap.y+Math.sin(a)*r}); }
+    const cx = pts.reduce((s,p)=>s+p.x,0)/pts.length;
+    const cy = pts.reduce((s,p)=>s+p.y,0)/pts.length;
+    const sorted = [...pts].sort((a,b)=>Math.atan2(a.y-cy,a.x-cx)-Math.atan2(b.y-cy,b.x-cx));
+    const hull = sorted.map(p => { const dx=p.x-cx,dy=p.y-cy,len=Math.sqrt(dx*dx+dy*dy)||1; return {x:p.x+(dx/len)*14,y:p.y+(dy/len)*14}; });
+
+    const colors = KINGDOM_COLORS[i % KINGDOM_COLORS.length];
+    const totalPop = mySettlements.reduce((s,st)=>s+st.population,0);
+
+    // Kingdom-level lore
+    const lore = generateLore(rng, "kingdom_founding", {
+      years: pick(LORE_FRAGMENTS.years, rng).toString(),
+      founder: genNPCName(rng),
+      method: pick(LORE_FRAGMENTS.method, rng),
+      artifact: pick(LORE_FRAGMENTS.artifact, rng),
+      location: genName(rng, "mountain"),
+      old_realm: pick(LORE_FRAGMENTS.old_realm, rng),
+      cataclysm: pick(LORE_FRAGMENTS.cataclysm, rng),
+      entity: pick(LORE_FRAGMENTS.entity, rng),
+      purpose: pick(LORE_FRAGMENTS.purpose, rng),
+    });
+
+    // Government & relations
+    const govt = pick(["Absolute Monarchy","Constitutional Monarchy","Feudal System","Theocracy","Oligarchy","Magocracy","Military Junta","Republic","Tribal Confederation","Merchant Republic"], rng);
+    const militaryStr = pick(["formidable","strong","moderate","weak","decimated","legendary","growing","overstretched","elite but small","numerous but poorly trained"], rng);
+
+    kingdoms.push({
+      name: genKingdomName(rng), capital: cap.name,
+      settlements: mySettlements.map(s=>s.name), hull,
+      color: colors.fill, borderColor: colors.stroke, accent: colors.accent,
+      population: totalPop, lore, government: govt, militaryStrength: militaryStr,
+      relations: {}, // populated after all kingdoms exist
+      ruler: { name: genNPCName(rng), title: pick(["King","Queen","Emperor","Empress","Archduke","Archduchess","High Lord","High Lady","Sovereign","Protector"], rng), trait: pick(NPC_TRAITS, rng) },
+      economy: pick(["trade","agriculture","mining","fishing","manufacturing","magic","mercenary","scholarly","religious","raiding"], rng),
+      religion: pick(["monotheistic","polytheistic","ancestor worship","nature worship","arcane devotion","atheistic","cult worship","animistic","philosophical","syncretic"], rng),
+    });
+  }
+
+  // Generate inter-kingdom relations
+  for (let i = 0; i < kingdoms.length; i++) {
+    for (let j = i+1; j < kingdoms.length; j++) {
+      const relation = pick(["allied","friendly","neutral","tense","hostile","at war","trading partners","non-aggression pact","vassal relationship","bitter rivals"], rng);
+      kingdoms[i].relations[kingdoms[j].name] = relation;
+      kingdoms[j].relations[kingdoms[i].name] = relation;
+    }
+  }
+
+  return kingdoms;
+}
+
+// ─── POI GENERATION (expanded) ──────────────────────────────────────────────
+
+const POI_DESCRIPTIONS = {
+  dungeon: [
+    "A sprawling underground complex filled with ancient traps and forgotten treasure.",
+    "An abandoned dwarven stronghold overrun by creatures of the deep.",
+    "A network of natural caverns expanded by dark magic into a labyrinth of horrors.",
+    "The prison-fortress of a long-dead tyrant, where captive spirits still wander.",
+    "An underground temple complex built to worship a slumbering elder entity.",
+  ],
+  ruins: [
+    "Crumbling remnants of a civilization that predates recorded history.",
+    "The shattered towers of a wizard's academy, destroyed in a catastrophic experiment.",
+    "Ancient elven ruins slowly being reclaimed by the forest, still humming with old magic.",
+    "A collapsed cathedral whose stained glass windows still glow with divine light.",
+    "The foundations of a city swallowed by the earth during a great cataclysm.",
+  ],
+  tower: [
+    "A solitary watchtower built on the highest point for leagues, now abandoned.",
+    "A wizard's spire crackling with residual arcane energy.",
+    "An ancient lighthouse that casts a beam visible in the ethereal plane.",
+    "A fortified signal tower, part of a long-defunct early warning network.",
+    "An impossibly tall, narrow tower that seems to sway in winds that don't exist.",
+  ],
+  shrine: [
+    "A weathered stone altar surrounded by offerings from local pilgrims.",
+    "A sacred grove where the barrier between planes is thin.",
+    "An ancient prayer site built at the confluence of two ley lines.",
+    "A small temple carved into living rock, maintained by a hermit priest.",
+    "A circle of standing stones that glow faintly during celestial events.",
+  ],
+  cave: [
+    "A deep natural cavern system with underground rivers and crystal formations.",
+    "A cave mouth belching warm, sulfurous air from deep volcanic vents.",
+    "An extensive cave network that locals claim connects to the Underdark.",
+    "A sea cave that floods at high tide, revealing hidden passages at low water.",
+    "A cave covered in ancient pictographs depicting events yet to come.",
+  ],
+  grove: [
+    "An enchanted clearing where animals speak and time moves differently.",
+    "A circle of ancient trees that are actually petrified treants.",
+    "A fey-touched woodland where reality bends to imagination.",
+    "A druidic sanctuary maintained by a circle of shapeshifters.",
+    "A grove of crystal trees that sing harmonies in the moonlight.",
+  ],
+  monolith: [
+    "A towering black obelisk covered in script no sage can decipher.",
+    "A crystalline pillar that amplifies arcane magic within its radius.",
+    "A carved stone monument depicting the prophesied end of the world.",
+    "An ancient boundary marker between material and fey realms.",
+    "A pulsating stone that draws creatures and travelers to its base.",
+  ],
+  mine: [
+    "An abandoned gold mine with collapsed lower levels hiding something.",
+    "A mithril vein still producing, heavily guarded by its current owners.",
+    "A played-out quarry where workers recently broke through to something ancient.",
+    "A gem mine infested with earth elementals after a mining accident.",
+    "A deep shaft mine that has been sealed for decades after an 'incident'.",
+  ],
+  fortress: [
+    "A ruined hilltop fortification with walls still standing despite centuries.",
+    "A strategically vital border fortress contested by neighboring kingdoms.",
+    "An ancient dwarven citadel carved into the mountainside itself.",
+    "A warlord's stronghold surrounded by the bleached bones of failed siege armies.",
+    "A magical fortress that appears and disappears according to unknown cycles.",
+  ],
+  temple: [
+    "A grand cathedral to an active deity, radiating palpable divine presence.",
+    "A syncretic temple where followers of many gods worship in uneasy peace.",
+    "A cursed temple where the divine connection was severed by a dark ritual.",
+    "A monastery where warrior-monks train in both martial and spiritual arts.",
+    "An underwater temple visible through crystal-clear lake waters.",
+  ],
+  lighthouse: [
+    "A coastal beacon whose light has guided sailors for a thousand years.",
+    "A storm-battered tower maintained by a single, ageless keeper.",
+    "A lighthouse whose beam reveals invisible ships from other planes.",
+    "A decommissioned lighthouse recently relit by unknown parties.",
+    "A lighthouse on a cliff that serves as a front for smuggling operations.",
+  ],
+  camp: [
+    "A semi-permanent bandit encampment preying on nearby trade routes.",
+    "A nomadic tribe's seasonal camp, rich with unfamiliar cultural traditions.",
+    "A military bivouac positioned for an upcoming campaign.",
+    "A ranger outpost monitoring monster migrations through the region.",
+    "A traveling carnival that sets up camp, bringing wonder and pickpockets.",
+  ],
+  portal: [
+    "A shimmering gateway between material and fey planes.",
+    "An ancient teleportation circle, destination unknown.",
+    "A planar rift slowly widening, leaking creatures from elsewhere.",
+    "A mirror-smooth pool that reflects a different world entirely.",
+    "A stone archway that activates during specific celestial alignments.",
+  ],
+  battlefield: [
+    "The site of a legendary battle, where the dead are not fully at rest.",
+    "Scorched earth and twisted metal from a conflict that reshaped the region.",
+    "A field of enchanted weapons jutting from the ground like grave markers.",
+    "An ancient killing field where no plants grow and animals refuse to tread.",
+    "A battlefield preserved in time by residual magic, bodies frozen mid-combat.",
+  ],
+};
+
+function generatePOIs(hmap, mmap, settlements, gW, gH, rng, config) {
+  const pois = [];
+  const seaLevel = 0.38;
+  const types = [
+    { type:"dungeon", count:config.dungeons||12, terrain:"high", icon:"dungeon" },
+    { type:"ruins", count:config.ruins||10, terrain:"any", icon:"ruins" },
+    { type:"tower", count:config.towers||8, terrain:"high", icon:"tower" },
+    { type:"shrine", count:config.shrines||10, terrain:"any", icon:"shrine" },
+    { type:"cave", count:config.caves||10, terrain:"mountain", icon:"cave" },
+    { type:"grove", count:config.groves||6, terrain:"forest", icon:"grove" },
+    { type:"monolith", count:config.monoliths||5, terrain:"any", icon:"monolith" },
+    { type:"mine", count:config.mines||8, terrain:"mountain", icon:"mine" },
+    { type:"fortress", count:config.fortresses||6, terrain:"high", icon:"fortress" },
+    { type:"temple", count:config.temples||5, terrain:"any", icon:"temple" },
+    { type:"lighthouse", count:config.lighthouses||4, terrain:"coast", icon:"lighthouse" },
+    { type:"camp", count:config.camps||8, terrain:"any", icon:"camp" },
+    { type:"portal", count:config.portals||3, terrain:"any", icon:"portal" },
+    { type:"battlefield", count:config.battlefields||4, terrain:"any", icon:"battlefield" },
+  ];
+
+  function minDistToPOIs(x,y) {
+    let md=Infinity;
+    for (const p of pois) { const d=dist(p.x,p.y,x,y); if(d<md) md=d; }
+    for (const s of settlements) { const d=dist(s.x,s.y,x,y); if(d<md) md=d; }
+    return md;
+  }
+
+  for (const {type,count,terrain,icon} of types) {
+    for (let i = 0; i < count; i++) {
+      let bestX=-1, bestY=-1;
+      for (let att = 0; att < 400; att++) {
+        const x = Math.floor(rng()*gW), y = Math.floor(rng()*gH);
+        const h = hmap[y]?.[x]||0, m = mmap[y]?.[x]||0;
+        if (h<seaLevel) continue;
+        if (terrain==="high"&&h<0.55) continue;
+        if (terrain==="mountain"&&h<0.65) continue;
+        if (terrain==="forest"&&m<0.5) continue;
+        if (terrain==="coast"&&h>0.45) continue;
+        if (minDistToPOIs(x,y)<6) continue;
+        bestX=x; bestY=y; break;
+      }
+      if (bestX<0) continue;
+
+      const descriptions = POI_DESCRIPTIONS[type] || POI_DESCRIPTIONS.ruins;
+      const threatLevel = pick(["trivial","low","moderate","high","extreme","deadly"],rng);
+      const cr = threatLevel==="trivial"?randInt(1,3,rng):threatLevel==="low"?randInt(2,5,rng):threatLevel==="moderate"?randInt(4,8,rng):threatLevel==="high"?randInt(7,12,rng):threatLevel==="extreme"?randInt(11,16,rng):randInt(15,20,rng);
+      const treasure = generateTreasureHoard(rng, cr);
+      const lore = generateLore(rng, type==="dungeon"?"dungeon_rumor":type==="ruins"?"ruin_legend":"ruin_legend", {name:genName(rng,type==="mine"?"dungeon":type), creature:pick(LORE_FRAGMENTS.creature,rng), treasure:pick(LORE_FRAGMENTS.treasure,rng), hazard:pick(LORE_FRAGMENTS.hazard,rng), faction:pick(LORE_FRAGMENTS.faction,rng), location:genName(rng,"town"), objective:pick(LORE_FRAGMENTS.objective,rng), feature:pick(LORE_FRAGMENTS.feature,rng), area:pick(["upper levels","lower chambers","central hall","hidden wing","collapsed section","flooded depths"],rng)});
+
+      pois.push({
+        x:bestX, y:bestY, type, icon,
+        name: genName(rng, type==="mine"||type==="cave"?"dungeon":type==="fortress"||type==="tower"||type==="lighthouse"?"ruins":type==="portal"||type==="battlefield"?"ruins":type),
+        description: pick(descriptions, rng),
+        threat: threatLevel, cr,
+        discovered: rng() > 0.4,
+        treasure, lore,
+        occupants: pick(["Empty","Undead","Bandits","Cultists","Monsters","Wildlife","Demons","Fey","Constructs","Aberrations","Dragon","Lich","Beholder","Mind Flayers","Kobolds","Goblins","Orcs","Trolls","Giants","Elementals"],rng),
+        floors: type==="dungeon"?randInt(2,8,rng):type==="mine"?randInt(3,12,rng):type==="tower"?randInt(3,10,rng):1,
+        condition: pick(["pristine","well-maintained","aging","crumbling","ruined","collapsed","overgrown","frozen","petrified","warped by magic"],rng),
+      });
+    }
+  }
+  return pois;
+}
+
+// ─── LANDMARK GENERATION ────────────────────────────────────────────────────
+
+function generateLandmarks(hmap, mmap, gW, gH, rng) {
+  const landmarks = [];
+  const seaLevel = 0.38;
+
+  // Mountain ranges
+  for (let i=0;i<8;i++) {
+    let bX=-1,bY=-1,bH=0;
+    for (let att=0;att<300;att++) { const x=Math.floor(rng()*gW),y=Math.floor(rng()*gH),h=hmap[y]?.[x]||0; if(h>bH&&h>0.78) { let ok=true; for(const l of landmarks) if(l.type==="mountain_range"&&dist(l.x,l.y,x,y)<25) ok=false; if(ok){bH=h;bX=x;bY=y;} } }
+    if(bX>=0) landmarks.push({x:bX,y:bY,type:"mountain_range",name:genName(rng,"mountain"),h:bH});
+  }
+  // Forests
+  for (let i=0;i<6;i++) {
+    let bX=-1,bY=-1,bM=0;
+    for (let att=0;att<300;att++) { const x=Math.floor(rng()*gW),y=Math.floor(rng()*gH),h=hmap[y]?.[x]||0,m=mmap[y]?.[x]||0; if(h>seaLevel&&h<0.65&&m>bM&&m>0.6) { let ok=true; for(const l of landmarks) if(l.type==="forest"&&dist(l.x,l.y,x,y)<22) ok=false; if(ok){bM=m;bX=x;bY=y;} } }
+    if(bX>=0) landmarks.push({x:bX,y:bY,type:"forest",name:genName(rng,"forest")});
+  }
+  // Deserts
+  for (let i=0;i<4;i++) {
+    let bX=-1,bY=-1;
+    for (let att=0;att<300;att++) { const x=Math.floor(rng()*gW),y=Math.floor(rng()*gH),h=hmap[y]?.[x]||0,m=mmap[y]?.[x]||0; if(h>seaLevel&&h<0.6&&m<0.15) { let ok=true; for(const l of landmarks) if(l.type==="desert"&&dist(l.x,l.y,x,y)<25) ok=false; if(ok){bX=x;bY=y;} } }
+    if(bX>=0) landmarks.push({x:bX,y:bY,type:"desert",name:genName(rng,"desert")});
+  }
+  // Lakes
+  for (let i=0;i<6;i++) {
+    let bX=-1,bY=-1;
+    for (let att=0;att<400;att++) { const x=Math.floor(rng()*(gW-4))+2,y=Math.floor(rng()*(gH-4))+2,h=hmap[y][x]; if(h<seaLevel||h>0.55) continue; let isLow=true; for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++) { if(dx===0&&dy===0)continue; if((hmap[y+dy]?.[x+dx]||0)<h-0.02) isLow=false; } if(isLow) { let ok=true; for(const l of landmarks) if(l.type==="lake"&&dist(l.x,l.y,x,y)<18) ok=false; if(ok){bX=x;bY=y;break;} } }
+    if(bX>=0) landmarks.push({x:bX,y:bY,type:"lake",name:genName(rng,"lake"),radius:3+rng()*6});
+  }
+  // Swamps
+  for (let i=0;i<4;i++) {
+    let bX=-1,bY=-1;
+    for (let att=0;att<200;att++) { const x=Math.floor(rng()*gW),y=Math.floor(rng()*gH),h=hmap[y]?.[x]||0,m=mmap[y]?.[x]||0; if(h>0.38&&h<0.45&&m>0.6){bX=x;bY=y;break;} }
+    if(bX>=0) landmarks.push({x:bX,y:bY,type:"swamp",name:genName(rng,"swamp")});
+  }
+  // Islands (isolated high points in ocean)
+  for (let i=0;i<3;i++) {
+    let bX=-1,bY=-1;
+    for (let att=0;att<300;att++) { const x=Math.floor(rng()*gW),y=Math.floor(rng()*gH),h=hmap[y]?.[x]||0; if(h>0.35&&h<0.5) { let nearOcean=false; for(let dy=-6;dy<=6;dy++) for(let dx=-6;dx<=6;dx++) { if((hmap[y+dy]?.[x+dx]||0)<0.3) nearOcean=true; } if(nearOcean){bX=x;bY=y;break;} } }
+    if(bX>=0) landmarks.push({x:bX,y:bY,type:"island",name:genName(rng,"island")});
+  }
+  return landmarks;
+}
+
 
 // ─── SETTLEMENT DISTRICTS ───────────────────────────────────────────────────
 
