@@ -335,6 +335,297 @@ const eid = () => `e${_eid++}`;
 let _id = 100;
 const uid = () => _id++;
 
+// ─── FANTASY MAP ICONS (hand-drawn cartography style) ───────────────────────
+
+const MapIconMountain = ({ size=32, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Main peak — organic, slightly asymmetric */}
+    <path d="M24 6 C23 6, 14 22, 10 32 Q9.5 33, 10 33.5 L17 33 Q18 28, 20 24 C21 22, 22.5 18, 24 14 C25.5 18, 27 22, 28 24 Q30 28, 31 33 L38 33.5 Q38.5 33, 38 32 C34 22, 25 6, 24 6Z" fill={color} opacity="0.12"/>
+    <path d="M24 6 C23 6, 14 22, 10 32 Q9.5 33, 10 33.5 L17 33 Q18 28, 20 24 C21 22, 22.5 18, 24 14 C25.5 18, 27 22, 28 24 Q30 28, 31 33 L38 33.5 Q38.5 33, 38 32 C34 22, 25 6, 24 6Z" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    {/* Snow cap — jagged */}
+    <path d="M24 6 C23.2 6, 20 13, 18.5 17 L21 15.5 L22 17 L24 12 L26 17 L27 15.5 L29.5 17 C28 13, 24.8 6, 24 6Z" fill={color} opacity="0.25"/>
+    {/* Left secondary peak */}
+    <path d="M12 33 C11 33, 7 26, 5 22 Q4 20.5, 4 22 C3 27, 2 33, 3 34 Q3.5 34.5, 4 34 L12 34Z" fill={color} opacity="0.08"/>
+    <path d="M5 22 Q4 20.5, 4 22 C3 27, 2 33, 3 34 L12 34 L12 33 C11 33, 7 26, 5 22Z" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6"/>
+    {/* Right secondary peak */}
+    <path d="M36 33 C37 33, 41 27, 43 23 Q44 21.5, 44 23 C45 28, 46 33, 45 34 Q44.5 34.5, 44 34 L36 34Z" fill={color} opacity="0.08"/>
+    <path d="M43 23 Q44 21.5, 44 23 C45 28, 46 33, 45 34 L36 34 L36 33 C37 33, 41 27, 43 23Z" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6"/>
+    {/* Ridgelines for texture */}
+    <path d="M19 25 Q21 21, 24 14" stroke={color} strokeWidth="0.7" strokeLinecap="round" opacity="0.3" fill="none"/>
+    <path d="M29 25 Q27 21, 24 14" stroke={color} strokeWidth="0.7" strokeLinecap="round" opacity="0.3" fill="none"/>
+    {/* Ground line */}
+    <path d="M1 34 Q12 33, 24 34 Q36 35, 47 34" stroke={color} strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.4"/>
+  </svg>
+);
+
+const MapIconMountainSmall = ({ size=24, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 5 C15 5, 8 17, 5 23 Q4.5 24, 5 24 L27 24 Q27.5 24, 27 23 C24 17, 17 5, 16 5Z" fill={color} opacity="0.1"/>
+    <path d="M16 5 C15 5, 8 17, 5 23 L27 23 C24 17, 17 5, 16 5Z" stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <path d="M16 5 C15.5 5, 13 10, 12 13 L14 11.5 L16 8 L18 11.5 L20 13 C19 10, 16.5 5, 16 5Z" fill={color} opacity="0.2"/>
+    <path d="M11 18 Q13 14, 16 8" stroke={color} strokeWidth="0.6" opacity="0.25" fill="none"/>
+    <path d="M2 24 Q16 23, 30 24" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.35"/>
+  </svg>
+);
+
+const MapIconTree = ({ size=28, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Organic deciduous tree with layered canopy */}
+    <path d="M16 30 L16 20" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+    <path d="M14.5 24 Q12 25, 11 24" stroke={color} strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+    <path d="M17.5 22 Q19 23, 20 22" stroke={color} strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+    {/* Canopy — multiple organic blobs */}
+    <path d="M16 4 C10 4, 5 9, 6 14 C4 15, 4 19, 7 20 C6 22, 9 25, 13 24 C14 26, 18 26, 19 24 C23 25, 26 22, 25 20 C28 19, 28 15, 26 14 C27 9, 22 4, 16 4Z" fill={color} opacity="0.15"/>
+    <path d="M16 4 C10 4, 5 9, 6 14 C4 15, 4 19, 7 20 C6 22, 9 25, 13 24 C14 26, 18 26, 19 24 C23 25, 26 22, 25 20 C28 19, 28 15, 26 14 C27 9, 22 4, 16 4Z" stroke={color} strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+    {/* Inner texture */}
+    <path d="M10 14 Q13 11, 16 12 Q19 11, 22 14" stroke={color} strokeWidth="0.6" opacity="0.2" fill="none"/>
+    <path d="M8 19 Q12 17, 16 18 Q20 17, 24 19" stroke={color} strokeWidth="0.6" opacity="0.2" fill="none"/>
+  </svg>
+);
+
+const MapIconForest = ({ size=32, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 48 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Cluster of 3 trees with varying sizes */}
+    {/* Back tree (left) */}
+    <path d="M14 28 L14 21" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M14 8 C9 8, 5 12, 6 16 C4 17, 5 21, 8 21 C8 23, 12 24, 14 22 C16 24, 20 23, 20 21 C23 21, 24 17, 22 16 C23 12, 19 8, 14 8Z" fill={color} opacity="0.12"/>
+    <path d="M14 8 C9 8, 5 12, 6 16 C4 17, 5 21, 8 21 C8 23, 12 24, 14 22 C16 24, 20 23, 20 21 C23 21, 24 17, 22 16 C23 12, 19 8, 14 8Z" stroke={color} strokeWidth="1.1" strokeLinecap="round" fill="none"/>
+    {/* Front tree (right, slightly larger) */}
+    <path d="M32 30 L32 22" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M32 7 C26 7, 22 12, 23 16 C21 17, 21 21, 24 22 C23 24, 27 26, 30 24 C31 26, 35 26, 36 24 C39 25, 42 22, 41 20 C44 19, 44 15, 41 14 C43 10, 38 7, 32 7Z" fill={color} opacity="0.12"/>
+    <path d="M32 7 C26 7, 22 12, 23 16 C21 17, 21 21, 24 22 C23 24, 27 26, 30 24 C31 26, 35 26, 36 24 C39 25, 42 22, 41 20 C44 19, 44 15, 41 14 C43 10, 38 7, 32 7Z" stroke={color} strokeWidth="1.1" strokeLinecap="round" fill="none"/>
+    {/* Middle small tree */}
+    <path d="M22 29 L22 24" stroke={color} strokeWidth="1.2" strokeLinecap="round"/>
+    <path d="M22 14 C19 14, 16 17, 17 19 C16 20, 17 22, 19 22 C19 24, 22 25, 24 23 C26 24, 28 22, 27 20 C29 19, 28 16, 26 16 C27 14, 25 12, 22 14Z" fill={color} opacity="0.1"/>
+    <path d="M22 14 C19 14, 16 17, 17 19 C16 20, 17 22, 19 22 C19 24, 22 25, 24 23 C26 24, 28 22, 27 20 C29 19, 28 16, 26 16 C27 14, 25 12, 22 14Z" stroke={color} strokeWidth="0.9" strokeLinecap="round" fill="none" opacity="0.7"/>
+    {/* Ground line */}
+    <path d="M2 30 Q16 29, 30 30 Q40 31, 46 30" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.3"/>
+  </svg>
+);
+
+const MapIconCity = ({ size=32, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Walled city with towers and central keep */}
+    {/* Wall base */}
+    <rect x="6" y="22" width="28" height="12" rx="1" fill={color} opacity="0.08"/>
+    <path d="M6 22 L6 34 L34 34 L34 22" stroke={color} strokeWidth="1.3" strokeLinecap="round" fill="none"/>
+    {/* Wall battlements */}
+    <path d="M6 22 L6 20 L9 20 L9 22 L11 22 L11 20 L14 20 L14 22 L16 22 L16 20 L19 20 L19 22 L21 22 L21 20 L24 20 L24 22 L26 22 L26 20 L29 20 L29 22 L31 22 L31 20 L34 20 L34 22" stroke={color} strokeWidth="1.1" fill="none"/>
+    {/* Gate */}
+    <path d="M17 34 L17 27 Q20 24, 23 27 L23 34" stroke={color} strokeWidth="1.2" fill="none"/>
+    <line x1="20" y1="27" x2="20" y2="34" stroke={color} strokeWidth="0.6" opacity="0.4"/>
+    {/* Central keep tower */}
+    <rect x="17" y="10" width="6" height="12" fill={color} opacity="0.1"/>
+    <path d="M17 22 L17 10 L23 10 L23 22" stroke={color} strokeWidth="1.2" fill="none"/>
+    <path d="M16 10 L20 5 L24 10" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    {/* Flag on keep */}
+    <line x1="20" y1="5" x2="20" y2="2" stroke={color} strokeWidth="0.8"/>
+    <path d="M20 2 L24 3.5 L20 5" fill={color} opacity="0.3"/>
+    <path d="M20 2 L24 3.5 L20 5" stroke={color} strokeWidth="0.7" fill="none"/>
+    {/* Left tower */}
+    <rect x="4" y="15" width="5" height="7" fill={color} opacity="0.08"/>
+    <path d="M4 22 L4 15 L9 15 L9 22" stroke={color} strokeWidth="1.1" fill="none"/>
+    <path d="M3 15 L6.5 11 L10 15" stroke={color} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    {/* Right tower */}
+    <rect x="31" y="15" width="5" height="7" fill={color} opacity="0.08"/>
+    <path d="M31 22 L31 15 L36 15 L36 22" stroke={color} strokeWidth="1.1" fill="none"/>
+    <path d="M30 15 L33.5 11 L37 15" stroke={color} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    {/* Windows */}
+    <circle cx="6.5" cy="18" r="0.8" fill={color} opacity="0.4"/>
+    <circle cx="33.5" cy="18" r="0.8" fill={color} opacity="0.4"/>
+    <circle cx="20" cy="14" r="1" fill={color} opacity="0.4"/>
+  </svg>
+);
+
+const MapIconTown = ({ size=28, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Small town — cluster of buildings with a church spire */}
+    {/* Main building left */}
+    <rect x="6" y="20" width="8" height="10" fill={color} opacity="0.08"/>
+    <path d="M6 30 L6 20 L14 20 L14 30" stroke={color} strokeWidth="1.2" fill="none"/>
+    <path d="M5 20 L10 15 L15 20" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    {/* Church/tall building center */}
+    <rect x="14" y="16" width="7" height="14" fill={color} opacity="0.08"/>
+    <path d="M14 30 L14 16 L21 16 L21 30" stroke={color} strokeWidth="1.2" fill="none"/>
+    <path d="M13 16 L17.5 9 L22 16" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <line x1="17.5" y1="9" x2="17.5" y2="6" stroke={color} strokeWidth="0.8"/>
+    <circle cx="17.5" cy="5.5" r="1" stroke={color} strokeWidth="0.7" fill="none"/>
+    {/* Small building right */}
+    <rect x="21" y="22" width="7" height="8" fill={color} opacity="0.08"/>
+    <path d="M21 30 L21 22 L28 22 L28 30" stroke={color} strokeWidth="1.2" fill="none"/>
+    <path d="M20 22 L24.5 18 L29 22" stroke={color} strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    {/* Windows */}
+    <rect x="8" y="23" width="2" height="2.5" rx="0.3" stroke={color} strokeWidth="0.6" fill="none" opacity="0.5"/>
+    <rect x="16" y="20" width="2" height="2.5" rx="0.3" stroke={color} strokeWidth="0.6" fill="none" opacity="0.5"/>
+    <rect x="23" y="25" width="2" height="2" rx="0.3" stroke={color} strokeWidth="0.6" fill="none" opacity="0.5"/>
+    {/* Ground */}
+    <path d="M2 30 Q18 29, 34 30" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.35"/>
+  </svg>
+);
+
+const MapIconHamlet = ({ size=24, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Tiny village — 2 small houses */}
+    <rect x="4" y="16" width="7" height="7" fill={color} opacity="0.08"/>
+    <path d="M4 23 L4 16 L11 16 L11 23" stroke={color} strokeWidth="1.1" fill="none"/>
+    <path d="M3 16 L7.5 12 L12 16" stroke={color} strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <rect x="14" y="18" width="6" height="5" fill={color} opacity="0.06"/>
+    <path d="M14 23 L14 18 L20 18 L20 23" stroke={color} strokeWidth="1" fill="none"/>
+    <path d="M13 18 L17 15 L21 18" stroke={color} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    {/* Smoke wisps */}
+    <path d="M7.5 12 Q7 10, 8 8 Q7.5 6, 8.5 5" stroke={color} strokeWidth="0.6" strokeLinecap="round" fill="none" opacity="0.3"/>
+    {/* Ground */}
+    <path d="M1 23 Q14 22, 27 23" stroke={color} strokeWidth="0.8" strokeLinecap="round" fill="none" opacity="0.3"/>
+  </svg>
+);
+
+const MapIconKingdom = ({ size=36, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Grand capital — large castle with crown motif */}
+    {/* Base wall */}
+    <rect x="5" y="25" width="34" height="12" rx="1" fill={color} opacity="0.08"/>
+    <path d="M5 25 L5 37 L39 37 L39 25" stroke={color} strokeWidth="1.3" fill="none"/>
+    {/* Battlements */}
+    <path d="M5 25 L5 23 L8 23 L8 25 L10 25 L10 23 L13 23 L13 25 L15 25 L15 23 L18 23 L18 25 L20 25 L20 23 L24 23 L24 25 L26 25 L26 23 L29 23 L29 25 L31 25 L31 23 L34 23 L34 25 L36 25 L36 23 L39 23 L39 25" stroke={color} strokeWidth="1" fill="none"/>
+    {/* Grand gate with arch */}
+    <path d="M18 37 L18 29 Q22 24, 26 29 L26 37" stroke={color} strokeWidth="1.3" fill="none"/>
+    {/* Central grand tower */}
+    <rect x="18" y="12" width="8" height="13" fill={color} opacity="0.1"/>
+    <path d="M18 25 L18 12 L26 12 L26 25" stroke={color} strokeWidth="1.2" fill="none"/>
+    {/* Crown-shaped top on central tower */}
+    <path d="M17 12 L18 8 L20 11 L22 6 L24 11 L26 8 L27 12" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <circle cx="22" cy="5" r="1.2" fill={color} opacity="0.3"/>
+    <circle cx="22" cy="5" r="1.2" stroke={color} strokeWidth="0.7" fill="none"/>
+    {/* Left tower */}
+    <rect x="3" y="17" width="6" height="8" fill={color} opacity="0.08"/>
+    <path d="M3 25 L3 17 L9 17 L9 25" stroke={color} strokeWidth="1.1" fill="none"/>
+    <path d="M2 17 L6 12 L10 17" stroke={color} strokeWidth="1.1" strokeLinecap="round" fill="none"/>
+    <line x1="6" y1="12" x2="6" y2="9" stroke={color} strokeWidth="0.8"/>
+    <path d="M6 9 L9 10.5 L6 12" fill={color} opacity="0.25"/>
+    {/* Right tower */}
+    <rect x="35" y="17" width="6" height="8" fill={color} opacity="0.08"/>
+    <path d="M35 25 L35 17 L41 17 L41 25" stroke={color} strokeWidth="1.1" fill="none"/>
+    <path d="M34 17 L38 12 L42 17" stroke={color} strokeWidth="1.1" strokeLinecap="round" fill="none"/>
+    <line x1="38" y1="12" x2="38" y2="9" stroke={color} strokeWidth="0.8"/>
+    <path d="M38 9 L41 10.5 L38 12" fill={color} opacity="0.25"/>
+    {/* Windows */}
+    <circle cx="6" cy="20" r="0.8" fill={color} opacity="0.4"/>
+    <circle cx="38" cy="20" r="0.8" fill={color} opacity="0.4"/>
+    <circle cx="22" cy="16" r="1.2" fill={color} opacity="0.35"/>
+    <rect x="20" y="19" width="4" height="3" rx="0.3" stroke={color} strokeWidth="0.5" fill="none" opacity="0.3"/>
+  </svg>
+);
+
+const MapIconRuins = ({ size=28, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Crumbling ruins — broken walls and pillars */}
+    {/* Left broken pillar */}
+    <path d="M8 30 L8 14 Q8 12, 9 13 L10 16 L10 30" stroke={color} strokeWidth="1.2" fill="none"/>
+    <path d="M7 14 L11 12 L11 14" stroke={color} strokeWidth="0.8" fill="none" opacity="0.6"/>
+    {/* Center broken wall */}
+    <path d="M14 30 L14 18 L16 16 L18 19 L19 17 L21 20 L22 18 L23 30" stroke={color} strokeWidth="1.2" fill="none"/>
+    <path d="M14 18 L14 30 L23 30 L23 18" fill={color} opacity="0.06"/>
+    {/* Right tall broken pillar */}
+    <path d="M27 30 L27 10 L29 10 L29 30" stroke={color} strokeWidth="1.1" fill="none"/>
+    <path d="M26 10 L28 7 L30 10" stroke={color} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
+    {/* Scattered rubble */}
+    <circle cx="12" cy="29" r="1.2" stroke={color} strokeWidth="0.7" fill={color} opacity="0.15"/>
+    <circle cx="25" cy="29.5" r="0.8" stroke={color} strokeWidth="0.6" fill={color} opacity="0.12"/>
+    <rect x="16" y="28" width="2" height="1.5" rx="0.3" stroke={color} strokeWidth="0.5" fill="none" opacity="0.4" transform="rotate(-12 17 28.5)"/>
+    {/* Cracks in wall */}
+    <path d="M17 22 L18 25 L16 27" stroke={color} strokeWidth="0.5" opacity="0.3" fill="none"/>
+    <path d="M20 21 L19 24" stroke={color} strokeWidth="0.5" opacity="0.3" fill="none"/>
+    {/* Ground */}
+    <path d="M3 30 Q18 29, 33 30" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.35"/>
+    {/* Overgrown vine */}
+    <path d="M27 20 Q30 18, 31 20 Q32 22, 30 23" stroke={color} strokeWidth="0.6" opacity="0.3" fill="none"/>
+  </svg>
+);
+
+const MapIconDungeon = ({ size=28, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Cave/dungeon entrance in hillside */}
+    {/* Hill mound */}
+    <path d="M2 30 Q6 18, 18 14 Q30 18, 34 30" fill={color} opacity="0.08"/>
+    <path d="M2 30 Q6 18, 18 14 Q30 18, 34 30" stroke={color} strokeWidth="1.3" strokeLinecap="round" fill="none"/>
+    {/* Dark cave opening */}
+    <path d="M12 30 Q12 22, 18 20 Q24 22, 24 30" fill={color} opacity="0.25"/>
+    <path d="M12 30 Q12 22, 18 20 Q24 22, 24 30" stroke={color} strokeWidth="1.3" strokeLinecap="round" fill="none"/>
+    {/* Stalactites */}
+    <path d="M14 22 L14.5 25" stroke={color} strokeWidth="0.7" strokeLinecap="round" opacity="0.5"/>
+    <path d="M17 20.5 L17 24" stroke={color} strokeWidth="0.7" strokeLinecap="round" opacity="0.5"/>
+    <path d="M21 21 L20.5 24" stroke={color} strokeWidth="0.7" strokeLinecap="round" opacity="0.5"/>
+    {/* Skull warning */}
+    <circle cx="18" cy="27" r="2" stroke={color} strokeWidth="0.8" fill="none" opacity="0.4"/>
+    <circle cx="17" cy="26.5" r="0.5" fill={color} opacity="0.4"/>
+    <circle cx="19" cy="26.5" r="0.5" fill={color} opacity="0.4"/>
+    {/* Rocks */}
+    <circle cx="10" cy="28" r="1.5" stroke={color} strokeWidth="0.7" fill="none" opacity="0.3"/>
+    <circle cx="26" cy="28" r="1" stroke={color} strokeWidth="0.6" fill="none" opacity="0.3"/>
+    {/* Ground */}
+    <path d="M1 30 Q18 29, 35 30" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.35"/>
+  </svg>
+);
+
+const MapIconRoute = ({ size=24, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Winding road with signpost */}
+    <path d="M6 28 Q10 22, 16 20 Q22 18, 20 12 Q18 8, 22 4" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeDasharray="4 3" fill="none" opacity="0.5"/>
+    {/* Signpost */}
+    <line x1="16" y1="14" x2="16" y2="22" stroke={color} strokeWidth="1.3" strokeLinecap="round"/>
+    <path d="M16 14 L22 13 L22 16 L16 17" stroke={color} strokeWidth="1" fill={color} opacity="0.12"/>
+    <path d="M16 14 L22 13 L22 16 L16 17" stroke={color} strokeWidth="1" fill="none"/>
+    <path d="M16 16 L11 15.5 L11 18 L16 18.5" stroke={color} strokeWidth="0.9" fill={color} opacity="0.08"/>
+    <path d="M16 16 L11 15.5 L11 18 L16 18.5" stroke={color} strokeWidth="0.9" fill="none" opacity="0.7"/>
+  </svg>
+);
+
+const MapIconCastle = ({ size=28, color="currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Fortified castle on a hill */}
+    {/* Hill */}
+    <path d="M3 32 Q10 26, 18 25 Q26 26, 33 32" fill={color} opacity="0.06"/>
+    <path d="M3 32 Q10 26, 18 25 Q26 26, 33 32" stroke={color} strokeWidth="1" fill="none" opacity="0.4"/>
+    {/* Main wall */}
+    <path d="M8 25 L8 17 L28 17 L28 25" stroke={color} strokeWidth="1.2" fill="none"/>
+    <rect x="8" y="17" width="20" height="8" fill={color} opacity="0.08"/>
+    {/* Battlements */}
+    <path d="M8 17 L8 15.5 L10 15.5 L10 17 L12 17 L12 15.5 L14 15.5 L14 17 L16 17 L16 15.5 L20 15.5 L20 17 L22 17 L22 15.5 L24 15.5 L24 17 L26 17 L26 15.5 L28 15.5 L28 17" stroke={color} strokeWidth="0.9" fill="none"/>
+    {/* Central tower */}
+    <path d="M15 17 L15 9 L21 9 L21 17" stroke={color} strokeWidth="1.1" fill="none"/>
+    <rect x="15" y="9" width="6" height="8" fill={color} opacity="0.08"/>
+    <path d="M14 9 L18 5 L22 9" stroke={color} strokeWidth="1.1" strokeLinecap="round" fill="none"/>
+    {/* Flag */}
+    <line x1="18" y1="5" x2="18" y2="2" stroke={color} strokeWidth="0.7"/>
+    <path d="M18 2 L21 3 L18 4" fill={color} opacity="0.3"/>
+    {/* Gate */}
+    <path d="M16 25 L16 21 Q18 19, 20 21 L20 25" stroke={color} strokeWidth="1" fill="none"/>
+  </svg>
+);
+
+/* Map of region type → fantasy icon component */
+const FANTASY_ICONS = {
+  city: MapIconCity,
+  town: MapIconTown,
+  hamlet: MapIconHamlet,
+  kingdom: MapIconKingdom,
+  capital: MapIconKingdom,
+  wilderness: MapIconMountain,
+  mountain: MapIconMountain,
+  forest: MapIconForest,
+  dungeon: MapIconDungeon,
+  ruins: MapIconRuins,
+  castle: MapIconCastle,
+  route: MapIconRoute,
+  cave: MapIconDungeon,
+  shrine: MapIconRuins,
+  tower: MapIconCastle,
+  grove: MapIconForest,
+  monolith: MapIconRuins,
+};
+
+const getFantasyIcon = (type) => FANTASY_ICONS[type] || MapIconRoute;
+
 // ─── DICE ROLLER ────────────────────────────────────────────────────────────
 
 function DiceRoller() {
@@ -1343,9 +1634,24 @@ function TimelineView({ data, setData }) {
 function WorldView({ data, setData }) {
   const [sel,setSel] = useState(null);
   const [selType,setSelType] = useState(null);
-  const [tab,setTab] = useState("regions");
+  const [tab,setTab] = useState("map");
   const [editing,setEditing] = useState(false);
   const [addingEntity,setAddingEntity] = useState(false);
+
+  // ── Map state — starts zoomed out to see the whole continent ──
+  const [mapZoom, setMapZoom] = useState(0.25);
+  const [mapPan, setMapPan] = useState({ x: 60, y: 30 });
+  const [dragging, setDragging] = useState(null);
+  const mapRef = useRef(null);
+  const [zoomLevel, setZoomLevel] = useState("continent"); // continent | kingdom | local | detail
+
+  // Update zoom level label
+  useEffect(() => {
+    if (mapZoom < 0.6) setZoomLevel("continent");
+    else if (mapZoom < 1.5) setZoomLevel("kingdom");
+    else if (mapZoom < 3.0) setZoomLevel("local");
+    else setZoomLevel("detail");
+  }, [mapZoom]);
 
   const conns = (type,ent) => {
     const c=[];
@@ -1354,8 +1660,214 @@ function WorldView({ data, setData }) {
     else if(type==="npc"){ if(ent.faction){const f=data.factions.find(f=>f.name===ent.faction); if(f) c.push({type:"faction",e:f,label:"Member of"});} const r=data.regions.find(r=>r.name===ent.loc); if(r) c.push({type:"region",e:r,label:"Located in"}); }
     return c;
   };
-  const rIcons = { city:Castle, town:Castle, wilderness:Mountain, dungeon:Skull, route:MapPin };
   const tCols = { low:"#6fcf97", medium:"#d4a843", high:"#d97706", extreme:T.crimson };
+
+  // ── Continental map — 6000×4500 world ──
+  const MAP_W = 6000, MAP_H = 4500;
+
+  // Deterministic hash seed
+  const seed = useCallback((s) => { let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return h; }, []);
+  const seedF = useCallback((x,y,i) => { const v = Math.sin(x*12.9898+y*78.233+i*43758.5453)*43758.5453; return v - Math.floor(v); }, []);
+
+  // ── Region map positions — spread across the continent ──
+  const regionPositions = useCallback(() => {
+    const pad=400;
+    return data.regions.map((r,i) => {
+      const s = seed(r.name+r.id);
+      const angle = (i / Math.max(data.regions.length,1)) * Math.PI * 2 + (s%100)/200;
+      const dist = 0.2 + (Math.abs(s%400)/700);
+      // Kingdoms/capitals get more central placement, hamlets/dungeons get pushed outward
+      const centralBias = (r.type==="kingdom"||r.type==="capital"||r.type==="city") ? 0.6 : 1.0;
+      const x = Math.round(MAP_W/2 + Math.cos(angle) * (MAP_W/2 - pad) * dist * centralBias);
+      const y = Math.round(MAP_H/2 + Math.sin(angle) * (MAP_H/2 - pad) * dist * centralBias);
+      return { ...r, mx: Math.max(pad, Math.min(MAP_W-pad, x)), my: Math.max(pad, Math.min(MAP_H-pad, y)) };
+    });
+  }, [data.regions, seed]);
+
+  const mapRegions = regionPositions();
+
+  // ── Procedural POIs (dungeons, ruins, shrines, caves scattered across the world) ──
+  const worldPOIs = useCallback(() => {
+    const pois = [];
+    const types = ["dungeon","ruins","dungeon","ruins","cave","shrine","cave","tower","grove","monolith"];
+    const names = ["Darkhollow Crypt","Shattered Pillar","The Sunken Vault","Serpent's Den","Whispering Grotto",
+      "Moonlit Shrine","Dragon's Maw Cave","Old Watchtower","The Twisted Grove","The Standing Stone",
+      "Tomb of the Forgotten","Crumbling Bastion","The Bone Pit","Iron Gate Ruins","Crystalvein Cavern",
+      "Stormbreak Spire","The Withered Oak","Ancestor's Cairn","Wraithwood Hollow","The Ember Forge",
+      "Tidal Caves","Blightmoor Ruins","Gnarled Root Temple","Shadowpeak Mine","The Silent Obelisk",
+      "Windscour Heights","Blackwater Grotto","Duskfall Sanctum","The Petrified Circle","Ironmaw Depths",
+      "Thornkeep Ruins","Mistwalker's Shrine","The Frozen Barrow","Starfall Crater","Ashveil Catacombs"];
+    for (let i=0; i<35; i++) {
+      const a = seedF(i,7,3)*Math.PI*2;
+      const d = 600 + seedF(i,11,5)*1800;
+      const x = Math.round(MAP_W/2 + Math.cos(a)*d + seedF(i,3,1)*400-200);
+      const y = Math.round(MAP_H/2 + Math.sin(a)*d*0.75 + seedF(i,5,2)*300-150);
+      if(x>200 && x<MAP_W-200 && y>200 && y<MAP_H-200) {
+        const threat = ["low","medium","high","extreme"][Math.floor(seedF(i,9,4)*4)];
+        pois.push({ id:`poi-${i}`, name:names[i%names.length], type:types[i%types.length], x:Math.max(300,Math.min(MAP_W-300,x)), y:Math.max(300,Math.min(MAP_H-300,y)), threat });
+      }
+    }
+    return pois;
+  }, [seedF]);
+
+  const pois = worldPOIs();
+
+  // ── Roads: connect regions by faction, proximity, and type — with major/minor classifications ──
+  const roads = useCallback(() => {
+    const rs = [];
+    const mr = mapRegions;
+    for (let i=0; i<mr.length; i++) {
+      for (let j=i+1; j<mr.length; j++) {
+        const a = mr[i], b = mr[j];
+        const shareCtrl = a.ctrl && b.ctrl && a.ctrl === b.ctrl;
+        const questLink = data.quests.some(q => (q.region===a.name && data.factions.some(f=>f.name===q.faction && data.regions.some(r2=>r2.ctrl===f.name && r2.name===b.name))) || (q.region===b.name && data.factions.some(f=>f.name===q.faction && data.regions.some(r2=>r2.ctrl===f.name && r2.name===a.name))));
+        const isRoute = a.type==="route" || b.type==="route";
+        const dist = Math.hypot(a.mx-b.mx, a.my-b.my);
+        const isMajor = (a.type==="city"||a.type==="kingdom"||a.type==="capital") && (b.type==="city"||b.type==="kingdom"||b.type==="capital");
+        if (shareCtrl || questLink || isRoute || dist < 1200) {
+          // Multi-segment organic curved path for longer roads
+          const segs = dist > 800 ? 3 : dist > 400 ? 2 : 1;
+          let path = `M${a.mx},${a.my}`;
+          for (let s=0; s<segs; s++) {
+            const t1 = (s+0.5)/segs, t2 = (s+1)/segs;
+            const cx = a.mx + (b.mx-a.mx)*t1 + Math.sin(a.mx*0.007+b.my*0.011+s*2)*80*(dist/800);
+            const cy = a.my + (b.my-a.my)*t1 + Math.cos(a.my*0.009+b.mx*0.013+s*3)*60*(dist/800);
+            const ex = a.mx + (b.mx-a.mx)*t2;
+            const ey = a.my + (b.my-a.my)*t2;
+            path += ` Q${Math.round(cx)},${Math.round(cy)} ${Math.round(ex)},${Math.round(ey)}`;
+          }
+          rs.push({ from:a, to:b, path, dist, major:isMajor||shareCtrl });
+        }
+      }
+    }
+    return rs;
+  }, [mapRegions, data.quests, data.factions, data.regions]);
+
+  // ── Zoom / Pan handlers — wider range for continental zoom (0.15x to 8x) ──
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    const rect = mapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    // Proportional zoom speed — faster at high zoom, slower at low zoom
+    const factor = e.deltaY > 0 ? 0.88 : 1.14;
+    const newZoom = Math.max(0.12, Math.min(8, mapZoom * factor));
+    const ratio = newZoom / mapZoom;
+    setMapPan(p => ({ x: mx - (mx - p.x) * ratio, y: my - (my - p.y) * ratio }));
+    setMapZoom(newZoom);
+  }, [mapZoom]);
+
+  const handleMouseDown = useCallback((e) => {
+    if (e.button !== 0) return;
+    setDragging({ startX: e.clientX, startY: e.clientY, panX: mapPan.x, panY: mapPan.y });
+  }, [mapPan]);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!dragging) return;
+    setMapPan({ x: dragging.panX + (e.clientX - dragging.startX), y: dragging.panY + (e.clientY - dragging.startY) });
+  }, [dragging]);
+
+  const handleMouseUp = useCallback(() => setDragging(null), []);
+
+  const selectRegion = (r) => { setSel(r); setSelType("region"); setEditing(false); };
+
+  // ── Continental terrain generation — mountain ranges, forests, hills ──
+  const terrainFeatures = useCallback(() => {
+    const features = [];
+    // Large mountain ranges spanning the continent
+    const mtRanges = [
+      { cx:800, cy:600, spread:500, count:22, dir:0.3 },
+      { cx:4200, cy:900, spread:450, count:20, dir:-0.4 },
+      { cx:2800, cy:400, spread:600, count:28, dir:0.1 },
+      { cx:1200, cy:3200, spread:400, count:16, dir:0.6 },
+      { cx:4800, cy:2800, spread:350, count:14, dir:-0.2 },
+      { cx:3000, cy:2200, spread:300, count:12, dir:0.5 },
+      { cx:5200, cy:1600, spread:280, count:10, dir:-0.1 },
+      { cx:600, cy:2000, spread:250, count:9, dir:0.8 },
+    ];
+    mtRanges.forEach((range,ri) => {
+      for(let i=0;i<range.count;i++){
+        // Elongated ranges — mountains follow a directional line
+        const t = (i/range.count - 0.5) * 2;
+        const baseX = range.cx + Math.cos(range.dir)*t*range.spread;
+        const baseY = range.cy + Math.sin(range.dir)*t*range.spread*0.6;
+        const x = baseX + seedF(ri,i,1)*100-50;
+        const y = baseY + seedF(ri,i,2)*70-35;
+        const s = 0.7 + seedF(ri,i,3)*1.0;
+        features.push({ type:"mountain", x, y, scale:s, key:`mt-${ri}-${i}` });
+      }
+    });
+    // Dense forest clusters
+    const forests = [
+      { cx:1800, cy:1600, spread:400, count:28 },
+      { cx:600, cy:1500, spread:300, count:20 },
+      { cx:3800, cy:2400, spread:350, count:24 },
+      { cx:3200, cy:1000, spread:250, count:16 },
+      { cx:1000, cy:800, spread:280, count:18 },
+      { cx:5000, cy:800, spread:220, count:14 },
+      { cx:2200, cy:3400, spread:300, count:20 },
+      { cx:4400, cy:3600, spread:260, count:16 },
+      { cx:1400, cy:2600, spread:200, count:12 },
+      { cx:3600, cy:600, spread:180, count:10 },
+      { cx:5400, cy:2200, spread:200, count:12 },
+      { cx:800, cy:3800, spread:240, count:15 },
+    ];
+    forests.forEach((f,fi) => {
+      for(let i=0;i<f.count;i++){
+        const a = (i/f.count)*Math.PI*2 + seedF(fi,i,5)*0.6;
+        const d = f.spread * (0.15 + seedF(fi,i,4)*0.85);
+        const x = f.cx + Math.cos(a)*d + seedF(fi,i,6)*60-30;
+        const y = f.cy + Math.sin(a)*d + seedF(fi,i,7)*50-25;
+        const s = 0.5 + seedF(fi,i,8)*0.7;
+        features.push({ type:"tree", x, y, scale:s, key:`tr-${fi}-${i}` });
+      }
+    });
+    // Scattered small hills (visible at medium zoom)
+    for(let i=0;i<60;i++){
+      const x = 400 + seedF(i,20,1)*(MAP_W-800);
+      const y = 400 + seedF(i,20,2)*(MAP_H-800);
+      features.push({ type:"hill", x, y, scale:0.4+seedF(i,20,3)*0.4, key:`hill-${i}` });
+    }
+    return features;
+  }, [seedF]);
+
+  const terrain = terrainFeatures();
+
+  // ── Kingdom territory polygons (convex hulls of faction-controlled regions) ──
+  const territories = useCallback(() => {
+    const factionRegions = {};
+    mapRegions.forEach(r => {
+      if(r.ctrl) {
+        if(!factionRegions[r.ctrl]) factionRegions[r.ctrl] = [];
+        factionRegions[r.ctrl].push(r);
+      }
+    });
+    const results = [];
+    Object.entries(factionRegions).forEach(([fName, regs]) => {
+      if(regs.length < 2) return;
+      const faction = data.factions.find(f=>f.name===fName);
+      if(!faction) return;
+      // Simple convex hull approximation: sort by angle from centroid
+      const cx = regs.reduce((s,r)=>s+r.mx,0)/regs.length;
+      const cy = regs.reduce((s,r)=>s+r.my,0)/regs.length;
+      const sorted = [...regs].sort((a,b) => Math.atan2(a.my-cy,a.mx-cx) - Math.atan2(b.my-cy,b.mx-cx));
+      // Expand outward for territory border
+      const points = sorted.map(r => {
+        const dx = r.mx-cx, dy = r.my-cy;
+        const d = Math.hypot(dx,dy) || 1;
+        return { x: r.mx + (dx/d)*180, y: r.my + (dy/d)*140 };
+      });
+      const path = points.map((p,i) => {
+        if(i===0) return `M${Math.round(p.x)},${Math.round(p.y)}`;
+        const prev = points[(i-1+points.length)%points.length];
+        const cpx = (prev.x+p.x)/2 + (Math.sin(i*1.5)*40);
+        const cpy = (prev.y+p.y)/2 + (Math.cos(i*1.7)*30);
+        return `Q${Math.round(cpx)},${Math.round(cpy)} ${Math.round(p.x)},${Math.round(p.y)}`;
+      }).join(" ") + "Z";
+      results.push({ faction:fName, color:faction.color, path });
+    });
+    return results;
+  }, [mapRegions, data.factions]);
 
   const updateFaction = (id, updates) => {
     setData(d=>({...d, factions:d.factions.map(f=>f.id===id?{...f,...updates}:f)}));
@@ -1377,197 +1889,475 @@ function WorldView({ data, setData }) {
     setAddingEntity(false);
   };
 
+  // ── Inline SVG terrain renderers for the map ──
+  const MtnSvg = ({ x, y, s }) => (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <path d="M0,0 L-18,-35 Q-15,-42,-8,-40 L0,-50 L8,-40 Q15,-42,18,-35 L0,0Z" fill="var(--text-faint)" opacity="0.12" stroke="var(--text-faint)" strokeWidth="1.2"/>
+      <path d="M0,-50 L-5,-38 L-2,-40 L0,-45 L2,-40 L5,-38 L0,-50Z" fill="var(--text-muted)" opacity="0.18"/>
+      <path d="M-6,-30 Q-3,-36,0,-50" stroke="var(--text-faint)" strokeWidth="0.5" opacity="0.2" fill="none"/>
+    </g>
+  );
+  const TreeSvg = ({ x, y, s }) => (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <line x1="0" y1="0" x2="0" y2="-12" stroke="var(--text-faint)" strokeWidth="1.5" opacity="0.5"/>
+      <path d="M0,-30 C-8,-30,-14,-24,-13,-18 C-16,-17,-15,-12,-12,-11 C-13,-8,-9,-5,-5,-6 C-4,-3,4,-3,5,-6 C9,-5,13,-8,12,-11 C15,-12,16,-17,13,-18 C14,-24,8,-30,0,-30Z" fill="var(--text-faint)" opacity="0.1" stroke="var(--text-faint)" strokeWidth="0.9"/>
+    </g>
+  );
+  const HillSvg = ({ x, y, s }) => (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <path d="M-20,0 Q-10,-18 0,-22 Q10,-18 20,0Z" fill="var(--text-faint)" opacity="0.06" stroke="var(--text-faint)" strokeWidth="0.6" opacity="0.12"/>
+    </g>
+  );
+  // POI icon renderer for scattered world POIs
+  const POISvg = ({ poi, zoom: z }) => {
+    const iconSize = z > 3 ? 28 : 22;
+    const FI = FANTASY_ICONS[poi.type] || MapIconRuins;
+    const threatCol = tCols[poi.threat] || "var(--text-muted)";
+    return (
+      <g style={{ cursor:"pointer" }} onClick={(e)=>{e.stopPropagation();setSel({...poi,id:poi.id});setSelType("poi");}}>
+        <g transform={`translate(${poi.x - iconSize/2},${poi.y - iconSize/2})`}>
+          <FI size={iconSize} color={threatCol} />
+        </g>
+        {z > 2.5 && <text x={poi.x} y={poi.y+18} textAnchor="middle" fill="var(--text-muted)" fontFamily="'Spectral', serif" fontSize="8" fontStyle="italic" opacity="0.7" style={{pointerEvents:"none"}}>{poi.name}</text>}
+      </g>
+    );
+  };
+
+  const roadList = roads();
+
   return (
-    <div style={{ display:"grid", gridTemplateColumns:"1fr 360px", gap:24, padding:"32px 56px", height:"calc(100vh - 56px)" }}>
-      <div style={{ overflowY:"auto" }}>
-        <div style={{ display:"flex", alignItems:"flex-start", gap:20, marginBottom:28, paddingBottom:20, borderBottom:`1px solid ${T.border}` }}>
-          <div style={{ fontSize:42, color:T.text, fontWeight:300 }}>World State</div>
-          <div style={{ display:"flex", gap:0, marginTop:12 }}>
-            {["regions","factions","npcs"].map(t => (
-              <button key={t} onClick={()=>{setTab(t);setSel(null);setEditing(false);}} style={{
-                padding:"16px 32px", background:"transparent", border:"none", cursor:"pointer",
-                fontFamily:T.ui, fontSize:10, letterSpacing:"2px", textTransform:"uppercase", fontWeight:500,
-                color:tab===t?T.crimson:T.textMuted, position:"relative", transition:"all 0.3s",
-                borderBottom:tab===t?`3px solid ${T.crimson}`:"3px solid transparent",
-              }}>{t}</button>
-            ))}
-          </div>
-          <div style={{ marginLeft:"auto", marginTop:12 }}>
-            <CrimsonBtn onClick={()=>setAddingEntity(true)} small><Plus size={11}/> Add</CrimsonBtn>
-          </div>
+    <div style={{ display:"flex", flexDirection:"column", height:"calc(100vh - 56px)", overflow:"hidden" }}>
+      {/* Top bar */}
+      <div style={{ display:"flex", alignItems:"center", gap:0, padding:"0 24px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:T.bgNav }}>
+        {["map","regions","factions","npcs"].map(t => (
+          <button key={t} onClick={()=>{setTab(t);if(t!=="map"){setSel(null);setEditing(false);}}} style={{
+            padding:"14px 24px", background:"transparent", border:"none", cursor:"pointer",
+            fontFamily:T.ui, fontSize:9, letterSpacing:"2px", textTransform:"uppercase", fontWeight:500,
+            color:tab===t?T.crimson:T.textMuted, transition:"all 0.3s",
+            borderBottom:tab===t?`2px solid ${T.crimson}`:"2px solid transparent",
+          }}>{t==="map"?"Fantasy Map":t}</button>
+        ))}
+        <div style={{ marginLeft:"auto", display:"flex", gap:8, alignItems:"center" }}>
+          {tab==="map" && <>
+            <span style={{ fontFamily:T.ui, fontSize:8, color:T.crimson, letterSpacing:"1px", fontWeight:500 }}>{zoomLevel.toUpperCase()}</span>
+            <span style={{ fontFamily:T.ui, fontSize:8, color:T.textMuted, letterSpacing:"1px" }}>{Math.round(mapZoom*100)}%</span>
+            <button onClick={()=>setMapZoom(z=>Math.min(8,z*1.3))} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontSize:13, cursor:"pointer", borderRadius:"2px" }}>+</button>
+            <button onClick={()=>setMapZoom(z=>Math.max(0.12,z*0.77))} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontSize:13, cursor:"pointer", borderRadius:"2px" }}>−</button>
+            <button onClick={()=>{setMapZoom(0.25);setMapPan({x:60,y:30});}} style={{ padding:"4px 10px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", borderRadius:"2px" }}>Continent</button>
+            <button onClick={()=>{setMapZoom(1);setMapPan({x:-1200,y:-800});}} style={{ padding:"4px 10px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", borderRadius:"2px" }}>Kingdom</button>
+            <button onClick={()=>{setMapZoom(2.5);setMapPan({x:-4500,y:-3200});}} style={{ padding:"4px 10px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", borderRadius:"2px" }}>Local</button>
+          </>}
+          <CrimsonBtn onClick={()=>setAddingEntity(true)} small><Plus size={11}/> Add</CrimsonBtn>
         </div>
-
-        {tab==="regions" && (
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
-            {data.regions.map(r => {
-              const Icon=rIcons[r.type]||MapPin; const active=sel?.id===r.id&&selType==="region";
-              return (
-                <div key={r.id} onClick={()=>{setSel(r);setSelType("region");setEditing(false);}} style={{
-                  background:active?T.bgHover:T.bgCard, padding:20, cursor:"pointer",
-                  border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
-                  boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
-                }}>
-                  <div style={{ display:"flex", alignItems:"start", gap:10 }}>
-                    <Icon size={16} color={tCols[r.threat]} style={{marginTop:2}} />
-                    <div>
-                      <div style={{ fontSize:15, fontWeight:300, color:T.text, marginBottom:8 }}>{r.name}</div>
-                      <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:8 }}>
-                        <Tag variant={r.threat==="extreme"?"critical":r.threat==="high"?"danger":r.threat==="medium"?"warning":"success"}>{r.threat}</Tag>
-                        <Tag variant="muted">{r.type}</Tag>
-                        {r.visited && <Tag variant="info">visited</Tag>}
-                      </div>
-                      <div style={{ fontSize:12, color:T.textMuted, fontWeight:300 }}>{r.ctrl} — <span style={{fontStyle:"italic"}}>{r.state}</span></div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {tab==="factions" && (
-          <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-            {data.factions.map(f => {
-              const active=sel?.id===f.id&&selType==="faction";
-              return (
-                <div key={f.id} onClick={()=>{setSel(f);setSelType("faction");setEditing(false);}} style={{
-                  background:active?T.bgHover:T.bgCard, padding:24, cursor:"pointer",
-                  border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
-                  borderLeft:`4px solid ${f.color}`, boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
-                }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
-                    <span style={{ fontSize:18, fontWeight:300, color:T.text }}>{f.name}</span>
-                    <Tag variant={f.attitude==="allied"||f.attitude==="friendly"?"success":f.attitude==="hostile"?"danger":"muted"}>{f.attitude}</Tag>
-                    {f.trend==="rising"?<TrendingUp size={12} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={12} color="#6fcf97"/>:<Minus size={12} color={T.textFaint}/>}
-                  </div>
-                  <p style={{ fontSize:13, color:T.textDim, margin:"0 0 10px", fontWeight:300, fontStyle:"italic" }}>{f.desc}</p>
-                  <div style={{ display:"flex", alignItems:"center", gap:10, maxWidth:300 }}>
-                    <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1.5px" }}>PWR</span>
-                    <div style={{flex:1}}><PowerBar val={f.power} max={100} color={f.color}/></div>
-                    <span style={{ fontSize:12, color:T.textMuted }}>{f.power}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {tab==="npcs" && (
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
-            {data.npcs.map(n => {
-              const active=sel?.id===n.id&&selType==="npc";
-              return (
-                <div key={n.id} onClick={()=>{setSel(n);setSelType("npc");setEditing(false);}} style={{
-                  background:active?T.bgHover:T.bgCard, padding:20, cursor:"pointer", opacity:n.alive?1:0.45,
-                  border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
-                  boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
-                }}>
-                  <div style={{ display:"flex", alignItems:"start", gap:10 }}>
-                    {n.alive?<Users size={14} color={T.textFaint}/>:<Skull size={14} color={T.crimson}/>}
-                    <div>
-                      <div style={{ fontSize:15, fontWeight:300, color:T.text, marginBottom:4 }}>{n.name}</div>
-                      <div style={{ fontSize:12, color:T.textFaint, marginBottom:8, fontStyle:"italic", fontWeight:300 }}>{n.role} — {n.loc}</div>
-                      <div style={{ display:"flex", gap:4, flexWrap:"wrap" }}>
-                        <Tag variant={n.attitude==="allied"||n.attitude==="friendly"?"success":n.attitude==="hostile"?"danger":n.attitude==="cautious"?"warning":"muted"}>{n.attitude}</Tag>
-                        {n.faction && <Tag variant="muted">{n.faction}</Tag>}
-                        {!n.alive && <Tag variant="danger">deceased</Tag>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
 
-      {/* Connections + Edit Panel */}
-      <div style={{ overflowY:"auto" }}>
-        {sel ? (
-          <Section style={{ position:"sticky", top:0 }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-              <div style={{ fontSize:21, color:T.text, fontWeight:300 }}>{sel.name}</div>
-              <div style={{ display:"flex", gap:6 }}>
-                <button onClick={()=>setEditing(!editing)} style={{ background:"none", border:"none", cursor:"pointer", color:editing?T.crimson:T.textFaint }}><Edit3 size={14}/></button>
-                <button onClick={()=>setSel(null)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint }}><X size={14}/></button>
+      <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
+        {/* ══════════ FANTASY MAP TAB — Multi-scale continental map ══════════ */}
+        {tab==="map" && (
+          <div ref={mapRef} style={{ flex:1, overflow:"hidden", cursor:dragging?"grabbing":"grab", position:"relative", background:T.bg }}
+            onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
+            onWheel={handleWheel}>
+            <svg width="100%" height="100%" style={{ display:"block" }}>
+              <defs>
+                {/* Parchment texture filter */}
+                <filter id="parchment">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="5" result="noise"/>
+                  <feDiffuseLighting in="noise" lightingColor="var(--bg-card)" surfaceScale="1.2" result="lit"><feDistantLight azimuth="45" elevation="55"/></feDiffuseLighting>
+                  <feComposite in="SourceGraphic" in2="lit" operator="arithmetic" k1="0.7" k2="0.35" k3="0" k4="0"/>
+                </filter>
+                {/* Water pattern */}
+                <pattern id="waterPat" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+                  <path d="M0,40 Q20,35 40,40 Q60,45 80,40" stroke="var(--crimson-border)" strokeWidth="0.5" fill="none" opacity="0.25"/>
+                  <path d="M0,55 Q20,50 40,55 Q60,60 80,55" stroke="var(--crimson-border)" strokeWidth="0.3" fill="none" opacity="0.15"/>
+                  <path d="M0,25 Q20,20 40,25 Q60,30 80,25" stroke="var(--crimson-border)" strokeWidth="0.3" fill="none" opacity="0.12"/>
+                </pattern>
+                {/* Glow for cities */}
+                <filter id="cityGlow">
+                  <feGaussianBlur stdDeviation="4" result="blur"/>
+                  <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                </filter>
+              </defs>
+
+              <g transform={`translate(${mapPan.x},${mapPan.y}) scale(${mapZoom})`}>
+                {/* ═══ LAYER 0: Base map — always visible ═══ */}
+                <rect x="0" y="0" width={MAP_W} height={MAP_H} rx="12" fill="var(--bg-card)" stroke="var(--crimson-border)" strokeWidth="3" filter="url(#parchment)"/>
+
+                {/* ═══ LAYER 1: Continental geography — ocean, coastlines, major water ═══ */}
+                {/* Western ocean */}
+                <path d="M0,0 L0,4500 Q300,4200 250,3600 Q180,3000 320,2400 Q250,1800 200,1200 Q300,600 180,0 Z" fill="var(--crimson-soft)" opacity="0.25"/>
+                <path d="M0,0 L0,4500 Q300,4200 250,3600 Q180,3000 320,2400 Q250,1800 200,1200 Q300,600 180,0 Z" fill="url(#waterPat)"/>
+                {/* Eastern ocean */}
+                <path d="M6000,0 L6000,4500 Q5700,4100 5750,3400 Q5800,2700 5680,2000 Q5750,1300 5800,600 Q5700,200 5750,0 Z" fill="var(--crimson-soft)" opacity="0.2"/>
+                <path d="M6000,0 L6000,4500 Q5700,4100 5750,3400 Q5800,2700 5680,2000 Q5750,1300 5800,600 Q5700,200 5750,0 Z" fill="url(#waterPat)"/>
+                {/* Northern sea */}
+                <path d="M0,0 L6000,0 L6000,200 Q5000,350 4000,250 Q3000,400 2000,300 Q1000,380 0,250 Z" fill="var(--crimson-soft)" opacity="0.2"/>
+                <path d="M0,0 L6000,0 L6000,200 Q5000,350 4000,250 Q3000,400 2000,300 Q1000,380 0,250 Z" fill="url(#waterPat)"/>
+                {/* Southern sea */}
+                <path d="M0,4500 L6000,4500 L6000,4250 Q5000,4100 4000,4200 Q3000,4080 2000,4180 Q1000,4100 0,4220 Z" fill="var(--crimson-soft)" opacity="0.2"/>
+                <path d="M0,4500 L6000,4500 L6000,4250 Q5000,4100 4000,4200 Q3000,4080 2000,4180 Q1000,4100 0,4220 Z" fill="url(#waterPat)"/>
+                {/* Inland sea */}
+                <ellipse cx="3000" cy="2000" rx="400" ry="250" fill="var(--crimson-soft)" opacity="0.18"/>
+                <ellipse cx="3000" cy="2000" rx="400" ry="250" fill="url(#waterPat)"/>
+                {/* Large lake */}
+                <ellipse cx="1600" cy="3200" rx="200" ry="140" fill="var(--crimson-soft)" opacity="0.15"/>
+                <ellipse cx="1600" cy="3200" rx="200" ry="140" fill="url(#waterPat)"/>
+                {/* Bay */}
+                <path d="M4800,4500 Q4600,4000 4900,3800 Q5200,3700 5400,4000 Q5600,4300 5500,4500 Z" fill="var(--crimson-soft)" opacity="0.15"/>
+                <path d="M4800,4500 Q4600,4000 4900,3800 Q5200,3700 5400,4000 Q5600,4300 5500,4500 Z" fill="url(#waterPat)"/>
+
+                {/* Major rivers */}
+                <path d="M1800,300 Q1850,600 1700,1000 Q1600,1400 1650,1800 Q1700,2200 1600,2600 Q1550,3000 1600,3200" stroke="var(--crimson-border)" strokeWidth="3" fill="none" opacity="0.3" strokeLinecap="round"/>
+                <path d="M3200,400 Q3100,800 3150,1200 Q3050,1600 3000,2000" stroke="var(--crimson-border)" strokeWidth="2.5" fill="none" opacity="0.25" strokeLinecap="round"/>
+                <path d="M4500,600 Q4400,1000 4500,1400 Q4550,1800 4400,2200 Q4350,2600 4500,3000 Q4600,3400 4500,3800" stroke="var(--crimson-border)" strokeWidth="2.5" fill="none" opacity="0.25" strokeLinecap="round"/>
+                {/* Tributary rivers — visible at kingdom zoom */}
+                {mapZoom > 0.5 && <>
+                  <path d="M1200,1200 Q1400,1300 1650,1400" stroke="var(--crimson-border)" strokeWidth="1.5" fill="none" opacity="0.2" strokeLinecap="round"/>
+                  <path d="M2200,1800 Q2500,1900 3000,2000" stroke="var(--crimson-border)" strokeWidth="1.5" fill="none" opacity="0.18" strokeLinecap="round"/>
+                  <path d="M3800,1200 Q3600,1400 3150,1600" stroke="var(--crimson-border)" strokeWidth="1.2" fill="none" opacity="0.15" strokeLinecap="round"/>
+                  <path d="M5200,2000 Q4900,2100 4500,2200" stroke="var(--crimson-border)" strokeWidth="1.2" fill="none" opacity="0.15" strokeLinecap="round"/>
+                </>}
+
+                {/* ═══ LAYER 2: Kingdom territories — visible at continent/kingdom zoom ═══ */}
+                {mapZoom < 2.5 && territories().map((t,i) => (
+                  <path key={`terr-${i}`} d={t.path} fill={t.color} opacity={0.06 + (mapZoom > 0.5 ? 0.04 : 0)} stroke={t.color} strokeWidth={mapZoom > 0.6 ? 1.5 : 2.5} strokeDasharray="12,8" strokeOpacity="0.3"/>
+                ))}
+
+                {/* ═══ LAYER 3: Terrain features — scale-dependent ═══ */}
+                {/* Mountains — always visible (they define the landscape) */}
+                {terrain.filter(t=>t.type==="mountain").map(t => <MtnSvg key={t.key} x={t.x} y={t.y} s={t.scale}/>)}
+                {/* Hills — visible at kingdom zoom and closer */}
+                {mapZoom > 0.5 && terrain.filter(t=>t.type==="hill").map(t => <HillSvg key={t.key} x={t.x} y={t.y} s={t.scale}/>)}
+                {/* Forests — visible from kingdom zoom */}
+                {mapZoom > 0.4 && terrain.filter(t=>t.type==="tree").map(t => <TreeSvg key={t.key} x={t.x} y={t.y} s={t.scale}/>)}
+
+                {/* ═══ LAYER 4: Roads — major roads at kingdom zoom, minor at local ═══ */}
+                <g opacity={mapZoom > 0.5 ? Math.min(1, (mapZoom-0.5)*1.5) : 0} style={{ transition:"opacity 0.3s" }}>
+                  {roadList.filter(rd=>rd.major).map((rd,i) => (
+                    <path key={`mroad-${i}`} d={rd.path} stroke="var(--text-faint)" strokeWidth={mapZoom > 1.5 ? 1.5 : 3} fill="none" strokeDasharray={mapZoom > 2 ? "10,8" : "16,12"} opacity="0.5" strokeLinecap="round"/>
+                  ))}
+                </g>
+                {mapZoom > 0.8 && <g opacity={Math.min(1, (mapZoom-0.8)*2)} style={{ transition:"opacity 0.3s" }}>
+                  {roadList.filter(rd=>!rd.major).map((rd,i) => (
+                    <path key={`road-${i}`} d={rd.path} stroke="var(--text-faint)" strokeWidth={mapZoom > 2 ? 0.8 : 1.5} fill="none" strokeDasharray="6,6" opacity="0.35" strokeLinecap="round"/>
+                  ))}
+                </g>}
+
+                {/* ═══ LAYER 5: Region markers — scale-dependent icon/label sizing ═══ */}
+                {mapRegions.map(r => {
+                  const active = sel?.id===r.id && selType==="region";
+                  const threatCol = tCols[r.threat] || "var(--text-muted)";
+                  const isBig = r.type==="city"||r.type==="kingdom"||r.type==="capital";
+                  const isSmall = r.type==="hamlet"||r.type==="ruins"||r.type==="dungeon";
+                  // Hide small settlements at continent zoom
+                  if(isSmall && mapZoom < 0.5) return null;
+                  // Scale icons inversely with zoom for readability at all levels
+                  const baseSize = isBig ? 60 : isSmall ? 30 : 42;
+                  const iconSize = Math.max(18, Math.min(baseSize, baseSize / Math.max(mapZoom*0.8, 0.5)));
+                  const fontSize = isBig ? Math.max(8, 16/Math.max(mapZoom*0.7,0.4)) : Math.max(6, 12/Math.max(mapZoom*0.7,0.4));
+                  return (
+                    <g key={r.id} onClick={(e)=>{e.stopPropagation();selectRegion(r);}} style={{ cursor:"pointer" }}>
+                      {/* Glow ring on selection */}
+                      {active && <circle cx={r.mx} cy={r.my} r={isBig?50:35} fill="none" stroke="var(--crimson)" strokeWidth="2.5" opacity="0.5" strokeDasharray="8,5">
+                        <animate attributeName="stroke-dashoffset" from="0" to="26" dur="2s" repeatCount="indefinite"/>
+                      </circle>}
+                      {/* City glow at continental zoom */}
+                      {isBig && mapZoom < 0.6 && <circle cx={r.mx} cy={r.my} r="30" fill={threatCol} opacity="0.08"/>}
+                      {/* Icon */}
+                      <g transform={`translate(${r.mx - iconSize/2},${r.my - iconSize/2})`}>
+                        {(() => { const FI = getFantasyIcon(r.type); return <FI size={iconSize} color={threatCol} />; })()}
+                      </g>
+                      {/* Label — always show for kingdoms/cities, show others when zoomed */}
+                      {(isBig || mapZoom > 0.4) && (
+                        <text x={r.mx} y={r.my + (isBig?40:28)} textAnchor="middle" fill="var(--text)" fontFamily="'Cinzel', serif" fontSize={fontSize} fontWeight={isBig?"600":"500"} letterSpacing={isBig?"2.5":"1.5"} opacity={active?1:0.85} style={{ textTransform:"uppercase", pointerEvents:"none" }}>
+                          {r.name}
+                        </text>
+                      )}
+                      {/* Faction/state subtitle — kingdom zoom+ */}
+                      {mapZoom > 0.8 && (
+                        <text x={r.mx} y={r.my + (isBig?54:40)} textAnchor="middle" fill="var(--text-muted)" fontFamily="'Spectral', serif" fontSize={Math.max(6,10/Math.max(mapZoom*0.7,0.5))} fontStyle="italic" fontWeight="300" opacity="0.65" style={{ pointerEvents:"none" }}>
+                          {r.ctrl ? r.ctrl : r.type} — {r.state}
+                        </text>
+                      )}
+                      {/* Threat pip — local zoom+ */}
+                      {mapZoom > 1.0 && (
+                        <circle cx={r.mx + (isBig?28:20)} cy={r.my - (isBig?24:16)} r="5" fill={threatCol} opacity="0.7"/>
+                      )}
+                      {/* Visited marker — local zoom+ */}
+                      {r.visited && mapZoom > 1.2 && (
+                        <g transform={`translate(${r.mx-(isBig?28:20)},${r.my-(isBig?26:18)})`}>
+                          <circle r="6" fill="var(--bg-card)" stroke="var(--text-muted)" strokeWidth="0.7"/>
+                          <path d="M-2.5,0 L-0.5,2.5 L3,-2.5" stroke="#6fcf97" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+                        </g>
+                      )}
+                      {/* Building cluster hint at detail zoom for towns/cities */}
+                      {mapZoom > 3 && (isBig || r.type==="town") && (
+                        <g opacity="0.2">
+                          {[0,1,2,3,4].map(bi => {
+                            const bx = r.mx + Math.cos(bi*1.3)*35 + seedF(bi,r.mx,1)*20-10;
+                            const by = r.my + Math.sin(bi*1.3)*30 + seedF(bi,r.my,2)*15-8;
+                            return <rect key={`b-${bi}`} x={bx-4} y={by-4} width={8+seedF(bi,3,3)*6} height={7+seedF(bi,4,4)*5} fill="var(--text-faint)" rx="1"/>;
+                          })}
+                        </g>
+                      )}
+                    </g>
+                  );
+                })}
+
+                {/* ═══ LAYER 6: World POIs — visible at local zoom+ ═══ */}
+                {mapZoom > 1.5 && pois.map(p => <POISvg key={p.id} poi={p} zoom={mapZoom}/>)}
+
+                {/* ═══ LAYER 7: Compass rose ═══ */}
+                <g transform={`translate(${MAP_W-200},${MAP_H-200})`} opacity="0.3">
+                  <line x1="0" y1="-55" x2="0" y2="55" stroke="var(--text-faint)" strokeWidth="2"/>
+                  <line x1="-55" y1="0" x2="55" y2="0" stroke="var(--text-faint)" strokeWidth="2"/>
+                  <line x1="-35" y1="-35" x2="35" y2="35" stroke="var(--text-faint)" strokeWidth="0.8"/>
+                  <line x1="35" y1="-35" x2="-35" y2="35" stroke="var(--text-faint)" strokeWidth="0.8"/>
+                  <polygon points="0,-60 -7,-40 7,-40" fill="var(--crimson)"/>
+                  <polygon points="0,60 -5,42 5,42" fill="var(--text-faint)"/>
+                  <text x="0" y="-68" textAnchor="middle" fill="var(--text-muted)" fontFamily="'Cinzel', serif" fontSize="14" fontWeight="600">N</text>
+                  <text x="68" y="5" textAnchor="middle" fill="var(--text-faint)" fontFamily="'Cinzel', serif" fontSize="10">E</text>
+                  <text x="-68" y="5" textAnchor="middle" fill="var(--text-faint)" fontFamily="'Cinzel', serif" fontSize="10">W</text>
+                  <text x="0" y="80" textAnchor="middle" fill="var(--text-faint)" fontFamily="'Cinzel', serif" fontSize="10">S</text>
+                </g>
+
+                {/* Map title cartouche */}
+                <g transform="translate(300,130)">
+                  <rect x="-140" y="-35" width="280" height="55" rx="4" fill="var(--bg-card)" stroke="var(--crimson-border)" strokeWidth="1.5" opacity="0.92"/>
+                  <line x1="-120" y1="-15" x2="120" y2="-15" stroke="var(--crimson-border)" strokeWidth="0.5" opacity="0.4"/>
+                  <text x="0" y="-2" textAnchor="middle" fill="var(--crimson)" fontFamily="'Cinzel', serif" fontSize="15" fontWeight="600" letterSpacing="4" style={{ textTransform:"uppercase" }}>
+                    {data.name || "The Realm"}
+                  </text>
+                  <line x1="-120" y1="8" x2="120" y2="8" stroke="var(--crimson-border)" strokeWidth="0.5" opacity="0.4"/>
+                </g>
+
+                {/* Scale bar — visible at kingdom zoom+ */}
+                {mapZoom > 0.5 && (
+                  <g transform={`translate(${MAP_W-500},${MAP_H-80})`} opacity="0.3">
+                    <line x1="0" y1="0" x2="200" y2="0" stroke="var(--text-faint)" strokeWidth="2"/>
+                    <line x1="0" y1="-6" x2="0" y2="6" stroke="var(--text-faint)" strokeWidth="1.5"/>
+                    <line x1="200" y1="-6" x2="200" y2="6" stroke="var(--text-faint)" strokeWidth="1.5"/>
+                    <line x1="100" y1="-4" x2="100" y2="4" stroke="var(--text-faint)" strokeWidth="1"/>
+                    <text x="100" y="18" textAnchor="middle" fill="var(--text-faint)" fontFamily="'Spectral', serif" fontSize="10">100 leagues</text>
+                  </g>
+                )}
+              </g>
+            </svg>
+
+            {/* Zoom level indicator */}
+            <div style={{ position:"absolute", top:12, right:12, display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6, pointerEvents:"none" }}>
+              <div style={{ padding:"6px 14px", background:T.bgCard, border:`1px solid ${T.crimsonBorder}`, borderRadius:"3px", fontFamily:T.ui, fontSize:8, color:T.crimson, letterSpacing:"2px", textTransform:"uppercase", opacity:0.85 }}>
+                {zoomLevel} view
               </div>
+              {mapZoom > 1.5 && <div style={{ padding:"4px 10px", background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:"2px", fontFamily:T.body, fontSize:9, color:T.textMuted, fontStyle:"italic", opacity:0.7 }}>
+                {pois.length} points of interest
+              </div>}
             </div>
 
-            {editing ? (
-              <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:20 }}>
-                {selType==="faction" && <>
-                  <Select value={sel.attitude} onChange={v=>{updateFaction(sel.id,{attitude:v});setSel(p=>({...p,attitude:v}));}} style={{ width:"100%" }}>
-                    {["allied","friendly","neutral","cautious","hostile"].map(a=><option key={a} value={a}>{a}</option>)}
-                  </Select>
-                  <div>
-                    <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>POWER: {sel.power}</span>
-                    <input type="range" min="0" max="100" value={sel.power} onChange={e=>{const v=parseInt(e.target.value);updateFaction(sel.id,{power:v});setSel(p=>({...p,power:v}));}} style={{ width:"100%" }} />
-                  </div>
-                  <Select value={sel.trend} onChange={v=>{updateFaction(sel.id,{trend:v});setSel(p=>({...p,trend:v}));}} style={{ width:"100%" }}>
-                    {["rising","stable","declining"].map(t=><option key={t} value={t}>{t}</option>)}
-                  </Select>
-                </>}
-                {selType==="region" && <>
-                  <Select value={sel.threat} onChange={v=>{updateRegion(sel.id,{threat:v});setSel(p=>({...p,threat:v}));}} style={{ width:"100%" }}>
-                    {["low","medium","high","extreme"].map(t=><option key={t} value={t}>{t}</option>)}
-                  </Select>
-                  <Input value={sel.state} onChange={v=>{updateRegion(sel.id,{state:v});setSel(p=>({...p,state:v}));}} placeholder="State" />
-                  <ToggleSwitch on={sel.visited} onToggle={()=>{updateRegion(sel.id,{visited:!sel.visited});setSel(p=>({...p,visited:!p.visited}));}} label="Visited" />
-                </>}
-                {selType==="npc" && <>
-                  <Select value={sel.attitude} onChange={v=>{updateNpc(sel.id,{attitude:v});setSel(p=>({...p,attitude:v}));}} style={{ width:"100%" }}>
-                    {["allied","friendly","neutral","cautious","hostile"].map(a=><option key={a} value={a}>{a}</option>)}
-                  </Select>
-                  <Input value={sel.loc} onChange={v=>{updateNpc(sel.id,{loc:v});setSel(p=>({...p,loc:v}));}} placeholder="Location" />
-                  <Input value={sel.role} onChange={v=>{updateNpc(sel.id,{role:v});setSel(p=>({...p,role:v}));}} placeholder="Role" />
-                  <ToggleSwitch on={sel.alive} onToggle={()=>{updateNpc(sel.id,{alive:!sel.alive});setSel(p=>({...p,alive:!p.alive}));}} label="Alive" />
-                </>}
+            {/* Minimap overlay — always visible when zoomed past continent */}
+            {mapZoom > 0.5 && (
+              <div style={{ position:"absolute", bottom:12, left:12, width:200, height:150, background:T.bgCard, border:`1px solid ${T.crimsonBorder}`, borderRadius:"3px", overflow:"hidden", opacity:0.88 }}>
+                <svg width="200" height="150" viewBox={`0 0 ${MAP_W} ${MAP_H}`}>
+                  <rect width={MAP_W} height={MAP_H} fill="var(--bg-card)" opacity="0.5"/>
+                  {/* Territory fills */}
+                  {territories().map((t,i) => <path key={`mt-${i}`} d={t.path} fill={t.color} opacity="0.12"/>)}
+                  {/* Region dots */}
+                  {mapRegions.map(r => <circle key={r.id} cx={r.mx} cy={r.my} r={(r.type==="city"||r.type==="kingdom")?30:18} fill={tCols[r.threat]||"var(--text-muted)"} opacity="0.5"/>)}
+                  {/* Viewport indicator */}
+                  {(() => {
+                    const rect = mapRef.current?.getBoundingClientRect();
+                    if(!rect) return null;
+                    const vx = -mapPan.x / mapZoom, vy = -mapPan.y / mapZoom;
+                    const vw = rect.width / mapZoom, vh = rect.height / mapZoom;
+                    return <rect x={vx} y={vy} width={vw} height={vh} fill="none" stroke="var(--crimson)" strokeWidth="8" opacity="0.65" rx="4"/>;
+                  })()}
+                </svg>
               </div>
-            ) : (
-              <div style={{ padding:16, background:T.bg, border:`1px solid ${T.crimsonBorder}`, borderRadius:"2px", marginBottom:20 }}>
-                {selType==="region" && <>
-                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Type: <span style={{color:T.textDim}}>{sel.type}</span></div>
-                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>State: <span style={{color:T.textDim,fontStyle:"italic"}}>{sel.state}</span></div>
-                  <div style={{ fontSize:12, color:T.textMuted }}>Threat: <Tag variant={sel.threat==="extreme"?"critical":sel.threat==="high"?"danger":sel.threat==="medium"?"warning":"success"}>{sel.threat}</Tag></div>
-                </>}
-                {selType==="faction" && <>
-                  <p style={{ fontSize:13, color:T.textDim, margin:"0 0 10px", fontWeight:300, fontStyle:"italic" }}>{sel.desc}</p>
-                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Power: <span style={{color:T.textDim}}>{sel.power}/100</span></div>
-                  <div style={{ fontSize:12, color:T.textMuted }}>Trend: <span style={{color:T.textDim}}>{sel.trend}</span></div>
-                </>}
-                {selType==="npc" && <>
-                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Role: <span style={{color:T.textDim}}>{sel.role}</span></div>
-                  <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Location: <span style={{color:T.textDim}}>{sel.loc}</span></div>
-                  <div style={{ fontSize:12, color:T.textMuted }}>Status: <span style={{color:T.textDim}}>{sel.alive?"Alive":"Deceased"}</span></div>
-                </>}
+            )}
+          </div>
+        )}
+
+        {/* ══════════ LIST TABS (regions / factions / npcs) ══════════ */}
+        {tab!=="map" && (
+          <div style={{ flex:1, overflowY:"auto", padding:"24px 48px" }}>
+            {tab==="regions" && (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                {data.regions.map(r => {
+                  const FantasyIcon = getFantasyIcon(r.type);
+                  const active=sel?.id===r.id&&selType==="region";
+                  return (
+                    <div key={r.id} onClick={()=>{setSel(r);setSelType("region");setEditing(false);}} style={{
+                      background:active?T.bgHover:T.bgCard, padding:20, cursor:"pointer",
+                      border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
+                      boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
+                    }}>
+                      <div style={{ display:"flex", alignItems:"start", gap:14 }}>
+                        <div style={{ flexShrink:0, marginTop:-2, opacity:0.85 }}>
+                          <FantasyIcon size={r.type==="city"||r.type==="kingdom"||r.type==="capital"?36:28} color={tCols[r.threat]} />
+                        </div>
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontSize:15, fontWeight:300, color:T.text, marginBottom:8 }}>{r.name}</div>
+                          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:8 }}>
+                            <Tag variant={r.threat==="extreme"?"critical":r.threat==="high"?"danger":r.threat==="medium"?"warning":"success"}>{r.threat}</Tag>
+                            <Tag variant="muted">{r.type}</Tag>
+                            {r.visited && <Tag variant="info">visited</Tag>}
+                          </div>
+                          <div style={{ fontSize:12, color:T.textMuted, fontWeight:300 }}>{r.ctrl} — <span style={{fontStyle:"italic"}}>{r.state}</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
-            <SectionTitle icon={Layers}>Connections</SectionTitle>
-            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-              {conns(selType,sel).map((c,i) => (
-                <div key={i} onClick={()=>{setSel(c.e);setSelType(c.type);setEditing(false);}} style={{
-                  padding:"14px 16px", background:T.bg, cursor:"pointer", borderRadius:"2px",
-                  border:`1px solid ${T.border}`, borderLeft:`3px solid ${c.type==="faction"?(c.e.color||T.crimson):T.textFaint}`,
-                  transition:"all 0.15s",
-                }}>
-                  <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"2px", textTransform:"uppercase", display:"block", marginBottom:4 }}>{c.label}</span>
-                  <span style={{ fontSize:14, fontWeight:300, color:T.text }}>{c.e.name||c.e.title}</span>
-                </div>
-              ))}
-              {conns(selType,sel).length===0 && <p style={{ fontSize:13, color:T.textFaint, fontStyle:"italic", fontWeight:300 }}>No connections found.</p>}
-            </div>
-          </Section>
-        ) : (
-          <div style={{ textAlign:"center", paddingTop:80 }}>
-            <Layers size={28} color={T.textFaint} style={{marginBottom:12}} />
-            <p style={{ fontSize:15, color:T.textDim, fontWeight:300, fontStyle:"italic" }}>Select any element to view<br/>its connections across the world.</p>
+            {tab==="factions" && (
+              <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                {data.factions.map(f => {
+                  const active=sel?.id===f.id&&selType==="faction";
+                  return (
+                    <div key={f.id} onClick={()=>{setSel(f);setSelType("faction");setEditing(false);}} style={{
+                      background:active?T.bgHover:T.bgCard, padding:24, cursor:"pointer",
+                      border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
+                      borderLeft:`4px solid ${f.color}`, boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
+                    }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                        <span style={{ fontSize:18, fontWeight:300, color:T.text }}>{f.name}</span>
+                        <Tag variant={f.attitude==="allied"||f.attitude==="friendly"?"success":f.attitude==="hostile"?"danger":"muted"}>{f.attitude}</Tag>
+                        {f.trend==="rising"?<TrendingUp size={12} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={12} color="#6fcf97"/>:<Minus size={12} color={T.textFaint}/>}
+                      </div>
+                      <p style={{ fontSize:13, color:T.textDim, margin:"0 0 10px", fontWeight:300, fontStyle:"italic" }}>{f.desc}</p>
+                      <div style={{ display:"flex", alignItems:"center", gap:10, maxWidth:300 }}>
+                        <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1.5px" }}>PWR</span>
+                        <div style={{flex:1}}><PowerBar val={f.power} max={100} color={f.color}/></div>
+                        <span style={{ fontSize:12, color:T.textMuted }}>{f.power}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {tab==="npcs" && (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                {data.npcs.map(n => {
+                  const active=sel?.id===n.id&&selType==="npc";
+                  return (
+                    <div key={n.id} onClick={()=>{setSel(n);setSelType("npc");setEditing(false);}} style={{
+                      background:active?T.bgHover:T.bgCard, padding:20, cursor:"pointer", opacity:n.alive?1:0.45,
+                      border:`1px solid ${active?T.crimsonBorder:T.border}`, borderRadius:"4px",
+                      boxShadow:"0 2px 8px rgba(0,0,0,0.08)", transition:"all 0.2s",
+                    }}>
+                      <div style={{ display:"flex", alignItems:"start", gap:10 }}>
+                        {n.alive?<Users size={14} color={T.textFaint}/>:<Skull size={14} color={T.crimson}/>}
+                        <div>
+                          <div style={{ fontSize:15, fontWeight:300, color:T.text, marginBottom:4 }}>{n.name}</div>
+                          <div style={{ fontSize:12, color:T.textFaint, marginBottom:8, fontStyle:"italic", fontWeight:300 }}>{n.role} — {n.loc}</div>
+                          <div style={{ display:"flex", gap:4, flexWrap:"wrap" }}>
+                            <Tag variant={n.attitude==="allied"||n.attitude==="friendly"?"success":n.attitude==="hostile"?"danger":n.attitude==="cautious"?"warning":"muted"}>{n.attitude}</Tag>
+                            {n.faction && <Tag variant="muted">{n.faction}</Tag>}
+                            {!n.alive && <Tag variant="danger">deceased</Tag>}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
+
+        {/* ══════════ DETAIL PANEL (right side) ══════════ */}
+        <div style={{ width:sel?360:0, overflowY:"auto", overflowX:"hidden", transition:"width 0.25s ease", flexShrink:0, borderLeft:sel?`1px solid ${T.border}`:"none" }}>
+          {sel && (
+            <div style={{ padding:24, width:360 }}>
+              <Section>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                    {selType==="region" && (() => { const FI = getFantasyIcon(sel.type); return <FI size={28} color={T.crimson} />; })()}
+                    <div style={{ fontSize:18, color:T.text, fontWeight:300 }}>{sel.name}</div>
+                  </div>
+                  <div style={{ display:"flex", gap:6 }}>
+                    <button onClick={()=>setEditing(!editing)} style={{ background:"none", border:"none", cursor:"pointer", color:editing?T.crimson:T.textFaint }}><Edit3 size={14}/></button>
+                    <button onClick={()=>setSel(null)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint }}><X size={14}/></button>
+                  </div>
+                </div>
+
+                {editing ? (
+                  <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:20 }}>
+                    {selType==="faction" && <>
+                      <Select value={sel.attitude} onChange={v=>{updateFaction(sel.id,{attitude:v});setSel(p=>({...p,attitude:v}));}} style={{ width:"100%" }}>
+                        {["allied","friendly","neutral","cautious","hostile"].map(a=><option key={a} value={a}>{a}</option>)}
+                      </Select>
+                      <div>
+                        <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>POWER: {sel.power}</span>
+                        <input type="range" min="0" max="100" value={sel.power} onChange={e=>{const v=parseInt(e.target.value);updateFaction(sel.id,{power:v});setSel(p=>({...p,power:v}));}} style={{ width:"100%" }} />
+                      </div>
+                      <Select value={sel.trend} onChange={v=>{updateFaction(sel.id,{trend:v});setSel(p=>({...p,trend:v}));}} style={{ width:"100%" }}>
+                        {["rising","stable","declining"].map(t=><option key={t} value={t}>{t}</option>)}
+                      </Select>
+                    </>}
+                    {selType==="region" && <>
+                      <Select value={sel.type} onChange={v=>{updateRegion(sel.id,{type:v});setSel(p=>({...p,type:v}));}} style={{ width:"100%" }}>
+                        {["city","town","hamlet","kingdom","castle","wilderness","forest","mountain","dungeon","ruins","route"].map(t=><option key={t} value={t}>{t}</option>)}
+                      </Select>
+                      <Select value={sel.threat} onChange={v=>{updateRegion(sel.id,{threat:v});setSel(p=>({...p,threat:v}));}} style={{ width:"100%" }}>
+                        {["low","medium","high","extreme"].map(t=><option key={t} value={t}>{t}</option>)}
+                      </Select>
+                      <Input value={sel.state} onChange={v=>{updateRegion(sel.id,{state:v});setSel(p=>({...p,state:v}));}} placeholder="State" />
+                      <ToggleSwitch on={sel.visited} onToggle={()=>{updateRegion(sel.id,{visited:!sel.visited});setSel(p=>({...p,visited:!p.visited}));}} label="Visited" />
+                    </>}
+                    {selType==="npc" && <>
+                      <Select value={sel.attitude} onChange={v=>{updateNpc(sel.id,{attitude:v});setSel(p=>({...p,attitude:v}));}} style={{ width:"100%" }}>
+                        {["allied","friendly","neutral","cautious","hostile"].map(a=><option key={a} value={a}>{a}</option>)}
+                      </Select>
+                      <Input value={sel.loc} onChange={v=>{updateNpc(sel.id,{loc:v});setSel(p=>({...p,loc:v}));}} placeholder="Location" />
+                      <Input value={sel.role} onChange={v=>{updateNpc(sel.id,{role:v});setSel(p=>({...p,role:v}));}} placeholder="Role" />
+                      <ToggleSwitch on={sel.alive} onToggle={()=>{updateNpc(sel.id,{alive:!sel.alive});setSel(p=>({...p,alive:!p.alive}));}} label="Alive" />
+                    </>}
+                  </div>
+                ) : (
+                  <div style={{ padding:14, background:T.bg, border:`1px solid ${T.crimsonBorder}`, borderRadius:"2px", marginBottom:20 }}>
+                    {selType==="region" && <>
+                      <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Type: <span style={{color:T.textDim}}>{sel.type}</span></div>
+                      <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>State: <span style={{color:T.textDim,fontStyle:"italic"}}>{sel.state}</span></div>
+                      <div style={{ fontSize:12, color:T.textMuted }}>Threat: <Tag variant={sel.threat==="extreme"?"critical":sel.threat==="high"?"danger":sel.threat==="medium"?"warning":"success"}>{sel.threat}</Tag></div>
+                    </>}
+                    {selType==="faction" && <>
+                      <p style={{ fontSize:13, color:T.textDim, margin:"0 0 10px", fontWeight:300, fontStyle:"italic" }}>{sel.desc}</p>
+                      <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Power: <span style={{color:T.textDim}}>{sel.power}/100</span></div>
+                      <div style={{ fontSize:12, color:T.textMuted }}>Trend: <span style={{color:T.textDim}}>{sel.trend}</span></div>
+                    </>}
+                    {selType==="npc" && <>
+                      <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Role: <span style={{color:T.textDim}}>{sel.role}</span></div>
+                      <div style={{ fontSize:12, color:T.textMuted, marginBottom:6 }}>Location: <span style={{color:T.textDim}}>{sel.loc}</span></div>
+                      <div style={{ fontSize:12, color:T.textMuted }}>Status: <span style={{color:T.textDim}}>{sel.alive?"Alive":"Deceased"}</span></div>
+                    </>}
+                  </div>
+                )}
+
+                <SectionTitle icon={Layers}>Connections</SectionTitle>
+                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  {conns(selType,sel).map((c,i) => (
+                    <div key={i} onClick={()=>{setSel(c.e);setSelType(c.type);setEditing(false);}} style={{
+                      padding:"12px 14px", background:T.bg, cursor:"pointer", borderRadius:"2px",
+                      border:`1px solid ${T.border}`, borderLeft:`3px solid ${c.type==="faction"?(c.e.color||T.crimson):T.textFaint}`,
+                      transition:"all 0.15s",
+                    }}>
+                      <span style={{ fontFamily:T.ui, fontSize:7, color:T.textFaint, letterSpacing:"2px", textTransform:"uppercase", display:"block", marginBottom:3 }}>{c.label}</span>
+                      <span style={{ fontSize:13, fontWeight:300, color:T.text }}>{c.e.name||c.e.title}</span>
+                    </div>
+                  ))}
+                  {conns(selType,sel).length===0 && <p style={{ fontSize:12, color:T.textFaint, fontStyle:"italic", fontWeight:300 }}>No connections.</p>}
+                </div>
+              </Section>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Add Entity Modal */}
-      <AddEntityModal open={addingEntity} onClose={()=>setAddingEntity(false)} tab={tab} onAdd={addEntity} data={data} />
+      <AddEntityModal open={addingEntity} onClose={()=>setAddingEntity(false)} tab={tab==="map"?"regions":tab} onAdd={addEntity} data={data} />
     </div>
   );
 }
@@ -1575,7 +2365,7 @@ function WorldView({ data, setData }) {
 function AddEntityModal({ open, onClose, tab, onAdd, data }) {
   const [form, setForm] = useState({});
   useEffect(() => {
-    if (tab==="regions") setForm({ name:"", type:"town", ctrl:"", threat:"low", state:"stable", visited:false });
+    if (tab==="regions") setForm({ name:"", type:"town", ctrl:"", threat:"low", state:"stable", visited:false, terrain:"" });
     else if (tab==="factions") setForm({ name:"", attitude:"neutral", power:50, trend:"stable", desc:"", color:"#94a3b8" });
     else setForm({ name:"", faction:null, loc:"", attitude:"neutral", role:"", alive:true });
   }, [tab, open]);
@@ -1586,7 +2376,7 @@ function AddEntityModal({ open, onClose, tab, onAdd, data }) {
         <Input value={form.name||""} onChange={v=>setForm(p=>({...p,name:v}))} placeholder="Name" />
         {tab==="regions" && <>
           <Select value={form.type||"town"} onChange={v=>setForm(p=>({...p,type:v}))} style={{ width:"100%" }}>
-            {["city","town","wilderness","dungeon","route"].map(t=><option key={t} value={t}>{t}</option>)}
+            {["city","town","hamlet","kingdom","castle","wilderness","forest","mountain","dungeon","ruins","route"].map(t=><option key={t} value={t}>{t}</option>)}
           </Select>
           <Select value={form.ctrl||""} onChange={v=>setForm(p=>({...p,ctrl:v}))} style={{ width:"100%" }}>
             <option value="">No controller</option>
@@ -2491,7 +3281,7 @@ function CampaignManager() {
   );
 }
 
-    // ─── MOUNT ──────────────────────────────────────────────────────────────────
+    // ── Mount ──
     const root = ReactDOM.createRoot(document.getElementById("campaign-root"));
     root.render(<CampaignManager />);
   </script>
