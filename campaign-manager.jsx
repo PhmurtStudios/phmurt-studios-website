@@ -11199,8 +11199,8 @@ const FMG_ScaleBar = ({x,y,s=1,color,label="100 leagues"}) => (
 // NEW ICON COMPONENTS (30+ NEW) — Hand-drawn cartographic style
 // ═══════════════════════════════════════════════════════════════════════════
 
-const FMG_Volcano = ({x,y,size=1,color="#8a5040"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Volcano = ({x,y,s=1,color="#8a5040"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-10,8 L-6,-6 L0,-8 L6,-6 L10,8 Z" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="1"/>
     <path d="M-4,-6 L0,-8 L4,-6" fill="none" stroke={color} strokeWidth="0.8"/>
     <circle cx="0" cy="-8" r="1.5" fill="#ff6030" fillOpacity="0.4" stroke="#ff6030" strokeWidth="0.6"/>
@@ -11213,8 +11213,8 @@ const FMG_Volcano = ({x,y,size=1,color="#8a5040"}) => (
   </g>
 );
 
-const FMG_Oasis = ({x,y,size=1,color="#5aa060"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Oasis = ({x,y,s=1,color="#5aa060"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <ellipse cx="0" cy="2" rx="6" ry="4" fill="#4a9ac0" fillOpacity="0.3" stroke="#4a9ac0" strokeWidth="0.8"/>
     <path d="M-8,-2 Q-6,-4 -4,-2" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round"/>
     <path d="M-4,-2 Q-2,-6 0,-4" fill="none" stroke={color} strokeWidth="1" strokeLinecap="round"/>
@@ -11227,8 +11227,8 @@ const FMG_Oasis = ({x,y,size=1,color="#5aa060"}) => (
   </g>
 );
 
-const FMG_Swamp = ({x,y,size=1,color="#4a6a40"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Swamp = ({x,y,s=1,color="#4a6a40"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <ellipse cx="0" cy="0" rx="8" ry="6" fill="#5a6a40" fillOpacity="0.2" stroke="#5a6a40" strokeWidth="0.8" strokeDasharray="2,2"/>
     <path d="M-2,-6 Q-1,-3 -2,2 Q-1,4 0,4 Q1,4 0,2 Q0,-2 1,-4 Q2,-2 2,2" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round"/>
     <path d="M-3,5 L-2,8" stroke={color} strokeWidth="0.5"/>
@@ -11240,8 +11240,8 @@ const FMG_Swamp = ({x,y,size=1,color="#4a6a40"}) => (
   </g>
 );
 
-const FMG_Bridge = ({x,y,size=1,color="#7a6a50"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Bridge = ({x,y,s=1,color="#7a6a50"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-8,0 Q-6,-3 0,-4 Q6,-3 8,0" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round"/>
     <line x1="-8" y1="0" x2="8" y2="0" stroke={color} strokeWidth="2" opacity="0.3"/>
     <path d="M-7,0 L-7,3" stroke={color} strokeWidth="0.6"/>
@@ -11253,8 +11253,8 @@ const FMG_Bridge = ({x,y,size=1,color="#7a6a50"}) => (
   </g>
 );
 
-const FMG_Port = ({x,y,size=1,color="#6a7a80"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Port = ({x,y,s=1,color="#6a7a80"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-8,0 L-8,4 L8,4 L8,0" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.8"/>
     <line x1="-6" y1="0" x2="-6" y2="4" stroke={color} strokeWidth="0.6"/>
     <line x1="-2" y1="0" x2="-2" y2="4" stroke={color} strokeWidth="0.6"/>
@@ -11266,8 +11266,8 @@ const FMG_Port = ({x,y,size=1,color="#6a7a80"}) => (
   </g>
 );
 
-const FMG_Shipwreck = ({x,y,size=1,color="#5a4a30"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Shipwreck = ({x,y,s=1,color="#5a4a30"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-6,4 Q-4,2 -2,3 Q2,1 4,2 Q6,3 6,5" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.8"/>
     <path d="M-3,0 L-1,-5 L2,-4 L0,0 Z" fill="none" stroke={color} strokeWidth="1" strokeDasharray="2,1"/>
     <path d="M-1,-4 Q0,-6 1,-4" fill="none" stroke={color} strokeWidth="0.6" opacity="0.5"/>
@@ -11279,8 +11279,8 @@ const FMG_Shipwreck = ({x,y,size=1,color="#5a4a30"}) => (
   </g>
 );
 
-const FMG_Dragon = ({x,y,size=1,color="#6a4a80"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Dragon = ({x,y,s=1,color="#6a4a80"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <ellipse cx="0" cy="0" rx="4" ry="3" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.8"/>
     <path d="M4,0 L6,1 L6,-1 Z" fill={color} stroke={color} strokeWidth="0.6"/>
     <circle cx="5" cy="0" r="0.6" fill={color}/>
@@ -11293,8 +11293,8 @@ const FMG_Dragon = ({x,y,size=1,color="#6a4a80"}) => (
   </g>
 );
 
-const FMG_SeaSerpent = ({x,y,size=1,color="#3a6a90"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_SeaSerpent = ({x,y,s=1,color="#3a6a90"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-8,0 Q-4,-2 0,-2 Q4,-2 6,-1 Q8,0 8,2" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round"/>
     <path d="M6,-1 L8,-2 L7,0 Z" fill={color} stroke={color} strokeWidth="0.6"/>
     <circle cx="8" cy="0" r="0.7" fill={color}/>
@@ -11305,8 +11305,8 @@ const FMG_SeaSerpent = ({x,y,size=1,color="#3a6a90"}) => (
   </g>
 );
 
-const FMG_Treasure = ({x,y,size=1,color="#d4a040"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Treasure = ({x,y,s=1,color="#d4a040"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <rect x="-6" y="-2" width="12" height="8" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.8" rx="0.5"/>
     <path d="M-6,-2 L0,-4 L6,-2" fill={color} fillOpacity="0.25" stroke={color} strokeWidth="0.6"/>
     <path d="M-2,0 L0,-2 L2,0" fill="#ffd700" fillOpacity="0.5" stroke="#ffd700" strokeWidth="0.4"/>
@@ -11318,8 +11318,8 @@ const FMG_Treasure = ({x,y,size=1,color="#d4a040"}) => (
   </g>
 );
 
-const FMG_Skull = ({x,y,size=1,color="#a0a0a0"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Skull = ({x,y,s=1,color="#a0a0a0"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <ellipse cx="0" cy="-2" rx="4" ry="5" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.8"/>
     <circle cx="-2" cy="-3" r="1.5" fill="black" fillOpacity="0.4" stroke={color} strokeWidth="0.4"/>
     <circle cx="2" cy="-3" r="1.5" fill="black" fillOpacity="0.4" stroke={color} strokeWidth="0.4"/>
@@ -11331,8 +11331,8 @@ const FMG_Skull = ({x,y,size=1,color="#a0a0a0"}) => (
   </g>
 );
 
-const FMG_Crown = ({x,y,size=1,color="#ffd700"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Crown = ({x,y,s=1,color="#ffd700"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-7,3 L-5,-2 L-2,1 L0,-4 L2,1 L5,-2 L7,3" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.8" strokeLinejoin="round"/>
     <line x1="-7" y1="3" x2="7" y2="3" stroke={color} strokeWidth="1.2"/>
     <circle cx="-5" cy="-2" r="1" fill={color} fillOpacity="0.5" stroke={color} strokeWidth="0.4"/>
@@ -11343,8 +11343,8 @@ const FMG_Crown = ({x,y,size=1,color="#ffd700"}) => (
   </g>
 );
 
-const FMG_Shield = ({x,y,size=1,color="#8a6a50"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Shield = ({x,y,s=1,color="#8a6a50"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-5,-4 L-5,2 Q0,5 5,2 L5,-4 Z" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.8"/>
     <path d="M0,-4 L-3,0 L0,3 L3,0 Z" fill="none" stroke={color} strokeWidth="0.7" strokeLinejoin="round"/>
     <path d="M-2,-2 L2,-2" stroke={color} strokeWidth="0.5"/>
@@ -11352,8 +11352,8 @@ const FMG_Shield = ({x,y,size=1,color="#8a6a50"}) => (
   </g>
 );
 
-const FMG_Sword = ({x,y,size=1,color="#a0a0b0"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Sword = ({x,y,s=1,color="#a0a0b0"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-1,-6 L0,4 L1,-6" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.8"/>
     <path d="M-2,3 L2,3 L2,4 Q0,5 -2,4 Z" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.6"/>
     <path d="M-1.5,3 L1.5,3" stroke={color} strokeWidth="0.4"/>
@@ -11363,8 +11363,8 @@ const FMG_Sword = ({x,y,size=1,color="#a0a0b0"}) => (
   </g>
 );
 
-const FMG_Scroll = ({x,y,size=1,color="#d4c080"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Scroll = ({x,y,s=1,color="#d4c080"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-6,-3 Q-4,-5 0,-5 Q4,-5 6,-3 L6,0 Q4,2 0,2 Q-4,2 -6,0 Z" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.8" strokeLinecap="round"/>
     <path d="M-6,-3 L6,-3" stroke={color} strokeWidth="1" opacity="0.5"/>
     <path d="M-6,0 L6,0" stroke={color} strokeWidth="1" opacity="0.5"/>
@@ -11374,8 +11374,8 @@ const FMG_Scroll = ({x,y,size=1,color="#d4c080"}) => (
   </g>
 );
 
-const FMG_Wagon = ({x,y,size=1,color="#7a6a50"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Wagon = ({x,y,s=1,color="#7a6a50"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <rect x="-5" y="-2" width="10" height="4" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.8" rx="0.5"/>
     <circle cx="-4" cy="3" r="2" fill="none" stroke={color} strokeWidth="0.6"/>
     <circle cx="4" cy="3" r="2" fill="none" stroke={color} strokeWidth="0.6"/>
@@ -11385,8 +11385,8 @@ const FMG_Wagon = ({x,y,size=1,color="#7a6a50"}) => (
   </g>
 );
 
-const FMG_Horse = ({x,y,size=1,color="#6a5040"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Horse = ({x,y,s=1,color="#6a5040"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <ellipse cx="0" cy="0" rx="5" ry="3" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.8"/>
     <path d="M4,-2 L5,-4 L4,-3 Z" fill={color} stroke={color} strokeWidth="0.6"/>
     <circle cx="4.5" cy="-2.5" r="0.7" fill={color}/>
@@ -11399,8 +11399,8 @@ const FMG_Horse = ({x,y,size=1,color="#6a5040"}) => (
   </g>
 );
 
-const FMG_Wolf = ({x,y,size=1,color="#5a4a40"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Wolf = ({x,y,s=1,color="#5a4a40"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <ellipse cx="0" cy="0" rx="4" ry="3" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.8"/>
     <path d="M4,-1 L6,-3 L5,-1 Z" fill={color} stroke={color} strokeWidth="0.6"/>
     <circle cx="5" cy="-1" r="0.6" fill={color}/>
@@ -11414,8 +11414,8 @@ const FMG_Wolf = ({x,y,size=1,color="#5a4a40"}) => (
   </g>
 );
 
-const FMG_Castle = ({x,y,size=1,color="#8a7a68"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Castle = ({x,y,s=1,color="#8a7a68"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <rect x="-8" y="-2" width="16" height="8" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.8" rx="0.5"/>
     <rect x="-10" y="-5" width="3" height="12" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.6"/>
     <rect x="-4" y="-6" width="3" height="13" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.6"/>
@@ -11427,8 +11427,8 @@ const FMG_Castle = ({x,y,size=1,color="#8a7a68"}) => (
   </g>
 );
 
-const FMG_Cathedral = ({x,y,size=1,color="#8a8a7a"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Cathedral = ({x,y,s=1,color="#8a8a7a"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-6,4 L-6,-2 L0,-6 L6,-2 L6,4" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.8"/>
     <path d="M-2,-2 L0,-5 L2,-2" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.6"/>
     <path d="M0,-6 L0,-8" stroke={color} strokeWidth="0.6"/>
@@ -11440,8 +11440,8 @@ const FMG_Cathedral = ({x,y,size=1,color="#8a8a7a"}) => (
   </g>
 );
 
-const FMG_Windmill = ({x,y,size=1,color="#8a7a60"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Windmill = ({x,y,s=1,color="#8a7a60"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <rect x="-2" y="-1" width="4" height="6" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.7"/>
     <circle cx="0" cy="-1" r="2.5" fill="none" stroke={color} strokeWidth="0.6"/>
     <path d="M0,-1 L1.5,-3 L1,-0.5 L2.5,1 L1,0.5 L1.5,3 L0,1.5 L-1.5,3 L-1,0.5 L-2.5,1 L-1,-0.5 L-1.5,-3 Z" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.5"/>
@@ -11450,8 +11450,8 @@ const FMG_Windmill = ({x,y,size=1,color="#8a7a60"}) => (
   </g>
 );
 
-const FMG_Farm = ({x,y,size=1,color="#8a7a50"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Farm = ({x,y,s=1,color="#8a7a50"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <rect x="-4" y="-2" width="8" height="6" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.7" rx="0.5"/>
     <path d="M-4,2 L0,-1 L4,2" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.6"/>
     <line x1="-6" y1="0" x2="-6" y2="4" stroke={color} strokeWidth="0.6"/>
@@ -11464,8 +11464,8 @@ const FMG_Farm = ({x,y,size=1,color="#8a7a50"}) => (
   </g>
 );
 
-const FMG_Graveyard = ({x,y,size=1,color="#6a6a70"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Graveyard = ({x,y,s=1,color="#6a6a70"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-6,4 L-6,1 L-4,0 L-4,4" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.6"/>
     <path d="M-4,2 L-2,1 L0,2" fill="none" stroke={color} strokeWidth="0.6"/>
     <path d="M-1,4 L-1,0 L1,0 L1,4" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.6"/>
@@ -11475,8 +11475,8 @@ const FMG_Graveyard = ({x,y,size=1,color="#6a6a70"}) => (
   </g>
 );
 
-const FMG_Well = ({x,y,size=1,color="#8a8078"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Well = ({x,y,s=1,color="#8a8078"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-5,2 L-5,-1 Q-5,-3 -2,-3 L2,-3 Q5,-3 5,-1 L5,2" fill="none" stroke={color} strokeWidth="0.8"/>
     <ellipse cx="0" cy="2" rx="5" ry="2" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.6"/>
     <path d="M-6,-1 L-8,-4 L-6,-3" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.5"/>
@@ -11487,8 +11487,8 @@ const FMG_Well = ({x,y,size=1,color="#8a8078"}) => (
   </g>
 );
 
-const FMG_Totem = ({x,y,size=1,color="#8a6a50"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Totem = ({x,y,s=1,color="#8a6a50"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-2,-6 L-2,-8 L0,-8 L0,-6 Z" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.6"/>
     <path d="M-0.5,-6 L-1.5,-6 L-1,-5 L0.5,-5 Z" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.6"/>
     <path d="M-1,-5 L-2,-3 L2,-3 L1,-5" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.6"/>
@@ -11500,8 +11500,8 @@ const FMG_Totem = ({x,y,size=1,color="#8a6a50"}) => (
   </g>
 );
 
-const FMG_Crystal = ({x,y,size=1,color="#7a7aa0"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Crystal = ({x,y,s=1,color="#7a7aa0"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-1,-6 L-3,-1 L-1,3 L1,3 L3,-1 Z" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.8"/>
     <path d="M1,-6 L-1,-6 L1,3" fill={color} fillOpacity="0.1" stroke={color} strokeWidth="0.6"/>
     <path d="M-1,-6 L3,-1 L1,3" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.6"/>
@@ -11510,8 +11510,8 @@ const FMG_Crystal = ({x,y,size=1,color="#7a7aa0"}) => (
   </g>
 );
 
-const FMG_Geyser = ({x,y,size=1,color="#a0a080"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Geyser = ({x,y,s=1,color="#a0a080"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-4,4 L-3,-1 L3,-1 L4,4 Z" fill={color} fillOpacity="0.15" stroke={color} strokeWidth="0.8"/>
     <path d="M-2,-1 Q-2,-4 -1,-6" fill="none" stroke="#4a88b0" strokeWidth="1" opacity="0.5"/>
     <path d="M0,-1 Q0,-5 1,-8" fill="none" stroke="#4a88b0" strokeWidth="1.2" opacity="0.6"/>
@@ -11521,8 +11521,8 @@ const FMG_Geyser = ({x,y,size=1,color="#a0a080"}) => (
   </g>
 );
 
-const FMG_Coral = ({x,y,size=1,color="#c0805a"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Coral = ({x,y,s=1,color="#c0805a"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-1,-6 L-2,-3 L-1,0 L0,-2" fill="none" stroke={color} strokeWidth="1" strokeLinecap="round"/>
     <path d="M0,-6 L1,-3 L0,0 L1,-2" fill="none" stroke={color} strokeWidth="1" strokeLinecap="round"/>
     <path d="M1,-6 L3,-2 L2,2 L3,0" fill="none" stroke={color} strokeWidth="1" strokeLinecap="round"/>
@@ -11534,8 +11534,8 @@ const FMG_Coral = ({x,y,size=1,color="#c0805a"}) => (
   </g>
 );
 
-const FMG_Anchor = ({x,y,size=1,color="#7a7a8a"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Anchor = ({x,y,s=1,color="#7a7a8a"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-1,-6 L-1,2" stroke={color} strokeWidth="1"/>
     <path d="M-3,2 L3,2" stroke={color} strokeWidth="1.2"/>
     <path d="M-3,2 L-2,-2 L0,-3" fill="none" stroke={color} strokeWidth="0.8"/>
@@ -11548,8 +11548,8 @@ const FMG_Anchor = ({x,y,size=1,color="#7a7a8a"}) => (
   </g>
 );
 
-const FMG_Flag = ({x,y,size=1,color="#d04040"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Flag = ({x,y,s=1,color="#d04040"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <line x1="0" y1="-6" x2="0" y2="4" stroke="#5a4a30" strokeWidth="0.8"/>
     <path d="M0,-5 Q3,-6 4,-4 Q3,-2 0,-3 Z" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.7" strokeLinecap="round"/>
     <path d="M0,-2 Q3,-1 4,1 Q3,2 0,1 Z" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.6" strokeLinecap="round"/>
@@ -11557,8 +11557,8 @@ const FMG_Flag = ({x,y,size=1,color="#d04040"}) => (
   </g>
 );
 
-const FMG_Fire = ({x,y,size=1,color="#ff6030"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Fire = ({x,y,s=1,color="#ff6030"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-1,3 L-2,0 L-1,-2 L0,-3 L1,-2 L2,0 L1,3 Z" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.7"/>
     <path d="M-1,2 Q-0.5,0 0,-1 Q0.5,0 1,2" fill={color} fillOpacity="0.5" stroke={color} strokeWidth="0.5"/>
     <path d="M-1,1 L0,-1 L1,1" fill="#ffb030" fillOpacity="0.4"/>
@@ -11568,8 +11568,8 @@ const FMG_Fire = ({x,y,size=1,color="#ff6030"}) => (
   </g>
 );
 
-const FMG_Mushroom = ({x,y,size=1,color="#c06050"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Mushroom = ({x,y,s=1,color="#c06050"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-4,-2 Q-5,-5 -2,-6 Q2,-6 5,-3 Q4,-1 0,-1 Q-3,-1 -4,-2" fill={color} fillOpacity="0.3" stroke={color} strokeWidth="0.8"/>
     <path d="M0,0 L0,4" stroke="#8a6a40" strokeWidth="1"/>
     <circle cx="-2.5" cy="-3" r="0.6" fill="#ffb030" fillOpacity="0.4"/>
@@ -11579,8 +11579,8 @@ const FMG_Mushroom = ({x,y,size=1,color="#c06050"}) => (
   </g>
 );
 
-const FMG_Web = ({x,y,size=1,color="#a0a0a0"}) => (
-  <g transform={`translate(${x},${y}) scale(${size/24})`}>
+const FMG_Web = ({x,y,s=1,color="#a0a0a0"}) => (
+  <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M0,-6 L6,6" stroke={color} strokeWidth="0.5" opacity="0.6"/>
     <path d="M0,-6 L-6,6" stroke={color} strokeWidth="0.5" opacity="0.6"/>
     <path d="M0,-6 L0,6" stroke={color} strokeWidth="0.5" opacity="0.6"/>
@@ -11952,7 +11952,7 @@ function generateSeaCurrents(rng, gW, gH, hmap, biomeGrid) {
     const currentCount = randInt(3, 6, rng);
     for (let i = 0; i < currentCount; i++) {
       const start = pick(waterCells, rng);
-      const angle = rng() * Math.PI * 2;
+      let angle = rng() * Math.PI * 2;
       const strength = 0.3 + rng() * 0.7;
       const path = [];
 
