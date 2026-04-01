@@ -2504,7 +2504,7 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
   const [showGrid, setShowGrid] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({x:0,y:0});
-  const [bgColor, setBgColor] = useState("#10101e");
+  const [bgColor, setBgColor] = useState(() => cssVar("--bg") || "#10101e");
   const [bgImage, setBgImage] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [drawings, setDrawings] = useState([]);
@@ -3556,7 +3556,11 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
   }
 
   // ── Presets & definitions ──
-  const bgPresets = [
+  const isLightMode = document.documentElement.classList.contains("light-mode");
+  const bgPresets = isLightMode ? [
+    { c:"#f5ede0", l:"Parchment" }, { c:"#e8dcc8", l:"Tan" }, { c:"#d5cbb5", l:"Stone" },
+    { c:"#c5d5c5", l:"Forest" }, { c:"#d5dde5", l:"Water" },
+  ] : [
     { c:"#10101e", l:"Dark" }, { c:"#1e3e22", l:"Forest" }, { c:"#30281a", l:"Cave" },
     { c:"#143040", l:"Water" }, { c:"#4a3e30", l:"Sand" },
   ];
@@ -14215,7 +14219,7 @@ export default function CampaignManager() {
 
   return (
     <div style={{ width:"100%", height:"100vh", display:"flex", flexDirection:"column", background:T.bg, color:T.text, fontFamily:T.body, overflow:"hidden" }}>
-      <nav style={{ display:"flex", alignItems:"center", gap:0, padding:"0 56px", height:56, flexShrink:0, borderBottom:`1px solid ${T.border}`, background:T.bgNav, position:"sticky", top:0, zIndex:200 }}>
+      <nav style={{ display:"flex", alignItems:"center", gap:0, padding:"0 56px", height:56, flexShrink:0, borderBottom:`1px solid ${T.border}`, background:T.bgNav, position:"sticky", top:0, zIndex:100 }}>
         <div style={{ display:"flex", alignItems:"center", gap:10, marginRight:36 }}>
           <Crown size={16} color={T.crimson} />
           <span style={{ fontFamily:T.ui, fontSize:10, fontWeight:500, color:T.text, letterSpacing:"3px", textTransform:"uppercase" }}>Campaign Manager</span>
