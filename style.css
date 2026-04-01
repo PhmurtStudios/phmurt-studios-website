@@ -31,6 +31,46 @@
   --black-mid:  #1a1824;
   --bg-input:   rgba(255,255,255,0.055);
   --border-subtle: rgba(255,255,255,0.08);
+  /* ── Tag variant colors ── */
+  --tag-danger-bg:     rgba(212,67,58,0.16);
+  --tag-danger-text:   #e8605a;
+  --tag-danger-border: rgba(212,67,58,0.42);
+  --tag-success-bg:    rgba(52,168,83,0.14);
+  --tag-success-text:  #5ee09a;
+  --tag-success-border: rgba(52,168,83,0.32);
+  --tag-warning-bg:    rgba(217,119,6,0.12);
+  --tag-warning-text:  #f0b860;
+  --tag-warning-border: rgba(217,119,6,0.28);
+  --tag-info-bg:       rgba(148,163,184,0.10);
+  --tag-info-text:     #a8b8cc;
+  --tag-info-border:   rgba(148,163,184,0.25);
+  --tag-critical-bg:   rgba(212,67,58,0.22);
+  --tag-critical-text: #ff7070;
+  --tag-critical-border: rgba(212,67,58,0.50);
+  /* ── Dice roll indicator colors ── */
+  --roll-crit:            #f1c40f;
+  --roll-crit-shadow:     rgba(241,196,15,0.5);
+  --roll-fumble-shadow:   rgba(212,67,58,0.5);
+  /* ── Threat level colors ── */
+  --threat-medium:        #d4a843;
+  /* ── Timeline event type colors ── */
+  --event-encounter:      #8b0000;
+  --event-discovery:      #1a6b3a;
+  --event-roleplay:       #7a6b0d;
+  --event-worldchange:    #2a4a6b;
+  --event-loot:           #7a6b0d;
+  --event-quest:          #3d5a1e;
+  /* ── Weather visualization colors ── */
+  --weather-rain-fill:    rgba(100,149,237,0.08);
+  --weather-rain-stroke:  rgba(100,149,237,0.15);
+  --weather-storm-fill:   rgba(75,0,130,0.06);
+  --weather-storm-stroke: rgba(75,0,130,0.15);
+  --weather-storm-lightning: rgba(255,215,0,0.3);
+  --weather-snow-fill:    rgba(200,220,255,0.06);
+  --weather-snow-stroke:  rgba(200,220,255,0.15);
+  --weather-fog-fill:     rgba(180,180,180,0.06);
+  --weather-fog-stroke:   rgba(180,180,180,0.1);
+  --weather-wind-stroke:  rgba(180,180,180,0.15);
 }
 
 /* ═══════════════════════════════
@@ -64,6 +104,46 @@ html.light-mode{
   --black-mid:  #d2c6aa;
   --bg-input:   rgba(12,4,0,0.06);
   --border-subtle: rgba(12,4,0,0.10);
+  /* ── Tag variant colors (light mode adjustments) ── */
+  --tag-danger-bg:     rgba(160,30,20,0.12);
+  --tag-danger-text:   #b83e32;
+  --tag-danger-border: rgba(160,30,20,0.30);
+  --tag-success-bg:    rgba(34,140,68,0.12);
+  --tag-success-text:  #2d9d57;
+  --tag-success-border: rgba(34,140,68,0.28);
+  --tag-warning-bg:    rgba(184,100,0,0.10);
+  --tag-warning-text:  #c87a00;
+  --tag-warning-border: rgba(184,100,0,0.24);
+  --tag-info-bg:       rgba(100,120,140,0.10);
+  --tag-info-text:     #5a7a94;
+  --tag-info-border:   rgba(100,120,140,0.22);
+  --tag-critical-bg:   rgba(160,30,20,0.18);
+  --tag-critical-text: #d63030;
+  --tag-critical-border: rgba(160,30,20,0.40);
+  /* ── Dice roll indicator colors (light mode) ── */
+  --roll-crit:            #d4a400;
+  --roll-crit-shadow:     rgba(212,164,0,0.4);
+  --roll-fumble-shadow:   rgba(160,30,20,0.4);
+  /* ── Threat level colors (light mode) ── */
+  --threat-medium:        #b8860a;
+  /* ── Timeline event type colors (light mode) ── */
+  --event-encounter:      #a82222;
+  --event-discovery:      #2d8a52;
+  --event-roleplay:       #8a7a24;
+  --event-worldchange:    #4a5a8a;
+  --event-loot:           #8a7a24;
+  --event-quest:          #5a7a3a;
+  /* ── Weather visualization colors (light mode) ── */
+  --weather-rain-fill:    rgba(100,149,237,0.06);
+  --weather-rain-stroke:  rgba(100,149,237,0.12);
+  --weather-storm-fill:   rgba(75,0,130,0.05);
+  --weather-storm-stroke: rgba(75,0,130,0.12);
+  --weather-storm-lightning: rgba(200,160,0,0.25);
+  --weather-snow-fill:    rgba(200,220,255,0.05);
+  --weather-snow-stroke:  rgba(200,220,255,0.12);
+  --weather-fog-fill:     rgba(140,140,140,0.06);
+  --weather-fog-stroke:   rgba(140,140,140,0.1);
+  --weather-wind-stroke:  rgba(140,140,140,0.12);
 }
 
 /* ═══════════════════════════════

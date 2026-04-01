@@ -23,40 +23,40 @@
   <script src="phmurt-auth.js"></script>
   <style>
     .cs-wrap { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
-    .cs-sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 32px; }
+    .cs-sheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 32px; }
     .cs-header { display: grid; grid-template-columns: 1fr auto; gap: 24px; margin-bottom: 32px; }
     .cs-title-block { display: flex; flex-direction: column; gap: 12px; }
     .cs-field-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .cs-field { display: flex; flex-direction: column; gap: 4px; }
     .cs-field label { font-family: Cinzel, serif; font-size: 10px; letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase; }
     .cs-field input, .cs-field textarea, .cs-field select {
-      background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px;
-      color: var(--text-primary); font-family: Spectral, serif; font-size: 14px;
+      background: var(--bg-mid); border: 1px solid var(--border); border-radius: 4px;
+      color: var(--text); font-family: Spectral, serif; font-size: 14px;
       padding: 7px 10px; width: 100%; box-sizing: border-box;
     }
     .cs-field textarea { resize: vertical; min-height: 80px; }
     .cs-section-title { font-family: Cinzel, serif; font-size: 13px; letter-spacing: 0.1em; color: var(--crimson); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 28px 0 16px; }
     .cs-abilities { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
-    .cs-ability { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 12px 8px; text-align: center; }
+    .cs-ability { background: var(--bg-mid); border: 1px solid var(--border); border-radius: 6px; padding: 12px 8px; text-align: center; }
     .cs-ability label { font-family: Cinzel, serif; font-size: 10px; letter-spacing: 0.06em; color: var(--text-dim); display: block; margin-bottom: 6px; }
     .cs-ability input[type="number"] {
       width: 100%; text-align: center; font-family: Cinzel, serif; font-size: 22px; font-weight: 700;
-      color: var(--text-primary); background: transparent; border: none; outline: none; padding: 0;
+      color: var(--text); background: transparent; border: none; outline: none; padding: 0;
     }
     .cs-ability .cs-mod { font-family: Spectral, serif; font-size: 13px; color: var(--text-dim); margin-top: 4px; min-height: 18px; }
     .cs-saves-skills { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
     .cs-check-list { display: flex; flex-direction: column; gap: 6px; }
-    .cs-check-item { display: flex; align-items: center; gap: 8px; font-family: Spectral, serif; font-size: 14px; color: var(--text-primary); }
+    .cs-check-item { display: flex; align-items: center; gap: 8px; font-family: Spectral, serif; font-size: 14px; color: var(--text); }
     .cs-check-item input[type="checkbox"] { accent-color: var(--crimson); width: 14px; height: 14px; flex-shrink: 0; }
     .cs-check-item .cs-prof-val { min-width: 32px; text-align: right; font-size: 13px; color: var(--text-dim); }
     .cs-combat { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
-    .cs-combat-box { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 12px; text-align: center; }
+    .cs-combat-box { background: var(--bg-mid); border: 1px solid var(--border); border-radius: 6px; padding: 12px; text-align: center; }
     .cs-combat-box label { font-family: Cinzel, serif; font-size: 9px; letter-spacing: 0.07em; color: var(--text-dim); display: block; margin-bottom: 6px; }
-    .cs-combat-box input { width: 100%; text-align: center; font-family: Cinzel, serif; font-size: 20px; font-weight: 700; color: var(--text-primary); background: transparent; border: none; outline: none; }
+    .cs-combat-box input { width: 100%; text-align: center; font-family: Cinzel, serif; font-size: 20px; font-weight: 700; color: var(--text); background: transparent; border: none; outline: none; }
     .cs-attack-table { width: 100%; border-collapse: collapse; font-family: Spectral, serif; font-size: 14px; margin-bottom: 8px; }
     .cs-attack-table th { font-family: Cinzel, serif; font-size: 10px; letter-spacing: 0.07em; color: var(--text-dim); text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
     .cs-attack-table td { padding: 4px 4px; }
-    .cs-attack-table td input { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: Spectral, serif; font-size: 13px; padding: 5px 8px; box-sizing: border-box; }
+    .cs-attack-table td input { width: 100%; background: var(--bg-mid); border: 1px solid var(--border); border-radius: 3px; color: var(--text); font-family: Spectral, serif; font-size: 13px; padding: 5px 8px; box-sizing: border-box; }
     .cs-spell-level { margin-bottom: 16px; }
     .cs-spell-level-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
     .cs-spell-level-header label { font-family: Cinzel, serif; font-size: 11px; letter-spacing: 0.07em; color: var(--text-dim); min-width: 60px; }
@@ -64,14 +64,14 @@
     .cs-slot-box { width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 3px; cursor: pointer; background: transparent; transition: background .15s; }
     .cs-slot-box.used { background: var(--crimson); }
     .cs-spells-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
-    .cs-spells-grid input { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: Spectral, serif; font-size: 13px; padding: 5px 8px; width: 100%; box-sizing: border-box; cursor: pointer; }
+    .cs-spells-grid input { background: var(--bg-mid); border: 1px solid var(--border); border-radius: 3px; color: var(--text); font-family: Spectral, serif; font-size: 13px; padding: 5px 8px; width: 100%; box-sizing: border-box; cursor: pointer; }
     .cs-spells-grid input:hover { border-color: var(--crimson); }
     .cs-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
     .cs-btn { padding: 10px 24px; font-family: Cinzel, serif; font-size: 13px; letter-spacing: 0.05em; border-radius: 4px; cursor: pointer; border: none; transition: background .15s, color .15s; }
     .cs-btn-primary { background: var(--crimson); color: #fff; }
-    .cs-btn-primary:hover { background: #a93226; }
+    .cs-btn-primary:hover { background: var(--crimson-dim); }
     .cs-btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
-    .cs-btn-secondary:hover { border-color: var(--crimson); color: var(--text-primary); }
+    .cs-btn-secondary:hover { border-color: var(--crimson); color: var(--text); }
 
     /* Spell Modal Styles */
     .spell-modal-overlay {
@@ -94,7 +94,7 @@
     .spell-modal-stat { margin-bottom: 12px; }
     .spell-modal-stat-label { font-weight: bold; color: var(--crimson); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
     .spell-modal-stat-value { font-family: Spectral, serif; font-size: 14px; margin-top: 2px; }
-    .spell-modal-desc { line-height: 1.7; margin: 16px 0; font-family: Spectral, serif; font-size: 14px; color: var(--text-primary); }
+    .spell-modal-desc { line-height: 1.7; margin: 16px 0; font-family: Spectral, serif; font-size: 14px; color: var(--text); }
     .spell-modal-actions { display: flex; gap: 8px; padding: 16px 20px; border-top: 1px solid var(--border); }
     .spell-cast-btn {
       flex: 1; padding: 10px; background: var(--crimson); border: none;
@@ -102,7 +102,7 @@
       letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 4px;
       transition: background .15s;
     }
-    .spell-cast-btn:hover { background: #a93226; }
+    .spell-cast-btn:hover { background: var(--crimson-dim); }
     .spell-close-btn {
       padding: 10px 20px; background: transparent; border: 1px solid var(--border);
       color: var(--text-dim); font-family: Cinzel, serif; font-size: 11px;

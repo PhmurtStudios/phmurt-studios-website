@@ -201,11 +201,11 @@ const EXAMPLE_CAMPAIGN = {
 const Tag = ({ children, variant = "default" }) => {
   const m = {
     default:  { bg: T.crimsonSoft, c: T.crimson,  b: T.crimsonBorder },
-    danger:   { bg: "rgba(212,67,58,0.16)", c: "#e8605a", b: "rgba(212,67,58,0.42)" },
-    success:  { bg: "rgba(52,168,83,0.14)", c: "#5ee09a", b: "rgba(52,168,83,0.32)" },
-    warning:  { bg: "rgba(217,119,6,0.12)", c: "#f0b860", b: "rgba(217,119,6,0.28)" },
-    info:     { bg: "rgba(148,163,184,0.10)", c: "#a8b8cc", b: "rgba(148,163,184,0.25)" },
-    critical: { bg: "rgba(212,67,58,0.22)", c: "#ff7070", b: "rgba(212,67,58,0.50)" },
+    danger:   { bg: "var(--tag-danger-bg)", c: "var(--tag-danger-text)", b: "var(--tag-danger-border)" },
+    success:  { bg: "var(--tag-success-bg)", c: "var(--tag-success-text)", b: "var(--tag-success-border)" },
+    warning:  { bg: "var(--tag-warning-bg)", c: "var(--tag-warning-text)", b: "var(--tag-warning-border)" },
+    info:     { bg: "var(--tag-info-bg)", c: "var(--tag-info-text)", b: "var(--tag-info-border)" },
+    critical: { bg: "var(--tag-critical-bg)", c: "var(--tag-critical-text)", b: "var(--tag-critical-border)" },
     muted:    { bg: T.bgInput, c: T.textMuted, b: T.border },
   };
   const s = m[variant] || m.default;
@@ -693,7 +693,7 @@ function DiceRoller() {
                 {r.count>1?`${r.count}`:""}{r.die===100?"d%":`d${r.die}`}{r.mod!==0?(r.mod>0?`+${r.mod}`:r.mod):""}
                 {r.count>1 && <span style={{ color:T.textFaint, marginLeft:4 }}>[{r.rolls.join(", ")}]</span>}
               </span>
-              <span style={{ fontWeight:500, color: r.crit?"#f1c40f":r.fumble?"#e8605a":T.text, textShadow: r.crit?"0 0 12px rgba(241,196,15,0.5)":r.fumble?"0 0 12px rgba(212,67,58,0.5)":"none" }}>
+              <span style={{ fontWeight:500, color: r.crit?"var(--roll-crit)":r.fumble?"var(--tag-danger-text)":T.text, textShadow: r.crit?"0 0 12px var(--roll-crit-shadow)":r.fumble?"0 0 12px var(--roll-fumble-shadow)":"none" }}>
                 {r.total} {r.crit?"NAT 20!":r.fumble?"NAT 1":""}
               </span>
             </div>
@@ -782,13 +782,13 @@ function InitiativeTracker({ party }) {
           }}>
             <div style={{ display:"flex", alignItems:"center", gap:8 }}>
               <span style={{ fontSize:12, fontFamily:T.body, fontWeight:500, color:T.textFaint, minWidth:20 }}>{c.init}</span>
-              <span style={{ width:5, height:5, borderRadius:"50%", flexShrink:0, background:c.type==="pc"?"#5ee09a":T.crimson }} />
+              <span style={{ width:5, height:5, borderRadius:"50%", flexShrink:0, background:c.type==="pc"?"var(--tag-success-text)":T.crimson }} />
               <span style={{ flex:1, fontSize:13, fontFamily:T.body, fontWeight:400, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
               <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>AC {c.ac}</span>
               <div style={{ display:"flex", alignItems:"center", gap:2 }}>
                 <button onClick={()=>adjHp(c.id,-5)} style={{ background:"none", border:"none", cursor:"pointer", color:T.crimson, fontSize:14, padding:"2px 4px" }}>−</button>
-                <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, minWidth:42, textAlign:"center", color:c.hp<=c.maxHp*0.25?T.crimson:c.hp<=c.maxHp*0.5?"#e8940a":T.textDim }}>{c.hp}/{c.maxHp}</span>
-                <button onClick={()=>adjHp(c.id,5)} style={{ background:"none", border:"none", cursor:"pointer", color:"#5ee09a", fontSize:14, padding:"2px 4px" }}>+</button>
+                <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, minWidth:42, textAlign:"center", color:c.hp<=c.maxHp*0.25?T.crimson:c.hp<=c.maxHp*0.5?"var(--tag-warning-text)":T.textDim }}>{c.hp}/{c.maxHp}</span>
+                <button onClick={()=>adjHp(c.id,5)} style={{ background:"none", border:"none", cursor:"pointer", color:"var(--tag-success-text)", fontSize:14, padding:"2px 4px" }}>+</button>
               </div>
               {c.type==="enemy" && <button onClick={()=>remove(c.id)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:"2px" }}><X size={10}/></button>}
             </div>
@@ -1329,7 +1329,7 @@ function DashboardView({ data, setData, onNav }) {
                   <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                     <div style={{flex:1}}><PowerBar val={f.power} max={100} color={f.color}/></div>
                     <span style={{ fontSize:11, color:T.textMuted }}>{f.power}</span>
-                    {f.trend==="rising"?<TrendingUp size={10} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={10} color="#5ee09a"/>:<Minus size={10} color={T.textFaint}/>}
+                    {f.trend==="rising"?<TrendingUp size={10} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={10} color="var(--tag-success-text)"/>:<Minus size={10} color={T.textFaint}/>}
                   </div>
                 </div>
               ))}
@@ -1345,7 +1345,7 @@ function DashboardView({ data, setData, onNav }) {
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             {steps.map((s,i) => (
               <div key={i} style={{ display:"flex", alignItems:"start", gap:10, opacity:s.done?0.4:1 }}>
-                {s.done ? <CheckCircle size={14} color="#5ee09a" style={{marginTop:2,flexShrink:0}}/> : <Circle size={14} color={T.crimson} style={{marginTop:2,flexShrink:0}}/>}
+                {s.done ? <CheckCircle size={14} color="var(--tag-success-text)" style={{marginTop:2,flexShrink:0}}/> : <Circle size={14} color={T.crimson} style={{marginTop:2,flexShrink:0}}/>}
                 <span style={{ fontSize:13, fontFamily:T.body, fontWeight:300, color:s.done?T.textFaint:T.textDim, textDecoration:s.done?"line-through":"none" }}>{s.text}</span>
               </div>
             ))}
@@ -1397,7 +1397,7 @@ function TimelineView({ data, setData }) {
   const [editNotes, setEditNotes] = useState({});
 
   const evIcons = { encounter:Swords, discovery:Search, roleplay:Users, world_change:Globe, loot:Star, quest_complete:CheckCircle };
-  const evCols = { encounter:"#8b0000", discovery:"#1a6b3a", roleplay:"#7a6b0d", world_change:"#2a4a6b", loot:"#7a6b0d", quest_complete:"#3d5a1e" };
+  const evCols = { encounter:"var(--event-encounter)", discovery:"var(--event-discovery)", roleplay:"var(--event-roleplay)", world_change:"var(--event-worldchange)", loot:"var(--event-loot)", quest_complete:"var(--event-quest)" };
   const toggle = id => setOpen(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; });
 
   const addSession = () => {
@@ -1589,7 +1589,7 @@ function WorldView({ data, setData }) {
     else if(type==="npc"){ if(ent.faction){const f=data.factions.find(f=>f.name===ent.faction); if(f) c.push({type:"faction",e:f,label:"Member of"});} const r=data.regions.find(r=>r.name===ent.loc); if(r) c.push({type:"region",e:r,label:"Located in"}); }
     return c;
   };
-  const tCols = { low:"#5ee09a", medium:"#d4a843", high:"#e8940a", extreme:T.crimson };
+  const tCols = { low:"var(--tag-success-text)", medium:"var(--threat-medium)", high:"var(--tag-warning-text)", extreme:T.crimson };
 
   // ── Continental map — 6000×4500 world ──
   const MAP_W = 6000, MAP_H = 4500;
@@ -2025,7 +2025,7 @@ function WorldView({ data, setData }) {
                       {r.visited && mapZoom > 1.2 && (
                         <g transform={`translate(${r.mx-(isBig?28:20)},${r.my-(isBig?26:18)})`}>
                           <circle r="6" fill="var(--bg-card)" stroke="var(--text-muted)" strokeWidth="0.7"/>
-                          <path d="M-2.5,0 L-0.5,2.5 L3,-2.5" stroke="#5ee09a" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+                          <path d="M-2.5,0 L-0.5,2.5 L3,-2.5" stroke={cssVar("--tag-success-text")} strokeWidth="1.4" fill="none" strokeLinecap="round"/>
                         </g>
                       )}
                       {/* Building cluster hint at detail zoom for towns/cities */}
@@ -2048,13 +2048,13 @@ function WorldView({ data, setData }) {
                 {/* ═══ LAYER 7: Weather overlay ═══ */}
                 {mapZoom > 0.4 && data.factions.map(wz => (
                   <g key={wz.key} opacity={0.12 + (mapZoom > 1 ? 0.08 : 0)}>
-                    {wz.type==="rain" && <><circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(100,149,237,0.08)" stroke="rgba(100,149,237,0.15)" strokeWidth="1" strokeDasharray="8,6"/>
-                      {mapZoom > 1 && [0,1,2,3,4,5].map(ri => <line key={`r-${ri}`} x1={wz.x-wz.r*0.6+ri*(wz.r*0.24)} y1={wz.y-20} x2={wz.x-wz.r*0.6+ri*(wz.r*0.24)-8} y2={wz.y+20} stroke="rgba(100,149,237,0.2)" strokeWidth="1" strokeLinecap="round"/>)}</>}
-                    {wz.type==="storm" && <><circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(75,0,130,0.06)" stroke="rgba(75,0,130,0.15)" strokeWidth="1.5" strokeDasharray="4,4"/>
-                      {mapZoom > 1 && <path d={`M${wz.x-10},${wz.y-15} L${wz.x+5},${wz.y-2} L${wz.x-5},${wz.y-2} L${wz.x+10},${wz.y+15}`} stroke="rgba(255,215,0,0.3)" strokeWidth="1.5" fill="none"/>}</>}
-                    {wz.type==="snow" && <circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(200,220,255,0.06)" stroke="rgba(200,220,255,0.15)" strokeWidth="1" strokeDasharray="3,6"/>}
-                    {wz.type==="fog" && <ellipse cx={wz.x} cy={wz.y} rx={wz.r*1.3} ry={wz.r*0.6} fill="rgba(180,180,180,0.06)" stroke="rgba(180,180,180,0.1)" strokeWidth="1"/>}
-                    {wz.type==="wind" && mapZoom > 0.8 && <path d={`M${wz.x-wz.r*0.8},${wz.y} Q${wz.x},${wz.y-30} ${wz.x+wz.r*0.8},${wz.y}`} stroke="rgba(180,180,180,0.15)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>}
+                    {wz.type==="rain" && <><circle cx={wz.x} cy={wz.y} r={wz.r} fill="var(--weather-rain-fill)" stroke="var(--weather-rain-stroke)" strokeWidth="1" strokeDasharray="8,6"/>
+                      {mapZoom > 1 && [0,1,2,3,4,5].map(ri => <line key={`r-${ri}`} x1={wz.x-wz.r*0.6+ri*(wz.r*0.24)} y1={wz.y-20} x2={wz.x-wz.r*0.6+ri*(wz.r*0.24)-8} y2={wz.y+20} stroke="var(--weather-rain-stroke)" strokeWidth="1" strokeLinecap="round"/>)}</>}
+                    {wz.type==="storm" && <><circle cx={wz.x} cy={wz.y} r={wz.r} fill="var(--weather-storm-fill)" stroke="var(--weather-storm-stroke)" strokeWidth="1.5" strokeDasharray="4,4"/>
+                      {mapZoom > 1 && <path d={`M${wz.x-10},${wz.y-15} L${wz.x+5},${wz.y-2} L${wz.x-5},${wz.y-2} L${wz.x+10},${wz.y+15}`} stroke="var(--weather-storm-lightning)" strokeWidth="1.5" fill="none"/>}</>}
+                    {wz.type==="snow" && <circle cx={wz.x} cy={wz.y} r={wz.r} fill="var(--weather-snow-fill)" stroke="var(--weather-snow-stroke)" strokeWidth="1" strokeDasharray="3,6"/>}
+                    {wz.type==="fog" && <ellipse cx={wz.x} cy={wz.y} rx={wz.r*1.3} ry={wz.r*0.6} fill="var(--weather-fog-fill)" stroke="var(--weather-fog-stroke)" strokeWidth="1"/>}
+                    {wz.type==="wind" && mapZoom > 0.8 && <path d={`M${wz.x-wz.r*0.8},${wz.y} Q${wz.x},${wz.y-30} ${wz.x+wz.r*0.8},${wz.y}`} stroke="var(--weather-wind-stroke)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>}
                     {mapZoom > 1.2 && <text x={wz.x} y={wz.y} textAnchor="middle" fill="var(--text-faint)" fontFamily="'Spectral', serif" fontSize="9" fontStyle="italic" opacity="0.5">{wz.type}</text>}
                   </g>
                 ))}
@@ -2062,7 +2062,7 @@ function WorldView({ data, setData }) {
                 {/* ═══ LAYER 8: Encounter zones — visible at local zoom+ ═══ */}
                 {mapZoom > 1.8 && [].map(ez => (
                   <g key={ez.key} opacity="0.25" style={{cursor:"pointer"}} onClick={(e)=>{e.stopPropagation();setSel({...ez,id:ez.id});setSelType("encounter");}}>
-                    <circle cx={ez.x} cy={ez.y} r={ez.r} fill="rgba(212,67,58,0.04)" stroke="rgba(212,67,58,0.2)" strokeWidth="1" strokeDasharray="6,4"/>
+                    <circle cx={ez.x} cy={ez.y} r={ez.r} fill={`${cssVar("--crimson")}0a`} stroke={`${cssVar("--crimson")}33`} strokeWidth="1" strokeDasharray="6,4"/>
                     {mapZoom > 2.5 && <>
                       <text x={ez.x} y={ez.y-8} textAnchor="middle" fill="var(--crimson)" fontFamily="'Cinzel', serif" fontSize="7" letterSpacing="1" opacity="0.6" style={{textTransform:"uppercase"}}>{ez.type}</text>
                       <text x={ez.x} y={ez.y+6} textAnchor="middle" fill="var(--text-muted)" fontFamily="'Spectral', serif" fontSize="8" fontStyle="italic" opacity="0.5">CR {ez.cr}</text>
@@ -2191,7 +2191,7 @@ function WorldView({ data, setData }) {
                       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
                         <span style={{ fontSize:18, fontWeight:300, color:T.text }}>{f.name}</span>
                         <Tag variant={f.attitude==="allied"||f.attitude==="friendly"?"success":f.attitude==="hostile"?"danger":"muted"}>{f.attitude}</Tag>
-                        {f.trend==="rising"?<TrendingUp size={12} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={12} color="#5ee09a"/>:<Minus size={12} color={T.textFaint}/>}
+                        {f.trend==="rising"?<TrendingUp size={12} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={12} color="var(--tag-success-text)"/>:<Minus size={12} color={T.textFaint}/>}
                       </div>
                       <p style={{ fontSize:13, color:T.textDim, margin:"0 0 10px", fontWeight:300, fontStyle:"italic" }}>{f.desc}</p>
                       <div style={{ display:"flex", alignItems:"center", gap:10, maxWidth:300 }}>
@@ -2447,7 +2447,8 @@ function Battlemap({ party, npcs }) {
 
     // Grid
     if (showGrid) {
-      ctx.strokeStyle = "rgba(212,67,58,0.15)"; // subtle grid lines — fixed color is fine
+      const crimsonHex = cssVar("--crimson");
+      ctx.strokeStyle = crimsonHex.startsWith("#") ? `${crimsonHex}26` : "rgba(212,67,58,0.15)"; // subtle grid lines
       ctx.lineWidth = 0.5;
       const gw = bgImage ? bgImage.width : w / zoom;
       const gh = bgImage ? bgImage.height : h / zoom;
@@ -2504,8 +2505,10 @@ function Battlemap({ party, npcs }) {
         const barX = t.x - barW/2, barY = t.y + r + 4;
         ctx.fillStyle = "rgba(0,0,0,0.6)";
         ctx.fillRect(barX, barY, barW, barH);
-        ctx.fillStyle = t.hp < t.maxHp * 0.3 ? "#d4433a" : t.hp < t.maxHp * 0.6 ? "#e8940a" : "#2e8b57";
-        ctx.fillRect(barX, barY, barW * (t.hp / t.maxHp), barH);
+        const hpPercent = t.hp / t.maxHp;
+        const hpColor = hpPercent < 0.3 ? cssVar("--crimson") : hpPercent < 0.6 ? cssVar("--tag-warning-text") : cssVar("--tag-success-text");
+        ctx.fillStyle = hpColor;
+        ctx.fillRect(barX, barY, barW * hpPercent, barH);
       }
     });
 
@@ -2944,7 +2947,7 @@ function SettingsView({ data, setData }) {
         {!confirmReset ? (
           <CrimsonBtn secondary onClick={()=>setConfirmReset(true)}><Trash2 size={12}/> Reset Campaign</CrimsonBtn>
         ) : (
-          <div style={{ padding:16, background:"rgba(212,67,58,0.08)", border:`1px solid rgba(212,67,58,0.3)`, borderRadius:"4px" }}>
+          <div style={{ padding:16, background:"var(--tag-danger-bg)", border:`1px solid var(--tag-danger-border)`, borderRadius:"4px" }}>
             <p style={{ fontSize:13, color:T.crimson, marginBottom:12, fontWeight:300 }}>This will erase all campaign data. Are you sure?</p>
             <div style={{ display:"flex", gap:12 }}>
               <CrimsonBtn onClick={()=>{setData(d=>({...NEW_CAMPAIGN(),name:d.name}));setConfirmReset(false);}}><Trash2 size={12}/> Confirm Reset</CrimsonBtn>
@@ -12709,7 +12712,7 @@ function FantasyMapGenerator() {
                 <rect x={hoveredEntity.x*CELL+10} y={hoveredEntity.y*CELL-35} width={Math.max(120,hoveredEntity.name.length*7+24)} height={44} rx={2} fill="rgba(15,15,20,0.92)" stroke="rgba(150,80,80,0.4)" strokeWidth={0.5}/>
                 <text x={hoveredEntity.x*CELL+18} y={hoveredEntity.y*CELL-20} fill="#f0e0c0" fontFamily="'Cinzel', serif" fontSize={9} fontWeight={500}>{hoveredEntity.name}</text>
                 <text x={hoveredEntity.x*CELL+18} y={hoveredEntity.y*CELL-8} fill="rgba(200,180,150,0.6)" fontFamily="'Spectral', serif" fontSize={7} style={{textTransform:"capitalize"}}>{hoveredEntity.type}{hoveredEntity.population?` | Pop. ${hoveredEntity.population.toLocaleString()}`:""}</text>
-                {hoveredEntity.threat&&<text x={hoveredEntity.x*CELL+18} y={hoveredEntity.y*CELL+3} fill={hoveredEntity.threat==="deadly"||hoveredEntity.threat==="extreme"?"#ff7070":hoveredEntity.threat==="high"?"#f0b860":"#5ee09a"} fontFamily="'Spectral', serif" fontSize={7}>Threat: {hoveredEntity.threat}</text>}
+                {hoveredEntity.threat&&<text x={hoveredEntity.x*CELL+18} y={hoveredEntity.y*CELL+3} fill={hoveredEntity.threat==="deadly"||hoveredEntity.threat==="extreme"?"var(--tag-critical-text)":hoveredEntity.threat==="high"?"var(--tag-warning-text)":"var(--tag-success-text)"} fontFamily="'Spectral', serif" fontSize={7}>Threat: {hoveredEntity.threat}</text>}
               </g>
             )}
           </svg>

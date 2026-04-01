@@ -44,6 +44,13 @@ const T = {
    which cannot interpret var() references. */
 const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
+/* Get HP color based on health percentage. Consistent across all locations. */
+const getHpColor = (hp, maxHp) => {
+  if (hp < maxHp * 0.3) return "#d4433a"; // red
+  if (hp < maxHp * 0.6) return "#e8940a"; // yellow
+  return "#2e8b57"; // green
+};
+
 // ─── BLANK CAMPAIGN TEMPLATE ────────────────────────────────────────────────
 
 const NEW_CAMPAIGN = () => ({
@@ -745,7 +752,7 @@ function InitiativeTracker({ party }) {
               <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>AC {c.ac}</span>
               <div style={{ display:"flex", alignItems:"center", gap:2 }}>
                 <button onClick={()=>adjHp(c.id,-5)} style={{ background:"none", border:"none", cursor:"pointer", color:T.crimson, fontSize:14, padding:"2px 4px" }}>−</button>
-                <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, minWidth:42, textAlign:"center", color:c.hp<=c.maxHp*0.25?T.crimson:c.hp<=c.maxHp*0.5?"#e8940a":T.textDim }}>{c.hp}/{c.maxHp}</span>
+                <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, minWidth:42, textAlign:"center", color:c.hp<c.maxHp*0.3?T.crimson:c.hp<c.maxHp*0.6?"#e8940a":T.textDim }}>{c.hp}/{c.maxHp}</span>
                 <button onClick={()=>adjHp(c.id,5)} style={{ background:"none", border:"none", cursor:"pointer", color:"#5ee09a", fontSize:14, padding:"2px 4px" }}>+</button>
               </div>
               {c.type==="enemy" && <button onClick={()=>remove(c.id)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:"2px" }}><X size={10}/></button>}
@@ -999,8 +1006,8 @@ function PlayerCard({ member, onEdit, onUploadSheet, isDm }) {
         <div style={{ display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
           {member.status!=="healthy" && <Tag variant={member.status==="wounded"||member.status==="dead"?"danger":"warning"}>{member.status}</Tag>}
           <div style={{ textAlign:"right" }}>
-            <div style={{ fontSize:11, color:member.hp<=member.maxHp*0.3?T.crimson:member.hp<=member.maxHp*0.5?"#e8940a":T.textDim, fontWeight:500 }}>{member.hp}/{member.maxHp}</div>
-            <div style={{ width:60 }}><HpBar val={member.hp} max={member.maxHp} color={member.hp<member.maxHp*0.3?T.crimson:member.hp<member.maxHp*0.6?"#e8940a":"#2e8b57"}/></div>
+            <div style={{ fontSize:11, color:member.hp<member.maxHp*0.3?T.crimson:member.hp<member.maxHp*0.6?"#e8940a":T.textDim, fontWeight:500 }}>{member.hp}/{member.maxHp}</div>
+            <div style={{ width:60 }}><HpBar val={member.hp} max={member.maxHp} color={getHpColor(member.hp, member.maxHp)}/></div>
           </div>
           <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>AC {member.ac}</span>
           {expanded ? <ChevronUp size={14} color={T.textFaint}/> : <ChevronDown size={14} color={T.textFaint}/>}
@@ -2607,7 +2614,12 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
 
     // Grid
     if (showGrid) {
-      ctx.strokeStyle = "rgba(212,67,58,0.15)";
+      const crimsonColor = cssVar("--crimson").match(/\d+/g);
+      if (crimsonColor) {
+        ctx.strokeStyle = "rgba(" + crimsonColor.join(",") + ",0.15)";
+      } else {
+        ctx.strokeStyle = "rgba(212,67,58,0.15)"; // fallback
+      }
       ctx.lineWidth = 0.5;
       for (let x = 0; x <= mapW; x += gridSize) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, mapH); ctx.stroke();
@@ -2782,7 +2794,12 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
         const pulse = 0.5 + 0.5 * Math.sin(now / 400);
         ctx.beginPath();
         ctx.arc(t.x, t.y, r + 6, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(220, 20, 60, " + (0.3 + 0.4 * pulse) + ")";
+        const crimsonColor = cssVar("--crimson").match(/\d+/g);
+        if (crimsonColor) {
+          ctx.strokeStyle = "rgba(" + crimsonColor.join(",") + "," + (0.3 + 0.4 * pulse) + ")";
+        } else {
+          ctx.strokeStyle = "rgba(220, 20, 60, " + (0.3 + 0.4 * pulse) + ")"; // fallback
+        }
         ctx.lineWidth = 3;
         ctx.stroke();
       }
@@ -2828,7 +2845,7 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
         const barX = t.x - barW/2, barY = t.y + r + 4;
         ctx.fillStyle = "rgba(0,0,0,0.6)";
         ctx.fillRect(barX, barY, barW, barH);
-        ctx.fillStyle = t.hp < t.maxHp * 0.3 ? "#d4433a" : t.hp < t.maxHp * 0.6 ? "#e8940a" : "#2e8b57";
+        ctx.fillStyle = getHpColor(t.hp, t.maxHp);
         ctx.fillRect(barX, barY, barW * Math.max(0, t.hp / t.maxHp), barH);
       }
 
@@ -3852,7 +3869,7 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
                         <div style={{ display:"flex", alignItems:"center", gap:3, marginTop:3, paddingLeft:24 }}>
                           <button onClick={e=>{e.stopPropagation();adjCombatantHp(c.id,-5);}} style={{ background:"none", border:"none", cursor:"pointer", color:"#f06858", fontSize:12, padding:"1px 3px" }}>-</button>
                           <div style={{ flex:1, height:5, background:T.bgInput, borderRadius:"2px", overflow:"hidden" }}>
-                            <div style={{ width: Math.round(c.hp/c.maxHp*100) + "%", height:"100%", background:c.hp<c.maxHp*0.3?"#d4433a":c.hp<c.maxHp*0.6?"#e8940a":"#2e8b57", transition:"width 0.2s" }} />
+                            <div style={{ width: Math.round(c.hp/c.maxHp*100) + "%", height:"100%", background:getHpColor(c.hp, c.maxHp), transition:"width 0.2s" }} />
                           </div>
                           <span style={{ fontSize:9, fontFamily:T.body, minWidth:32, textAlign:"center", color:T.textMuted }}>{c.hp}/{c.maxHp}</span>
                           <button onClick={e=>{e.stopPropagation();adjCombatantHp(c.id,5);}} style={{ background:"none", border:"none", cursor:"pointer", color:"#5ee09a", fontSize:12, padding:"1px 3px" }}>+</button>
@@ -3914,12 +3931,12 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
                 <div>
                   <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textFaint, textTransform:"uppercase", display:"block", marginBottom:6 }}>Hit Points</span>
                   <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
-                    <span style={{ fontSize:28, fontFamily:T.body, fontWeight:300, color: selectedToken.hp < selectedToken.maxHp * 0.3 ? "#f06858" : selectedToken.hp < selectedToken.maxHp * 0.6 ? "#f5c45c" : "#5ee09a" }}>
+                    <span style={{ fontSize:28, fontFamily:T.body, fontWeight:300, color: getHpColor(selectedToken.hp, selectedToken.maxHp) }}>
                       {selectedToken.hp}
                     </span>
                     <span style={{ fontSize:14, color:T.textFaint, fontFamily:T.body }}>/ {selectedToken.maxHp}</span>
                   </div>
-                  <HpBar val={selectedToken.hp} max={selectedToken.maxHp} color={selectedToken.hp < selectedToken.maxHp * 0.3 ? "#d4433a" : selectedToken.hp < selectedToken.maxHp * 0.6 ? "#e8940a" : "#2e8b57"} />
+                  <HpBar val={selectedToken.hp} max={selectedToken.maxHp} color={getHpColor(selectedToken.hp, selectedToken.maxHp)} />
 
                   <div style={{ display:"flex", gap:6, marginTop:10 }}>
                     {[{d:-10,c:"rgba(212,67,58,0.15)",bc:"rgba(212,67,58,0.3)",tc:"#f06858"},{d:-5,c:"rgba(212,67,58,0.10)",bc:"rgba(212,67,58,0.2)",tc:"#f06858"},{d:-1,c:"rgba(212,67,58,0.06)",bc:"rgba(212,67,58,0.15)",tc:"#f06858"},{d:1,c:"rgba(46,139,87,0.06)",bc:"rgba(46,139,87,0.15)",tc:"#5ee09a"},{d:5,c:"rgba(46,139,87,0.10)",bc:"rgba(46,139,87,0.2)",tc:"#5ee09a"},{d:10,c:"rgba(46,139,87,0.15)",bc:"rgba(46,139,87,0.3)",tc:"#5ee09a"}].map(btn => (
