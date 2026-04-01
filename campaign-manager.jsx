@@ -2494,7 +2494,7 @@ function computeVisibleCells(tokens, walls, gridSize, mapW, mapH) {
   return visible;
 }
 
-function Battlemap({ party, npcs, viewRole = "dm" }) {
+function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const fileRef = useRef(null);
@@ -2566,6 +2566,16 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
   const [templates, setTemplates] = useState(() => {
     try { return JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]'); } catch { return []; }
   });
+  // Sync templates from Supabase when campaign is active
+  useEffect(() => {
+    if (!activeCampaignId || activeCampaignId === 'example') return;
+    if (typeof PhmurtDB === 'undefined') return;
+    PhmurtDB.getEncounterTemplates(activeCampaignId).then(rows => {
+      if (rows && rows.length > 0) {
+        setTemplates(rows.map(r => ({ ...r.data, id: r.id, _fromCloud: true })));
+      }
+    }).catch(() => {});
+  }, [activeCampaignId]);
   const [templateName, setTemplateName] = useState("");
   const [showTemplateInput, setShowTemplateInput] = useState(false);
 
@@ -2966,7 +2976,7 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
     return () => window.removeEventListener("resize", resize);
   }, [render]);
 
-  // ── DM: Broadcast state changes ──
+  // ── DM: Broadcast state changes via PhmurtRealtime ──
   const syncTimerRef = useRef(null);
   useEffect(() => {
     if (viewRole !== "dm") return;
@@ -2976,65 +2986,64 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
         tokens, drawings, fogCells, walls, terrainCells, bgColor, gridSize, showGrid,
         combatLive, combatants, turn, round, conditions, fogMode, pings,
       };
-      // Merge in any player pings
-      try {
-        const existing = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
-        if (existing.playerPings) {
-          const fresh = existing.playerPings.filter(pp => Date.now() - pp.time < 3000);
-          if (fresh.length > 0) {
-            const myPingIds = new Set(pings.map(p => p.id));
-            const newPlayerPings = fresh.filter(pp => !myPingIds.has(pp.id));
-            if (newPlayerPings.length > 0) {
-              state.pings = [...pings, ...newPlayerPings];
-            }
-          }
-        }
-      } catch {}
-      localStorage.setItem(SYNC_KEY, JSON.stringify(state));
+      // Broadcast via PhmurtRealtime (Supabase channel or localStorage fallback)
+      if (typeof PhmurtRealtime !== 'undefined' && activeCampaignId && activeCampaignId !== 'example') {
+        PhmurtRealtime.broadcastState(activeCampaignId, state);
+      } else {
+        // Fallback: localStorage only (same-device or no campaign)
+        try { localStorage.setItem(SYNC_KEY, JSON.stringify(state)); } catch {}
+      }
     }, 150);
     return () => clearTimeout(syncTimerRef.current);
-  }, [tokens, drawings, fogCells, walls, terrainCells, bgColor, gridSize, showGrid, combatLive, combatants, turn, round, conditions, fogMode, pings, viewRole]);
+  }, [tokens, drawings, fogCells, walls, terrainCells, bgColor, gridSize, showGrid, combatLive, combatants, turn, round, conditions, fogMode, pings, viewRole, activeCampaignId]);
 
-  // ── Player: Read state changes ──
+  // ── Player: Subscribe to DM state via PhmurtRealtime ──
+  const realtimeHandleRef = useRef(null);
   useEffect(() => {
     if (viewRole !== "player") return;
-    const interval = setInterval(() => {
-      try {
-        const raw = localStorage.getItem(SYNC_KEY);
-        if (!raw) return;
-        const state = JSON.parse(raw);
-        if (state.tokens) setTokens(state.tokens);
-        if (state.drawings) setDrawings(state.drawings);
-        if (state.fogCells) setFogCells(state.fogCells);
-        if (state.walls) setWalls(state.walls);
-        if (state.terrainCells) setTerrainCells(state.terrainCells);
-        if (state.bgColor) setBgColor(state.bgColor);
-        if (state.gridSize) setGridSize(state.gridSize);
-        if (state.showGrid !== undefined) setShowGrid(state.showGrid);
-        if (state.combatLive !== undefined) setCombatLive(state.combatLive);
-        if (state.combatants) setCombatants(state.combatants);
-        if (state.turn !== undefined) setTurn(state.turn);
-        if (state.round !== undefined) setRound(state.round);
-        if (state.conditions) setConditions(state.conditions);
-        if (state.fogMode) setFogMode(state.fogMode);
-        if (state.pings) setPings(state.pings.filter(p => Date.now() - p.time < 3000));
-      } catch {}
-    }, 250);
-    return () => clearInterval(interval);
-  }, [viewRole]);
 
-  // ── Player: Write pings back ──
-  useEffect(() => {
-    if (viewRole !== "player" || pings.length === 0) return;
-    try {
-      const raw = localStorage.getItem(SYNC_KEY);
-      if (raw) {
-        const state = JSON.parse(raw);
-        state.playerPings = pings.filter(p => p.source === "player");
-        localStorage.setItem(SYNC_KEY, JSON.stringify(state));
+    const applyState = (state) => {
+      if (!state) return;
+      if (state.tokens)    setTokens(state.tokens);
+      if (state.drawings)  setDrawings(state.drawings);
+      if (state.fogCells)  setFogCells(state.fogCells);
+      if (state.walls)     setWalls(state.walls);
+      if (state.terrainCells) setTerrainCells(state.terrainCells);
+      if (state.bgColor)   setBgColor(state.bgColor);
+      if (state.gridSize)  setGridSize(state.gridSize);
+      if (state.showGrid !== undefined) setShowGrid(state.showGrid);
+      if (state.combatLive !== undefined) setCombatLive(state.combatLive);
+      if (state.combatants) setCombatants(state.combatants);
+      if (state.turn !== undefined) setTurn(state.turn);
+      if (state.round !== undefined) setRound(state.round);
+      if (state.conditions) setConditions(state.conditions);
+      if (state.fogMode)   setFogMode(state.fogMode);
+      if (state.pings)     setPings(state.pings.filter(p => Date.now() - p.time < 3000));
+    };
+
+    if (typeof PhmurtRealtime !== 'undefined' && activeCampaignId && activeCampaignId !== 'example') {
+      // Load current snapshot first (so player sees state immediately on join)
+      PhmurtRealtime.loadSnapshot(activeCampaignId).then(applyState);
+      // Then subscribe to live updates
+      realtimeHandleRef.current = PhmurtRealtime.joinBattleMap(activeCampaignId, 'player', applyState);
+    } else {
+      // Fallback: poll localStorage (same device only)
+      const interval = setInterval(() => {
+        try {
+          const raw = localStorage.getItem(SYNC_KEY);
+          if (raw) applyState(JSON.parse(raw));
+        } catch {}
+      }, 250);
+      realtimeHandleRef.current = { leave: () => clearInterval(interval) };
+    }
+
+    return () => {
+      if (realtimeHandleRef.current) {
+        realtimeHandleRef.current.leave();
+        realtimeHandleRef.current = null;
       }
-    } catch {}
-  }, [pings, viewRole]);
+    };
+  }, [viewRole, activeCampaignId]);
 
   // ── Keyboard handler ──
   useEffect(() => {
@@ -3487,6 +3496,10 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
     const updated = [...templates, tpl];
     setTemplates(updated);
     localStorage.setItem(TEMPLATE_KEY, JSON.stringify(updated));
+    // Also save to Supabase cloud
+    if (typeof PhmurtDB !== 'undefined' && activeCampaignId && activeCampaignId !== 'example') {
+      PhmurtDB.saveEncounterTemplate(activeCampaignId, tpl).catch(() => {});
+    }
     setTemplateName("");
     setShowTemplateInput(false);
   };
@@ -3502,9 +3515,14 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
   };
 
   const deleteTemplate = (id) => {
+    const tpl = templates.find(t => t.id === id);
     const updated = templates.filter(t => t.id !== id);
     setTemplates(updated);
     localStorage.setItem(TEMPLATE_KEY, JSON.stringify(updated));
+    // Also delete from Supabase cloud
+    if (typeof PhmurtDB !== 'undefined' && tpl && tpl._fromCloud) {
+      PhmurtDB.deleteEncounterTemplate(id).catch(() => {});
+    }
   };
 
   // ── Quick macros ──
@@ -4204,7 +4222,7 @@ function PlayView({ data, setData }) {
       </div>
 
       {viewMode==="battlemap" ? (
-        <Battlemap party={data.party} npcs={data.npcs} viewRole={isPlayer ? "player" : "dm"} />
+        <Battlemap party={data.party} npcs={data.npcs} viewRole={isPlayer ? "player" : "dm"} activeCampaignId={activeCampaignId} />
       ) : (
         <div style={{ padding:24, overflowY:"auto", flex:1 }}>
           <SectionTitle icon={Users} count={data.npcs.filter(n=>n.alive).length}>NPC Reference</SectionTitle>

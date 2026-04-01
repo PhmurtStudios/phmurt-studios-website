@@ -750,6 +750,156 @@ var PhmurtDB = (function () {
         var el = document.getElementById('pa-in-email');
         if (el) el.focus();
       }, 80);
+    },
+
+    /* ── Encounter Templates ──────────────────────────────────── */
+    saveEncounterTemplate: function (campaignId, template) {
+      var sb = _sb();
+      if (!sb || !_session) return Promise.resolve({ success: false, error: 'Not signed in' });
+      var record = {
+        campaign_id: campaignId,
+        owner_id:    _session.userId,
+        name:        template.name,
+        data:        template,
+        updated_at:  new Date().toISOString()
+      };
+      if (template.id && template.id.startsWith && !template.id.startsWith('tpl-')) {
+        // Existing DB record
+        return sb.from('encounter_templates').update(record).eq('id', template.id)
+          .then(function (r) { return { success: !r.error, error: r.error && r.error.message }; });
+      }
+      return sb.from('encounter_templates').insert(record).select('id').single()
+        .then(function (r) {
+          return { success: !r.error, id: r.data && r.data.id, error: r.error && r.error.message };
+        });
+    },
+
+    getEncounterTemplates: function (campaignId) {
+      var sb = _sb();
+      if (!sb) return Promise.resolve([]);
+      return sb.from('encounter_templates')
+        .select('id, name, data, updated_at')
+        .eq('campaign_id', campaignId)
+        .order('updated_at', { ascending: false })
+        .then(function (r) { return r.data || []; })
+        .catch(function () { return []; });
+    },
+
+    deleteEncounterTemplate: function (templateId) {
+      var sb = _sb();
+      if (!sb) return Promise.resolve(false);
+      return sb.from('encounter_templates').delete().eq('id', templateId)
+        .then(function (r) { return !r.error; })
+        .catch(function () { return false; });
+    },
+
+    /* ── Campaign Invites ─────────────────────────────────────── */
+    createInviteCode: function (campaignId) {
+      var sb = _sb();
+      if (!sb || !_session) return Promise.resolve(null);
+      return sb.from('campaign_invites').insert({
+        campaign_id: campaignId,
+        owner_id:    _session.userId
+      }).select('code').single()
+        .then(function (r) { return r.data ? r.data.code : null; })
+        .catch(function () { return null; });
+    },
+
+    joinCampaignByCode: function (code) {
+      var sb = _sb();
+      if (!sb) return Promise.resolve({ success: false, error: 'Not connected' });
+      return sb.rpc('join_campaign_by_code', { invite_code: code })
+        .then(function (r) { return r.data || { success: false, error: r.error && r.error.message }; })
+        .catch(function (e) { return { success: false, error: e.message }; });
+    },
+
+    getInviteCodes: function (campaignId) {
+      var sb = _sb();
+      if (!sb) return Promise.resolve([]);
+      return sb.from('campaign_invites')
+        .select('id, code, use_count, max_uses, expires_at, created_at')
+        .eq('campaign_id', campaignId)
+        .order('created_at', { ascending: false })
+        .then(function (r) { return r.data || []; })
+        .catch(function () { return []; });
+    },
+
+    deleteInviteCode: function (inviteId) {
+      var sb = _sb();
+      if (!sb) return Promise.resolve(false);
+      return sb.from('campaign_invites').delete().eq('id', inviteId)
+        .then(function (r) { return !r.error; });
+    },
+
+    /* ── Campaign Members ─────────────────────────────────────── */
+    getCampaignMembers: function (campaignId) {
+      var sb = _sb();
+      if (!sb) return Promise.resolve([]);
+      return sb.from('campaign_members')
+        .select('user_id, role, joined_at, profiles(name, email)')
+        .eq('campaign_id', campaignId)
+        .then(function (r) { return r.data || []; })
+        .catch(function () { return []; });
+    },
+
+    getMyCampaigns: function () {
+      /* Returns campaigns user owns OR is a member of */
+      var sb = _sb();
+      if (!sb || !_session) return Promise.resolve([]);
+      var userId = _session.userId;
+      return Promise.all([
+        // Owned campaigns
+        sb.from('campaigns').select('id, data, created_at, updated_at').eq('owner_id', userId),
+        // Member campaigns
+        sb.from('campaign_members')
+          .select('campaign_id, role, campaigns(id, data, created_at, updated_at)')
+          .eq('user_id', userId)
+      ]).then(function (results) {
+        var owned = (results[0].data || []).map(function (c) { return Object.assign({}, c, { _role: 'dm' }); });
+        var joined = (results[1].data || []).filter(function (m) { return m.campaigns; }).map(function (m) {
+          return Object.assign({}, m.campaigns, { _role: m.role });
+        });
+        // Merge, deduplicate by id
+        var seen = {};
+        return owned.concat(joined).filter(function (c) {
+          if (seen[c.id]) return false;
+          seen[c.id] = true;
+          return true;
+        });
+      }).catch(function () { return []; });
+    },
+
+    /* ── Storage — Map Images ─────────────────────────────────── */
+    uploadMapImage: function (campaignId, file) {
+      var sb = _sb();
+      if (!sb || !_session) return Promise.resolve(null);
+      var path = _session.userId + '/' + campaignId + '/' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      return sb.storage.from('map-images').upload(path, file, { upsert: false })
+        .then(function (r) {
+          if (r.error) { console.warn('[PhmurtDB] Map upload failed:', r.error.message); return null; }
+          return sb.storage.from('map-images').createSignedUrl(path, 60 * 60 * 24 * 7) // 7-day URL
+            .then(function (u) { return u.data ? u.data.signedUrl : null; });
+        });
+    },
+
+    getMapImageUrl: function (path) {
+      var sb = _sb();
+      if (!sb) return Promise.resolve(null);
+      return sb.storage.from('map-images').createSignedUrl(path, 60 * 60 * 24 * 7)
+        .then(function (r) { return r.data ? r.data.signedUrl : null; });
+    },
+
+    /* ── Storage — Portraits ──────────────────────────────────── */
+    uploadPortrait: function (entityId, file) {
+      var sb = _sb();
+      if (!sb || !_session) return Promise.resolve(null);
+      var path = _session.userId + '/' + entityId + '.' + (file.name.split('.').pop() || 'jpg');
+      return sb.storage.from('portraits').upload(path, file, { upsert: true })
+        .then(function (r) {
+          if (r.error) { console.warn('[PhmurtDB] Portrait upload failed:', r.error.message); return null; }
+          return sb.storage.from('portraits').createSignedUrl(path, 60 * 60 * 24 * 30)
+            .then(function (u) { return u.data ? u.data.signedUrl : null; });
+        });
     }
   };
 
