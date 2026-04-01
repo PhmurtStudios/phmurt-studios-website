@@ -3692,7 +3692,7 @@ function Battlemap({ party, npcs, viewRole = "dm" }) {
 
             {/* Dice result popup */}
             {diceResult && (
-              <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", background: diceResult.crit ? "rgba(46,139,87,0.95)" : diceResult.fumble ? "rgba(212,67,58,0.95)" : "rgba(4,4,10,0.88)", padding:"16px 28px", borderRadius:"8px", zIndex:200, textAlign:"center", border: diceResult.crit ? "2px solid #6fcf97" : diceResult.fumble ? "2px solid #e8605a" : "1px solid rgba(255,255,255,0.2)", pointerEvents:"none", boxShadow:"0 4px 20px rgba(0,0,6,0.50)" }}>
+              <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", background: diceResult.crit ? "rgba(46,139,87,0.95)" : diceResult.fumble ? "rgba(212,67,58,0.95)" : "rgba(4,4,10,0.88)", padding:"16px 28px", borderRadius:"8px", zIndex:200, textAlign:"center", border: diceResult.crit ? "2px solid #5ee09a" : diceResult.fumble ? "2px solid #e8605a" : "1px solid rgba(255,255,255,0.2)", pointerEvents:"none", boxShadow:"0 4px 20px rgba(0,0,6,0.50)" }}>
                 <div style={{ fontSize:10, fontFamily:T.ui, color:"rgba(255,255,255,0.6)", letterSpacing:"2px", textTransform:"uppercase", marginBottom:4 }}>{diceResult.name ? diceResult.name + (diceResult.type === "attack" ? " attacks" : diceResult.type === "initiative" ? " initiative" : diceResult.type === "save" ? "" : diceResult.type === "perception" ? " perception" : "") : "d20"}</div>
                 <div style={{ fontSize:36, fontFamily:T.ui, color:"#f2e8d6", fontWeight:700 }}>{diceResult.value}</div>
                 {diceResult.crit && <div style={{ fontSize:10, fontFamily:T.ui, color:"#5ee09a", letterSpacing:"2px", marginTop:2 }}>NAT 20!</div>}

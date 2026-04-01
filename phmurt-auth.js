@@ -593,18 +593,18 @@ var PhmurtDB = (function () {
 
       var S = {
         overlay: 'position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px;',
-        card:    'background:var(--bg-card,#111010);border:1px solid var(--crimson-border,rgba(192,57,43,0.32));padding:40px 36px;max-width:420px;width:100%;border-radius:4px;position:relative;',
+        card:    'background:var(--bg-card,#111010);border:1px solid var(--crimson-border,rgba(212,67,58,0.32));padding:40px 36px;max-width:420px;width:100%;border-radius:4px;position:relative;',
         title:   'font-family:Cinzel,serif;font-size:20px;font-weight:400;color:var(--text,#f5ede0);margin:0 0 6px;letter-spacing:.5px;',
         sub:     'font-family:Spectral,serif;font-size:13px;color:var(--text-muted,#8c7d6e);margin:0 0 24px;',
         tabs:    'display:flex;border-bottom:1px solid var(--border,rgba(255,255,255,0.09));margin-bottom:24px;',
         tab:     'font-family:Cinzel,serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 16px;cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;',
-        tabOn:   'color:var(--crimson,#c0392b);border-bottom-color:var(--crimson,#c0392b);',
+        tabOn:   'color:var(--crimson,#d4433a);border-bottom-color:var(--crimson,#d4433a);',
         tabOff:  'color:var(--text-muted,#8c7d6e);border-bottom-color:transparent;',
         label:   'font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted,#8c7d6e);display:block;margin-bottom:6px;',
         input:   'width:100%;padding:10px 12px;background:var(--bg-input,rgba(255,255,255,0.04));border:1px solid var(--border,rgba(255,255,255,0.09));color:var(--text,#f5ede0);font-family:Spectral,serif;font-size:14px;border-radius:3px;box-sizing:border-box;outline:none;transition:border-color .15s;',
         field:   'margin-bottom:16px;',
-        btn:     'width:100%;padding:12px;background:var(--crimson,#c0392b);color:#f5f0e8;border:none;font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;margin-top:8px;transition:background .15s;',
-        err:     'font-family:Spectral,serif;font-size:13px;color:var(--crimson,#c0392b);background:rgba(192,57,43,0.1);border-radius:3px;padding:10px 12px;margin-bottom:16px;display:none;',
+        btn:     'width:100%;padding:12px;background:var(--crimson,#d4433a);color:#f5f0e8;border:none;font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;margin-top:8px;transition:background .15s;',
+        err:     'font-family:Spectral,serif;font-size:13px;color:var(--crimson,#d4433a);background:rgba(212,67,58,0.1);border-radius:3px;padding:10px 12px;margin-bottom:16px;display:none;',
         note:    'font-family:Spectral,serif;font-size:12px;color:var(--text-muted,#8c7d6e);margin-top:14px;text-align:center;',
         close:   'position:absolute;top:14px;right:16px;background:transparent;border:none;color:var(--text-muted,#8c7d6e);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;'
       };
@@ -724,7 +724,7 @@ var PhmurtDB = (function () {
               if (infoEl) {
                 infoEl.style.display = 'block';
                 infoEl.style.color   = 'var(--text,#f5ede0)';
-                infoEl.style.background = 'rgba(39,174,96,0.12)';
+                infoEl.style.background = 'rgba(78,218,128,0.12)';
                 infoEl.textContent = 'Account created! Check your email to confirm, then sign in.';
               }
               setLoading('pa-up-submit', false);

@@ -145,9 +145,9 @@
   var C = {
     label:  'font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#8c7d6e;display:block;margin-bottom:6px;',
     input:  'width:100%;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:#f5ede0;font-family:Spectral,serif;font-size:14px;border-radius:3px;box-sizing:border-box;outline:none;',
-    btn:    'width:100%;padding:12px;background:#c0392b;color:#f5f0e8;border:none;font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;margin-top:8px;',
-    err:    'font-family:Spectral,serif;font-size:13px;color:#c0392b;background:rgba(192,57,43,0.1);border-radius:3px;padding:10px 12px;margin-bottom:14px;display:none;',
-    ok:     'font-family:Spectral,serif;font-size:13px;color:#27ae60;',
+    btn:    'width:100%;padding:12px;background:#d4433a;color:#f5f0e8;border:none;font-family:Cinzel,serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;margin-top:8px;',
+    err:    'font-family:Spectral,serif;font-size:13px;color:#d4433a;background:rgba(212,67,58,0.1);border-radius:3px;padding:10px 12px;margin-bottom:14px;display:none;',
+    ok:     'font-family:Spectral,serif;font-size:13px;color:#2e8b57;',
     field:  'margin-bottom:14px;'
   };
 
@@ -169,12 +169,12 @@
           '<div style="font-size:10px;letter-spacing:3px;color:#574843;text-transform:uppercase;margin-bottom:20px;">' +
             (isSetup ? 'First-Time Setup' : 'Admin Access — Step 1 of 2') +
           '</div>' +
-          '<h2 style="font-size:24px;font-weight:400;color:#c0392b;margin:0 0 10px;letter-spacing:1px;">Key Image Required</h2>' +
+          '<h2 style="font-size:24px;font-weight:400;color:#d4433a;margin:0 0 10px;letter-spacing:1px;">Key Image Required</h2>' +
           '<p style="font-family:Spectral,serif;font-size:15px;color:#8c7d6e;line-height:1.6;margin:0 0 32px;">' +
             (isSetup ? 'No key image is set yet. Upload yours now to register it.' : 'Upload the image you were given to proceed.') +
           '</p>' +
 
-          '<label id="ag-img-label" style="display:flex;flex-direction:column;align-items:center;gap:10px;border:1px dashed rgba(192,57,43,0.35);border-radius:6px;padding:36px 24px;cursor:pointer;transition:border-color .2s;">' +
+          '<label id="ag-img-label" style="display:flex;flex-direction:column;align-items:center;gap:10px;border:1px dashed rgba(212,67,58,0.35);border-radius:6px;padding:36px 24px;cursor:pointer;transition:border-color .2s;">' +
             '<span style="font-size:36px;">🖼</span>' +
             '<span style="font-size:13px;color:#8c7d6e;font-family:Spectral,serif;">Click or drag image here</span>' +
             '<input type="file" id="ag-img-input" accept="image/*" style="display:none;" />' +
@@ -185,7 +185,7 @@
           (isSetup ?
             '<div id="ag-hash-wrap" style="display:none;margin-top:16px;text-align:left;">' +
               '<p style="font-size:12px;color:#8c7d6e;margin:0 0 8px;font-family:Spectral,serif;">Your hash — paste into <code>EXPECTED_HASH</code> and redeploy:</p>' +
-              '<code id="ag-hash-val" style="display:block;background:#111010;border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:10px;font-size:11px;word-break:break-all;color:#c0392b;cursor:pointer;" title="Click to copy"></code>' +
+              '<code id="ag-hash-val" style="display:block;background:#111010;border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:10px;font-size:11px;word-break:break-all;color:#d4433a;cursor:pointer;" title="Click to copy"></code>' +
               '<button id="ag-hash-continue" style="' + C.btn + 'margin-top:12px;">Continue to Sign In →</button>' +
             '</div>'
           : '') +
@@ -201,7 +201,7 @@
       }
 
       function processImage(file) {
-        if (!file || !file.type.startsWith('image/')) { setStatus('Please upload an image file.', '#c0392b'); return; }
+        if (!file || !file.type.startsWith('image/')) { setStatus('Please upload an image file.', '#d4433a'); return; }
         setStatus('Analysing…', '#8c7d6e');
         var reader = new FileReader();
         reader.onload = function (ev) {
@@ -215,7 +215,7 @@
               val.textContent = hash;
               wrap.style.display = 'block';
               label.style.display = 'none';
-              setStatus('Hash computed. Copy it into the code, then redeploy.', '#27ae60');
+              setStatus('Hash computed. Copy it into the code, then redeploy.', '#2e8b57');
               val.addEventListener('click', function () {
                 navigator.clipboard.writeText(hash).then(function () {
                   val.textContent = '✓ Copied!';
@@ -234,26 +234,26 @@
               var expectedForVerification = storedHash || EXPECTED_HASH;
               var dist = hammingDist(hash, expectedForVerification);
               if (dist <= 6) {
-                setStatus('✓ Image verified.', '#27ae60');
+                setStatus('✓ Image verified.', '#2e8b57');
                 sessionStorage.setItem(IMG_OK_KEY, 'true');
                 setTimeout(renderAuthStage, 700);
               } else {
-                setStatus('✗ Wrong image. Try again.', '#c0392b');
+                setStatus('✗ Wrong image. Try again.', '#d4433a');
                 input.value = '';
               }
             }
           };
-          img.onerror = function () { setStatus('Could not read image.', '#c0392b'); };
+          img.onerror = function () { setStatus('Could not read image.', '#d4433a'); };
           img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
       }
 
       input.addEventListener('change', function () { if (input.files[0]) processImage(input.files[0]); });
-      label.addEventListener('dragover', function (e) { e.preventDefault(); label.style.borderColor = '#c0392b'; });
-      label.addEventListener('dragleave', function () { label.style.borderColor = 'rgba(192,57,43,0.35)'; });
+      label.addEventListener('dragover', function (e) { e.preventDefault(); label.style.borderColor = '#d4433a'; });
+      label.addEventListener('dragleave', function () { label.style.borderColor = 'rgba(212,67,58,0.35)'; });
       label.addEventListener('drop', function (e) {
-        e.preventDefault(); label.style.borderColor = 'rgba(192,57,43,0.35)';
+        e.preventDefault(); label.style.borderColor = 'rgba(212,67,58,0.35)';
         if (e.dataTransfer.files[0]) processImage(e.dataTransfer.files[0]);
       });
     }
@@ -264,11 +264,11 @@
       gate.innerHTML =
         '<div style="max-width:400px;width:100%;">' +
           '<div style="font-size:10px;letter-spacing:3px;color:#574843;text-transform:uppercase;margin-bottom:20px;text-align:center;">Admin Access — Step 2 of 2</div>' +
-          '<h2 style="font-size:22px;font-weight:400;color:#c0392b;margin:0 0 24px;letter-spacing:1px;text-align:center;">Sign In</h2>' +
+          '<h2 style="font-size:22px;font-weight:400;color:#d4433a;margin:0 0 24px;letter-spacing:1px;text-align:center;">Sign In</h2>' +
 
           /* Tabs */
           '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.09);margin-bottom:22px;">' +
-            '<button id="ag-tab-in" style="flex:1;padding:9px;background:transparent;border:none;border-bottom:2px solid #c0392b;color:#c0392b;font-family:Cinzel,serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;">Sign In</button>' +
+            '<button id="ag-tab-in" style="flex:1;padding:9px;background:transparent;border:none;border-bottom:2px solid #d4433a;color:#d4433a;font-family:Cinzel,serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;">Sign In</button>' +
             '<button id="ag-tab-up" style="flex:1;padding:9px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8c7d6e;font-family:Cinzel,serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;">Create Account</button>' +
           '</div>' +
 
@@ -302,7 +302,7 @@
         if (b) { b.disabled = on; b.style.opacity = on ? '0.6' : '1'; }
       }
       function grantAccess() {
-        gate.innerHTML = '<div style="text-align:center;"><div style="font-size:28px;margin-bottom:16px;">✓</div><p style="font-family:Spectral,serif;color:#27ae60;font-size:16px;">Access granted. Welcome.</p></div>';
+        gate.innerHTML = '<div style="text-align:center;"><div style="font-size:28px;margin-bottom:16px;">✓</div><p style="font-family:Spectral,serif;color:#2e8b57;font-size:16px;">Access granted. Welcome.</p></div>';
         setTimeout(function () { gate.remove(); }, 900);
       }
       function afterSignIn(session) {
@@ -320,7 +320,7 @@
         mode = 'in'; showErr('');
         document.getElementById('ag-panel-in').style.display = 'block';
         document.getElementById('ag-panel-up').style.display = 'none';
-        document.getElementById('ag-tab-in').style.cssText += 'color:#c0392b;border-bottom-color:#c0392b;';
+        document.getElementById('ag-tab-in').style.cssText += 'color:#d4433a;border-bottom-color:#d4433a;';
         document.getElementById('ag-tab-up').style.cssText += 'color:#8c7d6e;border-bottom-color:transparent;';
         document.getElementById('ag-in-email').focus();
       });
@@ -329,7 +329,7 @@
         document.getElementById('ag-panel-in').style.display = 'none';
         document.getElementById('ag-panel-up').style.display = 'block';
         document.getElementById('ag-tab-in').style.cssText += 'color:#8c7d6e;border-bottom-color:transparent;';
-        document.getElementById('ag-tab-up').style.cssText += 'color:#c0392b;border-bottom-color:#c0392b;';
+        document.getElementById('ag-tab-up').style.cssText += 'color:#d4433a;border-bottom-color:#d4433a;';
         document.getElementById('ag-up-name').focus();
       });
 
@@ -475,11 +475,11 @@
 :root{
   --bg:#0c0a0a;--bg-nav:#080607;--bg-card:#111010;--bg-hover:#1c1515;
   --bg-mid:#181212;--text:#f5ede0;--text-dim:#c8bfb0;--text-muted:#8c7d6e;
-  --text-faint:#574843;--crimson:#c0392b;--crimson-dim:#8b2219;
-  --crimson-soft:rgba(192,57,43,0.13);--crimson-border:rgba(192,57,43,0.32);
+  --text-faint:#574843;--crimson:#d4433a;--crimson-dim:#8b2219;
+  --crimson-soft:rgba(212,67,58,0.13);--crimson-border:rgba(212,67,58,0.32);
   --border:rgba(255,255,255,0.09);--border-mid:rgba(255,255,255,0.05);
   --bg-input:rgba(255,255,255,0.04);--border-subtle:rgba(255,255,255,0.06);
-  --success:#27ae60;--warning:#f39c12;--danger:#e74c3c;--info:#3498db;
+  --success:#2e8b57;--warning:#e8940a;--danger:#e8605a;--info:#58aaff;
 }
 html.light-mode{
   --bg:#f0e7d4;--bg-nav:#f9f2e4;--bg-card:#e9dfc9;--bg-hover:#ddd0b8;
@@ -535,20 +535,20 @@ body{background:var(--bg);color:var(--text);font-family:'Spectral',Georgia,serif
 
 /* Badges */
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:2px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
-.badge-active{background:rgba(39,174,96,0.15);color:#27ae60;border:1px solid rgba(39,174,96,0.3);}
-.badge-suspended{background:rgba(231,76,60,0.15);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);}
-.badge-pending{background:rgba(243,156,18,0.15);color:#f39c12;border:1px solid rgba(243,156,18,0.3);}
+.badge-active{background:rgba(78,218,128,0.15);color:#2e8b57;border:1px solid rgba(78,218,128,0.3);}
+.badge-suspended{background:rgba(212,67,58,0.15);color:#e8605a;border:1px solid rgba(212,67,58,0.3);}
+.badge-pending{background:rgba(243,156,18,0.15);color:#e8940a;border:1px solid rgba(243,156,18,0.3);}
 .badge-inactive{background:rgba(140,125,110,0.15);color:var(--text-muted);border:1px solid var(--border);}
-.badge-admin{background:rgba(192,57,43,0.15);color:var(--crimson);border:1px solid var(--crimson-border);}
-.badge-info{background:rgba(52,152,219,0.15);color:#3498db;border:1px solid rgba(52,152,219,0.3);}
+.badge-admin{background:rgba(212,67,58,0.15);color:var(--crimson);border:1px solid var(--crimson-border);}
+.badge-info{background:rgba(52,152,219,0.15);color:#58aaff;border:1px solid rgba(52,152,219,0.3);}
 
 /* Buttons */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:2px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.15s ease;background:transparent;color:var(--text-dim);}
 .btn:hover{background:var(--bg-hover);color:var(--text);}
 .btn-primary{background:var(--crimson);color:#f5f0e8;border-color:var(--crimson);}
 .btn-primary:hover{background:var(--crimson-dim);}
-.btn-danger{border-color:rgba(231,76,60,0.4);color:#e74c3c;}
-.btn-danger:hover{background:rgba(231,76,60,0.1);}
+.btn-danger{border-color:rgba(212,67,58,0.4);color:#e8605a;}
+.btn-danger:hover{background:rgba(212,67,58,0.1);}
 .btn-sm{padding:5px 10px;font-size:9px;}
 .btn-group{display:flex;gap:8px;}
 
@@ -634,7 +634,7 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 }
 .admin-stat-card:hover{
   border-color:var(--crimson-border);
-  box-shadow:0 2px 8px rgba(192,57,43,0.1);
+  box-shadow:0 2px 8px rgba(212,67,58,0.1);
 }
 .admin-stat-value{
   font-family:'Cinzel',serif;
@@ -681,9 +681,9 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 /* Toasts */
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px;}
 .toast{padding:12px 20px;border-radius:4px;font-size:13px;color:#f5f0e8;animation:slideUp 0.2s ease;}
-.toast-success{background:#27ae60;}
-.toast-error{background:#e74c3c;}
-.toast-info{background:#3498db;}
+.toast-success{background:#2e8b57;}
+.toast-error{background:#e8605a;}
+.toast-info{background:#58aaff;}
 @keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
 
 /* Empty states */
@@ -947,7 +947,7 @@ function DashboardPage({ onNavigate }) {
             ].map((item, i) => (
               <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid var(--border-mid)'}}>
                 <span style={{fontSize:'13px'}}>{item.label}</span>
-                <span style={{fontSize:'12px',color:item.ok?'#27ae60':'#e74c3c',display:'flex',alignItems:'center',gap:'4px'}}>
+                <span style={{fontSize:'12px',color:item.ok?'#2e8b57':'#e8605a',display:'flex',alignItems:'center',gap:'4px'}}>
                   {item.ok ? <span style={{fontSize:'10px'}}>✓</span> : <span style={{fontSize:'10px'}}>✗</span>} {item.value}
                 </span>
               </div>
@@ -1126,7 +1126,7 @@ function UsersPage({ addToast }) {
                   <td style={{fontWeight:600,color:'var(--text)'}}>{u.name || '—'}</td>
                   <td className="mono">{u.email}</td>
                   <td>
-                    {u.is_superuser && <span className="badge badge-admin" style={{marginRight:'4px',background:'rgba(192,57,43,0.15)',color:'#c0392b'}}>Superuser</span>}
+                    {u.is_superuser && <span className="badge badge-admin" style={{marginRight:'4px',background:'rgba(212,67,58,0.15)',color:'#d4433a'}}>Superuser</span>}
                     {u.is_admin && !u.is_superuser && <span className="badge badge-admin" style={{marginRight:'4px'}}>Admin</span>}
                     {u.is_banned ? <span className="badge badge-suspended">Banned</span>
                                  : <span className="badge badge-active">Active</span>}
@@ -1481,7 +1481,7 @@ function AdminKeySetupCard({ addToast }) {
         </div>
 
         {status && (
-          <div style={{padding:'10px 12px',background:'rgba(192,57,43,0.1)',border:'1px solid rgba(192,57,43,0.2)',borderRadius:'3px',fontSize:'12px',color:'var(--text-muted)',marginBottom:'16px'}}>
+          <div style={{padding:'10px 12px',background:'rgba(212,67,58,0.1)',border:'1px solid rgba(212,67,58,0.2)',borderRadius:'3px',fontSize:'12px',color:'var(--text-muted)',marginBottom:'16px'}}>
             {status}
           </div>
         )}
@@ -1513,7 +1513,7 @@ function AdminKeySetupCard({ addToast }) {
         {storedHash !== 'Not configured' && !computedHash && (
           <div style={{display:'flex',gap:'10px'}}>
             <button onClick={clearKeyHash}
-              style={{flex:1,padding:'10px',background:'transparent',color:'var(--danger)',border:'1px solid rgba(231,76,60,0.3)',fontFamily:'Cinzel,serif',fontSize:'11px',letterSpacing:'1.5px',textTransform:'uppercase',cursor:'pointer',borderRadius:'3px'}}>
+              style={{flex:1,padding:'10px',background:'transparent',color:'var(--danger)',border:'1px solid rgba(212,67,58,0.3)',fontFamily:'Cinzel,serif',fontSize:'11px',letterSpacing:'1.5px',textTransform:'uppercase',cursor:'pointer',borderRadius:'3px'}}>
               Clear Stored Hash
             </button>
           </div>
@@ -1605,7 +1605,7 @@ function ManageAdminsCard({ addToast }) {
                         <td><code style={{fontSize:'12px'}}>{u.email}</code></td>
                         <td>
                           {u.is_superuser
-                            ? <span style={{fontSize:'11px',padding:'3px 8px',background:'rgba(192,57,43,0.15)',color:'var(--crimson)',border:'1px solid var(--crimson-border)',borderRadius:'3px'}}>Superuser</span>
+                            ? <span style={{fontSize:'11px',padding:'3px 8px',background:'rgba(212,67,58,0.15)',color:'var(--crimson)',border:'1px solid var(--crimson-border)',borderRadius:'3px'}}>Superuser</span>
                             : <span style={{fontSize:'11px',padding:'3px 8px',background:'rgba(52,152,219,0.1)',color:'var(--info)',border:'1px solid rgba(52,152,219,0.2)',borderRadius:'3px'}}>Admin</span>
                           }
                         </td>
@@ -1613,7 +1613,7 @@ function ManageAdminsCard({ addToast }) {
                           {u.is_superuser
                             ? <span style={{fontSize:'11px',color:'var(--text-faint)'}}>Protected</span>
                             : <button onClick={() => revokeAdmin(u)}
-                                style={{padding:'5px 12px',background:'rgba(231,76,60,0.12)',color:'var(--danger)',border:'1px solid rgba(231,76,60,0.2)',fontFamily:'Cinzel,serif',fontSize:'10px',letterSpacing:'1px',cursor:'pointer',borderRadius:'3px'}}>
+                                style={{padding:'5px 12px',background:'rgba(212,67,58,0.12)',color:'var(--danger)',border:'1px solid rgba(212,67,58,0.2)',fontFamily:'Cinzel,serif',fontSize:'10px',letterSpacing:'1px',cursor:'pointer',borderRadius:'3px'}}>
                                 Revoke
                               </button>
                           }
@@ -1642,7 +1642,7 @@ function SettingsPage({ addToast }) {
         <div className="card">
           <div className="card-header"><h2>Supabase Connection</h2></div>
           <div className="card-body">
-            <div style={{padding:'12px',background: sbConfigured ? 'rgba(39,174,96,0.08)' : 'rgba(231,76,60,0.08)',border:`1px solid ${sbConfigured?'rgba(39,174,96,0.2)':'rgba(231,76,60,0.2)'}`,borderRadius:'4px',fontSize:'13px',color:sbConfigured?'#27ae60':'#e74c3c',marginBottom:'20px'}}>
+            <div style={{padding:'12px',background: sbConfigured ? 'rgba(78,218,128,0.08)' : 'rgba(212,67,58,0.08)',border:`1px solid ${sbConfigured?'rgba(78,218,128,0.2)':'rgba(212,67,58,0.2)'}`,borderRadius:'4px',fontSize:'13px',color:sbConfigured?'#2e8b57':'#e8605a',marginBottom:'20px'}}>
               {sbConfigured ? '✓ Supabase is connected. Cloud auth and data sync are active.' : '✗ Supabase is not configured. Open supabase-config.js and set your URL and anon key.'}
             </div>
             <p style={{fontSize:'13px',color:'var(--text-muted)',lineHeight:'1.7',margin:0}}>

@@ -27,7 +27,7 @@
   <style>
     .cb-wrap { display:grid; grid-template-columns:280px 1fr; min-height:calc(100vh - 60px); }
     .cb-sidebar { background:var(--bg); border-right:1px solid var(--border); padding:24px 0; position:sticky; top:60px; height:calc(100vh - 60px); overflow-y:auto; }
-    .cb-main { padding:48px 56px; max-width:960px; }
+    .cb-main { padding:48px 56px; }
     .cb-step-item { display:flex; align-items:center; gap:14px; padding:14px 24px; cursor:pointer; transition:all 0.25s; position:relative; }
     .cb-step-item::after { content:''; position:absolute; left:37px; top:100%; width:1px; height:0; background:var(--border-mid); z-index:1; }
     .cb-step-item:not(:last-of-type)::after { height:100%; }
@@ -282,7 +282,7 @@
       .cb-step-sublabel { display:none; }
       .cb-step-label { font-size:7px; text-align:center; }
       .cb-summary-mini { display:none; }
-      .cb-main { padding:24px; max-width:100%; }
+      .cb-main { padding:24px; }
       .cb-panel-title { font-size:28px; }
       .cb-panel-sub { font-size:16px; margin-bottom:20px; }
       .cb-panel-hint { font-size:13px; padding:12px 14px; }

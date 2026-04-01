@@ -1205,10 +1205,10 @@
       background: var(--crimson);
     }
 
-    .gen-difficulty-segment.easy { background: #2ecc71; }
-    .gen-difficulty-segment.medium { background: #f39c12; }
-    .gen-difficulty-segment.hard { background: #e74c3c; }
-    .gen-difficulty-segment.deadly { background: #c0392b; }
+    .gen-difficulty-segment.easy { background: #5ee09a; }
+    .gen-difficulty-segment.medium { background: #e8940a; }
+    .gen-difficulty-segment.hard { background: #e8605a; }
+    .gen-difficulty-segment.deadly { background: #d4433a; }
 
     /* Temperature Scale */
     .gen-temp-scale {
@@ -1225,7 +1225,7 @@
     .gen-temp-bar {
       flex: 1;
       height: 4px;
-      background: linear-gradient(to right, #3498db, #2ecc71, #f39c12, #e74c3c);
+      background: linear-gradient(to right, #58aaff, #5ee09a, #e8940a, #e8605a);
       border-radius: 2px;
       position: relative;
     }
@@ -1253,10 +1253,10 @@
     }
 
     .gen-rarity-common { background: #888; color: #fff; }
-    .gen-rarity-uncommon { background: #2ecc71; color: #fff; }
-    .gen-rarity-rare { background: #3498db; color: #fff; }
-    .gen-rarity-very-rare { background: #9b59b6; color: #fff; }
-    .gen-rarity-legendary { background: #f39c12; color: #fff; }
+    .gen-rarity-uncommon { background: #5ee09a; color: #fff; }
+    .gen-rarity-rare { background: #58aaff; color: #fff; }
+    .gen-rarity-very-rare { background: #b574ff; color: #fff; }
+    .gen-rarity-legendary { background: #e8940a; color: #fff; }
 
     /* Coin Badges */
     .gen-coin-badge {
@@ -1273,8 +1273,8 @@
 
     .gen-coin-cp { border-left: 3px solid #a0522d; }
     .gen-coin-sp { border-left: 3px solid #c0c0c0; }
-    .gen-coin-gp { border-left: 3px solid #f39c12; }
-    .gen-coin-pp { border-left: 3px solid #9b59b6; }
+    .gen-coin-gp { border-left: 3px solid #e8940a; }
+    .gen-coin-pp { border-left: 3px solid #b574ff; }
 
     /* Component Chips for Spells */
     .gen-component-chip {
@@ -1345,9 +1345,9 @@
     }
 
     /* Game Effect Severity Coding */
-    .gen-effect-minor { color: #2ecc71; }
-    .gen-effect-moderate { color: #f39c12; }
-    .gen-effect-severe { color: #e74c3c; }
+    .gen-effect-minor { color: #5ee09a; }
+    .gen-effect-moderate { color: #e8940a; }
+    .gen-effect-severe { color: #e8605a; }
 
     /* Wild Magic Card */
     .gen-wildmagic-card {
@@ -3954,7 +3954,7 @@
       // Set colors based on theme
       const parchmentBg = '#1a1711';
       const textColor = (typeof getComputedStyle !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--text').trim() : '') || '#e8dcc0';
-      const crimson = (typeof getComputedStyle !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--crimson').trim() : '') || '#c0392b';
+      const crimson = (typeof getComputedStyle !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--crimson').trim() : '') || '#d4433a';
 
       // Parchment background
       ctx.fillStyle = parchmentBg;
@@ -4861,7 +4861,7 @@
           <div class="gen-result-item">
             <div class="gen-result-label">Severity</div>
             <div class="gen-result-value">
-              <span style="display: inline-block; padding: 6px 12px; background: ${severity === 'catastrophic' ? 'rgba(192, 57, 43, 0.4)' : severity === 'major' ? 'rgba(243, 156, 18, 0.4)' : severity === 'moderate' ? 'rgba(52, 152, 219, 0.4)' : 'rgba(46, 204, 113, 0.4)'}; border: 1px solid ${severity === 'catastrophic' ? 'var(--crimson)' : severity === 'major' ? '#f39c12' : severity === 'moderate' ? '#3498db' : '#2ecc71'}; border-radius: 3px; color: ${severity === 'catastrophic' ? 'var(--crimson)' : severity === 'major' ? '#f39c12' : severity === 'moderate' ? '#3498db' : '#2ecc71'}; font-weight: bold; letter-spacing: 1px;">${severity.toUpperCase()}</span>
+              <span style="display: inline-block; padding: 6px 12px; background: ${severity === 'catastrophic' ? 'rgba(192, 57, 43, 0.4)' : severity === 'major' ? 'rgba(243, 156, 18, 0.4)' : severity === 'moderate' ? 'rgba(52, 152, 219, 0.4)' : 'rgba(46, 204, 113, 0.4)'}; border: 1px solid ${severity === 'catastrophic' ? 'var(--crimson)' : severity === 'major' ? '#e8940a' : severity === 'moderate' ? '#58aaff' : '#5ee09a'}; border-radius: 3px; color: ${severity === 'catastrophic' ? 'var(--crimson)' : severity === 'major' ? '#e8940a' : severity === 'moderate' ? '#58aaff' : '#5ee09a'}; font-weight: bold; letter-spacing: 1px;">${severity.toUpperCase()}</span>
             </div>
           </div>
           <div class="gen-result-item">
@@ -4972,7 +4972,7 @@
       }
 
       var potion = pool[Math.floor(Math.random() * pool.length)];
-      var rarityColors = { common: '#888', uncommon: '#2ecc71', rare: '#3498db', very_rare: '#9b59b6', legendary: '#f39c12' };
+      var rarityColors = { common: '#888', uncommon: '#5ee09a', rare: '#58aaff', very_rare: '#b574ff', legendary: '#e8940a' };
       var rarityLabels = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', very_rare: 'Very Rare', legendary: 'Legendary' };
 
       var html = '<div class="gen-result" style="animation: fadeIn 0.4s ease-in;">';
@@ -5030,7 +5030,7 @@
         }
 
         var potion = pool[Math.floor(Math.random() * pool.length)];
-        var rarityColors = { common: '#888', uncommon: '#2ecc71', rare: '#3498db', very_rare: '#9b59b6', legendary: '#f39c12' };
+        var rarityColors = { common: '#888', uncommon: '#5ee09a', rare: '#58aaff', very_rare: '#b574ff', legendary: '#e8940a' };
 
         html += '<div class="gen-npc-stat" style="margin-bottom:16px;padding:12px;background:var(--bg-mid);border:1px solid var(--border);border-radius:2px;">';
         html += '<div style="margin-bottom:8px;"><strong>' + potion.name + '</strong> <span class="gen-rarity-badge gen-rarity-' + (potion.rarity||'common').toLowerCase().replace('_', '-') + '">' + (potion.rarity||'common').toUpperCase() + '</span></div>';
@@ -14271,7 +14271,7 @@ function downloadCityMap() {
       ctx.beginPath();
       ctx.arc(x - 12, y + 8, 5, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = '#c0392b';
+      ctx.fillStyle = '#d4433a';
       ctx.beginPath();
       ctx.arc(x - 12, y + 8, 3, 0, Math.PI * 2);
       ctx.fill();
@@ -14905,7 +14905,7 @@ function downloadCityMap() {
         ctx.stroke();
       } else if (roomName.includes('Fire') || roomName.includes('Hearth')) {
         // Fireplace/hearth symbol
-        ctx.fillStyle = '#c0392b';
+        ctx.fillStyle = '#d4433a';
         ctx.fillRect(cx - 8, cy - 3, 16, 8);
         ctx.strokeStyle = '#8b3a2c';
         ctx.lineWidth = 1.2;
@@ -15502,26 +15502,26 @@ function downloadCityMap() {
 
     .gen-toast-success {
       background: rgba(39, 174, 96, 0.2);
-      color: #27ae60;
-      border: 1px solid #27ae60;
+      color: #2e8b57;
+      border: 1px solid #2e8b57;
     }
 
     .gen-toast-error {
       background: rgba(192, 57, 43, 0.2);
-      color: #c0392b;
-      border: 1px solid #c0392b;
+      color: #d4433a;
+      border: 1px solid #d4433a;
     }
 
     .gen-toast-warning {
       background: rgba(241, 196, 15, 0.2);
-      color: #f39c12;
-      border: 1px solid #f39c12;
+      color: #e8940a;
+      border: 1px solid #e8940a;
     }
 
     .gen-toast-info {
       background: rgba(52, 152, 219, 0.2);
-      color: #3498db;
-      border: 1px solid #3498db;
+      color: #58aaff;
+      border: 1px solid #58aaff;
     }
   </style>
 

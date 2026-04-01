@@ -115,8 +115,8 @@
     .cmp-create-btn.item:hover { border-color: #6b4ea8; }
     .cmp-create-btn.feat .cmp-btn-icon { color: #e67e22; }
     .cmp-create-btn.feat:hover { border-color: #e67e22; }
-    .cmp-create-btn.monster .cmp-btn-icon { color: #e74c3c; }
-    .cmp-create-btn.monster:hover { border-color: #e74c3c; }
+    .cmp-create-btn.monster .cmp-btn-icon { color: #e8605a; }
+    .cmp-create-btn.monster:hover { border-color: #e8605a; }
     .cmp-create-btn.encounter .cmp-btn-icon { color: #16a085; }
     .cmp-create-btn.encounter:hover { border-color: #16a085; }
 
@@ -543,19 +543,19 @@
       cursor: pointer;
       white-space: nowrap;
     }
-    .hbc-feat-type-badge[data-ftype="action"] { color: #c0392b; border-color: #c0392b; }
+    .hbc-feat-type-badge[data-ftype="action"] { color: #d4433a; border-color: #d4433a; }
     .hbc-feat-type-badge[data-ftype="bonus"] { color: #e67e22; border-color: #e67e22; }
     .hbc-feat-type-badge[data-ftype="reaction"] { color: #2980b9; border-color: #2980b9; }
-    .hbc-feat-type-badge[data-ftype="passive"] { color: #27ae60; border-color: #27ae60; }
+    .hbc-feat-type-badge[data-ftype="passive"] { color: #2e8b57; border-color: #2e8b57; }
     .hbc-feat-type-badge[data-ftype="asi"] { color: #8b6914; border-color: #8b6914; }
     .hbc-feat-type-badge[data-ftype="resource"] { color: #6b4ea8; border-color: #6b4ea8; }
     .hbc-feat-type-badge.active {
       color: var(--white) !important;
     }
-    .hbc-feat-type-badge[data-ftype="action"].active { background: #c0392b; }
+    .hbc-feat-type-badge[data-ftype="action"].active { background: #d4433a; }
     .hbc-feat-type-badge[data-ftype="bonus"].active { background: #e67e22; }
     .hbc-feat-type-badge[data-ftype="reaction"].active { background: #2980b9; }
-    .hbc-feat-type-badge[data-ftype="passive"].active { background: #27ae60; }
+    .hbc-feat-type-badge[data-ftype="passive"].active { background: #2e8b57; }
     .hbc-feat-type-badge[data-ftype="asi"].active { background: #8b6914; }
     .hbc-feat-type-badge[data-ftype="resource"].active { background: #6b4ea8; }
     .hbc-feat-desc-input {
@@ -772,7 +772,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     .hbe-help-block {
-      background: rgba(192,57,43,0.05);
+      background: rgba(212,67,58,0.05);
       border-left: 3px solid var(--crimson);
       padding: 8px 12px;
       margin: 8px 0;
@@ -1086,8 +1086,8 @@
       color: var(--white);
     }
     .hbe-wizard-step.complete .hbe-wizard-step-num {
-      background: #27ae60;
-      border-color: #27ae60;
+      background: #2e8b57;
+      border-color: #2e8b57;
       color: var(--white);
     }
     .hbe-wizard-step-label {
@@ -1140,9 +1140,9 @@
       color: #2980b9;
     }
     .hbe-validation-success {
-      background: rgba(39,174,96,0.1);
-      border: 1px solid #27ae60;
-      color: #27ae60;
+      background: rgba(78,218,128,0.1);
+      border: 1px solid #2e8b57;
+      color: #2e8b57;
     }
 
     /* ── TEMPLATE PRESET SELECTOR ──────────────────────────────────── */
@@ -1235,7 +1235,7 @@
 
     /* ── UNSAVED CHANGES WARNING ───────────────────────────────────── */
     .hbe-unsaved-banner {
-      background: rgba(192,57,43,0.1);
+      background: rgba(212,67,58,0.1);
       border: 1px solid var(--crimson-border);
       padding: 10px 12px;
       margin-bottom: 16px;
@@ -1323,9 +1323,9 @@
       </button>
 
       <hr class="cmp-sidebar-divider" />
-      <div class="cmp-sidebar-title" style="color:#e74c3c;">Creatures</div>
+      <div class="cmp-sidebar-title" style="color:#e8605a;">Creatures</div>
       <button class="cmp-create-btn monster" onclick="openMonsterCreatorModal()">
-        <span class="cmp-btn-icon" style="color:#e74c3c;">&#9670;</span>Monster / Creature
+        <span class="cmp-btn-icon" style="color:#e8605a;">&#9670;</span>Monster / Creature
       </button>
 
       <hr class="cmp-sidebar-divider" />
@@ -5164,7 +5164,7 @@
       var q      = (document.getElementById('cmp-search').value || '').toLowerCase();
       var sortBy = document.getElementById('cmp-sort').value;
 
-      var typeColors = { race:'#4169e1', class:'var(--crimson)', background:'#2e8b57', subclass:'#8b6914', feat:'#e67e22', item:'#6b4ea8', spell:'#2980b9', monster:'#e74c3c', encounter:'#16a085' };
+      var typeColors = { race:'#4169e1', class:'var(--crimson)', background:'#2e8b57', subclass:'#8b6914', feat:'#e67e22', item:'#6b4ea8', spell:'#2980b9', monster:'#e8605a', encounter:'#16a085' };
       var typeLabels = { race:'Race', class:'Class', background:'Background', subclass:'Subclass', feat:'Feat', item:'Item', spell:'Spell', monster:'Monster', encounter:'Encounter' };
 
       // Gather all local homebrew

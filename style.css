@@ -162,7 +162,7 @@ a{text-decoration:none;color:inherit;}
   color: var(--text); line-height: 1; margin: 8px 0 4px;
 }
 .ps-dice-result-num.nat20 { color: #f1c40f; text-shadow: 0 0 12px rgba(241,196,15,0.5); }
-.ps-dice-result-num.nat1 { color: #e74c3c; text-shadow: 0 0 12px rgba(231,76,60,0.5); }
+.ps-dice-result-num.nat1 { color: #e8605a; text-shadow: 0 0 12px rgba(212,67,58,0.5); }
 .ps-dice-result-breakdown {
   font-size: 11px; color: var(--text-muted); margin-bottom: 4px;
 }
@@ -176,7 +176,7 @@ a{text-decoration:none;color:inherit;}
 .ps-dice-hist-label { color: var(--text-muted); font-family: 'Cinzel', serif; font-size: 10px; }
 .ps-dice-hist-val { color: var(--text); font-weight: 500; }
 .ps-dice-hist-val.nat20 { color: #f1c40f; }
-.ps-dice-hist-val.nat1 { color: #e74c3c; }
+.ps-dice-hist-val.nat1 { color: #e8605a; }
 .ps-dice-hist-detail { color: var(--text-muted); font-size: 10px; }
 
 /* ═══════════════════════════════
