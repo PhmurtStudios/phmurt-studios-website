@@ -2531,6 +2531,7 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
   const [mode, setMode] = useState("select"); // "select" | "draw" | "combat"
   const [drawTool, setDrawTool] = useState("draw"); // "draw" | "fog" | "wall" | "terrain" | "ruler" | "eraser"
   const [selectedTokenId, setSelectedTokenId] = useState(null);
+  const [hoveredTokenId, setHoveredTokenId] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
 
   // ── Combat state ──
@@ -2777,9 +2778,15 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
       // Skip hidden tokens in player view
       if (t.hidden && viewRole === "player") return;
 
-      const r = gridSize * 0.4;
+      const r = gridSize * 0.42;
       const isSelected = t.id === selectedTokenId;
+      const isHovered = t.id === hoveredTokenId;
       const isActiveCombatant = t.id === activeCombatantId;
+      const isDead = t.hp != null && t.hp <= 0;
+
+      // Find conditions for this token via combatant link
+      const linkedCombatant = combatants.find(c => c.mapTokenId === t.id);
+      const tokenConditions = linkedCombatant ? (conditions[linkedCombatant.id] || []) : [];
 
       // Vision radius indicator (only for selected token in select mode)
       if (isSelected && fogMode === "vision" && t.vision > 0) {
@@ -2799,71 +2806,156 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
         }
       }
 
-      // Active combatant glow (pulsing)
+      // Drop shadow under token
+      ctx.beginPath();
+      ctx.arc(t.x + 1, t.y + 2, r + 1, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,6,0.35)";
+      ctx.fill();
+
+      // Active combatant glow (pulsing double ring)
       if (isActiveCombatant && combatLive) {
         const pulse = 0.5 + 0.5 * Math.sin(now / 400);
+        const crimsonColor = cssVar("--crimson").match(/\d+/g) || [220, 20, 60];
+        // Outer glow ring
         ctx.beginPath();
-        ctx.arc(t.x, t.y, r + 6, 0, Math.PI * 2);
-        const crimsonColor = cssVar("--crimson").match(/\d+/g);
-        if (crimsonColor) {
-          ctx.strokeStyle = "rgba(" + crimsonColor.join(",") + "," + (0.3 + 0.4 * pulse) + ")";
-        } else {
-          ctx.strokeStyle = "rgba(220, 20, 60, " + (0.3 + 0.4 * pulse) + ")"; // fallback
-        }
+        ctx.arc(t.x, t.y, r + 10, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(" + crimsonColor.join(",") + "," + (0.15 + 0.2 * pulse) + ")";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Inner glow ring
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r + 5, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(" + crimsonColor.join(",") + "," + (0.4 + 0.4 * pulse) + ")";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        // Fill glow
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r + 5, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(" + crimsonColor.join(",") + "," + (0.06 + 0.06 * pulse) + ")";
+        ctx.fill();
+      }
+
+      // Hover highlight ring
+      if (isHovered && !isSelected && !isActiveCombatant) {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,255,255,0.25)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Selection ring (solid gold with glow)
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255, 215, 0, 0.9)";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        // Gold glow
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r + 7, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255, 215, 0, 0.15)";
         ctx.lineWidth = 3;
         ctx.stroke();
       }
 
-      // Selection ring
-      if (isSelected) {
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, r + 4, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(255, 215, 0, 0.8)";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 3]);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-
-      // Hidden token opacity for DM view (affects circle, label, and HP bar)
+      // Hidden token opacity for DM view
       if (t.hidden && viewRole === "dm") {
         ctx.globalAlpha = 0.4;
+      }
+
+      // Dead/unconscious desaturation
+      if (isDead) {
+        ctx.globalAlpha = Math.max(ctx.globalAlpha * 0.5, 0.2);
       }
 
       // Token circle
       ctx.beginPath();
       ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = t.color;
+      ctx.fillStyle = isDead ? "#444" : t.color;
       ctx.fill();
-      ctx.strokeStyle = isSelected ? "rgba(255,220,30,0.9)" : "rgba(0,0,6,0.50)";
-      ctx.lineWidth = isSelected ? 2.5 : 2;
+      ctx.strokeStyle = isSelected ? "rgba(255,220,30,0.9)" : isHovered ? "rgba(255,255,255,0.5)" : "rgba(0,0,6,0.50)";
+      ctx.lineWidth = isSelected ? 2.5 : isHovered ? 2 : 2;
       ctx.stroke();
 
       // Label
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = isDead ? "#999" : "#fff";
       ctx.font = "bold " + Math.max(9, gridSize * 0.22) + "px Cinzel";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const label = t.name.length > 3 ? t.name.substring(0,3) : t.name;
       ctx.fillText(label, t.x, t.y);
 
+      // Dead X overlay
+      if (isDead) {
+        ctx.strokeStyle = "rgba(255,60,60,0.7)";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(t.x - r * 0.5, t.y - r * 0.5);
+        ctx.lineTo(t.x + r * 0.5, t.y + r * 0.5);
+        ctx.moveTo(t.x + r * 0.5, t.y - r * 0.5);
+        ctx.lineTo(t.x - r * 0.5, t.y + r * 0.5);
+        ctx.stroke();
+      }
+
       ctx.globalAlpha = 1;
 
-      // HP bar
+      // HP bar (wider and taller)
       if (t.hp != null && t.maxHp) {
-        const barW = gridSize * 0.7, barH = 4;
-        const barX = t.x - barW/2, barY = t.y + r + 4;
-        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        const barW = gridSize * 0.78, barH = 5;
+        const barX = t.x - barW/2, barY = t.y + r + 5;
+        // Bar background
+        ctx.fillStyle = "rgba(0,0,0,0.65)";
         ctx.fillRect(barX, barY, barW, barH);
-        ctx.fillStyle = getHpColor(t.hp, t.maxHp);
-        ctx.fillRect(barX, barY, barW * Math.max(0, t.hp / t.maxHp), barH);
+        // HP fill
+        const hpFrac = Math.max(0, t.hp / t.maxHp);
+        if (hpFrac > 0) {
+          ctx.fillStyle = getHpColor(t.hp, t.maxHp);
+          ctx.fillRect(barX, barY, barW * hpFrac, barH);
+        }
+        // Bar border
+        ctx.strokeStyle = "rgba(0,0,0,0.3)";
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(barX, barY, barW, barH);
+      }
+
+      // Condition indicators (small colored dots around top of token)
+      if (tokenConditions.length > 0) {
+        const condColors = { "Blinded":"#888", "Charmed":"#ff69b4", "Deafened":"#666", "Frightened":"#9b59b6", "Grappled":"#e67e22", "Incapacitated":"#95a5a6", "Invisible":"#3498db", "Paralyzed":"#f1c40f", "Petrified":"#7f8c8d", "Poisoned":"#27ae60", "Prone":"#e74c3c", "Restrained":"#d35400", "Stunned":"#f39c12", "Unconscious":"#2c3e50", "Concentrating":"#58aaff" };
+        const maxDots = Math.min(tokenConditions.length, 6);
+        for (let ci = 0; ci < maxDots; ci++) {
+          const angle = -Math.PI/2 + (ci / maxDots) * Math.PI * 2;
+          const dotR = r + 8;
+          const dx = t.x + Math.cos(angle) * dotR;
+          const dy = t.y + Math.sin(angle) * dotR;
+          ctx.beginPath();
+          ctx.arc(dx, dy, 3, 0, Math.PI * 2);
+          ctx.fillStyle = condColors[tokenConditions[ci]] || "#aaa";
+          ctx.fill();
+          ctx.strokeStyle = "rgba(0,0,0,0.5)";
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+
+      // Active combatant name label below token
+      if (isActiveCombatant && combatLive) {
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
+        const nameY = t.y + r + (t.hp != null ? 16 : 8);
+        const nameW = ctx.measureText(t.name).width + 8;
+        ctx.fillRect(t.x - nameW/2, nameY - 5, nameW, 12);
+        ctx.fillStyle = "#f2e8d6";
+        ctx.font = "bold " + Math.max(7, gridSize * 0.16) + "px Cinzel";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(t.name, t.x, nameY + 1);
       }
 
       // Hidden indicator (DM only)
       if (t.hidden && viewRole === "dm") {
         ctx.beginPath();
-        ctx.arc(t.x, t.y, r + 6, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(255,255,255,0.3)";
+        ctx.arc(t.x, t.y, r + 8, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,255,255,0.25)";
         ctx.lineWidth = 1;
         ctx.setLineDash([3, 3]);
         ctx.stroke();
@@ -2945,7 +3037,7 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
       ctx.textBaseline = "middle";
       ctx.fillText("Move: " + (used * 5) + "/" + (speedCells * 5) + " ft  (" + (remaining * 5) + " left)", w/2, 22);
     }
-  }, [bgColor, bgImage, showGrid, gridSize, zoom, pan, drawings, fogCells, tokens, walls, wallStart, wallPreview, activeTool, rulerStart, rulerEnd, selectedTokenId, activeCombatantId, combatLive, fogMode, movementMode, movementPath, movementOrigin, terrainCells, pings, viewRole]);
+  }, [bgColor, bgImage, showGrid, gridSize, zoom, pan, drawings, fogCells, tokens, walls, wallStart, wallPreview, activeTool, rulerStart, rulerEnd, selectedTokenId, hoveredTokenId, activeCombatantId, combatLive, combatants, conditions, fogMode, movementMode, movementPath, movementOrigin, terrainCells, pings, viewRole]);
 
   // Animation loop for combat glow and pings
   useEffect(() => {
@@ -3051,6 +3143,11 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
       // Don't trigger shortcuts when typing in input fields
       const tag = e.target.tagName.toLowerCase();
       if (tag === "input" || tag === "textarea" || tag === "select") return;
+
+      // Mode switching: 1=Select, 2=Draw (DM only), 3=Combat
+      if (e.key === "1") { setMode("select"); }
+      if (e.key === "2" && viewRole === "dm") { setMode("draw"); }
+      if (e.key === "3") { setMode("combat"); }
 
       if (e.key === "p" || e.key === "P") {
         setPingMode(prev => !prev);
@@ -3197,6 +3294,13 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
 
   const handleMouseMove = (e) => {
     const w = getMouseWorld(e);
+
+    // Token hover detection
+    const hitHover = [...tokens].reverse().find(t => {
+      if (t.hidden && viewRole === "player") return false;
+      return Math.hypot(t.x - w.x, t.y - w.y) < gridSize * 0.45;
+    });
+    setHoveredTokenId(hitHover ? hitHover.id : null);
 
     // Wall preview
     if (activeTool === "wall" && wallStart) {
@@ -3597,16 +3701,17 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
   ];
 
   const getCursor = () => {
-    if (mode === "draw") {
-      if (drawTool === "wall") return "crosshair";
-      if (drawTool === "draw") return "crosshair";
-      if (drawTool === "eraser") return "pointer";
-      if (drawTool === "terrain") return "crosshair";
-      return "crosshair";
-    }
     if (pingMode) return "crosshair";
     if (movementMode) return "move";
-    return dragState?.type === "pan" ? "grabbing" : "grab";
+    if (dragState?.type === "pan") return "grabbing";
+    if (dragState?.type === "token" || dragState?.type === "token-move") return "grabbing";
+    if (mode === "draw") {
+      if (drawTool === "eraser") return "pointer";
+      return "crosshair";
+    }
+    if (hoveredTokenId) return "pointer";
+    if (mode === "select") return "grab";
+    return "default";
   };
 
   // ── Context menu condition submenu state ──
@@ -3617,43 +3722,51 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
       <div style={{ display:"flex", flex:1, minHeight:0 }}>
 
         {/* ── LEFT: Mode Strip ── */}
-        <div style={{ width:48, background:T.bgCard, borderRight:"1px solid " + T.crimsonBorder, display:"flex", flexDirection:"column", alignItems:"center", paddingTop:8, gap:2 }}>
-          {bmModes.map(m => (
-            <button key={m.id} onClick={() => { if (m.id === "draw" && viewRole === "player") return; setMode(m.id); }} title={m.label}
-              style={{
-                width:38, height:38, display:"flex", alignItems:"center", justifyContent:"center",
-                background: mode === m.id ? T.crimsonSoft : "transparent",
-                border: mode === m.id ? "1px solid " + T.crimsonBorder : "1px solid transparent",
-                borderRadius:"4px", cursor:"pointer", transition:"all 0.15s",
-              }}>
-              <m.icon size={18} color={mode === m.id ? cssVar("--crimson") : cssVar("--text-muted")} />
-            </button>
+        <div style={{ width:56, background:T.bgCard, borderRight:"2px solid " + T.crimsonBorder, display:"flex", flexDirection:"column", alignItems:"center", paddingTop:6, gap:1, boxShadow:"2px 0 12px rgba(0,0,6,0.3)" }}>
+          <span style={{ fontFamily:T.ui, fontSize:6, letterSpacing:"2px", color:T.textFaint, textTransform:"uppercase", marginBottom:4 }}>MODE</span>
+          {bmModes.map((m, idx) => (
+            <div key={m.id} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:1 }}>
+              <button onClick={() => { if (m.id === "draw" && viewRole === "player") return; setMode(m.id); }} title={m.label + " (" + (idx+1) + ")"}
+                style={{
+                  width:44, height:44, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:2,
+                  background: mode === m.id ? T.crimsonSoft : "transparent",
+                  border: mode === m.id ? "1px solid " + T.crimsonBorder : "1px solid transparent",
+                  borderRadius:"6px", cursor:"pointer", transition:"all 0.2s",
+                  boxShadow: mode === m.id ? "0 0 8px rgba(212,67,58,0.3), inset 0 0 4px rgba(212,67,58,0.1)" : "none",
+                }}>
+                <m.icon size={18} color={mode === m.id ? cssVar("--crimson") : cssVar("--text-muted")} />
+                <span style={{ fontSize:6, fontFamily:T.ui, letterSpacing:"1px", color: mode === m.id ? cssVar("--crimson") : T.textFaint, textTransform:"uppercase" }}>{m.label}</span>
+              </button>
+              <span style={{ fontSize:7, fontFamily:T.ui, color:T.textFaint, opacity:0.5 }}>{idx+1}</span>
+            </div>
           ))}
 
-          <div style={{ width:28, height:1, background:T.border, margin:"6px 0" }} />
+          <div style={{ width:32, height:1, background:T.border, margin:"6px 0" }} />
 
           {mode === "draw" && drawToolDefs.map(dt => (
             <button key={dt.id} onClick={() => { setDrawTool(dt.id); setWallStart(null); setWallPreview(null); }} title={dt.label}
               style={{
-                width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center",
-                background: drawTool === dt.id ? "rgba(212,67,58,0.12)" : "transparent",
-                border: drawTool === dt.id ? "1px solid rgba(212,67,58,0.3)" : "1px solid transparent",
-                borderRadius:"3px", cursor:"pointer", transition:"all 0.15s",
+                width:36, height:36, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:1,
+                background: drawTool === dt.id ? "rgba(212,67,58,0.15)" : "transparent",
+                border: drawTool === dt.id ? "1px solid rgba(212,67,58,0.35)" : "1px solid transparent",
+                borderRadius:"4px", cursor:"pointer", transition:"all 0.2s",
+                boxShadow: drawTool === dt.id ? "0 0 6px rgba(212,67,58,0.2)" : "none",
               }}>
               <dt.icon size={14} color={drawTool === dt.id ? cssVar("--crimson") : cssVar("--text-faint")} />
+              <span style={{ fontSize:5, fontFamily:T.ui, letterSpacing:"0.5px", color: drawTool === dt.id ? cssVar("--crimson") : T.textFaint, textTransform:"uppercase" }}>{dt.label}</span>
             </button>
           ))}
 
           {mode === "draw" && drawTool === "terrain" && (
             <React.Fragment>
-              <div style={{ width:28, height:1, background:T.border, margin:"4px 0" }} />
+              <div style={{ width:32, height:1, background:T.border, margin:"4px 0" }} />
               {Object.entries(TERRAIN_TYPES).map(([key, terrain]) => (
                 <button key={key} onClick={() => setSelectedTerrain(key)} title={terrain.label}
                   style={{
-                    width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center",
+                    width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center",
                     background: selectedTerrain === key ? terrain.color : "transparent",
                     border: selectedTerrain === key ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
-                    borderRadius:"3px", cursor:"pointer", transition:"all 0.15s", fontSize:10, fontFamily:T.ui, color:T.text
+                    borderRadius:"4px", cursor:"pointer", transition:"all 0.15s", fontSize:10, fontFamily:T.ui, color:T.text
                   }}>
                   {terrain.label.substring(0, 1)}
                 </button>
@@ -3663,11 +3776,11 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
 
           {mode === "draw" && drawTool === "draw" && (
             <React.Fragment>
-              <div style={{ width:28, height:1, background:T.border, margin:"4px 0" }} />
+              <div style={{ width:32, height:1, background:T.border, margin:"4px 0" }} />
               <input type="color" value={drawColor} onChange={e=>setDrawColor(e.target.value)}
-                style={{ width:28, height:28, border:"1px solid " + T.border, background:"none", padding:0, cursor:"pointer", borderRadius:"3px" }} />
+                style={{ width:30, height:30, border:"1px solid " + T.border, background:"none", padding:0, cursor:"pointer", borderRadius:"4px" }} />
               <select value={drawWidth} onChange={e=>setDrawWidth(parseInt(e.target.value))} title="Brush width"
-                style={{ width:36, padding:"2px", fontSize:8, fontFamily:T.ui, background:T.bgCard, border:"1px solid " + T.border, color:T.textMuted, borderRadius:"2px", textAlign:"center" }}>
+                style={{ width:40, padding:"2px", fontSize:8, fontFamily:T.ui, background:T.bgCard, border:"1px solid " + T.border, color:T.textMuted, borderRadius:"3px", textAlign:"center" }}>
                 <option value="2">S</option><option value="3">M</option><option value="6">L</option><option value="10">XL</option>
               </select>
             </React.Fragment>
@@ -3675,30 +3788,37 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
 
           <div style={{ flex:1 }} />
 
+          {combatLive && (
+            <div style={{ width:42, padding:"4px 2px", background:"rgba(212,67,58,0.12)", border:"1px solid rgba(212,67,58,0.3)", borderRadius:"4px", textAlign:"center", marginBottom:4 }}>
+              <span style={{ fontSize:6, fontFamily:T.ui, letterSpacing:"1px", color:cssVar("--crimson"), textTransform:"uppercase", display:"block" }}>R{round}</span>
+              <span style={{ fontSize:7, fontFamily:T.ui, color:T.textMuted }}>{turn+1}/{combatants.filter(c=>c.hp>0).length}</span>
+            </div>
+          )}
+
           <button onClick={() => setShowGrid(!showGrid)} title="Toggle Grid"
-            style={{ width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center", background:showGrid?"rgba(212,67,58,0.12)":"transparent", border:"1px solid transparent", borderRadius:"3px", cursor:"pointer" }}>
+            style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:showGrid?"rgba(212,67,58,0.12)":"transparent", border:"1px solid " + (showGrid?"rgba(212,67,58,0.25)":"transparent"), borderRadius:"4px", cursor:"pointer" }}>
             <Layers size={14} color={showGrid ? cssVar("--crimson") : cssVar("--text-faint")} />
           </button>
 
           <button onClick={() => setPingMode(!pingMode)} title="Ping (P)"
-            style={{ width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center", background:pingMode?"rgba(88,170,255,0.15)":"transparent", border:"1px solid " + (pingMode?"rgba(88,170,255,0.3)":"transparent"), borderRadius:"3px", cursor:"pointer" }}>
+            style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:pingMode?"rgba(88,170,255,0.15)":"transparent", border:"1px solid " + (pingMode?"rgba(88,170,255,0.3)":"transparent"), borderRadius:"4px", cursor:"pointer" }}>
             <MapPin size={14} color={pingMode ? "#58aaff" : cssVar("--text-faint")} />
           </button>
 
-          <button onClick={() => setShowDicePanel(!showDicePanel)} title="Toggle Dice Panel"
-            style={{ width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center", background:showDicePanel?"rgba(212,67,58,0.12)":"transparent", border:"1px solid transparent", borderRadius:"3px", cursor:"pointer" }}>
+          <button onClick={() => setShowDicePanel(!showDicePanel)} title="Dice Roller"
+            style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:showDicePanel?"rgba(212,67,58,0.12)":"transparent", border:"1px solid " + (showDicePanel?"rgba(212,67,58,0.25)":"transparent"), borderRadius:"4px", cursor:"pointer" }}>
             <Dice6 size={14} color={showDicePanel ? cssVar("--crimson") : cssVar("--text-faint")} />
           </button>
 
           <button onClick={() => { setZoom(1); setPan({x:0,y:0}); }} title="Reset View"
-            style={{ width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center", background:"transparent", border:"1px solid transparent", borderRadius:"3px", cursor:"pointer", marginBottom:8 }}>
+            style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:"transparent", border:"1px solid transparent", borderRadius:"4px", cursor:"pointer", marginBottom:6 }}>
             <RefreshCw size={14} color={cssVar("--text-faint")} />
           </button>
         </div>
 
         {/* ── CENTER: Canvas ── */}
         <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0 }}>
-          <div ref={wrapRef} style={{ flex:1, position:"relative", overflow:"hidden", background:bgColor, boxShadow:"inset 0 2px 8px rgba(0,0,6,0.45)", cursor:getCursor() }}
+          <div ref={wrapRef} style={{ flex:1, position:"relative", overflow:"hidden", background:bgColor, boxShadow:"inset 0 3px 16px rgba(0,0,6,0.6), inset 0 0 4px rgba(0,0,6,0.3)", cursor:getCursor() }}
             onDragOver={handleDragOver} onDrop={handleDrop}>
             <canvas ref={canvasRef} style={{ display:"block", width:"100%", height:"100%", position:"absolute", top:0, left:0 }}
               onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}
@@ -3831,14 +3951,25 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
 
           {/* ── BOTTOM: Combat Bar ── */}
           {combatLive && (
-            <div style={{ height:56, background:T.bgCard, borderTop:"1px solid " + T.crimsonBorder, display:"flex", alignItems:"center", padding:"0 16px", gap:16, flexShrink:0 }}>
-              <Tag variant="danger">Round {round}</Tag>
-              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <span style={{ width:6, height:6, borderRadius:"50%", background:combatants[turn]?.type==="pc"?"#5ee09a":cssVar("--crimson") }} />
-                <span style={{ fontFamily:T.body, fontSize:14, color:T.text, fontWeight:400 }}>
+            <div style={{ height:64, background:T.bgCard, borderTop:"2px solid " + T.crimsonBorder, display:"flex", alignItems:"center", padding:"0 16px", gap:16, flexShrink:0, boxShadow:"0 -4px 16px rgba(0,0,6,0.3)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:4, background:"rgba(212,67,58,0.15)", padding:"6px 12px", borderRadius:"4px", border:"1px solid rgba(212,67,58,0.3)" }}>
+                <Swords size={12} color={cssVar("--crimson")} />
+                <span style={{ fontFamily:T.ui, fontSize:11, color:cssVar("--crimson"), fontWeight:600, letterSpacing:"1px" }}>R{round}</span>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <span style={{ width:8, height:8, borderRadius:"50%", background:combatants[turn]?.type==="pc"?"#5ee09a":cssVar("--crimson"), boxShadow:"0 0 6px " + (combatants[turn]?.type==="pc"?"rgba(94,224,154,0.5)":"rgba(212,67,58,0.5)") }} />
+                <span style={{ fontFamily:T.body, fontSize:16, color:T.text, fontWeight:500 }}>
                   {combatants[turn]?.name || "\u2014"}
                 </span>
-                <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>
+                {combatants[turn] && combatants[turn].hp != null && (
+                  <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+                    <div style={{ width:60, height:6, background:"rgba(0,0,0,0.4)", borderRadius:"3px", overflow:"hidden" }}>
+                      <div style={{ width: Math.round(combatants[turn].hp / combatants[turn].maxHp * 100) + "%", height:"100%", background:getHpColor(combatants[turn].hp, combatants[turn].maxHp), transition:"width 0.2s", borderRadius:"3px" }} />
+                    </div>
+                    <span style={{ fontFamily:T.ui, fontSize:9, color:T.textMuted }}>{combatants[turn].hp}/{combatants[turn].maxHp}</span>
+                  </div>
+                )}
+                <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px", background:"rgba(255,255,255,0.05)", padding:"2px 6px", borderRadius:"2px" }}>
                   {turn+1}/{combatants.filter(c=>c.hp>0).length}
                 </span>
               </div>
@@ -3855,7 +3986,7 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
         </div>
 
         {/* ── RIGHT: Context Panel ── */}
-        <div style={{ width:280, background:T.bgCard, overflowY:"auto", display:"flex", flexDirection:"column", borderLeft:"1px solid " + T.crimsonBorder }}>
+        <div style={{ width:280, background:T.bgCard, overflowY:"auto", display:"flex", flexDirection:"column", borderLeft:"2px solid " + T.crimsonBorder, boxShadow:"-3px 0 12px rgba(0,0,6,0.25)" }}>
 
           {mode === "combat" ? (
             <div style={{ padding:14, display:"flex", flexDirection:"column", gap:10 }}>
@@ -3873,27 +4004,30 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
                 </div>
               ) : (
                 <React.Fragment>
-                  <div style={{ display:"flex", flexDirection:"column", gap:2, maxHeight:340, overflowY:"auto" }}>
+                  <div style={{ display:"flex", flexDirection:"column", gap:3, maxHeight:360, overflowY:"auto" }}>
                     {combatants.map((c, i) => (
                       <div key={c.id}
                         onClick={() => setSelectedTokenId(c.mapTokenId)}
                         style={{
-                          padding:"8px 10px", background: i===turn ? T.crimsonSoft : "transparent",
-                          borderRadius:"2px", borderLeft: i===turn ? "3px solid " + cssVar("--crimson") : "3px solid transparent",
-                          opacity: c.hp<=0 ? 0.3 : 1, transition:"all 0.15s", cursor:"pointer",
+                          padding: i===turn ? "10px 10px" : "8px 10px",
+                          background: i===turn ? T.crimsonSoft : "transparent",
+                          borderRadius:"4px",
+                          borderLeft: i===turn ? "4px solid " + cssVar("--crimson") : "4px solid transparent",
+                          opacity: c.hp<=0 ? 0.3 : 1, transition:"all 0.2s", cursor:"pointer",
+                          boxShadow: i===turn ? "0 2px 8px rgba(212,67,58,0.15)" : "none",
                         }}>
                         <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                          <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, color:T.textFaint, minWidth:18 }}>{c.init}</span>
-                          <span style={{ width:5, height:5, borderRadius:"50%", flexShrink:0, background:c.type==="pc"?"#5ee09a":cssVar("--crimson") }} />
-                          <span style={{ flex:1, fontSize:12, fontFamily:T.body, fontWeight:400, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
-                          <span style={{ fontFamily:T.ui, fontSize:7, color:T.textFaint, letterSpacing:"0.5px" }}>AC{c.ac}</span>
+                          <span style={{ fontSize: i===turn ? 13 : 11, fontFamily:T.body, fontWeight: i===turn ? 600 : 500, color: i===turn ? cssVar("--crimson") : T.textFaint, minWidth:20 }}>{c.init}</span>
+                          <span style={{ width:7, height:7, borderRadius:"50%", flexShrink:0, background:c.type==="pc"?"#5ee09a":cssVar("--crimson"), boxShadow: i===turn ? "0 0 4px " + (c.type==="pc"?"rgba(94,224,154,0.5)":"rgba(212,67,58,0.5)") : "none" }} />
+                          <span style={{ flex:1, fontSize: i===turn ? 13 : 12, fontFamily:T.body, fontWeight: i===turn ? 500 : 400, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
+                          <span style={{ fontFamily:T.ui, fontSize:7, color:T.textFaint, letterSpacing:"0.5px", background:"rgba(255,255,255,0.05)", padding:"1px 4px", borderRadius:"2px" }}>AC{c.ac}</span>
                         </div>
-                        <div style={{ display:"flex", alignItems:"center", gap:3, marginTop:3, paddingLeft:24 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:3, marginTop:4, paddingLeft:26 }}>
                           <button onClick={e=>{e.stopPropagation();adjCombatantHp(c.id,-5);}} style={{ background:"none", border:"none", cursor:"pointer", color:"#f06858", fontSize:12, padding:"1px 3px" }}>-</button>
-                          <div style={{ flex:1, height:5, background:T.bgInput, borderRadius:"2px", overflow:"hidden" }}>
-                            <div style={{ width: Math.round(c.hp/c.maxHp*100) + "%", height:"100%", background:getHpColor(c.hp, c.maxHp), transition:"width 0.2s" }} />
+                          <div style={{ flex:1, height:6, background:T.bgInput, borderRadius:"3px", overflow:"hidden" }}>
+                            <div style={{ width: Math.round(c.hp/c.maxHp*100) + "%", height:"100%", background:getHpColor(c.hp, c.maxHp), transition:"width 0.2s", borderRadius:"3px" }} />
                           </div>
-                          <span style={{ fontSize:9, fontFamily:T.body, minWidth:32, textAlign:"center", color:T.textMuted }}>{c.hp}/{c.maxHp}</span>
+                          <span style={{ fontSize:9, fontFamily:T.body, minWidth:36, textAlign:"center", color: i===turn ? T.text : T.textMuted, fontWeight: i===turn ? 500 : 400 }}>{c.hp}/{c.maxHp}</span>
                           <button onClick={e=>{e.stopPropagation();adjCombatantHp(c.id,5);}} style={{ background:"none", border:"none", cursor:"pointer", color:"#5ee09a", fontSize:12, padding:"1px 3px" }}>+</button>
                           {c.type==="enemy" && <button onClick={e=>{e.stopPropagation();removeCombatant(c.id);}} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:"1px" }}><X size={9}/></button>}
                         </div>

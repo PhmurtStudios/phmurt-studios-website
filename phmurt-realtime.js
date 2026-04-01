@@ -46,7 +46,9 @@ var PhmurtRealtime = (function () {
 
     if (sb) {
       /* ── Supabase Broadcast (real cross-device sync) ── */
-      var channelName = 'battle-map:' + campaignId;
+      // Sanitize campaignId to prevent channel name injection
+      var safeCampaignId = String(campaignId).replace(/[^a-zA-Z0-9_\-]/g, '');
+      var channelName = 'battle-map:' + safeCampaignId;
 
       // Clean up existing channel for this campaign if any
       if (_channels[campaignId]) {

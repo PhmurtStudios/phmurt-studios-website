@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
 <title>Admin Dashboard – Phmurt Studios</title>
 <!-- NOTE: unsafe-eval is required by @babel/standalone to compile JSX at runtime.
      This is acceptable for an admin-only page, but should be reviewed if Babel usage changes. -->
@@ -349,6 +351,7 @@
         var email = (document.getElementById('ag-in-email').value || '').trim().toLowerCase();
         var pass  = document.getElementById('ag-in-pass').value;
         if (!email) { showErr('Email is required.'); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('Please enter a valid email address.'); return; }
         if (!pass)  { showErr('Password is required.'); return; }
         setLoading('ag-in-submit', true);
 
@@ -406,6 +409,7 @@
         var pass2 = document.getElementById('ag-up-pass2').value;
         if (!name)           { showErr('Display name is required.'); return; }
         if (!email)          { showErr('Email is required.'); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('Please enter a valid email address.'); return; }
         if (!pass)           { showErr('Password is required.'); return; }
         if (pass.length < 8) { showErr('Password must be at least 8 characters.'); return; }
         if (pass !== pass2)  { showErr('Passwords do not match.'); return; }
@@ -413,7 +417,8 @@
         if (users[email])    { showErr('An account with that email already exists.'); return; }
         setLoading('ag-up-submit', true);
         hashPassword(pass, email).then(function (hash) {
-          var uid = 'user_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2,5);
+          var uidBytes = new Uint8Array(8); crypto.getRandomValues(uidBytes);
+          var uid = 'user_' + Date.now().toString(36) + '_' + Array.from(uidBytes).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
           var user = { userId: uid, name: name, email: email, passwordHash: hash, createdAt: new Date().toISOString() };
           users[email] = user;
           localStorage.setItem('phmurt_users_db', JSON.stringify(users));

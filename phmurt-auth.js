@@ -234,7 +234,12 @@ var PhmurtDB = (function () {
     return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))
       .then(function (h) { return Array.from(new Uint8Array(h)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join(''); });
   }
-  function _uid() { return 'user_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6); }
+  function _uid() {
+    var arr = new Uint8Array(8);
+    crypto.getRandomValues(arr);
+    var hex = Array.from(arr).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+    return 'user_' + Date.now().toString(36) + '_' + hex;
+  }
 
   function _initLegacy() {
     var s = _legacyGetSession();
