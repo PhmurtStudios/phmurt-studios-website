@@ -2478,6 +2478,276 @@ var fmRenderBorder = function(ctx, w, h, dark) {
 };
 
 // ============================================================================
+// 2.5. ROUND 3 GLOBAL HELPERS: Hand-drawn imperfection utilities
+// ============================================================================
+// These provide jitter, wobble, and ink-like line quality across all rendering
+
+// Seeded hash for deterministic jitter
+var fmJitterHash = function(x, y, seed) {
+  var h = ((x * 2654435761 + y * 340573321 + (seed || 0) * 1013904223) >>> 0);
+  return (h % 10000) / 10000;
+};
+
+// Add wobble to a point - simulates hand tremor
+var fmWobble = function(x, y, amount, seed) {
+  var h1 = fmJitterHash(x * 100, y * 100, seed || 0);
+  var h2 = fmJitterHash(x * 100 + 1, y * 100 + 1, seed || 0);
+  return {
+    x: x + (h1 - 0.5) * amount * 2,
+    y: y + (h2 - 0.5) * amount * 2
+  };
+};
+
+// Draw a hand-drawn line with wobble segments
+var fmHandLine = function(ctx, x1, y1, x2, y2, wobbleAmount, segments) {
+  wobbleAmount = wobbleAmount || 1.0;
+  segments = segments || 6;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  for (var i = 1; i <= segments; i++) {
+    var t = i / segments;
+    var mx = x1 + (x2 - x1) * t;
+    var my = y1 + (y2 - y1) * t;
+    if (i < segments) {
+      var w = fmWobble(mx, my, wobbleAmount, i);
+      ctx.lineTo(w.x, w.y);
+    } else {
+      ctx.lineTo(x2, y2);
+    }
+  }
+  ctx.stroke();
+};
+
+// Draw hand-drawn curve through points with variable width
+var fmHandCurve = function(ctx, points, baseWidth, widthVar) {
+  if (points.length < 2) return;
+  widthVar = widthVar || 0.3;
+  for (var i = 0; i < points.length - 1; i++) {
+    var t = i / (points.length - 1);
+    // Simulate pressure: heavier in middle, lighter at ends
+    var pressure = 1.0 - Math.abs(t - 0.5) * 0.6;
+    // Add noise to pressure for ink variation
+    var noiseP = fmJitterHash(points[i].x * 10, points[i].y * 10, 42);
+    pressure += (noiseP - 0.5) * widthVar;
+    ctx.lineWidth = baseWidth * Math.max(0.4, pressure);
+    ctx.beginPath();
+    ctx.moveTo(points[i].x, points[i].y);
+    if (i < points.length - 2) {
+      var cpx = (points[i].x + points[i+1].x) / 2;
+      var cpy = (points[i].y + points[i+1].y) / 2;
+      ctx.quadraticCurveTo(points[i+1].x, points[i+1].y,
+        (points[i+1].x + points[Math.min(i+2, points.length-1)].x) / 2,
+        (points[i+1].y + points[Math.min(i+2, points.length-1)].y) / 2);
+    } else {
+      ctx.lineTo(points[i+1].x, points[i+1].y);
+    }
+    ctx.stroke();
+  }
+};
+
+// Composition field: creates focal hierarchy (dense vs sparse regions)
+var fmCompositionField = function(sx, sy) {
+  // Large-scale noise creates "interest zones"
+  var n1 = fmValueNoise(sx * 0.003, sy * 0.003);
+  var n2 = fmValueNoise(sx * 0.007 + 100, sy * 0.007 + 100) * 0.5;
+  var field = (n1 + n2) / 1.5;
+  // Remap to create distinct focal areas (some very dense, some sparse)
+  // Values > 0.6 = focal area (high detail), < 0.35 = quiet area (low detail)
+  return field;
+};
+
+// Stipple pattern for ink-like shading
+var fmStipple = function(ctx, x, y, radius, density, inkColor, alpha) {
+  ctx.fillStyle = inkColor;
+  ctx.globalAlpha = alpha || 0.3;
+  var count = Math.floor(density * radius * radius * 0.3);
+  for (var i = 0; i < count; i++) {
+    var h1 = fmJitterHash(x + i, y + i, i * 7);
+    var h2 = fmJitterHash(x + i + 1, y + i + 1, i * 13);
+    var angle = h1 * Math.PI * 2;
+    var dist = h2 * radius;
+    var px = x + Math.cos(angle) * dist;
+    var py = y + Math.sin(angle) * dist;
+    var dotSize = 0.3 + h1 * 0.5;
+    ctx.beginPath();
+    ctx.arc(px, py, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+  }
+};
+
+// ============================================================================
+// 3a. OCEAN RENDERING — waves, stippling, and water texture detail
+// ============================================================================
+var fmRenderOcean = function(ctx) {
+  var cellSize = fmGetCellSize();
+  var w = cellSize.w;
+  var h = cellSize.h;
+  var dark = FMap.dark;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
+  var b = FMap.mapBounds;
+
+  var inkColor = dark ? '#5a4a3a' : '#2a1a08';
+  var waveColor = dark ? '#4a3a2a' : '#3a2a15';
+
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Pass 1: Stipple dots in deep ocean - INCREASED DENSITY
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell || !cell.isWater) continue;
+
+      // Render ~35% of cells (increased from 25%)
+      var skipHash = ((col * 2654435761 + row * 340573321) >>> 0) % 100;
+      if (skipHash > 35) continue;
+
+      var screenPos = fmCellToScreen(col, row);
+      var sx = screenPos.x + w / 2;
+      var sy = screenPos.y + h / 2;
+
+      var isDeep = cell.biome === 'deep_ocean';
+      var compField = typeof fmCompositionField === 'function' ? fmCompositionField(sx, sy) : 0.5;
+      var detailMult = 0.5 + compField * 0.8;
+
+      if (isDeep) {
+        ctx.fillStyle = inkColor;
+        ctx.globalAlpha = 0.09 * detailMult;  // Increased from 0.06
+        var dotCount = Math.floor(3 + detailMult * 4);  // More dots
+        for (var di = 0; di < dotCount; di++) {
+          var dHash = ((col * 73 + row * 137 + di * 31) >>> 0) % 1000;
+          var dx = screenPos.x + (dHash % 100) / 100 * w;
+          var dy = screenPos.y + ((dHash * 7) % 100) / 100 * h;
+          var dotR = 0.3 + ((dHash * 13) % 100) / 150;  // Slightly larger dots
+          ctx.beginPath();
+          ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+  }
+
+  // Pass 2: Wave marks - INCREASED DENSITY AND VISIBILITY
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell || !cell.isWater) continue;
+
+      // ~25% of water cells (increased from 15%)
+      var wHash = ((col * 1103515245 + row * 12345) >>> 0) % 100;
+      if (wHash > 25) continue;
+
+      var screenPos = fmCellToScreen(col, row);
+      var sx = screenPos.x + w / 2;
+      var sy = screenPos.y + h / 2;
+
+      var compField = typeof fmCompositionField === 'function' ? fmCompositionField(sx, sy) : 0.5;
+
+      // Determine wave direction by checking nearby land
+      var landAngle = 0;
+      var foundLand = false;
+      for (var dr = -3; dr <= 3 && !foundLand; dr++) {
+        for (var dc = -3; dc <= 3 && !foundLand; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          var nr = row + dr;
+          var nc = col + dc;
+          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+          var neighbor = FMap.grid.cells[nr * cols + nc];
+          if (neighbor && !neighbor.isWater) {
+            landAngle = Math.atan2(dr, dc) + Math.PI / 2;
+            foundLand = true;
+          }
+        }
+      }
+      if (!foundLand) {
+        landAngle = ((col * 47 + row * 83) % 628) / 100;
+      }
+
+      // Draw 1-3 wave marks (increased)
+      var waveCount = 1 + (wHash % 3);
+      ctx.strokeStyle = waveColor;
+      ctx.globalAlpha = 0.12 + compField * 0.08;  // Increased from 0.08 + 0.06
+
+      for (var wi = 0; wi < waveCount; wi++) {
+        var wSeed = col * 73 + row * 137 + wi * 31;
+        var wLen = 6 + ((wSeed >>> 0) % 10);  // Longer waves
+        var wobbleAmt = ((wSeed * 7) % 100) / 200 - 0.25;
+
+        var wx = sx + ((wSeed * 3 % 100) - 50) / 100 * w * 0.6;
+        var wy = sy + ((wSeed * 11 % 100) - 50) / 100 * h * 0.6;
+
+        var angle = landAngle + wobbleAmt;
+
+        var x1 = wx - Math.cos(angle) * wLen / 2;
+        var y1 = wy - Math.sin(angle) * wLen / 2;
+        var x2 = wx + Math.cos(angle) * wLen / 2;
+        var y2 = wy + Math.sin(angle) * wLen / 2;
+
+        var cpDist = wLen * 0.35;
+        var cpAngle = angle + Math.PI / 2;
+        var cpx = wx + Math.cos(cpAngle) * cpDist;
+        var cpy = wy + Math.sin(cpAngle) * cpDist;
+
+        ctx.lineWidth = 0.5 + ((wSeed * 17) % 100) / 200;  // Slightly thicker
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo(cpx, cpy, x2, y2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Pass 3: Cross-hatching near coastlines (shallow water) - MORE VISIBLE
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell || !cell.isWater) continue;
+      if (cell.biome === 'deep_ocean') continue;
+
+      var nearCoast = false;
+      for (var dr = -1; dr <= 1 && !nearCoast; dr++) {
+        for (var dc = -1; dc <= 1 && !nearCoast; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          var nr = row + dr;
+          var nc = col + dc;
+          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+          var neighbor = FMap.grid.cells[nr * cols + nc];
+          if (neighbor && !neighbor.isWater) nearCoast = true;
+        }
+      }
+      if (!nearCoast) continue;
+
+      // ~30% of coastal water cells (increased from 20%)
+      var chHash = ((col * 997 + row * 1009) >>> 0) % 100;
+      if (chHash > 30) continue;
+
+      var screenPos = fmCellToScreen(col, row);
+
+      ctx.strokeStyle = inkColor;
+      ctx.globalAlpha = 0.08;  // Increased from 0.05
+      ctx.lineWidth = 0.4;
+
+      var hatchCount = 3 + (chHash % 3);  // More hatches
+      for (var hi = 0; hi < hatchCount; hi++) {
+        var hSeed = col * 53 + row * 97 + hi * 23;
+        var hx = screenPos.x + ((hSeed % 100) / 100) * w;
+        var hy = screenPos.y + (((hSeed * 7) % 100) / 100) * h;
+        var hAngle = Math.PI / 4 + ((hSeed * 3) % 100) / 300;
+        var hLen = 2.5 + ((hSeed * 11) % 100) / 40;  // Longer hatches
+
+        ctx.beginPath();
+        ctx.moveTo(hx, hy);
+        ctx.lineTo(hx + Math.cos(hAngle) * hLen, hy + Math.sin(hAngle) * hLen);
+        ctx.stroke();
+      }
+    }
+  }
+
+  ctx.globalAlpha = 1.0;
+};
+
+// ============================================================================
 // 3. TERRAIN BASE TINTING — subtle color washes for water/desert/swamp
 // ============================================================================
 var fmRenderTerrain = function(ctx) {
@@ -2485,18 +2755,18 @@ var fmRenderTerrain = function(ctx) {
   var w = cellSize.w;
   var h = cellSize.h;
   var dark = FMap.dark;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
 
-  // Reference style: NO blue. Water is warm amber/ochre, slightly lighter than land.
-  // All colors in warm brown/gold palette to match golden parchment.
-  var waterLight = dark ? '#1a1810' : '#c8a858'; // warm golden for water areas
-  var waterDark = dark ? '#181510' : '#b09040';  // slightly darker for deep ocean
+  var waterLight = dark ? '#1a1810' : '#c8a858';
+  var waterDark = dark ? '#181510' : '#b09040';
   var desertColor = dark ? '#3a3015' : '#d8c070';
   var swampColor = dark ? '#1a2015' : '#a0a060';
-  var forestColor = dark ? '#1a2010' : '#8a9050'; // muted olive for forests
+  var forestColor = dark ? '#1a2010' : '#8a9050';
 
-  for (var row = 0; row < FMap.grid.rows; row++) {
-    for (var col = 0; col < FMap.grid.cols; col++) {
-      var cell = FMap.grid.cells[row * FMap.grid.cols + col];
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
       if (!cell) continue;
 
       var screenPos = fmCellToScreen(col, row);
@@ -2531,6 +2801,137 @@ var fmRenderTerrain = function(ctx) {
     }
   }
   ctx.globalAlpha = 1.0;
+
+  // ROUND 3: Enhanced terrain transitions with multi-cell gradient blending
+  // Use a wider transition zone for smoother, more organic biome edges
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell || cell.isWater) continue;
+
+      var screenPos = fmCellToScreen(col, row);
+
+      // Check 2-cell radius for transition effects
+      var transColor = null;
+      var transAlpha = 0;
+      var neighborTypes = {};
+
+      for (var dr = -2; dr <= 2; dr++) {
+        for (var dc = -2; dc <= 2; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          var nr = row + dr;
+          var nc = col + dc;
+          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+          var neighbor = FMap.grid.cells[nr * cols + nc];
+          if (!neighbor) continue;
+
+          var dist = Math.sqrt(dr * dr + dc * dc);
+          if (dist > 2.5) continue;
+
+          // Track different neighbor types for blending
+          if (neighbor.isWater && !cell.isWater) {
+            neighborTypes.water = (neighborTypes.water || 0) + (1 / dist);
+          }
+          if ((neighbor.biome === 'forest' || neighbor.biome === 'dense_forest') &&
+              cell.biome !== 'forest' && cell.biome !== 'dense_forest') {
+            neighborTypes.forest = (neighborTypes.forest || 0) + (1 / dist);
+          }
+          if (neighbor.biome === 'mountain' && cell.biome !== 'mountain') {
+            neighborTypes.mountain = (neighborTypes.mountain || 0) + (1 / dist);
+          }
+          if (neighbor.biome === 'desert' && cell.biome !== 'desert') {
+            neighborTypes.desert = (neighborTypes.desert || 0) + (1 / dist);
+          }
+        }
+      }
+
+      // Apply gradual transition tints
+      if (neighborTypes.forest && neighborTypes.forest > 0.5) {
+        ctx.fillStyle = forestColor;
+        ctx.globalAlpha = Math.min(0.06, neighborTypes.forest * 0.015);
+        ctx.fillRect(screenPos.x, screenPos.y, w + 0.5, h + 0.5);
+      }
+      if (neighborTypes.mountain && neighborTypes.mountain > 0.5) {
+        ctx.fillStyle = dark ? '#3a3a2a' : '#a8a878';
+        ctx.globalAlpha = Math.min(0.05, neighborTypes.mountain * 0.012);
+        ctx.fillRect(screenPos.x, screenPos.y, w + 0.5, h + 0.5);
+      }
+      if (neighborTypes.desert && neighborTypes.desert > 0.5) {
+        ctx.fillStyle = desertColor;
+        ctx.globalAlpha = Math.min(0.06, neighborTypes.desert * 0.015);
+        ctx.fillRect(screenPos.x, screenPos.y, w + 0.5, h + 0.5);
+      }
+    }
+  }
+  ctx.globalAlpha = 1.0;
+};
+
+// ============================================================================
+// 3b. RELIEF SHADING — subtle 3D hillshading effect based on heightmap
+// ============================================================================
+var fmRenderReliefShading = function(ctx) {
+  var cellSize = fmGetCellSize();
+  var w = cellSize.w;
+  var h = cellSize.h;
+  var dark = FMap.dark;
+  var cols = FMap.grid.cols;
+  var rows = FMap.grid.rows;
+  var b = FMap.mapBounds;
+
+  var shadowColor = dark ? '#8a7a6a' : '#1a1005';
+  var highlightColor = dark ? '#5a4a3a' : '#e8d8c8';
+
+  // Light source from northwest (upper-left)
+  var lightAngle = -Math.PI / 4; // 45 degrees from top-left
+  var lightX = Math.cos(lightAngle);
+  var lightY = Math.sin(lightAngle);
+
+  ctx.globalAlpha = 1.0;
+
+  for (var row = 0; row < rows - 1; row++) {
+    for (var col = 0; col < cols - 1; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell || cell.isWater) continue;
+
+      var screenPos = fmCellToScreen(col, row);
+      var sx = screenPos.x + w / 2;
+      var sy = screenPos.y + h / 2;
+
+      // Sample heightmap values for slope calculation
+      var hCenter = FMap.grid.heightmap[row] && FMap.grid.heightmap[row][col] ? FMap.grid.heightmap[row][col] : 0.5;
+      var hRight = col + 1 < cols && FMap.grid.heightmap[row] && FMap.grid.heightmap[row][col + 1] ? FMap.grid.heightmap[row][col + 1] : hCenter;
+      var hBottom = row + 1 < rows && FMap.grid.heightmap[row + 1] ? FMap.grid.heightmap[row + 1][col] : hCenter;
+      var hDiag = row + 1 < rows && col + 1 < cols && FMap.grid.heightmap[row + 1] ? FMap.grid.heightmap[row + 1][col + 1] : hCenter;
+
+      // Calculate surface normal using Sobel operator
+      var dx = (hRight - hCenter) + (hDiag - hBottom) * 0.5;
+      var dy = (hBottom - hCenter) + (hDiag - hRight) * 0.5;
+
+      // Normal vector (simplified)
+      var normLen = Math.sqrt(dx * dx + dy * dy) || 1;
+      var nx = -dx / normLen;
+      var ny = -dy / normLen;
+      var nz = 0.8; // Arbitrary vertical component
+
+      // Dot product with light direction (on XY plane, with Z bias)
+      var dotProduct = nx * lightX + ny * lightY + nz * 0.3;
+
+      // Apply shading: negative = shadow, positive = highlight
+      if (dotProduct < -0.1) {
+        // Shadow on southeast-facing slopes
+        ctx.fillStyle = shadowColor;
+        ctx.globalAlpha = Math.min(0.15, Math.abs(dotProduct) * 0.12);
+        ctx.fillRect(screenPos.x, screenPos.y, w + 0.5, h + 0.5);
+      } else if (dotProduct > 0.15) {
+        // Highlight on northwest-facing slopes
+        ctx.fillStyle = highlightColor;
+        ctx.globalAlpha = Math.min(0.12, dotProduct * 0.08);
+        ctx.fillRect(screenPos.x, screenPos.y, w + 0.5, h + 0.5);
+      }
+    }
+  }
+
+  ctx.globalAlpha = 1.0;
 };
 
 // ============================================================================
@@ -2547,8 +2948,7 @@ var fmRenderCoastlines = function(ctx) {
 
   var inkColor = dark ? '#6a5a4a' : '#1a1005';
 
-  // Marching squares: for each 2x2 block, compute case and extract edge segments
-  // Segments are in screen coordinates
+  // Marching squares coastline extraction (same as before)
   var allSegments = [];
   for (var row = 0; row < rows - 1; row++) {
     for (var col = 0; col < cols - 1; col++) {
@@ -2565,31 +2965,28 @@ var fmRenderCoastlines = function(ctx) {
       var caseIdx = v0 | (v1 << 1) | (v2 << 2) | (v3 << 3);
       if (caseIdx === 0 || caseIdx === 15) continue;
 
-      // Cell top-left in screen coords
       var ox = b.x + (col / cols) * b.w;
       var oy = b.y + (row / rows) * b.h;
       var cw = b.w / cols;
       var ch = b.h / rows;
 
-      // Midpoints of edges: top=T, right=R, bottom=B, left=L
       var T = [ox + cw * 0.5, oy];
       var R = [ox + cw, oy + ch * 0.5];
       var B = [ox + cw * 0.5, oy + ch];
       var L = [ox, oy + ch * 0.5];
 
-      // Lookup: which edges to connect for each case
       var segs;
       switch (caseIdx) {
-        case 1:  segs = [[L, T]]; break;
-        case 2:  segs = [[T, R]]; break;
-        case 3:  segs = [[L, R]]; break;
-        case 4:  segs = [[R, B]]; break;
-        case 5:  segs = [[L, T], [R, B]]; break; // saddle
-        case 6:  segs = [[T, B]]; break;
-        case 7:  segs = [[L, B]]; break;
-        case 8:  segs = [[B, L]]; break;
-        case 9:  segs = [[B, T]]; break;
-        case 10: segs = [[T, R], [B, L]]; break; // saddle
+        case 1: segs = [[L, T]]; break;
+        case 2: segs = [[T, R]]; break;
+        case 3: segs = [[L, R]]; break;
+        case 4: segs = [[R, B]]; break;
+        case 5: segs = [[L, T], [R, B]]; break;
+        case 6: segs = [[T, B]]; break;
+        case 7: segs = [[L, B]]; break;
+        case 8: segs = [[B, L]]; break;
+        case 9: segs = [[B, T]]; break;
+        case 10: segs = [[T, R], [B, L]]; break;
         case 11: segs = [[B, R]]; break;
         case 12: segs = [[R, L]]; break;
         case 13: segs = [[R, T]]; break;
@@ -2603,11 +3000,9 @@ var fmRenderCoastlines = function(ctx) {
     }
   }
 
-  // Chain segments into polylines by connecting matching endpoints
+  // Chain segments into polylines
   var used = new Array(allSegments.length);
   var chains = [];
-
-  // Build spatial index for fast endpoint lookup
   var endpointMap = {};
   var snapKey = function(x, y) { return Math.round(x * 2) + ',' + Math.round(y * 2); };
 
@@ -2627,7 +3022,6 @@ var fmRenderCoastlines = function(ctx) {
     var seg = allSegments[i];
     var chain = [[seg[0], seg[1]], [seg[2], seg[3]]];
 
-    // Extend forward
     var searching = true;
     while (searching) {
       searching = false;
@@ -2636,21 +3030,20 @@ var fmRenderCoastlines = function(ctx) {
       var candidates = endpointMap[key];
       if (candidates) {
         for (var ci = 0; ci < candidates.length; ci++) {
-          var c = candidates[ci];
-          if (used[c.idx]) continue;
-          used[c.idx] = true;
-          var ns = allSegments[c.idx];
-          if (c.end === 0) {
-            chain.push([ns[2], ns[3]]);
+          var cand = candidates[ci];
+          if (used[cand.idx]) continue;
+          used[cand.idx] = true;
+          var cseg = allSegments[cand.idx];
+          if (cand.end === 0) {
+            chain.push([cseg[2], cseg[3]]);
           } else {
-            chain.push([ns[0], ns[1]]);
+            chain.push([cseg[0], cseg[1]]);
           }
           searching = true;
           break;
         }
       }
     }
-
     // Extend backward
     searching = true;
     while (searching) {
@@ -2660,14 +3053,14 @@ var fmRenderCoastlines = function(ctx) {
       var candidates = endpointMap[key];
       if (candidates) {
         for (var ci = 0; ci < candidates.length; ci++) {
-          var c = candidates[ci];
-          if (used[c.idx]) continue;
-          used[c.idx] = true;
-          var ns = allSegments[c.idx];
-          if (c.end === 0) {
-            chain.unshift([ns[2], ns[3]]);
+          var cand = candidates[ci];
+          if (used[cand.idx]) continue;
+          used[cand.idx] = true;
+          var cseg = allSegments[cand.idx];
+          if (cand.end === 0) {
+            chain.unshift([cseg[2], cseg[3]]);
           } else {
-            chain.unshift([ns[0], ns[1]]);
+            chain.unshift([cseg[0], cseg[1]]);
           }
           searching = true;
           break;
@@ -2675,199 +3068,199 @@ var fmRenderCoastlines = function(ctx) {
       }
     }
 
-    if (chain.length >= 3) chains.push(chain);
+    if (chain.length > 3) {
+      chains.push(chain);
+    }
   }
 
-  // Smooth chains with Catmull-Rom spline
-  var smoothChain = function(pts) {
+  // Catmull-Rom smoothing
+  var smoothChain = function(pts, tension) {
+    tension = tension || 0.3;
     if (pts.length < 3) return pts;
     var result = [];
-    for (var p = 0; p < pts.length - 1; p++) {
-      var p0 = pts[Math.max(0, p - 1)];
-      var p1 = pts[p];
-      var p2 = pts[p + 1];
-      var p3 = pts[Math.min(pts.length - 1, p + 2)];
-
-      result.push(p1);
-      var dx = p2[0] - p1[0];
-      var dy = p2[1] - p1[1];
-      var steps = Math.max(2, Math.ceil(Math.sqrt(dx * dx + dy * dy) / 3));
-
-      for (var st = 1; st < steps; st++) {
-        var t = st / steps;
+    result.push(pts[0]);
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p0 = pts[Math.max(0, i - 1)];
+      var p1 = pts[i];
+      var p2 = pts[Math.min(pts.length - 1, i + 1)];
+      var p3 = pts[Math.min(pts.length - 1, i + 2)];
+      for (var t = 0.25; t <= 0.75; t += 0.25) {
         var t2 = t * t;
         var t3 = t2 * t;
-        var a0 = -0.5 * t3 + t2 - 0.5 * t;
-        var a1 = 1.5 * t3 - 2.5 * t2 + 1;
-        var a2 = -1.5 * t3 + 2 * t2 + 0.5 * t;
-        var a3 = 0.5 * t3 - 0.5 * t2;
-        result.push([
-          a0 * p0[0] + a1 * p1[0] + a2 * p2[0] + a3 * p3[0],
-          a0 * p0[1] + a1 * p1[1] + a2 * p2[1] + a3 * p3[1]
-        ]);
+        var x = 0.5 * ((2 * p1[0]) +
+          (-p0[0] + p2[0]) * t +
+          (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 +
+          (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3);
+        var y = 0.5 * ((2 * p1[1]) +
+          (-p0[1] + p2[1]) * t +
+          (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 +
+          (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3);
+        result.push([x, y]);
       }
     }
     result.push(pts[pts.length - 1]);
     return result;
   };
 
-  // Chaikin corner-cutting subdivision for very smooth coastlines
-  var chaikinSmooth = function(pts) {
-    if (pts.length < 3) return pts;
-    var result = [pts[0]]; // keep first point
-    for (var i = 0; i < pts.length - 1; i++) {
-      var p0 = pts[i];
-      var p1 = pts[i + 1];
-      result.push([p0[0] * 0.75 + p1[0] * 0.25, p0[1] * 0.75 + p1[1] * 0.25]);
-      result.push([p0[0] * 0.25 + p1[0] * 0.75, p0[1] * 0.25 + p1[1] * 0.75]);
-    }
-    result.push(pts[pts.length - 1]); // keep last point
-    return result;
-  };
-
-  // Smooth all chains: Catmull-Rom + 2x Chaikin subdivision
-  var smoothed = [];
+  // ROUND 3: Draw coastlines with HAND-DRAWN variable width and wobble
   for (var ci = 0; ci < chains.length; ci++) {
-    var s = smoothChain(chains[ci]);
-    s = chaikinSmooth(s);
-    s = chaikinSmooth(s);
-    if (s.length >= 2) smoothed.push(s);
-  }
+    var chain = chains[ci];
+    var smooth = smoothChain(chain);
+    if (smooth.length < 3) continue;
 
-  // Determine water-side normal direction for each chain
-  var chainWaterDir = [];
-  for (var ci = 0; ci < smoothed.length; ci++) {
-    var smooth = smoothed[ci];
-    var dir = 1;
-    if (smooth.length >= 5) {
-      var mid = Math.floor(smooth.length / 2);
-      var prev = smooth[Math.max(0, mid - 1)];
-      var curr = smooth[mid];
-      var next = smooth[Math.min(smooth.length - 1, mid + 1)];
-      var tdx = next[0] - prev[0];
-      var tdy = next[1] - prev[1];
-      var tlen = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
-      var tnx = -tdy / tlen;
-      var tny = tdx / tlen;
-      var testDist = 10;
-      var testCol1 = Math.floor(((curr[0] + tnx * testDist) - b.x) / b.w * cols);
-      var testRow1 = Math.floor(((curr[1] + tny * testDist) - b.y) / b.h * rows);
-      var testCol2 = Math.floor(((curr[0] - tnx * testDist) - b.x) / b.w * cols);
-      var testRow2 = Math.floor(((curr[1] - tny * testDist) - b.y) / b.h * rows);
-      var cell1 = null, cell2 = null;
-      if (testRow1 >= 0 && testRow1 < rows && testCol1 >= 0 && testCol1 < cols)
-        cell1 = FMap.grid.cells[testRow1 * cols + testCol1];
-      if (testRow2 >= 0 && testRow2 < rows && testCol2 >= 0 && testCol2 < cols)
-        cell2 = FMap.grid.cells[testRow2 * cols + testCol2];
-      if (cell2 && cell2.isWater && !(cell1 && cell1.isWater)) dir = -1;
-    }
-    chainWaterDir.push(dir);
-  }
-
-  // Draw main coastline — bold ink line like C# reference
-  ctx.strokeStyle = inkColor;
-  ctx.lineWidth = 3.0;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.globalAlpha = 1.0;
-
-  for (var ci = 0; ci < smoothed.length; ci++) {
-    var smooth = smoothed[ci];
-    ctx.beginPath();
-    ctx.moveTo(smooth[0][0], smooth[0][1]);
-    for (var p = 1; p < smooth.length; p++) {
-      ctx.lineTo(smooth[p][0], smooth[p][1]);
-    }
-    ctx.stroke();
-  }
-
-  // Shore hachures — dense perpendicular tick marks on the water side
-  // Dense and prominent like C# reference hand-drawn fantasy maps
-  ctx.lineWidth = 0.8;
-  ctx.globalAlpha = 0.5;
-
-  for (var ci = 0; ci < smoothed.length; ci++) {
-    var smooth = smoothed[ci];
-    if (smooth.length < 5) continue;
-    var waterDir = chainWaterDir[ci];
-
-    // Draw hachures every ~3 pixels along the coast (dense like C# reference)
-    var accumDist = 0;
-    var hachureSpacing = 3;
-
-    for (var p = 1; p < smooth.length; p++) {
-      var prev = smooth[p - 1];
-      var curr = smooth[p];
-      var dx = curr[0] - prev[0];
-      var dy = curr[1] - prev[1];
-      var segLen = Math.sqrt(dx * dx + dy * dy);
-      accumDist += segLen;
-
-      if (accumDist >= hachureSpacing) {
-        accumDist -= hachureSpacing;
-
-        var next = smooth[Math.min(smooth.length - 1, p + 1)];
-        var tdx = next[0] - prev[0];
-        var tdy = next[1] - prev[1];
-        var tlen = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
-
-        // Normal pointing into water
-        var nx = -tdy / tlen * waterDir;
-        var ny = tdx / tlen * waterDir;
-
-        // Hachure length varies — prominent texture band like C# reference
-        var hLen = 6 + Math.sin(p * 0.5) * 3;
-        // Slight alpha variation for organic feel
-        ctx.globalAlpha = 0.5 + Math.sin(p * 0.37) * 0.12;
-
-        ctx.beginPath();
-        ctx.moveTo(curr[0], curr[1]);
-        ctx.lineTo(curr[0] + nx * hLen, curr[1] + ny * hLen);
-        ctx.stroke();
+    // Add wobble to each point
+    for (var pi = 0; pi < smooth.length; pi++) {
+      if (typeof fmWobble === 'function') {
+        var wb = fmWobble(smooth[pi][0], smooth[pi][1], 1.2, ci * 7 + pi);
+        smooth[pi] = [wb.x, wb.y];
       }
     }
-  }
 
-  // Multiple parallel shore lines — the hallmark of hand-drawn fantasy maps
-  // Each line is progressively thinner, lighter, and further from the coast
-  var shoreLines = [
-    { offset: 5, width: 1.0, alpha: 0.35 },
-    { offset: 10, width: 0.7, alpha: 0.22 },
-    { offset: 16, width: 0.5, alpha: 0.14 },
-    { offset: 23, width: 0.3, alpha: 0.08 }
-  ];
+    // ROUND 3: Main coastline with VARIABLE WIDTH (simulates pen pressure)
+    ctx.strokeStyle = inkColor;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-  for (var si = 0; si < shoreLines.length; si++) {
-    var sline = shoreLines[si];
-    ctx.lineWidth = sline.width;
-    ctx.globalAlpha = sline.alpha;
+    for (var pi = 0; pi < smooth.length - 1; pi++) {
+      var t = pi / smooth.length;
+      // Pressure variation: simulate pen strokes
+      var pressureBase = 1.5;
+      var pressureNoise = typeof fmJitterHash === 'function' ?
+        fmJitterHash(smooth[pi][0], smooth[pi][1], 33) : 0.5;
+      var pressure = pressureBase * (0.7 + pressureNoise * 0.6);
+      // Add periodic thick/thin alternation like real ink
+      pressure *= (0.85 + Math.sin(pi * 0.3) * 0.15);
 
-    for (var ci = 0; ci < smoothed.length; ci++) {
-      var smooth = smoothed[ci];
-      if (smooth.length < 5) continue;
-      var waterDir = chainWaterDir[ci];
+      ctx.lineWidth = pressure;
+      ctx.globalAlpha = 0.85 + pressureNoise * 0.1;
 
       ctx.beginPath();
-      var started = false;
-      for (var p = 0; p < smooth.length; p++) {
-        var prev = smooth[Math.max(0, p - 1)];
-        var curr = smooth[p];
-        var next = smooth[Math.min(smooth.length - 1, p + 1)];
-
-        var dx = next[0] - prev[0];
-        var dy = next[1] - prev[1];
-        var len = Math.sqrt(dx * dx + dy * dy) || 1;
-        var nx = -dy / len * sline.offset * waterDir;
-        var ny = dx / len * sline.offset * waterDir;
-
-        if (!started) {
-          ctx.moveTo(curr[0] + nx, curr[1] + ny);
-          started = true;
-        } else {
-          ctx.lineTo(curr[0] + nx, curr[1] + ny);
-        }
-      }
+      ctx.moveTo(smooth[pi][0], smooth[pi][1]);
+      ctx.lineTo(smooth[pi+1][0], smooth[pi+1][1]);
       ctx.stroke();
+    }
+
+    // ROUND 3: Hachure marks with variable length and angle (hand-drawn)
+    ctx.globalAlpha = 0.3;
+    var hachureSpacing = 8;
+    for (var pi = 0; pi < smooth.length - 1; pi += hachureSpacing) {
+      var pt = smooth[pi];
+      var nextPt = smooth[Math.min(pi + 1, smooth.length - 1)];
+      var dx = nextPt[0] - pt[0];
+      var dy = nextPt[1] - pt[1];
+      var len = Math.sqrt(dx * dx + dy * dy);
+      if (len < 0.1) continue;
+      var nx = -dy / len;
+      var ny = dx / len;
+
+      // Variable hachure length
+      var hLen = 4 + (typeof fmJitterHash === 'function' ?
+        fmJitterHash(pt[0], pt[1], 55) * 4 : 2);
+
+      // Wobble the hachure angle slightly
+      var angleWobble = typeof fmJitterHash === 'function' ?
+        (fmJitterHash(pt[0], pt[1], 66) - 0.5) * 0.3 : 0;
+
+      var hx = nx * Math.cos(angleWobble) - ny * Math.sin(angleWobble);
+      var hy = nx * Math.sin(angleWobble) + ny * Math.cos(angleWobble);
+
+      // Determine water side (draw towards water)
+      var testX = pt[0] + hx * 5;
+      var testY = pt[1] + hy * 5;
+      var testCol = Math.floor((testX - b.x) / b.w * cols);
+      var testRow = Math.floor((testY - b.y) / b.h * rows);
+      var isWaterSide = true;
+      if (testCol >= 0 && testCol < cols && testRow >= 0 && testRow < rows) {
+        var testCell = FMap.grid.cells[testRow * cols + testCol];
+        if (testCell && !testCell.isWater) isWaterSide = false;
+      }
+      if (!isWaterSide) { hx = -hx; hy = -hy; }
+
+      // Variable line width for hachure
+      ctx.lineWidth = 0.5 + (typeof fmJitterHash === 'function' ?
+        fmJitterHash(pt[0] + 1, pt[1], 77) * 0.5 : 0.2);
+
+      ctx.beginPath();
+      ctx.moveTo(pt[0], pt[1]);
+      ctx.lineTo(pt[0] + hx * hLen, pt[1] + hy * hLen);
+      ctx.stroke();
+    }
+
+    // ROUND 3: Parallel shore line with more organic offset
+    ctx.globalAlpha = 0.12;
+    ctx.lineWidth = 0.7;
+    for (var pi = 0; pi < smooth.length - 1; pi++) {
+      var pt = smooth[pi];
+      var nextPt = smooth[Math.min(pi + 1, smooth.length - 1)];
+      var dx = nextPt[0] - pt[0];
+      var dy = nextPt[1] - pt[1];
+      var len = Math.sqrt(dx * dx + dy * dy);
+      if (len < 0.1) continue;
+      var nx = -dy / len;
+      var ny = dx / len;
+
+      // Organic offset varies along coastline
+      var offset = 6 + Math.sin(pi * 0.15) * 2;
+      if (typeof fmJitterHash === 'function') {
+        offset += (fmJitterHash(pt[0], pt[1], 88) - 0.5) * 3;
+      }
+
+      var testX = pt[0] + nx * 5;
+      var testY = pt[1] + ny * 5;
+      var testCol = Math.floor((testX - b.x) / b.w * cols);
+      var testRow = Math.floor((testY - b.y) / b.h * rows);
+      var isWaterSide = true;
+      if (testCol >= 0 && testCol < cols && testRow >= 0 && testRow < rows) {
+        var testCell = FMap.grid.cells[testRow * cols + testCol];
+        if (testCell && !testCell.isWater) isWaterSide = false;
+      }
+      var dir = isWaterSide ? 1 : -1;
+
+      ctx.beginPath();
+      ctx.moveTo(pt[0] + nx * offset * dir, pt[1] + ny * offset * dir);
+      var np = smooth[Math.min(pi + 1, smooth.length - 1)];
+      var ndx = smooth[Math.min(pi + 2, smooth.length - 1)][0] - np[0];
+      var ndy = smooth[Math.min(pi + 2, smooth.length - 1)][1] - np[1];
+      var nlen = Math.sqrt(ndx * ndx + ndy * ndy) || 1;
+      ctx.lineTo(np[0] + (-ndy / nlen) * offset * dir, np[1] + (ndx / nlen) * offset * dir);
+      ctx.stroke();
+    }
+
+    // ROUND 3: Rocky outcrops / small islands near coast
+    if (chain.length > 20) {
+      var outcrops = Math.min(5, Math.floor(chain.length / 25));
+      for (var oi = 0; oi < outcrops; oi++) {
+        var oidx = Math.floor((oi + 0.5) * smooth.length / outcrops);
+        if (oidx >= smooth.length) continue;
+        var opt = smooth[oidx];
+        var onPt = smooth[Math.min(oidx + 1, smooth.length - 1)];
+        var odx = onPt[0] - opt[0];
+        var ody = onPt[1] - opt[1];
+        var olen = Math.sqrt(odx * odx + ody * ody) || 1;
+
+        var islandDist = 12 + (typeof fmJitterHash === 'function' ?
+          fmJitterHash(opt[0], opt[1], 99) * 10 : 5);
+        var ix = opt[0] + (-ody / olen) * islandDist;
+        var iy = opt[1] + (odx / olen) * islandDist;
+
+        ctx.globalAlpha = 0.25;
+        ctx.lineWidth = 0.8;
+        var islandR = 2 + (typeof fmJitterHash === 'function' ?
+          fmJitterHash(ix, iy, 101) * 3 : 1);
+        ctx.beginPath();
+        // Draw irregular island shape
+        for (var ia = 0; ia <= 8; ia++) {
+          var iAngle = (ia / 8) * Math.PI * 2;
+          var iR = islandR * (0.6 + (typeof fmJitterHash === 'function' ?
+            fmJitterHash(ix + ia, iy, 102) * 0.8 : 0.4));
+          var ipx = ix + Math.cos(iAngle) * iR;
+          var ipy = iy + Math.sin(iAngle) * iR;
+          if (ia === 0) ctx.moveTo(ipx, ipy);
+          else ctx.lineTo(ipx, ipy);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
     }
   }
 
@@ -2887,10 +3280,13 @@ var fmRenderMountains = function(ctx) {
 
   var inkColor = dark ? '#8a7a5a' : '#1a1005';
   var shadowFill = dark ? '#4a3a2a' : '#1a1005';
-  var lightColor = dark ? '#6a5a4a' : '#221508';
 
-  // Collect mountain/hill cells into spatial blocks for peak selection
-  // Smaller blocks = more mountains visible (C# reference has many scattered peaks)
+  var getClusteringNoise = function(sx, sy) {
+    var n1 = fmValueNoise(sx * 0.008, sy * 0.008);
+    var n2 = fmValueNoise(sx * 0.015, sy * 0.015) * 0.6;
+    return (n1 + n2) / 1.6;
+  };
+
   var mtBlockW = 45;
   var mtBlockH = 42;
   var hillBlockW = 55;
@@ -2901,240 +3297,269 @@ var fmRenderMountains = function(ctx) {
     for (var col = 0; col < cols; col++) {
       var cell = FMap.grid.cells[row * cols + col];
       if (!cell) continue;
-
       var isMtn = cell.biome === 'mountain' || cell.biome === 'snow_peak';
       var isHill = cell.biome === 'hills';
       if (!isMtn && !isHill) continue;
-
       var screenPos = fmCellToScreen(col, row);
       var sx = screenPos.x + w / 2;
       var sy = screenPos.y + h / 2;
-
       var blockW = isHill ? hillBlockW : mtBlockW;
       var blockH = isHill ? hillBlockH : mtBlockH;
       var bCol = Math.floor(sx / blockW);
       var bRow = Math.floor(sy / blockH);
       var key = bRow + '-' + bCol;
-
       var priority = isMtn ? 100 + cell.height : cell.height;
       if (!peakGrid[key] || priority > peakGrid[key].priority) {
-        peakGrid[key] = {
-          x: sx, y: sy,
-          isMtn: isMtn,
-          isSnow: cell.biome === 'snow_peak',
-          isHill: isHill,
-          priority: priority,
-          height: cell.height,
-          row: row,
-          col: col
-        };
+        peakGrid[key] = { x: sx, y: sy, isMtn: isMtn, isSnow: cell.biome === 'snow_peak',
+          isHill: isHill, priority: priority, height: cell.height, row: row, col: col,
+          clustering: getClusteringNoise(sx, sy) };
       }
     }
   }
 
-  // Add position jitter to break grid alignment — more organic scatter
   var peaks = [];
   for (var key in peakGrid) {
     var pk = peakGrid[key];
-    // Jitter based on position hash
+    var jitterStrength = 0.2 + pk.clustering * 0.4;
     var jHash = ((pk.col * 2654435761 + pk.row * 340573321) >>> 0) % 1000;
-    var jx = (jHash % 100 - 50) / 50 * (pk.isHill ? hillBlockW : mtBlockW) * 0.3;
-    var jy = ((jHash * 7 + 13) % 100 - 50) / 50 * (pk.isHill ? hillBlockH : mtBlockH) * 0.3;
-    pk.x += jx;
-    pk.y += jy;
-  }
-
-  // Sort back-to-front for proper overlapping
-  for (var key in peakGrid) {
-    peaks.push(peakGrid[key]);
+    pk.x += (jHash % 100 - 50) / 50 * (pk.isHill ? hillBlockW : mtBlockW) * jitterStrength;
+    pk.y += ((jHash * 7 + 13) % 100 - 50) / 50 * (pk.isHill ? hillBlockH : mtBlockH) * jitterStrength;
+    peaks.push(pk);
   }
   peaks.sort(function(a, b) { return a.row - b.row; });
 
-  // Draw ridge lines connecting adjacent mountains first (background layer)
+  // Ridgelines
   ctx.strokeStyle = inkColor;
-  ctx.lineWidth = 0.8;
-  ctx.globalAlpha = 0.25;
+  ctx.lineCap = 'round';
   for (var i = 0; i < peaks.length; i++) {
-    for (var j = i + 1; j < peaks.length && j < i + 3; j++) {
-      var pk1 = peaks[i];
-      var pk2 = peaks[j];
-      // Only connect nearby peaks
-      var dx = pk2.x - pk1.x;
-      var dy = pk2.y - pk1.y;
+    for (var j = i + 1; j < peaks.length && j < i + 4; j++) {
+      var pk1 = peaks[i]; var pk2 = peaks[j];
+      var dx = pk2.x - pk1.x; var dy = pk2.y - pk1.y;
       var dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 65 && pk1.isMtn && pk2.isMtn) {
-        ctx.beginPath();
-        ctx.moveTo(pk1.x, pk1.y + 15);
-        ctx.quadraticCurveTo((pk1.x + pk2.x) / 2, (pk1.y + pk2.y) / 2 - 10, pk2.x, pk2.y + 15);
-        ctx.stroke();
+      if (dist < 70 && pk1.isMtn && pk2.isMtn) {
+        var ridgePts = [];
+        for (var s = 0; s <= 8; s++) {
+          var t = s / 8;
+          var wb = fmWobble(pk1.x + dx * t, pk1.y + dy * t + 15 - Math.sin(t * Math.PI) * 12, 1.5, i * 7 + j);
+          ridgePts.push({x: wb.x, y: wb.y});
+        }
+        ctx.globalAlpha = 0.18;
+        fmHandCurve(ctx, ridgePts, 1.0, 0.5);
       }
     }
   }
   ctx.globalAlpha = 1.0;
 
-  // Draw each peak
   for (var i = 0; i < peaks.length; i++) {
     var pk = peaks[i];
-    var cx = pk.x;
-    var cy = pk.y;
-
-    // Deterministic randomness from position
+    var cx = pk.x; var cy = pk.y;
     var hash = (cx * 73 + cy * 137 + i * 31) % 1000;
     var rng = function() { hash = (hash * 1103515245 + 12345) & 0x7fffffff; return (hash % 1000) / 1000; };
+    var compField = typeof fmCompositionField === 'function' ? fmCompositionField(cx, cy) : 0.5;
+    var detailMult = 0.6 + compField * 0.8;
 
     if (pk.isHill) {
-      // Hills: gentle, very subtle rounded humps — barely visible like C# reference
-      var hw = 6 + rng() * 5;
-      var hh = 3 + rng() * 3;
+      var hw = 6 + rng() * 5; var hh = 3 + rng() * 3;
+      ctx.strokeStyle = inkColor; ctx.globalAlpha = 0.35;
+      var hillPts = [];
+      for (var hs = 0; hs <= 8; hs++) {
+        var ht = hs / 8;
+        var wb = fmWobble(cx - hw + ht * hw * 2, cy - hh * Math.sin(ht * Math.PI), 0.7, i * 13 + hs);
+        hillPts.push({x: wb.x, y: wb.y});
+      }
+      fmHandCurve(ctx, hillPts, 0.9, 0.4);
+      ctx.globalAlpha = 0.2 * detailMult;
+      for (var hhi = 0; hhi < 1 + Math.floor(rng() * 2 * detailMult); hhi++) {
+        var hft = 0.15 + (hhi / 2) * 0.5;
+        var wb1 = fmWobble(cx - hw * (1 - hft), cy - hh * hft * 0.8, 0.4, i * 7 + hhi);
+        var wb2 = fmWobble(cx - hw * (1 - hft) + hh * (0.5 - hft * 0.3) * 0.2, cy - hh * hft * 0.8 + hh * (0.5 - hft * 0.3), 0.4, i * 7 + hhi + 1);
+        ctx.lineWidth = 0.4 + rng() * 0.3;
+        ctx.beginPath(); ctx.moveTo(wb1.x, wb1.y); ctx.lineTo(wb2.x, wb2.y); ctx.stroke();
+      }
+      ctx.globalAlpha = 1.0; continue;
+    }
 
-      // Rounded hump outline — very light
+    // === R4: 8 DRAMATICALLY VARIED MOUNTAIN SILHOUETTES ===
+    var variant = Math.floor(rng() * 8);
+    var heightMult = [1.0, 0.7, 1.3, 0.85, 1.15, 1.4, 0.65, 1.1][variant];
+    var peakH = (pk.isSnow ? 20 + rng() * 10 : 14 + rng() * 10) * heightMult;
+    var baseW = peakH * (0.6 + rng() * 0.25);
+    peakH *= (0.85 + detailMult * 0.2);
+    var baseY = cy;
+    var outlinePts = [];
+    var addWPt = function(x, y, amt) {
+      var w = fmWobble(x, y, amt || 0.8, i * 3 + outlinePts.length);
+      outlinePts.push({x: w.x, y: w.y});
+    };
+    var shadowPts = [];
+
+    if (variant === 0 || variant === 4) {
+      // Classic pointed peak
+      var lx = cx - baseW * 0.65; var rx = cx + baseW * 0.55;
+      var tx = cx + (rng() - 0.5) * 0.08 * baseW; var ty = cy - peakH;
+      var lpx = lx + baseW * 0.35; var lpy = cy - peakH * 0.6;
+      var rpx = rx - baseW * 0.3; var rpy = cy - peakH * 0.5;
+      addWPt(lx, baseY, 1.0); addWPt(lpx, lpy, 0.6); addWPt(tx, ty, 0.4); addWPt(rpx, rpy, 0.6); addWPt(rx, baseY, 1.0);
+      shadowPts = [{x:tx,y:ty},{x:lpx,y:lpy},{x:lx,y:baseY}];
+    } else if (variant === 1) {
+      // ASYMMETRIC steep-left gradual-right
+      var lx = cx - baseW * 0.35; var rx = cx + baseW * 0.85;
+      var tx = cx - baseW * 0.1; var ty = cy - peakH;
+      addWPt(lx, baseY, 1.0); addWPt(tx, ty, 0.4);
+      addWPt(cx + baseW * 0.2, cy - peakH * 0.6, 0.5);
+      addWPt(cx + baseW * 0.5, cy - peakH * 0.3, 0.6);
+      addWPt(rx, baseY, 1.0);
+      shadowPts = [{x:tx,y:ty},{x:lx,y:baseY}];
+    } else if (variant === 2) {
+      // JAGGED CRAGGY multiple peaks
+      var lx = cx - baseW * 0.7; var rx = cx + baseW * 0.6;
+      addWPt(lx, baseY, 1.0);
+      addWPt(cx - baseW * 0.4, cy - peakH * 0.55, 0.5);
+      var jagCount = 3 + Math.floor(rng() * 2);
+      for (var jg = 0; jg < jagCount; jg++) {
+        var jgT = jg / (jagCount - 1);
+        addWPt(cx - baseW * 0.3 + jgT * baseW * 0.5, cy - peakH * (0.85 + rng() * 0.15), 0.3);
+        if (jg < jagCount - 1) addWPt(cx - baseW * 0.3 + jgT * baseW * 0.5 + baseW * 0.08, cy - peakH * (0.6 + rng() * 0.15), 0.4);
+      }
+      addWPt(cx + baseW * 0.35, cy - peakH * 0.5, 0.5);
+      addWPt(rx, baseY, 1.0);
+      shadowPts = [{x:cx-baseW*0.1,y:cy-peakH*0.9},{x:cx-baseW*0.4,y:cy-peakH*0.55},{x:lx,y:baseY}];
+    } else if (variant === 3) {
+      // ROUNDED DOME
+      var lx = cx - baseW * 0.7; var rx = cx + baseW * 0.65;
+      addWPt(lx, baseY, 1.0);
+      for (var ds = 0; ds <= 8; ds++) {
+        var dt = ds / 8; var dAngle = Math.PI * dt;
+        addWPt(cx - baseW * 0.68 * Math.cos(dAngle), cy - peakH * 0.92 * Math.sin(dAngle), 0.5);
+      }
+      addWPt(rx, baseY, 1.0);
+      shadowPts = [{x:cx,y:cy-peakH*0.9},{x:cx-baseW*0.5,y:cy-peakH*0.6},{x:lx,y:baseY}];
+    } else if (variant === 5) {
+      // ASYMMETRIC gradual-left steep-right
+      var lx = cx - baseW * 0.8; var rx = cx + baseW * 0.4;
+      var tx = cx + baseW * 0.15; var ty = cy - peakH;
+      addWPt(lx, baseY, 1.0);
+      addWPt(cx - baseW * 0.4, cy - peakH * 0.3, 0.6);
+      addWPt(cx - baseW * 0.15, cy - peakH * 0.65, 0.5);
+      addWPt(tx, ty, 0.4); addWPt(rx, baseY, 1.0);
+      shadowPts = [{x:tx,y:ty},{x:cx-baseW*0.15,y:cy-peakH*0.65},{x:lx,y:baseY}];
+    } else if (variant === 6) {
+      // TWIN PEAKS
+      var lx = cx - baseW * 0.7; var rx = cx + baseW * 0.7;
+      addWPt(lx, baseY, 1.0);
+      addWPt(cx - baseW * 0.45, cy - peakH * 0.5, 0.5);
+      addWPt(cx - baseW * 0.25, cy - peakH * 0.9, 0.4);
+      addWPt(cx, cy - peakH * 0.55, 0.5);
+      addWPt(cx + baseW * 0.25, cy - peakH, 0.4);
+      addWPt(cx + baseW * 0.45, cy - peakH * 0.45, 0.5);
+      addWPt(rx, baseY, 1.0);
+      shadowPts = [{x:cx-baseW*0.25,y:cy-peakH*0.9},{x:cx-baseW*0.45,y:cy-peakH*0.5},{x:lx,y:baseY}];
+    } else {
+      // FLAT-TOP PLATEAU
+      var lx = cx - baseW * 0.55; var rx = cx + baseW * 0.5;
+      var py = cy - peakH * 0.75;
+      addWPt(lx, baseY, 1.0);
+      addWPt(cx - baseW * 0.4, py, 0.5);
+      addWPt(cx - baseW * 0.2, py - rng() * 2, 0.4);
+      addWPt(cx + baseW * 0.15, py - rng() * 2, 0.4);
+      addWPt(cx + baseW * 0.35, py, 0.5);
+      addWPt(rx, baseY, 1.0);
+      shadowPts = [{x:cx-baseW*0.2,y:py},{x:cx-baseW*0.4,y:py},{x:lx,y:baseY}];
+    }
+
+    // Shadow fill
+    if (shadowPts.length >= 2) {
+      ctx.fillStyle = shadowFill; ctx.globalAlpha = 0.25; ctx.beginPath();
+      var swb = fmWobble(shadowPts[0].x, shadowPts[0].y, 0.6, i);
+      ctx.moveTo(swb.x, swb.y);
+      for (var si = 1; si < shadowPts.length; si++) {
+        swb = fmWobble(shadowPts[si].x, shadowPts[si].y, 0.6, i + si);
+        ctx.lineTo(swb.x, swb.y);
+      }
+      ctx.lineTo(cx - baseW * 0.05, baseY); ctx.closePath(); ctx.fill();
+    }
+
+    // Outline with variable stroke width
+    ctx.strokeStyle = inkColor; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.globalAlpha = 0.92;
+    for (var pi = 0; pi < outlinePts.length - 1; pi++) {
+      var segT = pi / (outlinePts.length - 1);
+      var pressure = segT < 0.5 ? 1.8 - segT * 1.2 : 0.8 + (segT - 0.5) * 1.5;
+      pressure *= (0.85 + fmJitterHash(outlinePts[pi].x, outlinePts[pi].y, 99) * 0.3);
+      ctx.lineWidth = pressure; ctx.beginPath();
+      ctx.moveTo(outlinePts[pi].x, outlinePts[pi].y);
+      ctx.lineTo(outlinePts[pi+1].x, outlinePts[pi+1].y); ctx.stroke();
+    }
+
+    // R4: Stipple OR Hatching shading
+    var useStipple = (variant === 2 || variant === 3 || variant === 7);
+    var tipPt = outlinePts[Math.floor(outlinePts.length / 2)];
+    if (useStipple) {
+      ctx.fillStyle = inkColor;
+      var stipCount = Math.floor((8 + rng() * 10) * detailMult);
+      for (var sti = 0; sti < stipCount; sti++) {
+        var stX = cx - baseW * 0.5 + rng() * baseW * 0.6;
+        var stY = tipPt.y + rng() * (baseY - tipPt.y) * 0.8;
+        if (stX > cx - baseW * 0.05) continue;
+        ctx.globalAlpha = (0.25 - rng() * 0.1) * detailMult;
+        ctx.beginPath(); ctx.arc(stX, stY, 0.3 + rng() * 0.5, 0, Math.PI * 2); ctx.fill();
+      }
+    } else {
       ctx.strokeStyle = inkColor;
-      ctx.lineWidth = 0.8;
-      ctx.globalAlpha = 0.35;
-      ctx.beginPath();
-      var wobble1 = (rng() - 0.5) * 0.5;
-      var wobble2 = (rng() - 0.5) * 0.5;
-      var wobble3 = (rng() - 0.5) * 0.5;
-      ctx.moveTo(cx - hw + wobble1, cy + wobble1);
-      ctx.quadraticCurveTo(cx - hw * 0.3, cy - hh * 1.4 + wobble2, cx + wobble3, cy - hh + wobble2);
-      ctx.quadraticCurveTo(cx + hw * 0.3, cy - hh * 1.4 + wobble3, cx + hw + wobble1, cy + wobble3);
-      ctx.stroke();
-
-      // 1-2 subtle hatching lines on left (shadow) face
-      ctx.lineWidth = 0.5;
-      ctx.globalAlpha = 0.2;
-      var hillHatch = 1 + Math.floor(rng() * 2);
-      for (var hhi = 0; hhi < hillHatch; hhi++) {
-        var ht = 0.2 + (hhi / hillHatch) * 0.6;
-        var hx = cx - hw * (1 - ht);
-        var hy = cy - hh * ht * 0.8;
-        var hLen = hh * (0.5 - ht * 0.3);
-        ctx.beginPath();
-        ctx.moveTo(hx, hy);
-        ctx.lineTo(hx + hLen * 0.2, hy + hLen);
+      var hatchCount = Math.floor((2 + Math.floor(rng() * 3)) * detailMult);
+      for (var hi = 0; hi < hatchCount; hi++) {
+        var hatchT = 0.15 + (hi / Math.max(1, hatchCount - 1)) * 0.7;
+        var hSX = tipPt.x + (outlinePts[0].x - tipPt.x) * hatchT;
+        var hSY = tipPt.y + (outlinePts[0].y - tipPt.y) * hatchT;
+        var hEX = hSX + baseW * (0.25 + rng() * 0.35);
+        var hEY = hSY + baseW * (0.04 + rng() * 0.1);
+        ctx.lineWidth = (1.2 - hatchT * 0.5) * (0.7 + rng() * 0.3);
+        ctx.globalAlpha = (0.5 - hatchT * 0.2) * detailMult;
+        var hw1 = fmWobble(hSX, hSY, 0.5, i * 13 + hi);
+        var hw2 = fmWobble(hEX, hEY, 0.8, i * 13 + hi + 1);
+        ctx.beginPath(); ctx.moveTo(hw1.x, hw1.y);
+        ctx.quadraticCurveTo((hw1.x+hw2.x)/2+(rng()-0.5)*2, (hw1.y+hw2.y)/2+peakH*0.02, hw2.x, hw2.y);
         ctx.stroke();
       }
-      ctx.globalAlpha = 1.0;
-      continue;
     }
 
-    // === MOUNTAIN PEAK - Prominent but clean triangular icons like C# reference ===
-    var peakH = pk.isSnow ? 20 + rng() * 10 : 14 + rng() * 10;
-    var baseW = peakH * (0.6 + rng() * 0.2);
-    var lean = (rng() - 0.5) * 0.08;
-
-    var tipX = cx + lean * baseW;
-    var tipY = cy - peakH;
-    var leftX = cx - baseW * 0.65;
-    var rightX = cx + baseW * 0.55;
-    var baseY = cy;
-
-    // Shadow fill on LEFT side (sunlight from right) — subtle like C# reference
-    ctx.fillStyle = shadowFill;
-    ctx.globalAlpha = 0.3;
-    ctx.beginPath();
-    ctx.moveTo(tipX, tipY);
-    ctx.lineTo(leftX, baseY);
-    ctx.lineTo(cx - baseW * 0.08, baseY);
-    ctx.closePath();
-    ctx.fill();
-
-    // Ink outline — left slope
-    ctx.strokeStyle = inkColor;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.globalAlpha = 0.9;
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    // Slight wobble for hand-drawn effect
-    var wobbleLeft = (rng() - 0.5) * 0.8;
-    ctx.moveTo(leftX + wobbleLeft, baseY + wobbleLeft);
-    ctx.lineTo(tipX, tipY);
-    ctx.stroke();
-
-    // Right slope — lighter line
-    ctx.lineWidth = 0.9;
-    ctx.globalAlpha = 0.75;
-    ctx.beginPath();
-    var wobbleRight = (rng() - 0.5) * 0.6;
-    ctx.moveTo(tipX, tipY);
-    ctx.lineTo(rightX + wobbleRight, baseY + wobbleRight);
-    ctx.stroke();
-
-    // === CROSS-HATCHING on shadow side — 2-3 subtle lines ===
-    ctx.strokeStyle = inkColor;
-    var hatchCount = 2 + Math.floor(rng() * 2);
-    for (var hi = 0; hi < hatchCount; hi++) {
-      var hatchT = 0.2 + (hi / (hatchCount - 1)) * 0.6;
-
-      // Start point on left slope
-      var hStartX = tipX + (leftX - tipX) * hatchT;
-      var hStartY = tipY + (baseY - tipY) * hatchT;
-
-      // End point toward center
-      var centerX = tipX + (cx - baseW * 0.08 - tipX) * hatchT;
-      var hEndX = hStartX + (centerX - hStartX) * (0.5 + rng() * 0.2);
-      var hEndY = hStartY + (baseY - hStartY) * 0.05;
-
-      // Tapered line width — thinner than before
-      ctx.lineWidth = 1.0 - hatchT * 0.3;
-      ctx.globalAlpha = 0.5 - hatchT * 0.15;
-
-      ctx.beginPath();
-      ctx.moveTo(hStartX, hStartY);
-      var cpX = (hStartX + hEndX) / 2;
-      var cpY = (hStartY + hEndY) / 2 + peakH * 0.02;
-      ctx.quadraticCurveTo(cpX, cpY, hEndX, hEndY);
-      ctx.stroke();
+    // Scree
+    if (detailMult > 0.6) {
+      ctx.fillStyle = inkColor; ctx.globalAlpha = 0.12;
+      for (var sc = 0; sc < Math.floor(4 + rng() * 6 * detailMult); sc++) {
+        ctx.beginPath();
+        ctx.arc(cx + (rng() - 0.5) * baseW * 1.5, baseY + rng() * 5, 0.3 + rng() * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
-    // Minor hatching on right side for depth
-    ctx.globalAlpha = 0.15;
-    ctx.lineWidth = 0.6;
-    var rightHatch = 1 + Math.floor(rng() * 2);
-    for (var rh = 0; rh < rightHatch; rh++) {
-      var rt = 0.55 + (rh / (rightHatch + 1)) * 0.35;
-      var rsx = tipX + (rightX - tipX) * rt;
-      var rsy = tipY + (baseY - tipY) * rt;
-      var rl = peakH * 0.05;
-      ctx.beginPath();
-      ctx.moveTo(rsx, rsy);
-      ctx.lineTo(rsx - rl * 0.4, rsy + rl * 0.8);
-      ctx.stroke();
+    // Right-side hatching
+    ctx.strokeStyle = inkColor; ctx.globalAlpha = 0.18;
+    var rightPt = outlinePts[outlinePts.length - 2] || outlinePts[outlinePts.length - 1];
+    for (var rh = 0; rh < Math.floor((1 + rng() * 2) * detailMult); rh++) {
+      var rt = 0.5 + (rh / 3) * 0.4;
+      var rsx = tipPt.x + (rightPt.x - tipPt.x) * rt;
+      var rsy = tipPt.y + (rightPt.y - tipPt.y) * rt;
+      ctx.lineWidth = 0.5 + rng() * 0.3;
+      var rw1 = fmWobble(rsx, rsy, 0.3, i * 17 + rh);
+      var rw2 = fmWobble(rsx - peakH * 0.02, rsy + peakH * 0.045, 0.3, i * 17 + rh + 1);
+      ctx.beginPath(); ctx.moveTo(rw1.x, rw1.y); ctx.lineTo(rw2.x, rw2.y); ctx.stroke();
     }
 
-    // === SNOW CAP with broken edge ===
+    // Snow cap
     if (pk.isSnow) {
       var snowH = peakH * 0.32;
-      var snowT = snowH / peakH;
-      var sLeft = tipX + (leftX - tipX) * snowT;
-      var sRight = tipX + (rightX - tipX) * snowT;
-
-      ctx.fillStyle = dark ? '#e8e8f0' : '#faf8f2';
-      ctx.globalAlpha = 0.94;
-      ctx.beginPath();
-      ctx.moveTo(tipX, tipY);
-
-      // Jagged broken edge — more realistic
-      var jags = 5;
-      for (var jag = 0; jag <= jags; jag++) {
-        var jagT = jag / jags;
-        var jagX = sLeft + (sRight - sLeft) * jagT;
-        var jagY = tipY + snowH + (rng() - 0.5) * 3.5;
-        if (jag === 0) ctx.lineTo(sLeft, jagY);
-        else ctx.lineTo(jagX, jagY);
+      var sL = tipPt.x + (outlinePts[0].x - tipPt.x) * (snowH / peakH);
+      var sR = tipPt.x + (outlinePts[outlinePts.length-1].x - tipPt.x) * (snowH / peakH);
+      ctx.fillStyle = dark ? '#e8e8f0' : '#faf8f2'; ctx.globalAlpha = 0.92;
+      ctx.beginPath(); ctx.moveTo(tipPt.x, tipPt.y);
+      for (var jag = 0; jag <= 7; jag++) {
+        var jagT = jag / 7;
+        var jw = fmWobble(sL + (sR - sL) * jagT, tipPt.y + snowH + (rng() - 0.5) * 4, 1.0, i * 19 + jag);
+        ctx.lineTo(jw.x, jw.y);
       }
-      ctx.lineTo(sRight, tipY + snowH + (rng() - 0.5) * 3.5);
-      ctx.closePath();
-      ctx.fill();
-
-      // Subtle outline around snow cap
-      ctx.strokeStyle = inkColor;
-      ctx.lineWidth = 0.7;
-      ctx.globalAlpha = 0.35;
-      ctx.stroke();
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = inkColor; ctx.lineWidth = 0.6 + rng() * 0.3; ctx.globalAlpha = 0.3; ctx.stroke();
     }
-
     ctx.globalAlpha = 1.0;
   }
 };
@@ -3149,6 +3574,15 @@ var fmRenderForests = function(ctx) {
   var cellSize = fmGetCellSize();
 
   var inkColor = dark ? '#6a5a4a' : '#1a1005';
+
+  // IMPROVEMENT 1: Add clustering noise for natural forest density variation
+  var getForestClusteringNoise = function(px, py) {
+    // Multi-octave noise creates clustering effect
+    var n1 = fmValueNoise(px * 0.005, py * 0.005);
+    var n2 = fmValueNoise(px * 0.012, py * 0.012) * 0.5;
+    var n3 = fmValueNoise(px * 0.025, py * 0.025) * 0.25;
+    return (n1 + n2 + n3) / 1.75;
+  };
 
   // Build cell-based lookup for forest biomes
   var b = FMap.mapBounds;
@@ -3254,8 +3688,10 @@ var fmRenderForests = function(ctx) {
         var hash = (((gx * 2654435761 + gy * 340573321) >>> 0) % 1000);
         var h100 = hash % 100;
 
-        // Skip rates per type
-        if (h100 < cfg.skip) continue;
+        // IMPROVEMENT 1: Use clustering noise to create organic voids and dense patches
+        var clusterNoise = getForestClusteringNoise(gx, gy);
+        var adjustedSkip = cfg.skip - clusterNoise * 30; // Denser clusters, sparser voids
+        if (h100 < adjustedSkip) continue;
 
         // Coast-distance modulation: C# reference has a narrow dense forest
         // band RIGHT at the coastline, with a dramatically lighter interior
@@ -3300,7 +3736,7 @@ var fmRenderForests = function(ctx) {
   // Sort back to front
   samples.sort(function(a, b) { return a[1] - b[1]; });
 
-  // Draw individual trees — tiny dots like C# reference cartography
+  // Draw individual trees with leaf-shaped symbols
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
@@ -3311,28 +3747,124 @@ var fmRenderForests = function(ctx) {
     var hash = samples[ti][3];
     var cd = samples[ti][4];
 
-    // Tiny tree crown radius — slightly larger near coast for the C# reference's
-    // thick dark coastal band effect
+    // IMPROVEMENT 3: Create 3-5 tree symbol variations per forest type
+    var treeVariant = hash % 5;
+
+    // Tree size — slightly larger near coast, variant-specific
     var r;
     var coastBoost = cd < 5 ? 0.3 : cd < 10 ? 0.15 : 0;
+    var variantSizeMult = [1.0, 0.85, 1.1, 0.9, 1.05][treeVariant];
     if (ft === 2) {
-      r = 1.4 + (hash % 4) * 0.25 + coastBoost;  // dense: 1.4-2.15px + coast boost
+      r = (1.4 + (hash % 4) * 0.25 + coastBoost) * variantSizeMult;  // dense: 1.4-2.15px
     } else if (ft === 1) {
-      r = 1.2 + (hash % 4) * 0.2 + coastBoost;   // normal: 1.2-1.8px + coast boost
+      r = (1.2 + (hash % 4) * 0.2 + coastBoost) * variantSizeMult;   // normal: 1.2-1.8px
     } else {
-      r = 0.9 + (hash % 3) * 0.2 + coastBoost * 0.5;   // sparse: 0.9-1.3px
+      r = (0.9 + (hash % 3) * 0.2 + coastBoost * 0.5) * variantSizeMult;   // sparse: 0.9-1.3px
     }
 
     // Opacity: higher near coast, fading inland
-    var baseAlpha = ft === 2 ? 0.65 : ft === 1 ? 0.5 : 0.35;
-    if (cd > 15) baseAlpha *= 0.7; // fade inland dots
-    else if (cd < 4) baseAlpha = Math.min(baseAlpha + 0.1, 0.75); // boost coastal dots
+    var baseAlpha = ft === 2 ? 0.68 : ft === 1 ? 0.52 : 0.38;
+    if (cd > 15) baseAlpha *= 0.7;
+    else if (cd < 4) baseAlpha = Math.min(baseAlpha + 0.12, 0.78);
 
-    ctx.fillStyle = inkColor;
-    ctx.globalAlpha = baseAlpha;
-    ctx.beginPath();
-    ctx.arc(tx, ty, r, 0, Math.PI * 2);
-    ctx.fill();
+    // Determine if this is a large "ancient tree" (sparse in dense forests)
+    var isAncient = ft === 2 && (hash % 100) < 8;
+
+    if (isAncient) {
+      // Ancient tree: larger, darker, with more detail
+      var ar = r * 1.5;
+      ctx.fillStyle = inkColor;
+      ctx.globalAlpha = baseAlpha + 0.15;
+
+      // Draw a more complex leaf crown
+      ctx.beginPath();
+      ctx.moveTo(tx, ty - ar);
+      // Top-left lobe
+      ctx.quadraticCurveTo(tx - ar * 0.6, ty - ar * 0.7, tx - ar * 0.8, ty);
+      // Bottom-left lobe
+      ctx.quadraticCurveTo(tx - ar * 0.6, ty + ar * 0.5, tx, ty + ar * 0.8);
+      // Bottom-right lobe
+      ctx.quadraticCurveTo(tx + ar * 0.6, ty + ar * 0.5, tx + ar * 0.8, ty);
+      // Top-right lobe
+      ctx.quadraticCurveTo(tx + ar * 0.6, ty - ar * 0.7, tx, ty - ar);
+      ctx.closePath();
+      ctx.fill();
+
+      // Small trunk
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 0.4;
+      ctx.globalAlpha = baseAlpha * 0.6;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty + ar * 0.8);
+      ctx.lineTo(tx, ty + ar * 1.1);
+      ctx.stroke();
+    } else {
+      // IMPROVEMENT 3: Regular tree with 5 visual variants (conifer, deciduous, etc.)
+      ctx.fillStyle = inkColor;
+      ctx.globalAlpha = baseAlpha;
+
+      if (treeVariant === 0) {
+        // Variant 0: Classic leaf-shaped crown
+        ctx.beginPath();
+        ctx.moveTo(tx, ty - r);
+        ctx.quadraticCurveTo(tx - r * 0.65, ty - r * 0.5, tx - r * 0.7, ty + r * 0.3);
+        ctx.quadraticCurveTo(tx - r * 0.3, ty + r * 0.5, tx, ty + r * 0.6);
+        ctx.quadraticCurveTo(tx + r * 0.3, ty + r * 0.5, tx + r * 0.7, ty + r * 0.3);
+        ctx.quadraticCurveTo(tx + r * 0.65, ty - r * 0.5, tx, ty - r);
+        ctx.closePath();
+        ctx.fill();
+      } else if (treeVariant === 1) {
+        // Variant 1: Conifer/Pine tree (tight triangular)
+        ctx.beginPath();
+        ctx.moveTo(tx, ty - r);
+        ctx.lineTo(tx - r * 0.5, ty + r * 0.4);
+        ctx.lineTo(tx + r * 0.5, ty + r * 0.4);
+        ctx.closePath();
+        ctx.fill();
+      } else if (treeVariant === 2) {
+        // Variant 2: Wide deciduous (rounded, bushy)
+        ctx.beginPath();
+        ctx.arc(tx, ty - r * 0.1, r * 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (treeVariant === 3) {
+        // Variant 3: Tall columnar (cypress-like)
+        ctx.beginPath();
+        ctx.moveTo(tx, ty - r);
+        ctx.lineTo(tx - r * 0.3, ty + r * 0.5);
+        ctx.lineTo(tx + r * 0.3, ty + r * 0.5);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Variant 4: Multi-lobed crown (oak-like)
+        ctx.beginPath();
+        ctx.moveTo(tx - r * 0.4, ty - r * 0.6);
+        ctx.quadraticCurveTo(tx - r * 0.7, ty - r * 0.2, tx - r * 0.6, ty + r * 0.3);
+        ctx.quadraticCurveTo(tx - r * 0.2, ty + r * 0.5, tx, ty + r * 0.5);
+        ctx.quadraticCurveTo(tx + r * 0.2, ty + r * 0.5, tx + r * 0.6, ty + r * 0.3);
+        ctx.quadraticCurveTo(tx + r * 0.7, ty - r * 0.2, tx + r * 0.4, ty - r * 0.6);
+        ctx.quadraticCurveTo(tx, ty - r, tx - r * 0.4, ty - r * 0.6);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Subtle trunk
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = Math.max(0.3, r * 0.2);
+      ctx.globalAlpha = baseAlpha * 0.4;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty + r * 0.4);
+      ctx.lineTo(tx, ty + r * 0.7);
+      ctx.stroke();
+    }
+
+    // Color variation: slightly darker at forest centers
+    if (cd < 6 && (hash % 100) < 15) {
+      ctx.fillStyle = inkColor;
+      ctx.globalAlpha = baseAlpha * 0.3;
+      ctx.beginPath();
+      ctx.arc(tx, ty, r * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   ctx.globalAlpha = 1.0;
@@ -3376,19 +3908,32 @@ var fmRenderCoastalGlow = function(ctx) {
     }
   }
 
-  // Draw soft warm glow circles at each coastal cell
-  var glowColor = dark ? '#2a2010' : '#d8c080';
-  var glowRadius = 35;
+  // Draw soft warm glow circles at each coastal cell with enhanced visibility
+  var glowColor1 = dark ? '#3a3a2a' : '#e8d090';
+  var glowColor2 = dark ? '#2a2010' : '#d8c080';
+  var glowRadius = 45;
+  var glowRadius2 = 28;
 
   ctx.save();
   for (var ci = 0; ci < coastCells.length; ci++) {
     var cc = coastCells[ci];
-    var grad = ctx.createRadialGradient(cc.x, cc.y, 0, cc.x, cc.y, glowRadius);
-    grad.addColorStop(0, glowColor);
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
-    ctx.globalAlpha = 0.12;
+
+    // Primary warm glow (larger, more diffuse)
+    var grad1 = ctx.createRadialGradient(cc.x, cc.y, 0, cc.x, cc.y, glowRadius);
+    grad1.addColorStop(0, glowColor1);
+    grad1.addColorStop(0.5, glowColor2);
+    grad1.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad1;
+    ctx.globalAlpha = 0.16;
     ctx.fillRect(cc.x - glowRadius, cc.y - glowRadius, glowRadius * 2, glowRadius * 2);
+
+    // Secondary glow (smaller, warmer)
+    var grad2 = ctx.createRadialGradient(cc.x, cc.y, 0, cc.x, cc.y, glowRadius2);
+    grad2.addColorStop(0, glowColor2);
+    grad2.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad2;
+    ctx.globalAlpha = 0.14;
+    ctx.fillRect(cc.x - glowRadius2, cc.y - glowRadius2, glowRadius2 * 2, glowRadius2 * 2);
   }
   ctx.restore();
   ctx.globalAlpha = 1.0;
@@ -3536,7 +4081,7 @@ var fmRenderWater = function(ctx) {
     }
   }
 
-  // PART 2: Shallow coastal water — faint stippling (random tiny dots)
+  // PART 2: Shallow coastal water — enhanced stippling with wave patterns
   ctx.fillStyle = inkColor;
   for (var row = 0; row < rows; row++) {
     for (var col = 0; col < cols; col++) {
@@ -3545,24 +4090,66 @@ var fmRenderWater = function(ctx) {
       if (!cell || !cell.isWater) continue;
 
       var dist = distFromLand[idx];
-      // Only stipple near coast (distance 1-8)
-      if (dist < 1 || dist > 8) continue;
 
       var sp = fmCellToScreen(col, row);
       var cx = sp.x + w / 2;
       var cy = sp.y + h / 2;
 
-      // Faint random stippling
-      ctx.globalAlpha = 0.1 + (8 - dist) * 0.015;
-      var stippleCount = 3 + fmRand(row, col, 'stipple') * 3;
-      for (var s = 0; s < stippleCount; s++) {
-        var dotX = cx + (fmRand(row, col, 'stipX' + s) - 0.5) * w;
-        var dotY = cy + (fmRand(row, col, 'stipY' + s) - 0.5) * h;
-        var dotR = 0.3 + fmRand(row, col, 'stipR' + s) * 0.3;
-        ctx.beginPath();
-        ctx.arc(dotX, dotY, dotR, 0, Math.PI * 2);
-        ctx.fill();
+      // Dense stippling very near coast (distance 1-3)
+      if (dist >= 1 && dist <= 3) {
+        ctx.globalAlpha = 0.25 + (3 - dist) * 0.1;
+        var stippleCount = 6 + fmRand(row, col, 'stipple') * 5;
+        for (var s = 0; s < stippleCount; s++) {
+          var dotX = cx + (fmRand(row, col, 'stipX' + s) - 0.5) * w;
+          var dotY = cy + (fmRand(row, col, 'stipY' + s) - 0.5) * h;
+          var dotR = 0.25 + fmRand(row, col, 'stipR' + s) * 0.4;
+          ctx.beginPath();
+          ctx.arc(dotX, dotY, dotR, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
+      // Moderate stippling further out (distance 4-8)
+      else if (dist > 3 && dist <= 8) {
+        ctx.globalAlpha = 0.12 + (8 - dist) * 0.018;
+        var stippleCount = 3 + fmRand(row, col, 'stipple') * 2;
+        for (var s = 0; s < stippleCount; s++) {
+          var dotX = cx + (fmRand(row, col, 'stipX' + s) - 0.5) * w;
+          var dotY = cy + (fmRand(row, col, 'stipY' + s) - 0.5) * h;
+          var dotR = 0.3 + fmRand(row, col, 'stipR' + s) * 0.3;
+          ctx.beginPath();
+          ctx.arc(dotX, dotY, dotR, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+  }
+
+  // PART 3: Subtle wave line patterns in open ocean
+  ctx.strokeStyle = inkColor;
+  ctx.lineWidth = 0.5;
+  ctx.globalAlpha = 0.08;
+  for (var row = 1; row < rows - 1; row += 8) {
+    for (var col = 1; col < cols - 1; col++) {
+      var cell = FMap.grid.cells[row * cols + col];
+      if (!cell || !cell.isWater) continue;
+      var dist = distFromLand[row * cols + col];
+      if (dist <= 8) continue; // Skip shallow water, only deep ocean
+
+      var sp1 = fmCellToScreen(col - 1, row);
+      var sp2 = fmCellToScreen(col + 1, row);
+      var startX = sp1.x + w / 2;
+      var startY = sp1.y + h / 2;
+      var endX = sp2.x + w / 2;
+      var endY = sp2.y + h / 2;
+
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      for (var px = startX; px <= endX; px += 2) {
+        var t = (px - startX) / (endX - startX);
+        var waveY = startY + Math.sin(px * 0.03 + row * 0.08) * 0.8;
+        ctx.lineTo(px, waveY);
+      }
+      ctx.stroke();
     }
   }
 
@@ -3595,10 +4182,20 @@ var fmRenderRivers = function(ctx) {
 
     if (screenPath.length < 2) continue;
 
-    // Draw as smooth path with subtle widening stroke — like C# reference
+    // ROUND 3: Add wobble to river points for hand-drawn meander
+    for (var wi = 1; wi < screenPath.length - 1; wi++) {
+      if (typeof fmWobble === 'function') {
+        var wb = fmWobble(screenPath[wi].x, screenPath[wi].y, 2.0, r * 7 + wi);
+        screenPath[wi].x = wb.x;
+        screenPath[wi].y = wb.y;
+      }
+    }
+
+    // ROUND 3: Draw with VARIABLE WIDTH (thin at source, thick at mouth)
+    // Multiple passes for depth
     var passes = [
-      { widthStart: 0.5, widthEnd: 1.8, alpha: 0.6 },
-      { widthStart: 0.3, widthEnd: 1.0, alpha: 0.15 }
+      { widthStart: 0.3, widthEnd: 2.2, alpha: 0.55 },
+      { widthStart: 0.15, widthEnd: 1.2, alpha: 0.12 }
     ];
 
     for (var pass = 0; pass < passes.length; pass++) {
@@ -3606,29 +4203,73 @@ var fmRenderRivers = function(ctx) {
       ctx.strokeStyle = riverColor;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.globalAlpha = p_cfg.alpha;
 
-      // Draw segments with interpolated width
       for (var sp_idx = 0; sp_idx < screenPath.length - 1; sp_idx++) {
         var t = screenPath.length > 1 ? sp_idx / (screenPath.length - 1) : 0;
-        ctx.lineWidth = p_cfg.widthStart + (p_cfg.widthEnd - p_cfg.widthStart) * t;
+        // ROUND 3: Variable width with ink-like pressure variation
+        var baseWidth = p_cfg.widthStart + (p_cfg.widthEnd - p_cfg.widthStart) * t;
+        var pressureNoise = typeof fmJitterHash === 'function' ?
+          fmJitterHash(screenPath[sp_idx].x, screenPath[sp_idx].y, 44) : 0.5;
+        ctx.lineWidth = baseWidth * (0.8 + pressureNoise * 0.4);
 
-        var cur = screenPath[sp_idx];
-        var nxt = screenPath[sp_idx + 1];
+        ctx.globalAlpha = p_cfg.alpha;
+
+        var p1 = screenPath[sp_idx];
+        var p2 = screenPath[sp_idx + 1];
+
+        // Catmull-Rom smoothing with enhanced meander
+        var meaderHash = ((r * 73 + sp_idx * 137) >>> 0) % 1000;
+        var meander = Math.sin(meaderHash / 1000 * Math.PI * 6) * 2.0;
 
         ctx.beginPath();
-        ctx.moveTo(cur.x, cur.y);
+        ctx.moveTo(p1.x, p1.y);
 
-        // Use midpoint for smooth curve if we have a next-next point
         if (sp_idx < screenPath.length - 2) {
-          var nxt2 = screenPath[sp_idx + 2];
-          var mx = (nxt.x + nxt2.x) / 2;
-          var my = (nxt.y + nxt2.y) / 2;
-          ctx.quadraticCurveTo(nxt.x, nxt.y, mx, my);
+          var p3 = screenPath[sp_idx + 2];
+          var mx = (p2.x + p3.x) / 2 + meander;
+          var my = (p2.y + p3.y) / 2;
+          ctx.quadraticCurveTo(p2.x + meander * 0.5, p2.y, mx, my);
         } else {
-          ctx.lineTo(nxt.x, nxt.y);
+          ctx.lineTo(p2.x, p2.y);
         }
         ctx.stroke();
+      }
+
+      // ROUND 3: Tributaries with more natural branching
+      if (pass === 1 && screenPath.length > 5) {
+        var tributaryCount = Math.min(4, Math.floor(screenPath.length / 6));
+        for (var t_idx = 0; t_idx < tributaryCount; t_idx++) {
+          var riverIdx = Math.floor((t_idx + 0.5) * screenPath.length / (tributaryCount + 1));
+          if (riverIdx >= screenPath.length) continue;
+
+          var riverPt = screenPath[riverIdx];
+          var angle = (t_idx % 2 === 0 ? 1 : -1) * (Math.PI / 5 + (typeof fmJitterHash === 'function' ?
+            fmJitterHash(riverPt.x, riverPt.y, t_idx) * 0.4 : 0.2));
+          var prevPt = screenPath[Math.max(0, riverIdx - 1)];
+          var dir = Math.atan2(riverPt.y - prevPt.y, riverPt.x - prevPt.x);
+
+          var tributaryLen = 20 + (typeof fmJitterHash === 'function' ?
+            fmJitterHash(riverPt.x + 1, riverPt.y, t_idx) * 20 : 10);
+          var endX = riverPt.x + Math.cos(dir + angle) * tributaryLen;
+          var endY = riverPt.y + Math.sin(dir + angle) * tributaryLen;
+
+          // Variable width tributary (thin at end)
+          ctx.globalAlpha = p_cfg.alpha * 0.35;
+
+          // Draw with 3 segments for tapering
+          for (var ts = 0; ts < 3; ts++) {
+            var tt = ts / 3;
+            var t1x = riverPt.x + (endX - riverPt.x) * tt;
+            var t1y = riverPt.y + (endY - riverPt.y) * tt;
+            var t2x = riverPt.x + (endX - riverPt.x) * (tt + 1/3);
+            var t2y = riverPt.y + (endY - riverPt.y) * (tt + 1/3);
+            ctx.lineWidth = 0.5 * (1 - tt * 0.7);
+            ctx.beginPath();
+            ctx.moveTo(t1x, t1y);
+            ctx.lineTo(t2x, t2y);
+            ctx.stroke();
+          }
+        }
       }
     }
 
@@ -3639,7 +4280,6 @@ var fmRenderRivers = function(ctx) {
       var nxtPt = screenPath[Math.min(midIdx + 1, screenPath.length - 1)];
 
       var angle = Math.atan2(nxtPt.y - midPt.y, nxtPt.x - midPt.x);
-      // Flip if upside down
       if (angle > Math.PI / 2 || angle < -Math.PI / 2) angle += Math.PI;
 
       ctx.save();
@@ -3828,7 +4468,6 @@ var fmRenderRoads = function(ctx) {
     var road = FMap.world.roads[road_idx];
     if (!road.path || road.path.length < 2) continue;
 
-    // Convert path to screen coordinates
     var screenPath = [];
     for (var p = 0; p < road.path.length; p++) {
       var pathPoint = road.path[p];
@@ -3840,7 +4479,15 @@ var fmRenderRoads = function(ctx) {
 
     if (screenPath.length < 2) continue;
 
-    // Set road style based on type — default to subtle dotted
+    // ROUND 3: Add wobble to road points for hand-drawn feel
+    for (var wi = 1; wi < screenPath.length - 1; wi++) {
+      if (typeof fmWobble === 'function') {
+        var wb = fmWobble(screenPath[wi].x, screenPath[wi].y, 1.5, road_idx * 11 + wi);
+        screenPath[wi].x = wb.x;
+        screenPath[wi].y = wb.y;
+      }
+    }
+
     var roadColor = majorRoadColor;
     var roadWidth = 0.6;
     var dashPattern = [2, 5];
@@ -3848,7 +4495,7 @@ var fmRenderRoads = function(ctx) {
     if (road.type === 'major') {
       roadColor = majorRoadColor;
       roadWidth = 0.7;
-      dashPattern = [3, 4]; // Subtle dotted line like C# reference
+      dashPattern = [3, 4];
     } else if (road.type === 'minor') {
       roadColor = minorRoadColor;
       roadWidth = 0.5;
@@ -3860,35 +4507,57 @@ var fmRenderRoads = function(ctx) {
     }
 
     ctx.strokeStyle = roadColor;
-    ctx.lineWidth = roadWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.setLineDash(dashPattern);
-    ctx.globalAlpha = 0.3; // barely visible like C# reference
+    ctx.globalAlpha = 0.3;
 
-    // Draw road with bezier smoothing
+    // ROUND 3: Draw with variable width segments
     if (screenPath.length === 2) {
+      var dx = screenPath[1].x - screenPath[0].x;
+      var dy = screenPath[1].y - screenPath[0].y;
+      var len = Math.sqrt(dx * dx + dy * dy);
+      var perpX = -dy / len;
+      var perpY = dx / len;
+
+      var curveAmount = len * 0.1 * (0.5 + fmRand() * 0.5);
+      var midX = screenPath[0].x + dx / 2 + perpX * curveAmount;
+      var midY = screenPath[0].y + dy / 2 + perpY * curveAmount;
+
+      ctx.lineWidth = roadWidth;
       ctx.beginPath();
       ctx.moveTo(screenPath[0].x, screenPath[0].y);
-      ctx.lineTo(screenPath[1].x, screenPath[1].y);
+      ctx.quadraticCurveTo(midX, midY, screenPath[1].x, screenPath[1].y);
       ctx.stroke();
     } else {
-      ctx.beginPath();
-      ctx.moveTo(screenPath[0].x, screenPath[0].y);
+      // Variable width along the road
+      for (var sp = 0; sp < screenPath.length - 1; sp++) {
+        var t = sp / (screenPath.length - 1);
+        // Slight width variation
+        var widthNoise = typeof fmJitterHash === 'function' ?
+          fmJitterHash(screenPath[sp].x, screenPath[sp].y, road_idx) : 0.5;
+        ctx.lineWidth = roadWidth * (0.8 + widthNoise * 0.4);
 
-      for (var sp = 1; sp < screenPath.length - 1; sp++) {
-        var xc = (screenPath[sp].x + screenPath[sp + 1].x) / 2;
-        var yc = (screenPath[sp].y + screenPath[sp + 1].y) / 2;
-        ctx.quadraticCurveTo(screenPath[sp].x, screenPath[sp].y, xc, yc);
+        var currPt = screenPath[sp];
+        var nextPt = screenPath[Math.min(sp + 1, screenPath.length - 1)];
+
+        var meaderHash = ((road_idx * 73 + sp * 137) >>> 0) % 1000;
+        var meander = Math.sin(meaderHash / 1000 * Math.PI * 4) * 2;
+
+        if (sp < screenPath.length - 2) {
+          var endX = (currPt.x + nextPt.x) / 2 + meander;
+          var endY = (currPt.y + nextPt.y) / 2 + meander * 0.5;
+          ctx.beginPath();
+          ctx.moveTo(currPt.x, currPt.y);
+          ctx.quadraticCurveTo(nextPt.x, nextPt.y, endX, endY);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.moveTo(currPt.x, currPt.y);
+          ctx.lineTo(nextPt.x, nextPt.y);
+          ctx.stroke();
+        }
       }
-
-      ctx.quadraticCurveTo(
-        screenPath[screenPath.length - 2].x,
-        screenPath[screenPath.length - 2].y,
-        screenPath[screenPath.length - 1].x,
-        screenPath[screenPath.length - 1].y
-      );
-      ctx.stroke();
     }
   }
 
@@ -3913,230 +4582,325 @@ var fmRenderSettlements = function(ctx) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
+  // === ROUND 5: LABEL COLLISION DETECTION ===
+  // Pre-compute label bounding boxes and resolve collisions
+  var labelBoxes = [];
+  var LABEL_PAD = 3;
+
+  // Helper to measure text width
+  var measureLabel = function(name, font) {
+    ctx.font = font;
+    var metrics = ctx.measureText(name);
+    return metrics.width;
+  };
+
+  // Pre-compute all label positions and sizes
+  var labelData = [];
   for (var i = 0; i < settlements.length; i++) {
     var city = settlements[i];
     var screen = fmCellToScreen(city.col, city.row);
     var x = screen.x;
     var y = screen.y;
 
+    var font, yOffset, labelWidth;
+    if (city.type === 'capital') {
+      font = 'bold small-caps 11px Palatino, Georgia, serif';
+      yOffset = 22;
+    } else if (city.type === 'city') {
+      font = 'small-caps 10px Palatino, Georgia, serif';
+      yOffset = 16;
+    } else if (city.type === 'town') {
+      font = '9px Palatino, Georgia, serif';
+      yOffset = 12;
+    } else {
+      font = 'italic 8px Palatino, Georgia, serif';
+      yOffset = 10;
+    }
+
+    labelWidth = measureLabel(city.name, font);
+    var fontSize = parseInt(font) || 9;
+
+    labelData.push({
+      idx: i,
+      city: city,
+      x: x,
+      y: y,
+      labelX: x - labelWidth / 2,
+      labelY: y + yOffset - fontSize,
+      labelW: labelWidth,
+      labelH: fontSize + 4,
+      font: font,
+      yOffset: yOffset,
+      placed: false,
+      priority: city.type === 'capital' ? 4 : city.type === 'city' ? 3 : city.type === 'town' ? 2 : 1
+    });
+  }
+
+  // Sort by priority (capitals first)
+  labelData.sort(function(a, b) { return b.priority - a.priority; });
+
+  // Try to place labels with collision avoidance
+  var placedBoxes = [];
+
+  var boxOverlaps = function(box) {
+    for (var j = 0; j < placedBoxes.length; j++) {
+      var pb = placedBoxes[j];
+      if (box.x < pb.x + pb.w + LABEL_PAD &&
+          box.x + box.w + LABEL_PAD > pb.x &&
+          box.y < pb.y + pb.h + LABEL_PAD &&
+          box.y + box.h + LABEL_PAD > pb.y) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Placement positions to try: below, above, right, left, below-right, above-right
+  var offsets = [
+    function(d) { return { dx: -d.labelW / 2, dy: d.yOffset }; },           // below center
+    function(d) { return { dx: -d.labelW / 2, dy: -d.yOffset - 4 }; },      // above center
+    function(d) { return { dx: d.labelW * 0.1 + 8, dy: 4 }; },              // right
+    function(d) { return { dx: -d.labelW - 8, dy: 4 }; },                    // left
+    function(d) { return { dx: 6, dy: d.yOffset + 4 }; },                    // below-right
+    function(d) { return { dx: -d.labelW - 4, dy: -d.yOffset }; },           // above-left
+    function(d) { return { dx: 6, dy: -d.yOffset - 4 }; },                   // above-right
+    function(d) { return { dx: -d.labelW / 2, dy: d.yOffset + 10 }; }        // further below
+  ];
+
+  for (var i = 0; i < labelData.length; i++) {
+    var ld = labelData[i];
+    var placed = false;
+
+    for (var oi = 0; oi < offsets.length; oi++) {
+      var off = offsets[oi](ld);
+      var testBox = {
+        x: ld.x + off.dx,
+        y: ld.y + off.dy - ld.labelH,
+        w: ld.labelW,
+        h: ld.labelH
+      };
+
+      if (!boxOverlaps(testBox)) {
+        ld.finalLabelX = ld.x + off.dx + ld.labelW / 2;
+        ld.finalLabelY = ld.y + off.dy;
+        ld.placed = true;
+        placedBoxes.push(testBox);
+        placed = true;
+        break;
+      }
+    }
+
+    // If no position works, use default but mark as crowded
+    if (!placed) {
+      ld.finalLabelX = ld.x;
+      ld.finalLabelY = ld.y + ld.yOffset;
+      ld.placed = true;
+      ld.crowded = true;
+      placedBoxes.push({
+        x: ld.x - ld.labelW / 2,
+        y: ld.y + ld.yOffset - ld.labelH,
+        w: ld.labelW,
+        h: ld.labelH
+      });
+    }
+  }
+
+  // Now render all settlements with their resolved label positions
+  // Re-sort by y position for proper overlap
+  labelData.sort(function(a, b) { return a.y - b.y; });
+
+  for (var li = 0; li < labelData.length; li++) {
+    var ld = labelData[li];
+    var city = ld.city;
+    var x = ld.x;
+    var y = ld.y;
+    var i = ld.idx;
+
+    var symbolVariant = (i + city.col * 73 + city.row * 137) % 3;
+    var compField = typeof fmCompositionField === 'function' ? fmCompositionField(x, y) : 0.5;
+    var detailMult = 0.7 + compField * 0.6;
+
     ctx.fillStyle = inkColor;
     ctx.strokeStyle = inkColor;
 
     if (city.type === 'capital') {
-      // === CASTLE: Walls with corner towers and pennant flag ===
       var size = 10;
-      var cw = size * 0.6;  // castle width
-      var ch = size * 0.5;  // castle height
-
-      // Outer walls rectangle
-      ctx.globalAlpha = 0.8;
-      ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.moveTo(x - cw, y + ch * 0.3);
-      ctx.lineTo(x - cw, y - ch);
-      ctx.lineTo(x + cw, y - ch);
-      ctx.lineTo(x + cw, y + ch * 0.3);
-      ctx.stroke();
-
-      // Corner towers (circles at corners)
-      var towerR = 2.2;
-      ctx.lineWidth = 1.5;
+      var cw = size * 0.65;
+      var ch = size * 0.55;
       ctx.globalAlpha = 0.85;
-      // Top-left tower
-      ctx.beginPath();
-      ctx.arc(x - cw, y - ch, towerR, 0, Math.PI * 2);
-      ctx.stroke();
-      // Top-right tower
-      ctx.beginPath();
-      ctx.arc(x + cw, y - ch, towerR, 0, Math.PI * 2);
-      ctx.stroke();
-      // Bottom-left tower
-      ctx.beginPath();
-      ctx.arc(x - cw, y + ch * 0.3, towerR, 0, Math.PI * 2);
-      ctx.stroke();
-      // Bottom-right tower
-      ctx.beginPath();
-      ctx.arc(x + cw, y + ch * 0.3, towerR, 0, Math.PI * 2);
-      ctx.stroke();
 
-      // Central spire
-      ctx.globalAlpha = 0.85;
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(x, y - ch * 0.8);
-      ctx.lineTo(x, y - ch - 3);
-      ctx.stroke();
+      var wallPts = [
+        {x: x - cw, y: y + ch * 0.35},
+        {x: x - cw, y: y - ch},
+        {x: x + cw, y: y - ch},
+        {x: x + cw, y: y + ch * 0.35}
+      ];
+      for (var wi = 0; wi < wallPts.length - 1; wi++) {
+        var wpt1 = wallPts[wi]; var wpt2 = wallPts[wi + 1];
+        var wb1 = typeof fmWobble === 'function' ? fmWobble(wpt1.x, wpt1.y, 0.5, i * 7 + wi) : wpt1;
+        var wb2 = typeof fmWobble === 'function' ? fmWobble(wpt2.x, wpt2.y, 0.5, i * 7 + wi + 1) : wpt2;
+        ctx.lineWidth = 1.6 + (typeof fmJitterHash === 'function' ? fmJitterHash(wpt1.x, wpt1.y, wi) * 0.6 : 0);
+        ctx.beginPath(); ctx.moveTo(wb1.x, wb1.y); ctx.lineTo(wb2.x, wb2.y); ctx.stroke();
+      }
 
-      // Pennant flag on spire
-      ctx.fillStyle = isLight ? '#c41e3a' : '#ff4455';
-      ctx.globalAlpha = 0.9;
-      ctx.beginPath();
-      ctx.moveTo(x, y - ch - 3);
-      ctx.lineTo(x + 2, y - ch - 5);
-      ctx.lineTo(x, y - ch - 4.5);
-      ctx.closePath();
-      ctx.fill();
+      ctx.lineWidth = 1.0;
+      for (var crn = 0; crn < 4; crn++) {
+        var crx = x - cw + (crn + 0.5) * cw * 0.5;
+        var wb = typeof fmWobble === 'function' ? fmWobble(crx, y - ch, 0.3, i * 13 + crn) : {x: crx, y: y - ch};
+        ctx.beginPath();
+        ctx.moveTo(wb.x - 1.2, y - ch); ctx.lineTo(wb.x - 1.2, y - ch - 1.8);
+        ctx.lineTo(wb.x + 1.2, y - ch - 1.8); ctx.lineTo(wb.x + 1.2, y - ch); ctx.stroke();
+      }
 
-      // Label — bold small caps
+      var towerR = 2.5;
+      ctx.lineWidth = 1.4; ctx.globalAlpha = 0.82;
+      var towers = [{px:x-cw,py:y-ch},{px:x+cw,py:y-ch},{px:x-cw,py:y+ch*0.35},{px:x+cw,py:y+ch*0.35}];
+      for (var t = 0; t < towers.length; t++) {
+        ctx.beginPath();
+        for (var ta = 0; ta <= 12; ta++) {
+          var tAngle = (ta / 12) * Math.PI * 2;
+          var tR = towerR * (0.9 + (typeof fmJitterHash === 'function' ? fmJitterHash(towers[t].px + ta, towers[t].py, t) * 0.2 : 0.1));
+          var tpx = towers[t].px + Math.cos(tAngle) * tR;
+          var tpy = towers[t].py + Math.sin(tAngle) * tR;
+          if (ta === 0) ctx.moveTo(tpx, tpy); else ctx.lineTo(tpx, tpy);
+        }
+        ctx.closePath(); ctx.stroke();
+        ctx.globalAlpha = 0.6; ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(towers[t].px, towers[t].py - towerR - 1.5);
+        ctx.lineTo(towers[t].px - towerR * 0.6, towers[t].py - towerR * 0.3);
+        ctx.lineTo(towers[t].px + towerR * 0.6, towers[t].py - towerR * 0.3);
+        ctx.closePath(); ctx.stroke(); ctx.globalAlpha = 0.82;
+      }
+
+      ctx.globalAlpha = 0.88; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.rect(x - 2, y - ch * 0.6, 4, ch * 0.8); ctx.stroke();
+      ctx.globalAlpha = 0.5; ctx.lineWidth = 0.6;
+      ctx.beginPath(); ctx.arc(x, y - ch * 0.3, 0.8, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = 0.88; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.moveTo(x, y - ch * 0.6); ctx.lineTo(x, y - ch - 4); ctx.stroke();
+
+      ctx.fillStyle = isLight ? '#d41e3a' : '#ff5577'; ctx.globalAlpha = 0.92;
+      ctx.beginPath();
+      ctx.moveTo(x, y - ch - 4); ctx.lineTo(x + 3, y - ch - 6); ctx.lineTo(x + 1.5, y - ch - 5.2);
+      ctx.lineTo(x + 3, y - ch - 4.8); ctx.lineTo(x, y - ch - 3.5); ctx.closePath(); ctx.fill();
+
+      ctx.strokeStyle = inkColor; ctx.globalAlpha = 0.6; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.arc(x, y + ch * 0.35, 1.5, Math.PI, 0, false); ctx.stroke();
+
+      // Label with collision-resolved position
       ctx.font = 'bold small-caps 11px Palatino, Georgia, serif';
-      ctx.textAlign = 'center';
-      ctx.globalAlpha = 0.9;
-      ctx.strokeStyle = parchmentHalo;
-      ctx.lineWidth = 5;
-      ctx.lineJoin = 'round';
-      ctx.strokeText(city.name, x, y + 18);
-      ctx.globalAlpha = 1.0;
-      ctx.fillStyle = inkColor;
-      ctx.fillText(city.name, x, y + 18);
+      ctx.textAlign = 'center'; ctx.globalAlpha = ld.crowded ? 0.6 : 0.92;
+      ctx.strokeStyle = parchmentHalo; ctx.lineWidth = 5; ctx.lineJoin = 'round';
+      ctx.strokeText(city.name, ld.finalLabelX, ld.finalLabelY);
+      ctx.globalAlpha = ld.crowded ? 0.7 : 1.0;
+      ctx.fillStyle = inkColor; ctx.fillText(city.name, ld.finalLabelX, ld.finalLabelY);
 
     } else if (city.type === 'city') {
-      // === CITY: Cluster of 3-4 building outlines with dome/spire ===
-      var bSize = 3.5;
-      var spacing = 2.5;
-
-      // Building 1 (left)
+      var bSize = 3.5; var spacing = 2.5;
       ctx.globalAlpha = 0.8;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.rect(x - bSize - spacing, y - bSize, bSize, bSize);
-      ctx.stroke();
 
-      // Building 2 (center-left, slightly raised)
+      ctx.lineWidth = 0.6; ctx.globalAlpha = 0.25;
       ctx.beginPath();
-      ctx.rect(x - spacing / 2, y - bSize - 1.5, bSize, bSize);
-      ctx.stroke();
+      for (var wa = 0; wa <= 16; wa++) {
+        var wAngle = (wa / 16) * Math.PI * 2;
+        var wR = 9 * (0.9 + (typeof fmJitterHash === 'function' ? fmJitterHash(x + wa, y, i) * 0.2 : 0.1));
+        var wpx = x + Math.cos(wAngle) * wR; var wpy = y + Math.sin(wAngle) * wR;
+        if (wa === 0) ctx.moveTo(wpx, wpy); else ctx.lineTo(wpx, wpy);
+      }
+      ctx.closePath(); ctx.stroke();
 
-      // Building 3 (right)
-      ctx.beginPath();
-      ctx.rect(x + spacing, y - bSize + 0.5, bSize, bSize);
-      ctx.stroke();
+      ctx.globalAlpha = 0.8; ctx.lineWidth = 1.3;
+      var buildingPositions;
+      if (symbolVariant === 0) {
+        buildingPositions = [{bx:x-bSize-spacing,by:y-bSize,bw:bSize,bh:bSize},{bx:x-spacing/2,by:y-bSize-1.5,bw:bSize,bh:bSize},{bx:x+spacing,by:y-bSize+0.5,bw:bSize,bh:bSize}];
+      } else if (symbolVariant === 1) {
+        buildingPositions = [{bx:x-bSize-2,by:y-bSize*0.7,bw:bSize,bh:bSize*0.8},{bx:x-0.5,by:y-bSize,bw:bSize,bh:bSize},{bx:x+bSize+1.5,by:y-bSize*0.6,bw:bSize*0.9,bh:bSize*0.8}];
+      } else {
+        buildingPositions = [{bx:x-bSize,by:y-bSize,bw:bSize*0.9,bh:bSize},{bx:x+0.5,by:y-bSize,bw:bSize*0.9,bh:bSize},{bx:x-bSize,by:y,bw:bSize*0.9,bh:bSize*0.8},{bx:x+0.5,by:y,bw:bSize*0.9,bh:bSize*0.8}];
+      }
+      for (var bi = 0; bi < buildingPositions.length; bi++) {
+        var bp = buildingPositions[bi];
+        var corners = [{x:bp.bx,y:bp.by},{x:bp.bx+bp.bw,y:bp.by},{x:bp.bx+bp.bw,y:bp.by+bp.bh},{x:bp.bx,y:bp.by+bp.bh}];
+        ctx.beginPath();
+        for (var ci = 0; ci <= corners.length; ci++) {
+          var c = corners[ci % corners.length];
+          var wb = typeof fmWobble === 'function' ? fmWobble(c.x, c.y, 0.3, i * 11 + bi * 5 + ci) : c;
+          if (ci === 0) ctx.moveTo(wb.x, wb.y); else ctx.lineTo(wb.x, wb.y);
+        }
+        ctx.stroke();
+        ctx.lineWidth = 0.8; ctx.globalAlpha = 0.6;
+        ctx.beginPath(); ctx.moveTo(bp.bx - 0.5, bp.by); ctx.lineTo(bp.bx + bp.bw * 0.5, bp.by - 2);
+        ctx.lineTo(bp.bx + bp.bw + 0.5, bp.by); ctx.stroke();
+        ctx.globalAlpha = 0.8; ctx.lineWidth = 1.3;
+      }
+      ctx.globalAlpha = 0.85; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.arc(x, y - 1, 2.5, Math.PI, 0, false); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, y - 1); ctx.lineTo(x, y - 5.5); ctx.stroke();
 
-      // Central dome/spire
-      ctx.globalAlpha = 0.85;
-      ctx.lineWidth = 1.3;
-      ctx.beginPath();
-      ctx.arc(x, y - 1, 2.5, Math.PI, 0, false);
-      ctx.stroke();
-
-      // Spire on dome
-      ctx.beginPath();
-      ctx.moveTo(x, y - 1);
-      ctx.lineTo(x, y - 5);
-      ctx.stroke();
-
-      // Label
       ctx.font = 'small-caps 10px Palatino, Georgia, serif';
-      ctx.textAlign = 'center';
-      ctx.globalAlpha = 1.0;
-      ctx.strokeStyle = parchmentHalo;
-      ctx.lineWidth = 2.5;
-      ctx.strokeText(city.name, x, y + 15);
-      ctx.fillStyle = inkColor;
-      ctx.fillText(city.name, x, y + 15);
+      ctx.textAlign = 'center'; ctx.globalAlpha = ld.crowded ? 0.5 : 1.0;
+      ctx.strokeStyle = parchmentHalo; ctx.lineWidth = 2.5;
+      ctx.strokeText(city.name, ld.finalLabelX, ld.finalLabelY);
+      ctx.fillStyle = inkColor; ctx.fillText(city.name, ld.finalLabelX, ld.finalLabelY);
 
     } else if (city.type === 'town') {
-      // === TOWN: 2-3 small house shapes with peaked roofs ===
-      var hSize = 2.8;
-
-      // House 1 (left)
-      ctx.globalAlpha = 0.8;
-      ctx.lineWidth = 1.3;
-      ctx.beginPath();
-      ctx.moveTo(x - hSize - 1.5, y - hSize);  // Left roof peak
-      ctx.lineTo(x - hSize, y);                 // Left base
-      ctx.lineTo(x - 1.5, y);                   // Right base
-      ctx.closePath();
-      ctx.stroke();
-
-      // House 2 (center)
-      ctx.beginPath();
-      ctx.moveTo(x, y - hSize * 1.1);           // Center roof peak (taller)
-      ctx.lineTo(x - hSize * 0.9, y);           // Left base
-      ctx.lineTo(x + hSize * 0.9, y);           // Right base
-      ctx.closePath();
-      ctx.stroke();
-
-      // House 3 (right)
-      ctx.beginPath();
-      ctx.moveTo(x + hSize + 1.5, y - hSize);  // Right roof peak
-      ctx.lineTo(x + 1.5, y);                   // Left base
-      ctx.lineTo(x + hSize, y);                 // Right base
-      ctx.closePath();
-      ctx.stroke();
-
-      // Chimney smoke curl on tallest house
-      ctx.strokeStyle = lightInk;
-      ctx.lineWidth = 0.8;
-      ctx.globalAlpha = 0.3;
-      ctx.beginPath();
-      ctx.moveTo(x + hSize * 0.3, y - hSize * 0.8);
-      ctx.quadraticCurveTo(x + hSize * 0.6, y - hSize * 1.3, x + hSize * 0.3, y - hSize * 1.6);
-      ctx.stroke();
-
+      var hSize = 2.8; ctx.globalAlpha = 0.8; ctx.lineWidth = 1.1;
+      var houseData = [];
+      if (symbolVariant === 0) {
+        houseData = [{px:x-hSize-1.5,py:y,tipOff:0},{px:x,py:y,tipOff:-0.3},{px:x+hSize+1.5,py:y,tipOff:0.2}];
+      } else if (symbolVariant === 1) {
+        houseData = [{px:x-hSize*1.2,py:y,tipOff:-0.2},{px:x+0.5,py:y,tipOff:0},{px:x+hSize*1.2,py:y,tipOff:0.3}];
+      } else {
+        houseData = [{px:x-hSize*0.6,py:y,tipOff:0},{px:x+hSize*0.6,py:y,tipOff:-0.2}];
+      }
+      for (var hi = 0; hi < houseData.length; hi++) {
+        var hd = houseData[hi];
+        var hsz = hSize * (0.9 + (typeof fmJitterHash === 'function' ? fmJitterHash(hd.px, hd.py, hi) * 0.2 : 0.1));
+        var p1 = typeof fmWobble === 'function' ? fmWobble(hd.px + hd.tipOff, hd.py - hsz, 0.3, i + hi) : {x: hd.px + hd.tipOff, y: hd.py - hsz};
+        var p2 = typeof fmWobble === 'function' ? fmWobble(hd.px - hsz * 0.6, hd.py, 0.3, i + hi + 1) : {x: hd.px - hsz * 0.6, y: hd.py};
+        var p3 = typeof fmWobble === 'function' ? fmWobble(hd.px + hsz * 0.6, hd.py, 0.3, i + hi + 2) : {x: hd.px + hsz * 0.6, y: hd.py};
+        ctx.lineWidth = 1.0 + (typeof fmJitterHash === 'function' ? fmJitterHash(hd.px, hd.py, 88) * 0.4 : 0);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y);
+        ctx.closePath(); ctx.stroke();
+        if (detailMult > 0.7) {
+          ctx.globalAlpha = 0.4; ctx.lineWidth = 0.5;
+          ctx.beginPath(); ctx.moveTo(hd.px - 0.4, hd.py); ctx.lineTo(hd.px - 0.4, hd.py - 0.8);
+          ctx.lineTo(hd.px + 0.4, hd.py - 0.8); ctx.lineTo(hd.px + 0.4, hd.py); ctx.stroke();
+          ctx.globalAlpha = 0.8;
+        }
+      }
+      ctx.strokeStyle = lightInk; ctx.lineWidth = 0.6; ctx.globalAlpha = 0.25;
+      ctx.beginPath(); ctx.moveTo(x + hSize * 0.3, y - hSize * 0.8);
+      ctx.quadraticCurveTo(x + hSize * 0.7, y - hSize * 1.4, x + hSize * 0.2, y - hSize * 1.7);
+      ctx.quadraticCurveTo(x + hSize * 0.6, y - hSize * 2.0, x + hSize * 0.3, y - hSize * 2.2); ctx.stroke();
       ctx.strokeStyle = inkColor;
 
-      // Label
       ctx.font = '9px Palatino, Georgia, serif';
-      ctx.textAlign = 'center';
-      ctx.globalAlpha = 1.0;
-      ctx.strokeStyle = parchmentHalo;
-      ctx.lineWidth = 2;
-      ctx.strokeText(city.name, x, y + 12);
-      ctx.fillStyle = inkColor;
-      ctx.fillText(city.name, x, y + 12);
+      ctx.textAlign = 'center'; ctx.globalAlpha = ld.crowded ? 0.5 : 1.0;
+      ctx.strokeStyle = parchmentHalo; ctx.lineWidth = 2;
+      ctx.strokeText(city.name, ld.finalLabelX, ld.finalLabelY);
+      ctx.fillStyle = inkColor; ctx.fillText(city.name, ld.finalLabelX, ld.finalLabelY);
 
     } else if (city.type === 'hamlet') {
-      // === HAMLET/VILLAGE: Single small house with chimney smoke ===
-      var hh = 3;  // house height
-      var hw = 2;  // half-width
-
+      var hh = 3; var hw = 2;
       ctx.globalAlpha = 0.8;
-      ctx.lineWidth = 1.2;
-
-      // Single peaked house
-      ctx.beginPath();
-      ctx.moveTo(x, y - hh);            // Roof peak
-      ctx.lineTo(x - hw, y);            // Left base
-      ctx.lineTo(x + hw, y);            // Right base
-      ctx.closePath();
-      ctx.stroke();
-
-      // Small door
-      ctx.globalAlpha = 0.6;
-      ctx.lineWidth = 0.8;
-      ctx.beginPath();
-      ctx.moveTo(x - 0.5, y - 0.5);
-      ctx.lineTo(x - 0.5, y);
-      ctx.lineTo(x + 0.5, y);
-      ctx.lineTo(x + 0.5, y - 0.5);
-      ctx.stroke();
-
-      // Chimney with smoke
-      ctx.strokeStyle = lightInk;
-      ctx.lineWidth = 0.7;
-      ctx.globalAlpha = 0.4;
-      ctx.beginPath();
-      ctx.moveTo(x + hw - 0.8, y - hh * 0.6);
-      ctx.lineTo(x + hw - 0.8, y - hh * 0.2);
-      ctx.stroke();
-
-      // Smoke puff
-      ctx.globalAlpha = 0.25;
-      ctx.beginPath();
-      ctx.arc(x + hw - 0.5, y - hh * 0.8, 1, 0, Math.PI * 2);
-      ctx.stroke();
-
+      ctx.lineWidth = 1.0 + (typeof fmJitterHash === 'function' ? fmJitterHash(x, y, 33) * 0.3 : 0);
+      var hp1 = typeof fmWobble === 'function' ? fmWobble(x, y - hh, 0.2, i) : {x: x, y: y - hh};
+      var hp2 = typeof fmWobble === 'function' ? fmWobble(x - hw, y, 0.2, i + 1) : {x: x - hw, y: y};
+      var hp3 = typeof fmWobble === 'function' ? fmWobble(x + hw, y, 0.2, i + 2) : {x: x + hw, y: y};
+      ctx.beginPath(); ctx.moveTo(hp1.x, hp1.y); ctx.lineTo(hp2.x, hp2.y); ctx.lineTo(hp3.x, hp3.y);
+      ctx.closePath(); ctx.stroke();
+      ctx.strokeStyle = lightInk; ctx.lineWidth = 0.5; ctx.globalAlpha = 0.3;
+      ctx.beginPath(); ctx.moveTo(x + hw - 0.8, y - hh * 0.6);
+      ctx.quadraticCurveTo(x + hw, y - hh * 1.1, x + hw - 0.3, y - hh * 1.5); ctx.stroke();
       ctx.strokeStyle = inkColor;
 
-      // Label — small italic
       ctx.font = 'italic 8px Palatino, Georgia, serif';
-      ctx.textAlign = 'center';
-      ctx.globalAlpha = 1.0;
-      ctx.strokeStyle = parchmentHalo;
-      ctx.lineWidth = 1.5;
-      ctx.strokeText(city.name, x, y + 10);
-      ctx.fillStyle = inkColor;
-      ctx.fillText(city.name, x, y + 10);
+      ctx.textAlign = 'center'; ctx.globalAlpha = ld.crowded ? 0.4 : 1.0;
+      ctx.strokeStyle = parchmentHalo; ctx.lineWidth = 1.5;
+      ctx.strokeText(city.name, ld.finalLabelX, ld.finalLabelY);
+      ctx.fillStyle = inkColor; ctx.fillText(city.name, ld.finalLabelX, ld.finalLabelY);
     }
     ctx.globalAlpha = 1.0;
   }
@@ -4155,137 +4919,260 @@ var fmRenderPOIs = function(ctx) {
 
     ctx.fillStyle = inkColor;
     ctx.strokeStyle = inkColor;
-    ctx.lineWidth = 1;
-
-    var size = 8;
-    var sx = x - size / 2, sy = y - size / 2;
+    ctx.lineWidth = 1.0;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     if (poi.type === 'dungeon') {
-      // Skull icon
+      // Skull-gate doorway
+      ctx.lineWidth = 1.1;
+      // Skull
       ctx.beginPath();
-      ctx.arc(x, y - 1, 2, 0, Math.PI * 2);
+      ctx.arc(x, y - 1.5, 2.2, 0, Math.PI * 2);
+      ctx.stroke();
+      // Eye sockets
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.arc(x - 0.8, y - 1.8, 0.5, 0, Math.PI * 2);
       ctx.fill();
-      // Jaw
       ctx.beginPath();
-      ctx.moveTo(x - 1.5, y + 1);
-      ctx.lineTo(x + 1.5, y + 1);
+      ctx.arc(x + 0.8, y - 1.8, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+      // Jaw
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(x - 1.5, y + 0.8);
+      ctx.lineTo(x + 1.5, y + 0.8);
       ctx.stroke();
 
     } else if (poi.type === 'ruins') {
-      // Broken column
+      // Broken columns
+      ctx.lineWidth = 1.0;
+      // Left column (broken)
       ctx.beginPath();
-      ctx.moveTo(x, sy);
-      ctx.lineTo(x, y - 1);
+      ctx.moveTo(x - 1.5, y - 3);
+      ctx.lineTo(x - 1.5, y - 0.5);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(x, y + 1);
-      ctx.lineTo(x, sy + size);
+      ctx.moveTo(x - 1.5, y + 0.8);
+      ctx.lineTo(x - 1.5, y + 3);
+      ctx.stroke();
+      // Right column (broken)
+      ctx.beginPath();
+      ctx.moveTo(x + 1.5, y - 3);
+      ctx.lineTo(x + 1.5, y - 0.8);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + 1.5, y + 0.5);
+      ctx.lineTo(x + 1.5, y + 3);
+      ctx.stroke();
+      // Center column fragment
+      ctx.beginPath();
+      ctx.moveTo(x, y - 2);
+      ctx.lineTo(x, y + 1.5);
       ctx.stroke();
 
     } else if (poi.type === 'temple') {
-      // Triangle with cross
+      // Temple facade with cross
+      ctx.lineWidth = 1.1;
+      // Pitched roof
       ctx.beginPath();
-      ctx.moveTo(x, sy);
-      ctx.lineTo(sx + size, sy + size);
-      ctx.lineTo(sx, sy + size);
-      ctx.closePath();
+      ctx.moveTo(x - 2.5, y - 2.5);
+      ctx.lineTo(x, y - 4);
+      ctx.lineTo(x + 2.5, y - 2.5);
       ctx.stroke();
-      // Cross
+      // Walls
       ctx.beginPath();
-      ctx.moveTo(x, y - 1);
-      ctx.lineTo(x, y + 1);
-      ctx.moveTo(x - 1, y);
-      ctx.lineTo(x + 1, y);
+      ctx.rect(x - 2.5, y - 2.5, 5, 5);
+      ctx.stroke();
+      // Door
+      ctx.globalAlpha = 0.6;
+      ctx.fillRect(x - 0.8, y + 0.5, 1.6, 1.8);
+      ctx.globalAlpha = 1.0;
+      // Cross on facade
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 1.5);
+      ctx.lineTo(x, y + 0.5);
+      ctx.moveTo(x - 0.8, y - 0.5);
+      ctx.lineTo(x + 0.8, y - 0.5);
       ctx.stroke();
 
     } else if (poi.type === 'tower') {
-      // Narrow rectangle with pointed top
-      ctx.fillRect(x - 1.5, y, 3, 3);
+      // Thin tall tower with flags
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
-      ctx.moveTo(x - 1.5, y);
-      ctx.lineTo(x, y - 1.5);
-      ctx.lineTo(x + 1.5, y);
+      ctx.moveTo(x - 1.2, y - 3.5);
+      ctx.lineTo(x - 1.2, y + 2);
+      ctx.lineTo(x + 1.2, y + 2);
+      ctx.lineTo(x + 1.2, y - 3.5);
       ctx.stroke();
+      // Crenellations
+      ctx.lineWidth = 0.6;
+      for (var j = 0; j < 3; j++) {
+        ctx.beginPath();
+        ctx.moveTo(x - 0.8 + j * 1, y - 3.5);
+        ctx.lineTo(x - 0.8 + j * 1, y - 4.2);
+        ctx.stroke();
+      }
 
     } else if (poi.type === 'cave') {
-      // Arch/semicircle
+      // Dark arch opening
+      ctx.lineWidth = 1.1;
       ctx.beginPath();
-      ctx.arc(x, y + 0.5, 2.5, Math.PI, 0);
+      ctx.arc(x, y + 0.5, 2.5, Math.PI * 0.2, Math.PI * 0.8, false);
       ctx.stroke();
-
-    } else if (poi.type === 'shrine') {
-      // 4-point star
+      // Dark fill
+      ctx.globalAlpha = 0.3;
       ctx.beginPath();
-      ctx.moveTo(x, sy);
-      ctx.lineTo(x + 1.5, y - 0.5);
-      ctx.lineTo(sx + size, y);
-      ctx.lineTo(x + 0.5, y + 1.5);
-      ctx.lineTo(x, sy + size);
-      ctx.lineTo(x - 0.5, y + 1.5);
-      ctx.lineTo(sx, y);
-      ctx.lineTo(x - 1.5, y - 0.5);
+      ctx.arc(x, y + 0.5, 2.3, Math.PI * 0.25, Math.PI * 0.75, false);
+      ctx.lineTo(x - 2.2, y + 1.5);
       ctx.closePath();
       ctx.fill();
+      ctx.globalAlpha = 1.0;
+
+    } else if (poi.type === 'shrine') {
+      // Star with central cross
+      ctx.lineWidth = 1.0;
+      var starR = 2.5;
+      ctx.beginPath();
+      // 8-point star
+      for (var sp = 0; sp < 8; sp++) {
+        var angle = (sp / 8) * Math.PI * 2 - Math.PI / 2;
+        var radius = sp % 2 === 0 ? starR : starR * 0.6;
+        var px = x + Math.cos(angle) * radius;
+        var py = y + Math.sin(angle) * radius;
+        if (sp === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.stroke();
+      // Central cross
+      ctx.lineWidth = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 1.2);
+      ctx.lineTo(x, y + 1.2);
+      ctx.moveTo(x - 1.2, y);
+      ctx.lineTo(x + 1.2, y);
+      ctx.stroke();
 
     } else if (poi.type === 'battlefield') {
-      // Crossed swords (X)
+      // Crossed swords
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
-      ctx.moveTo(sx + 1, sy + 1);
-      ctx.lineTo(sx + size - 1, sy + size - 1);
-      ctx.moveTo(sx + size - 1, sy + 1);
-      ctx.lineTo(sx + 1, sy + size - 1);
+      ctx.moveTo(x - 2.5, y - 2.5);
+      ctx.lineTo(x + 2.5, y + 2.5);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + 2.5, y - 2.5);
+      ctx.lineTo(x - 2.5, y + 2.5);
+      ctx.stroke();
+      // Center guard knot
+      ctx.beginPath();
+      ctx.arc(x, y, 1, 0, Math.PI * 2);
       ctx.stroke();
 
     } else if (poi.type === 'mine') {
-      // Pickaxe
+      // Pickaxe over ore
+      ctx.lineWidth = 1.0;
+      // Pick head
       ctx.beginPath();
-      ctx.moveTo(x - 2, y - 1);
-      ctx.lineTo(x + 1, y + 2);
+      ctx.moveTo(x - 1.8, y - 1.5);
+      ctx.lineTo(x - 0.5, y + 0.5);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(x - 1.5, y - 2);
-      ctx.lineTo(x, y - 0.5);
+      ctx.moveTo(x - 0.8, y - 2);
+      ctx.lineTo(x - 0.2, y - 0.8);
+      ctx.stroke();
+      // Handle
+      ctx.beginPath();
+      ctx.moveTo(x - 0.5, y + 0.5);
+      ctx.lineTo(x + 1.2, y + 2);
+      ctx.stroke();
+      // Ore rocks below
+      ctx.beginPath();
+      ctx.arc(x + 0.5, y + 2.5, 1.2, 0, Math.PI * 2);
       ctx.stroke();
 
     } else if (poi.type === 'camp') {
-      // Tent (triangle)
+      // Tent with campfire
+      ctx.lineWidth = 1.1;
       ctx.beginPath();
-      ctx.moveTo(x, sy);
-      ctx.lineTo(sx, sy + size);
-      ctx.lineTo(sx + size, sy + size);
+      ctx.moveTo(x, y - 3);
+      ctx.lineTo(x - 2.5, y + 1.5);
+      ctx.lineTo(x + 2.5, y + 1.5);
       ctx.closePath();
       ctx.stroke();
+      // Tent pole
+      ctx.lineWidth = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 3);
+      ctx.lineTo(x, y + 1.5);
+      ctx.stroke();
+      // Campfire
+      ctx.fillStyle = isLight ? '#e85a3a' : '#ff8866';
+      ctx.globalAlpha = 0.7;
+      for (var f = 0; f < 3; f++) {
+        ctx.beginPath();
+        ctx.arc(x + (f - 1) * 1.5, y + 2.2 + f * 0.3, 0.5 + f * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+      ctx.strokeStyle = inkColor;
 
     } else if (poi.type === 'portal') {
-      // Concentric circles
+      // Glowing concentric circles
+      ctx.lineWidth = 1.0;
       ctx.beginPath();
-      ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+      ctx.arc(x, y, 1.2, 0, Math.PI * 2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.arc(x, y, 2.3, 0, Math.PI * 2);
       ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x, y, 3.2, 0, Math.PI * 2);
+      ctx.stroke();
+      // Glow effect
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.arc(x, y, 3.8, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1.0;
 
     } else if (poi.type === 'dragon_lair') {
-      // S-curve dragon silhouette
+      // Dragon silhouette with wings
+      ctx.lineWidth = 1.1;
+      // Body S-curve
       ctx.beginPath();
-      ctx.moveTo(sx, y);
-      ctx.quadraticCurveTo(x - 1, y - 2, x, y - 1);
-      ctx.quadraticCurveTo(x + 1, y, sx + size, y + 2);
+      ctx.moveTo(x - 2.5, y);
+      ctx.quadraticCurveTo(x - 1, y - 2, x + 0.5, y - 1.5);
+      ctx.quadraticCurveTo(x + 1.5, y - 0.5, x + 2.5, y + 1);
       ctx.stroke();
-      // Wing
+      // Head
+      ctx.beginPath();
+      ctx.arc(x + 2.5, y + 0.8, 1, 0, Math.PI * 2);
+      ctx.stroke();
+      // Wings (triangles)
       ctx.beginPath();
       ctx.moveTo(x, y - 1);
-      ctx.lineTo(x + 2, y - 2);
-      ctx.lineTo(x + 1, y);
+      ctx.lineTo(x - 1.5, y - 2.8);
+      ctx.lineTo(x + 0.5, y - 1);
       ctx.closePath();
+      ctx.stroke();
+      ctx.globalAlpha = 0.5;
       ctx.fill();
+      ctx.globalAlpha = 1.0;
     }
 
     // Label
     ctx.font = 'italic 8px Palatino, Georgia, serif';
     ctx.textAlign = 'left';
+    ctx.globalAlpha = 0.85;
     ctx.fillStyle = inkColor;
-    ctx.fillText(poi.name, x + 6, y + 2);
+    ctx.fillText(poi.name, x + 7, y + 3);
+    ctx.globalAlpha = 1.0;
   }
 };
 
@@ -4438,25 +5325,25 @@ var fmRenderCompass = function(ctx, cx, cy, size) {
     ctx.stroke();
   }
 
-  // === 8-POINT STAR: 4 cardinal (longer/wider) + 4 ordinal (shorter/thinner) ===
+  // === 16-POINT STAR: 4 cardinal (long) + 4 intermediate (medium) + 8 minor (short) ===
   // Cardinal points — longer and wider with alternating fill
   var cardAngles = [-Math.PI / 2, 0, Math.PI / 2, Math.PI]; // N, E, S, W
 
   for (var c = 0; c < 4; c++) {
     var a = cardAngles[c];
-    var tipDist = 44 * s;
-    var baseW = 0.22;
+    var tipDist = 46 * s;
+    var baseW = 0.24;
 
     var tipX = Math.cos(a) * tipDist;
     var tipY = Math.sin(a) * tipDist;
-    var leftX = Math.cos(a + baseW) * 9 * s;
-    var leftY = Math.sin(a + baseW) * 9 * s;
-    var rightX = Math.cos(a - baseW) * 9 * s;
-    var rightY = Math.sin(a - baseW) * 9 * s;
+    var leftX = Math.cos(a + baseW) * 11 * s;
+    var leftY = Math.sin(a + baseW) * 11 * s;
+    var rightX = Math.cos(a - baseW) * 11 * s;
+    var rightY = Math.sin(a - baseW) * 11 * s;
 
-    // Dark filled half (left side looking outward)
+    // Dark filled half
     ctx.fillStyle = (c === 0) ? accentColor : inkColor;
-    ctx.globalAlpha = 0.95;
+    ctx.globalAlpha = 0.96;
     ctx.beginPath();
     ctx.moveTo(tipX, tipY);
     ctx.lineTo(leftX, leftY);
@@ -4464,9 +5351,9 @@ var fmRenderCompass = function(ctx, cx, cy, size) {
     ctx.closePath();
     ctx.fill();
 
-    // Light filled half (right side)
+    // Light filled half
     ctx.fillStyle = parchColor;
-    ctx.globalAlpha = 0.88;
+    ctx.globalAlpha = 0.90;
     ctx.beginPath();
     ctx.moveTo(tipX, tipY);
     ctx.lineTo(rightX, rightY);
@@ -4476,28 +5363,28 @@ var fmRenderCompass = function(ctx, cx, cy, size) {
 
     // Bold outline
     ctx.strokeStyle = inkColor;
-    ctx.lineWidth = 1.3 * s;
-    ctx.globalAlpha = 0.85;
+    ctx.lineWidth = 1.4 * s;
+    ctx.globalAlpha = 0.88;
     ctx.stroke();
   }
 
-  // Ordinal points — shorter and thinner
-  var ordAngles = [-Math.PI / 4, Math.PI / 4, 3 * Math.PI / 4, -3 * Math.PI / 4];
-  for (var o = 0; o < 4; o++) {
-    var a = ordAngles[o];
-    var tipDist = 32 * s;
-    var baseW = 0.14;
+  // Intermediate points (45 degrees) — medium size
+  var intAngles = [-Math.PI / 4, Math.PI / 4, 3 * Math.PI / 4, -3 * Math.PI / 4];
+  for (var in_idx = 0; in_idx < 4; in_idx++) {
+    var a = intAngles[in_idx];
+    var tipDist = 38 * s;
+    var baseW = 0.16;
 
     var tipX = Math.cos(a) * tipDist;
     var tipY = Math.sin(a) * tipDist;
-    var leftX = Math.cos(a + baseW) * 6.5 * s;
-    var leftY = Math.sin(a + baseW) * 6.5 * s;
-    var rightX = Math.cos(a - baseW) * 6.5 * s;
-    var rightY = Math.sin(a - baseW) * 6.5 * s;
+    var leftX = Math.cos(a + baseW) * 8 * s;
+    var leftY = Math.sin(a + baseW) * 8 * s;
+    var rightX = Math.cos(a - baseW) * 8 * s;
+    var rightY = Math.sin(a - baseW) * 8 * s;
 
     // Dark half
     ctx.fillStyle = inkColor;
-    ctx.globalAlpha = 0.82;
+    ctx.globalAlpha = 0.85;
     ctx.beginPath();
     ctx.moveTo(tipX, tipY);
     ctx.lineTo(leftX, leftY);
@@ -4507,7 +5394,7 @@ var fmRenderCompass = function(ctx, cx, cy, size) {
 
     // Light half
     ctx.fillStyle = parchColor;
-    ctx.globalAlpha = 0.75;
+    ctx.globalAlpha = 0.78;
     ctx.beginPath();
     ctx.moveTo(tipX, tipY);
     ctx.lineTo(rightX, rightY);
@@ -4517,8 +5404,33 @@ var fmRenderCompass = function(ctx, cx, cy, size) {
 
     // Outline
     ctx.strokeStyle = inkColor;
-    ctx.lineWidth = 0.8 * s;
-    ctx.globalAlpha = 0.75;
+    ctx.lineWidth = 0.95 * s;
+    ctx.globalAlpha = 0.80;
+    ctx.stroke();
+  }
+
+  // 8 minor points (every 45 degrees offset by 22.5) — thin, unfilled
+  var minorAngles = [];
+  for (var m = 0; m < 8; m++) {
+    minorAngles.push((m * Math.PI / 4) + Math.PI / 8 - Math.PI / 2);
+  }
+
+  ctx.strokeStyle = inkColor;
+  ctx.lineWidth = 0.6 * s;
+  ctx.globalAlpha = 0.6;
+  for (var min_idx = 0; min_idx < minorAngles.length; min_idx++) {
+    var a = minorAngles[min_idx];
+    var tipDist = 28 * s;
+    var baseR = 5 * s;
+
+    var tipX = Math.cos(a) * tipDist;
+    var tipY = Math.sin(a) * tipDist;
+    var baseX = Math.cos(a) * baseR;
+    var baseY = Math.sin(a) * baseR;
+
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(baseX, baseY);
     ctx.stroke();
   }
 
@@ -4574,22 +5486,42 @@ var fmRenderCompass = function(ctx, cx, cy, size) {
   ctx.arc(0, 0, 2 * s, 0, Math.PI * 2);
   ctx.fill();
 
-  // === CARDINAL LABELS in serif ===
+  // === CARDINAL LABELS in serif with decorative style ===
   ctx.globalAlpha = 1.0;
-  ctx.fillStyle = inkColor;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  var labelDist = 58 * s;
-  ctx.fillStyle = accentColor; // Red-brown N like C# reference
-  ctx.font = 'bold ' + Math.round(16 * s) + 'px Palatino, Georgia, serif';
+  var labelDist = 62 * s;
+
+  // North — prominent red letter with serifs
+  ctx.fillStyle = accentColor;
+  ctx.font = 'bold ' + Math.round(20 * s) + 'px Palatino, Georgia, serif';
   ctx.fillText('N', 0, -labelDist);
 
+  // South, East, West — smaller, normal weight
   ctx.fillStyle = inkColor;
-  ctx.font = Math.round(12 * s) + 'px Palatino, Georgia, serif';
+  ctx.font = Math.round(13 * s) + 'px Palatino, Georgia, serif';
   ctx.fillText('S', 0, labelDist);
   ctx.fillText('E', labelDist, 0);
   ctx.fillText('W', -labelDist, 0);
+
+  // Add decorative dots at intermediate cardinal points
+  ctx.fillStyle = accentColor;
+  ctx.globalAlpha = 0.5;
+  var dotDist = 52 * s;
+  var dotSize = 0.8 * s;
+  ctx.beginPath();
+  ctx.arc(dotDist * Math.cos(Math.PI / 4), dotDist * Math.sin(Math.PI / 4), dotSize, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(dotDist * Math.cos(3 * Math.PI / 4), dotDist * Math.sin(3 * Math.PI / 4), dotSize, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(dotDist * Math.cos(5 * Math.PI / 4), dotDist * Math.sin(5 * Math.PI / 4), dotSize, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(dotDist * Math.cos(7 * Math.PI / 4), dotDist * Math.sin(7 * Math.PI / 4), dotSize, 0, Math.PI * 2);
+  ctx.fill();
 
   ctx.globalAlpha = 1.0;
   ctx.restore();
@@ -5124,6 +6056,12 @@ function fmRenderWorldMap() {
   // 3. Terrain tints (subtle washes, not colored blocks)
   fmRenderTerrain(ctx);
 
+  // 3a. Ocean rendering — waves, stippling, and water texture detail
+  fmRenderOcean(ctx);
+
+  // 3b. Relief shading (subtle 3D hillshading effect)
+  fmRenderReliefShading(ctx);
+
   // 3b. Coastal glow — warm diffuse light around land edges (like C# reference)
   fmRenderCoastalGlow(ctx);
 
@@ -5254,15 +6192,16 @@ function fmRenderKingdomMap(kingdomId) {
   fmRenderParchment(ctx, FMap.W, FMap.H, FMap.dark);
   fmRenderBorder(ctx, FMap.W, FMap.H, FMap.dark);
 
-  // Terrain, coastlines, mountains, forests, water, rivers
+  // Full render pipeline (same order as world view for consistency)
   fmRenderTerrain(ctx);
+  if (typeof fmRenderReliefShading === 'function') fmRenderReliefShading(ctx);
+  if (typeof fmRenderCoastalGlow === 'function') fmRenderCoastalGlow(ctx);
+  if (typeof fmRenderWater === 'function') fmRenderWater(ctx);
   fmRenderCoastlines(ctx);
+  fmRenderRivers(ctx);
   fmRenderMountains(ctx);
   fmRenderForests(ctx);
-  fmRenderWater(ctx);
-  fmRenderRivers(ctx);
-
-  // Kingdom borders, roads, settlements, POIs
+  if (typeof fmRenderTerrainFeatures === 'function') fmRenderTerrainFeatures(ctx);
   fmRenderKingdomBorders(ctx);
   fmRenderRoads(ctx);
   fmRenderSettlements(ctx);

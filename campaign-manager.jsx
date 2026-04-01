@@ -86,11 +86,11 @@ const EXAMPLE_CAMPAIGN = {
     { id:5, title:"Win the Tournament of Blades",      type:"side", status:"upcoming", urgency:"low",    faction:"Kingdom of Valdris",region:"Valdris Capital" },
   ],
   factions: [
-    { id:1, name:"The Silver Accord",  attitude:"allied",   power:72, trend:"rising",    desc:"Coalition of free cities opposing the Hollow",      color:"#94a3b8" },
-    { id:2, name:"The Hollow",         attitude:"hostile",  power:88, trend:"rising",    desc:"Shadow cult seeking the Shattered Crown",            color:"#7c3aed" },
-    { id:3, name:"Kingdom of Valdris", attitude:"neutral",  power:65, trend:"declining", desc:"Once-mighty kingdom weakened by civil war",          color:"#d97706" },
-    { id:4, name:"Marsh Wardens",      attitude:"friendly", power:30, trend:"stable",   desc:"Druidic guardians of the Greymoor Marshes",          color:"#2d6a4f" },
-    { id:5, name:"Merchant Guild",     attitude:"friendly", power:55, trend:"rising",    desc:"Trade consortium with vast information networks",    color:"#c0392b" },
+    { id:1, name:"The Silver Accord",  attitude:"allied",   power:72, trend:"rising",    desc:"Coalition of free cities opposing the Hollow",      color:"#a4b5cc" },
+    { id:2, name:"The Hollow",         attitude:"hostile",  power:88, trend:"rising",    desc:"Shadow cult seeking the Shattered Crown",            color:"#8b50f0" },
+    { id:3, name:"Kingdom of Valdris", attitude:"neutral",  power:65, trend:"declining", desc:"Once-mighty kingdom weakened by civil war",          color:"#e8940a" },
+    { id:4, name:"Marsh Wardens",      attitude:"friendly", power:30, trend:"stable",   desc:"Druidic guardians of the Greymoor Marshes",          color:"#2e8b57" },
+    { id:5, name:"Merchant Guild",     attitude:"friendly", power:55, trend:"rising",    desc:"Trade consortium with vast information networks",    color:"#d4433a" },
   ],
   regions: [
     { id:1, name:"Valdris Capital",  type:"city",       ctrl:"Kingdom of Valdris", threat:"low",     state:"tense",      visited:true },
@@ -159,11 +159,11 @@ const EXAMPLE_CAMPAIGN = {
 const Tag = ({ children, variant = "default" }) => {
   const m = {
     default:  { bg: T.crimsonSoft, c: T.crimson,  b: T.crimsonBorder },
-    danger:   { bg: "rgba(192,57,43,0.18)", c: "#e8605a", b: "rgba(192,57,43,0.45)" },
-    success:  { bg: "rgba(45,106,79,0.14)", c: "#6fcf97", b: "rgba(45,106,79,0.32)" },
-    warning:  { bg: "rgba(217,119,6,0.12)", c: "#f0b860", b: "rgba(217,119,6,0.28)" },
-    info:     { bg: "rgba(148,163,184,0.10)", c: "#a8b8cc", b: "rgba(148,163,184,0.25)" },
-    critical: { bg: "rgba(192,57,43,0.22)", c: "#ff7070", b: "rgba(192,57,43,0.50)" },
+    danger:   { bg: "rgba(212,67,58,0.16)", c: "#f06858", b: "rgba(212,67,58,0.42)" },
+    success:  { bg: "rgba(52,168,83,0.14)", c: "#5ee09a", b: "rgba(52,168,83,0.32)" },
+    warning:  { bg: "rgba(234,138,16,0.12)", c: "#f5c45c", b: "rgba(234,138,16,0.28)" },
+    info:     { bg: "rgba(148,175,210,0.12)", c: "#b0c8e4", b: "rgba(148,175,210,0.28)" },
+    critical: { bg: "rgba(212,67,58,0.22)", c: "#ff6b6b", b: "rgba(212,67,58,0.50)" },
     muted:    { bg: T.bgInput, c: T.textMuted, b: T.border },
   };
   const s = m[variant] || m.default;
@@ -250,12 +250,12 @@ const Textarea = ({ value, onChange, placeholder, rows=4, style:sx }) => (
 const Modal = ({ open, onClose, title, children, wide }) => {
   if (!open) return null;
   return (
-    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", padding:32 }}
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,6,0.70)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", padding:32 }}
       onClick={onClose}>
       <div onClick={e=>e.stopPropagation()} style={{
         background:T.bgCard, border:`1px solid ${T.crimsonBorder}`, borderRadius:"4px",
         width: wide ? 740 : 520, maxHeight:"85vh", overflow:"hidden", display:"flex", flexDirection:"column",
-        boxShadow:"0 12px 40px rgba(0,0,0,0.5)",
+        boxShadow:"0 12px 40px rgba(0,0,6,0.50)",
       }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"18px 24px", borderBottom:`1px solid ${T.border}` }}>
           <span style={{ fontFamily:T.ui, fontSize:11, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", fontWeight:500 }}>{title}</span>
@@ -651,7 +651,7 @@ function DiceRoller() {
                 {r.count>1?`${r.count}`:""}{r.die===100?"d%":`d${r.die}`}{r.mod!==0?(r.mod>0?`+${r.mod}`:r.mod):""}
                 {r.count>1 && <span style={{ color:T.textFaint, marginLeft:4 }}>[{r.rolls.join(", ")}]</span>}
               </span>
-              <span style={{ fontWeight:500, color: r.crit?"#f1c40f":r.fumble?"#e74c3c":T.text, textShadow: r.crit?"0 0 12px rgba(241,196,15,0.5)":r.fumble?"0 0 12px rgba(231,76,60,0.5)":"none" }}>
+              <span style={{ fontWeight:500, color: r.crit?"#f5d020":r.fumble?"#ef5350":T.text, textShadow: r.crit?"0 0 12px rgba(245,208,32,0.6)":r.fumble?"0 0 12px rgba(239,83,80,0.6)":"none" }}>
                 {r.total} {r.crit?"NAT 20!":r.fumble?"NAT 1":""}
               </span>
             </div>
@@ -740,13 +740,13 @@ function InitiativeTracker({ party }) {
           }}>
             <div style={{ display:"flex", alignItems:"center", gap:8 }}>
               <span style={{ fontSize:12, fontFamily:T.body, fontWeight:500, color:T.textFaint, minWidth:20 }}>{c.init}</span>
-              <span style={{ width:5, height:5, borderRadius:"50%", flexShrink:0, background:c.type==="pc"?"#6fcf97":T.crimson }} />
+              <span style={{ width:5, height:5, borderRadius:"50%", flexShrink:0, background:c.type==="pc"?"#5ee09a":T.crimson }} />
               <span style={{ flex:1, fontSize:13, fontFamily:T.body, fontWeight:400, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
               <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>AC {c.ac}</span>
               <div style={{ display:"flex", alignItems:"center", gap:2 }}>
                 <button onClick={()=>adjHp(c.id,-5)} style={{ background:"none", border:"none", cursor:"pointer", color:T.crimson, fontSize:14, padding:"2px 4px" }}>−</button>
-                <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, minWidth:42, textAlign:"center", color:c.hp<=c.maxHp*0.25?T.crimson:c.hp<=c.maxHp*0.5?"#d97706":T.textDim }}>{c.hp}/{c.maxHp}</span>
-                <button onClick={()=>adjHp(c.id,5)} style={{ background:"none", border:"none", cursor:"pointer", color:"#6fcf97", fontSize:14, padding:"2px 4px" }}>+</button>
+                <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, minWidth:42, textAlign:"center", color:c.hp<=c.maxHp*0.25?T.crimson:c.hp<=c.maxHp*0.5?"#e8940a":T.textDim }}>{c.hp}/{c.maxHp}</span>
+                <button onClick={()=>adjHp(c.id,5)} style={{ background:"none", border:"none", cursor:"pointer", color:"#5ee09a", fontSize:14, padding:"2px 4px" }}>+</button>
               </div>
               {c.type==="enemy" && <button onClick={()=>remove(c.id)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:"2px" }}><X size={10}/></button>}
             </div>
@@ -999,8 +999,8 @@ function PlayerCard({ member, onEdit, onUploadSheet, isDm }) {
         <div style={{ display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
           {member.status!=="healthy" && <Tag variant={member.status==="wounded"||member.status==="dead"?"danger":"warning"}>{member.status}</Tag>}
           <div style={{ textAlign:"right" }}>
-            <div style={{ fontSize:11, color:member.hp<=member.maxHp*0.3?T.crimson:member.hp<=member.maxHp*0.5?"#d97706":T.textDim, fontWeight:500 }}>{member.hp}/{member.maxHp}</div>
-            <div style={{ width:60 }}><HpBar val={member.hp} max={member.maxHp} color={member.hp<member.maxHp*0.3?T.crimson:member.hp<member.maxHp*0.6?"#d97706":"#2d6a4f"}/></div>
+            <div style={{ fontSize:11, color:member.hp<=member.maxHp*0.3?T.crimson:member.hp<=member.maxHp*0.5?"#e8940a":T.textDim, fontWeight:500 }}>{member.hp}/{member.maxHp}</div>
+            <div style={{ width:60 }}><HpBar val={member.hp} max={member.maxHp} color={member.hp<member.maxHp*0.3?T.crimson:member.hp<member.maxHp*0.6?"#e8940a":"#2e8b57"}/></div>
           </div>
           <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>AC {member.ac}</span>
           {expanded ? <ChevronUp size={14} color={T.textFaint}/> : <ChevronDown size={14} color={T.textFaint}/>}
@@ -1058,7 +1058,7 @@ function CampaignSelector({ campaigns, activeCampaignId, onSelect, onCreate, onD
         <div style={{
           position:"absolute", top:"100%", right:0, marginTop:4, width:280,
           background:T.bgCard, border:`1px solid ${T.crimsonBorder}`, borderRadius:"4px",
-          boxShadow:"0 8px 24px rgba(0,0,0,0.4)", zIndex:300, overflow:"hidden",
+          boxShadow:"0 8px 24px rgba(0,0,6,0.45)", zIndex:300, overflow:"hidden",
         }}>
           <div style={{ padding:"12px 16px", borderBottom:`1px solid ${T.border}` }}>
             <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase" }}>Your Campaigns</span>
@@ -1287,7 +1287,7 @@ function DashboardView({ data, setData, onNav }) {
                   <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                     <div style={{flex:1}}><PowerBar val={f.power} max={100} color={f.color}/></div>
                     <span style={{ fontSize:11, color:T.textMuted }}>{f.power}</span>
-                    {f.trend==="rising"?<TrendingUp size={10} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={10} color="#6fcf97"/>:<Minus size={10} color={T.textFaint}/>}
+                    {f.trend==="rising"?<TrendingUp size={10} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={10} color="#5ee09a"/>:<Minus size={10} color={T.textFaint}/>}
                   </div>
                 </div>
               ))}
@@ -1303,7 +1303,7 @@ function DashboardView({ data, setData, onNav }) {
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             {steps.map((s,i) => (
               <div key={i} style={{ display:"flex", alignItems:"start", gap:10, opacity:s.done?0.4:1 }}>
-                {s.done ? <CheckCircle size={14} color="#6fcf97" style={{marginTop:2,flexShrink:0}}/> : <Circle size={14} color={T.crimson} style={{marginTop:2,flexShrink:0}}/>}
+                {s.done ? <CheckCircle size={14} color="#5ee09a" style={{marginTop:2,flexShrink:0}}/> : <Circle size={14} color={T.crimson} style={{marginTop:2,flexShrink:0}}/>}
                 <span style={{ fontSize:13, fontFamily:T.body, fontWeight:300, color:s.done?T.textFaint:T.textDim, textDecoration:s.done?"line-through":"none" }}>{s.text}</span>
               </div>
             ))}
@@ -1355,7 +1355,7 @@ function TimelineView({ data, setData }) {
   const [editNotes, setEditNotes] = useState({});
 
   const evIcons = { encounter:Swords, discovery:Search, roleplay:Users, world_change:Globe, loot:Star, quest_complete:CheckCircle };
-  const evCols = { encounter:"#8b0000", discovery:"#1a6b3a", roleplay:"#7a6b0d", world_change:"#2a4a6b", loot:"#7a6b0d", quest_complete:"#3d5a1e" };
+  const evCols = { encounter:"#a31515", discovery:"#1e8b4a", roleplay:"#9a8520", world_change:"#2e5a80", loot:"#9a8520", quest_complete:"#4a7028" };
   const toggle = id => setOpen(s => { const n=new Set(s); n.has(id)?n.delete(id):n.add(id); return n; });
 
   const addSession = () => {
@@ -1547,7 +1547,7 @@ function WorldView({ data, setData }) {
     else if(type==="npc"){ if(ent.faction){const f=data.factions.find(f=>f.name===ent.faction); if(f) c.push({type:"faction",e:f,label:"Member of"});} const r=data.regions.find(r=>r.name===ent.loc); if(r) c.push({type:"region",e:r,label:"Located in"}); }
     return c;
   };
-  const tCols = { low:"#6fcf97", medium:"#d4a843", high:"#d97706", extreme:T.crimson };
+  const tCols = { low:"#5ee09a", medium:"#e8ba40", high:"#e8940a", extreme:T.crimson };
 
   // ── Continental map — 6000×4500 world ──
   const MAP_W = 6000, MAP_H = 4500;
@@ -1983,7 +1983,7 @@ function WorldView({ data, setData }) {
                       {r.visited && mapZoom > 1.2 && (
                         <g transform={`translate(${r.mx-(isBig?28:20)},${r.my-(isBig?26:18)})`}>
                           <circle r="6" fill="var(--bg-card)" stroke="var(--text-muted)" strokeWidth="0.7"/>
-                          <path d="M-2.5,0 L-0.5,2.5 L3,-2.5" stroke="#6fcf97" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+                          <path d="M-2.5,0 L-0.5,2.5 L3,-2.5" stroke="#5ee09a" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
                         </g>
                       )}
                       {/* Building cluster hint at detail zoom for towns/cities */}
@@ -2006,13 +2006,13 @@ function WorldView({ data, setData }) {
                 {/* ═══ LAYER 7: Weather overlay ═══ */}
                 {mapZoom > 0.4 && data.factions.map(wz => (
                   <g key={wz.key} opacity={0.12 + (mapZoom > 1 ? 0.08 : 0)}>
-                    {wz.type==="rain" && <><circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(100,149,237,0.08)" stroke="rgba(100,149,237,0.15)" strokeWidth="1" strokeDasharray="8,6"/>
-                      {mapZoom > 1 && [0,1,2,3,4,5].map(ri => <line key={`r-${ri}`} x1={wz.x-wz.r*0.6+ri*(wz.r*0.24)} y1={wz.y-20} x2={wz.x-wz.r*0.6+ri*(wz.r*0.24)-8} y2={wz.y+20} stroke="rgba(100,149,237,0.2)" strokeWidth="1" strokeLinecap="round"/>)}</>}
-                    {wz.type==="storm" && <><circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(75,0,130,0.06)" stroke="rgba(75,0,130,0.15)" strokeWidth="1.5" strokeDasharray="4,4"/>
-                      {mapZoom > 1 && <path d={`M${wz.x-10},${wz.y-15} L${wz.x+5},${wz.y-2} L${wz.x-5},${wz.y-2} L${wz.x+10},${wz.y+15}`} stroke="rgba(255,215,0,0.3)" strokeWidth="1.5" fill="none"/>}</>}
-                    {wz.type==="snow" && <circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(200,220,255,0.06)" stroke="rgba(200,220,255,0.15)" strokeWidth="1" strokeDasharray="3,6"/>}
-                    {wz.type==="fog" && <ellipse cx={wz.x} cy={wz.y} rx={wz.r*1.3} ry={wz.r*0.6} fill="rgba(180,180,180,0.06)" stroke="rgba(180,180,180,0.1)" strokeWidth="1"/>}
-                    {wz.type==="wind" && mapZoom > 0.8 && <path d={`M${wz.x-wz.r*0.8},${wz.y} Q${wz.x},${wz.y-30} ${wz.x+wz.r*0.8},${wz.y}`} stroke="rgba(180,180,180,0.15)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>}
+                    {wz.type==="rain" && <><circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(110,160,250,0.08)" stroke="rgba(110,160,250,0.15)" strokeWidth="1" strokeDasharray="8,6"/>
+                      {mapZoom > 1 && [0,1,2,3,4,5].map(ri => <line key={`r-${ri}`} x1={wz.x-wz.r*0.6+ri*(wz.r*0.24)} y1={wz.y-20} x2={wz.x-wz.r*0.6+ri*(wz.r*0.24)-8} y2={wz.y+20} stroke="rgba(110,160,250,0.2)" strokeWidth="1" strokeLinecap="round"/>)}</>}
+                    {wz.type==="storm" && <><circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(90,15,150,0.06)" stroke="rgba(90,15,150,0.15)" strokeWidth="1.5" strokeDasharray="4,4"/>
+                      {mapZoom > 1 && <path d={`M${wz.x-10},${wz.y-15} L${wz.x+5},${wz.y-2} L${wz.x-5},${wz.y-2} L${wz.x+10},${wz.y+15}`} stroke="rgba(255,220,30,0.3)" strokeWidth="1.5" fill="none"/>}</>}
+                    {wz.type==="snow" && <circle cx={wz.x} cy={wz.y} r={wz.r} fill="rgba(210,228,255,0.06)" stroke="rgba(210,228,255,0.15)" strokeWidth="1" strokeDasharray="3,6"/>}
+                    {wz.type==="fog" && <ellipse cx={wz.x} cy={wz.y} rx={wz.r*1.3} ry={wz.r*0.6} fill="rgba(190,190,200,0.06)" stroke="rgba(190,190,200,0.1)" strokeWidth="1"/>}
+                    {wz.type==="wind" && mapZoom > 0.8 && <path d={`M${wz.x-wz.r*0.8},${wz.y} Q${wz.x},${wz.y-30} ${wz.x+wz.r*0.8},${wz.y}`} stroke="rgba(190,190,200,0.15)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>}
                     {mapZoom > 1.2 && <text x={wz.x} y={wz.y} textAnchor="middle" fill="var(--text-faint)" fontFamily="'Spectral', serif" fontSize="9" fontStyle="italic" opacity="0.5">{wz.type}</text>}
                   </g>
                 ))}
@@ -2020,7 +2020,7 @@ function WorldView({ data, setData }) {
                 {/* ═══ LAYER 8: Encounter zones — visible at local zoom+ ═══ */}
                 {mapZoom > 1.8 && [].map(ez => (
                   <g key={ez.key} opacity="0.25" style={{cursor:"pointer"}} onClick={(e)=>{e.stopPropagation();setSel({...ez,id:ez.id});setSelType("encounter");}}>
-                    <circle cx={ez.x} cy={ez.y} r={ez.r} fill="rgba(192,57,43,0.04)" stroke="rgba(192,57,43,0.2)" strokeWidth="1" strokeDasharray="6,4"/>
+                    <circle cx={ez.x} cy={ez.y} r={ez.r} fill="rgba(212,67,58,0.04)" stroke="rgba(212,67,58,0.2)" strokeWidth="1" strokeDasharray="6,4"/>
                     {mapZoom > 2.5 && <>
                       <text x={ez.x} y={ez.y-8} textAnchor="middle" fill="var(--crimson)" fontFamily="'Cinzel', serif" fontSize="7" letterSpacing="1" opacity="0.6" style={{textTransform:"uppercase"}}>{ez.type}</text>
                       <text x={ez.x} y={ez.y+6} textAnchor="middle" fill="var(--text-muted)" fontFamily="'Spectral', serif" fontSize="8" fontStyle="italic" opacity="0.5">CR {ez.cr}</text>
@@ -2149,7 +2149,7 @@ function WorldView({ data, setData }) {
                       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
                         <span style={{ fontSize:18, fontWeight:300, color:T.text }}>{f.name}</span>
                         <Tag variant={f.attitude==="allied"||f.attitude==="friendly"?"success":f.attitude==="hostile"?"danger":"muted"}>{f.attitude}</Tag>
-                        {f.trend==="rising"?<TrendingUp size={12} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={12} color="#6fcf97"/>:<Minus size={12} color={T.textFaint}/>}
+                        {f.trend==="rising"?<TrendingUp size={12} color={T.crimson}/>:f.trend==="declining"?<TrendingDown size={12} color="#5ee09a"/>:<Minus size={12} color={T.textFaint}/>}
                       </div>
                       <p style={{ fontSize:13, color:T.textDim, margin:"0 0 10px", fontWeight:300, fontStyle:"italic" }}>{f.desc}</p>
                       <div style={{ display:"flex", alignItems:"center", gap:10, maxWidth:300 }}>
@@ -2310,7 +2310,7 @@ function AddEntityModal({ open, onClose, tab, onAdd, data }) {
   const [form, setForm] = useState({});
   useEffect(() => {
     if (tab==="regions") setForm({ name:"", type:"town", ctrl:"", threat:"low", state:"stable", visited:false, terrain:"" });
-    else if (tab==="factions") setForm({ name:"", attitude:"neutral", power:50, trend:"stable", desc:"", color:"#94a3b8" });
+    else if (tab==="factions") setForm({ name:"", attitude:"neutral", power:50, trend:"stable", desc:"", color:"#a4b5cc" });
     else setForm({ name:"", faction:null, loc:"", attitude:"neutral", role:"", alive:true });
   }, [tab, open]);
 
@@ -2357,32 +2357,235 @@ function AddEntityModal({ open, onClose, tab, onAdd, data }) {
 // PLAY MODE
 // ═══════════════════════════════════════════════════════════════════════════
 
-// ─── BATTLEMAP (Canvas-based) ───────────────────────────────────────────────
+// ─── BATTLEMAP (Canvas-based, Mode-driven, Phase 3 with Terrain & Dice Panel) ───────────────
 
-function Battlemap({ party, npcs }) {
+// ── Dice expression parser ──
+function parseDiceExpression(expr) {
+  const trimmed = expr.trim().toLowerCase();
+  const rolls = [];
+  let total = 0;
+  let modifier = 0;
+
+  // Split on + or - but keep the sign
+  const parts = trimmed.match(/[+-]?[^+-]+/g) || [];
+
+  for (const part of parts) {
+    const p = part.trim();
+
+    // Match dice notation: XdY[kh/kl]Z
+    const diceMatch = p.match(/^([+-])?(\d+)?d(\d+)(kh|kl)?(\d+)?$/);
+    if (diceMatch) {
+      const sign = diceMatch[1] === '-' ? -1 : 1;
+      const count = parseInt(diceMatch[2] || 1);
+      const sides = parseInt(diceMatch[3]);
+      const keepOp = diceMatch[4];
+      const keepNum = diceMatch[5] ? parseInt(diceMatch[5]) : count;
+
+      const diceRolls = [];
+      for (let i = 0; i < count; i++) {
+        diceRolls.push(Math.floor(Math.random() * sides) + 1);
+      }
+      diceRolls.sort((a, b) => b - a);
+
+      let diceTally = 0;
+      if (keepOp === 'kh') {
+        diceTally = diceRolls.slice(0, keepNum).reduce((a, b) => a + b, 0);
+      } else if (keepOp === 'kl') {
+        diceTally = diceRolls.slice(-keepNum).reduce((a, b) => a + b, 0);
+      } else {
+        diceTally = diceRolls.reduce((a, b) => a + b, 0);
+      }
+
+      diceTally *= sign;
+      total += diceTally;
+      rolls.push(...diceRolls.map(r => r * sign));
+    } else {
+      // Try to parse as modifier
+      const num = parseInt(p);
+      if (!isNaN(num)) {
+        modifier += num;
+        total += num;
+      }
+    }
+  }
+
+  return {
+    rolls,
+    modifier,
+    total,
+    expression: trimmed,
+    details: rolls.length > 0 ? rolls.join(", ") : "no dice"
+  };
+}
+
+// ── Terrain type definitions ──
+const TERRAIN_TYPES = {
+  difficult: { color: "rgba(255, 200, 20, 0.45)", label: "Difficult", cost: 2 },
+  water: { color: "rgba(50, 160, 255, 0.42)", label: "Water", cost: 2 },
+  lava: { color: "rgba(255, 75, 60, 0.45)", label: "Lava", cost: 2 },
+  ice: { color: "rgba(185, 200, 215, 0.42)", label: "Ice", cost: 1 },
+  pit: { color: "rgba(20, 20, 28, 0.65)", label: "Pit", cost: 999 }
+};
+
+// ── Phase 4: Multiplayer & Extensibility constants ──
+const SYNC_KEY = 'phmurt-battlemap-sync';
+const TEMPLATE_KEY = 'phmurt-encounter-templates';
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+
+// ── Line-of-sight helpers (outside component for performance) ──
+function segmentsIntersect(ax, ay, bx, by, cx, cy, dx, dy) {
+  const denom = (bx-ax)*(dy-cy) - (by-ay)*(dx-cx);
+  if (Math.abs(denom) < 1e-10) return false;
+  const t = ((cx-ax)*(dy-cy) - (cy-ay)*(dx-cx)) / denom;
+  const u = ((cx-ax)*(by-ay) - (cy-ay)*(bx-ax)) / denom;
+  return t > 0.001 && t < 0.999 && u > 0.001 && u < 0.999;
+}
+
+function hasLineOfSight(x1, y1, x2, y2, walls) {
+  for (let i = 0; i < walls.length; i++) {
+    const w = walls[i];
+    if (segmentsIntersect(x1, y1, x2, y2, w.x1, w.y1, w.x2, w.y2)) return false;
+  }
+  return true;
+}
+
+function computeVisibleCells(tokens, walls, gridSize, mapW, mapH) {
+  const visible = {};     // "gx,gy" -> "full" | "dim"
+  const visionTokens = tokens.filter(t => t.vision > 0);
+  if (visionTokens.length === 0) return null; // null = no vision system active
+  const maxGX = Math.ceil(mapW / gridSize);
+  const maxGY = Math.ceil(mapH / gridSize);
+  for (const t of visionTokens) {
+    const visionPx = t.vision * gridSize;
+    const darkPx = (t.darkvision || 0) * gridSize;
+    const maxR = Math.max(visionPx, darkPx);
+    const startGX = Math.max(0, Math.floor((t.x - maxR) / gridSize));
+    const startGY = Math.max(0, Math.floor((t.y - maxR) / gridSize));
+    const endGX = Math.min(maxGX, Math.ceil((t.x + maxR) / gridSize));
+    const endGY = Math.min(maxGY, Math.ceil((t.y + maxR) / gridSize));
+    for (let gx = startGX; gx < endGX; gx++) {
+      for (let gy = startGY; gy < endGY; gy++) {
+        const key = gx + "," + gy;
+        if (visible[key] === "full") continue;
+        const cx = gx * gridSize + gridSize / 2;
+        const cy = gy * gridSize + gridSize / 2;
+        const dist = Math.hypot(cx - t.x, cy - t.y);
+        if (dist > maxR) continue;
+        if (!hasLineOfSight(t.x, t.y, cx, cy, walls)) continue;
+        if (dist <= visionPx) {
+          visible[key] = "full";
+        } else if (dist <= darkPx && visible[key] !== "full") {
+          visible[key] = "dim";
+        }
+      }
+    }
+  }
+  return visible;
+}
+
+function Battlemap({ party, npcs, viewRole = "dm" }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const fileRef = useRef(null);
-  const [tool, setTool] = useState("select");
+
+  // ── Core map state ──
   const [gridSize, setGridSize] = useState(40);
   const [showGrid, setShowGrid] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({x:0,y:0});
-  const [bgColor, setBgColor] = useState("#1a1a2e");
+  const [bgColor, setBgColor] = useState("#10101e");
   const [bgImage, setBgImage] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [drawings, setDrawings] = useState([]);
   const [fogCells, setFogCells] = useState({});
   const [drawColor, setDrawColor] = useState("#dc143c");
   const [drawWidth, setDrawWidth] = useState(3);
+
+  // ── Walls ──
+  const [walls, setWalls] = useState([]);
+  const [wallStart, setWallStart] = useState(null);
+  const [wallPreview, setWallPreview] = useState(null);
+
+  // ── Terrain system ──
+  const [terrainCells, setTerrainCells] = useState({});
+  const [selectedTerrain, setSelectedTerrain] = useState("difficult");
+
+  // ── Interaction state ──
   const [dragState, setDragState] = useState(null);
   const [drawPoints, setDrawPoints] = useState([]);
   const [rulerStart, setRulerStart] = useState(null);
   const [rulerEnd, setRulerEnd] = useState(null);
 
+  // ── Mode system ──
+  const [mode, setMode] = useState("select"); // "select" | "draw" | "combat"
+  const [drawTool, setDrawTool] = useState("draw"); // "draw" | "fog" | "wall" | "terrain" | "ruler" | "eraser"
+  const [selectedTokenId, setSelectedTokenId] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
+
+  // ── Combat state ──
+  const [combatants, setCombatants] = useState([]);
+  const [turn, setTurn] = useState(0);
+  const [round, setRound] = useState(1);
+  const [combatLive, setCombatLive] = useState(false);
+  const [conditions, setConditions] = useState({});
+  const [addName, setAddName] = useState("");
+  const [addInit, setAddInit] = useState("");
+  const [addHp, setAddHp] = useState("");
+  const [addAc, setAddAc] = useState("");
+
+  // ── Movement system ──
+  const [movementMode, setMovementMode] = useState(false);
+  const [movementPath, setMovementPath] = useState([]);
+  const [movementOrigin, setMovementOrigin] = useState(null);
+
+  // ── Fog mode ──
+  const [fogMode, setFogMode] = useState("manual"); // "manual" | "vision"
+
+  // ── Dice roll display ──
+  const [diceResult, setDiceResult] = useState(null);
+
+  // ── Dice panel state ──
+  const [showDicePanel, setShowDicePanel] = useState(false);
+  const [diceInput, setDiceInput] = useState("");
+  const [rollHistory, setRollHistory] = useState([]);
+
+  // ── Phase 4: Multiplayer & Extensibility ──
+  const [pings, setPings] = useState([]);
+  const [pingMode, setPingMode] = useState(false);
+  const [templates, setTemplates] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]'); } catch { return []; }
+  });
+  const [templateName, setTemplateName] = useState("");
+  const [showTemplateInput, setShowTemplateInput] = useState(false);
+
+  // ── Animation ──
+  const animRef = useRef(0);
+
+  const selectedToken = tokens.find(t => t.id === selectedTokenId);
+  const activeCombatantId = combatLive && combatants[turn] ? combatants[turn].mapTokenId : null;
+
   const worldToCanvas = (wx, wy) => ({ x: wx * zoom + pan.x, y: wy * zoom + pan.y });
   const canvasToWorld = (cx, cy) => ({ x: (cx - pan.x) / zoom, y: (cy - pan.y) / zoom });
 
+  const activeTool = mode === "draw" ? drawTool : "select";
+
+  // ── Snap to nearest grid intersection (for walls) ──
+  const snapToGridIntersection = (wx, wy) => ({
+    x: Math.round(wx / gridSize) * gridSize,
+    y: Math.round(wy / gridSize) * gridSize,
+  });
+
+  // ── Snap to grid center (for tokens) ──
+  const snapToGridCenter = (wx, wy) => ({
+    x: Math.floor(wx / gridSize) * gridSize + gridSize / 2,
+    y: Math.floor(wy / gridSize) * gridSize + gridSize / 2,
+  });
+
+  // ── Canvas rendering ──
   const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -2390,7 +2593,6 @@ function Battlemap({ party, npcs }) {
     const w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // Background
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, w, h);
 
@@ -2398,25 +2600,41 @@ function Battlemap({ party, npcs }) {
     ctx.translate(pan.x, pan.y);
     ctx.scale(zoom, zoom);
 
-    // Background image
-    if (bgImage) {
-      ctx.drawImage(bgImage, 0, 0);
-    }
+    if (bgImage) ctx.drawImage(bgImage, 0, 0);
+
+    const mapW = bgImage ? bgImage.width : w / zoom;
+    const mapH = bgImage ? bgImage.height : h / zoom;
 
     // Grid
     if (showGrid) {
-      ctx.strokeStyle = "rgba(192,57,43,0.15)"; // subtle grid lines — fixed color is fine
+      ctx.strokeStyle = "rgba(212,67,58,0.15)";
       ctx.lineWidth = 0.5;
-      const gw = bgImage ? bgImage.width : w / zoom;
-      const gh = bgImage ? bgImage.height : h / zoom;
-      const startX = 0, startY = 0;
-      for (let x = startX; x <= gw; x += gridSize) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, gh); ctx.stroke();
+      for (let x = 0; x <= mapW; x += gridSize) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, mapH); ctx.stroke();
       }
-      for (let y = startY; y <= gh; y += gridSize) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(gw, y); ctx.stroke();
+      for (let y = 0; y <= mapH; y += gridSize) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(mapW, y); ctx.stroke();
       }
     }
+
+    // Terrain cells (after grid, before drawings)
+    Object.entries(terrainCells).forEach(([key, terrainType]) => {
+      if (!terrainType) return;
+      const [gx, gy] = key.split(",").map(Number);
+      const terrain = TERRAIN_TYPES[terrainType];
+      if (!terrain) return;
+
+      ctx.fillStyle = terrain.color;
+      ctx.fillRect(gx * gridSize, gy * gridSize, gridSize, gridSize);
+
+      // Terrain label
+      ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.font = "6px Cinzel";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const label = terrain.label.substring(0, 1);
+      ctx.fillText(label, gx * gridSize + gridSize / 2, gy * gridSize + gridSize / 2);
+    });
 
     // Drawings
     drawings.forEach(d => {
@@ -2431,46 +2649,241 @@ function Battlemap({ party, npcs }) {
       ctx.stroke();
     });
 
-    // Fog of war
-    Object.entries(fogCells).forEach(([key, val]) => {
-      if (!val) return;
-      const [gx, gy] = key.split(",").map(Number);
-      ctx.fillStyle = "rgba(0,0,0,0.85)";
-      ctx.fillRect(gx * gridSize, gy * gridSize, gridSize, gridSize);
+    // Walls
+    ctx.strokeStyle = "#b574ff";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    walls.forEach(wall => {
+      ctx.beginPath();
+      ctx.moveTo(wall.x1, wall.y1);
+      ctx.lineTo(wall.x2, wall.y2);
+      ctx.stroke();
     });
+    // Wall preview
+    if (wallStart && wallPreview) {
+      ctx.strokeStyle = "rgba(181,116,255,0.5)";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(wallStart.x, wallStart.y);
+      ctx.lineTo(wallPreview.x, wallPreview.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Draw intersection dots
+      ctx.fillStyle = "#b574ff";
+      ctx.beginPath();
+      ctx.arc(wallStart.x, wallStart.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(wallPreview.x, wallPreview.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Fog of war
+    if (fogMode === "manual") {
+      Object.entries(fogCells).forEach(([key, val]) => {
+        if (!val) return;
+        const [gx, gy] = key.split(",").map(Number);
+        ctx.fillStyle = "rgba(4,4,10,0.88)";
+        ctx.fillRect(gx * gridSize, gy * gridSize, gridSize, gridSize);
+      });
+    } else if (fogMode === "vision") {
+      const visibleCells = computeVisibleCells(tokens, walls, gridSize, mapW, mapH);
+      if (visibleCells) {
+        const maxGX = Math.ceil(mapW / gridSize);
+        const maxGY = Math.ceil(mapH / gridSize);
+        for (let gx = 0; gx < maxGX; gx++) {
+          for (let gy = 0; gy < maxGY; gy++) {
+            const key = gx + "," + gy;
+            const vis = visibleCells[key];
+            // Also check manual reveals
+            if (fogCells[key] === false) continue; // manually revealed
+            if (vis === "full") continue;
+            if (vis === "dim") {
+              ctx.fillStyle = "rgba(4,4,10,0.50)";
+            } else {
+              ctx.fillStyle = "rgba(4,4,10,0.88)";
+            }
+            ctx.fillRect(gx * gridSize, gy * gridSize, gridSize, gridSize);
+          }
+        }
+      }
+    }
+
+    // Movement overlay
+    if (movementMode && selectedToken && selectedToken.speed) {
+      const speedCells = Math.floor((selectedToken.speed || 30) / 5);
+      const usedCells = movementPath.length;
+      const remaining = speedCells - usedCells;
+      const origin = movementOrigin || { x: selectedToken.x, y: selectedToken.y };
+      const originGX = Math.floor(origin.x / gridSize);
+      const originGY = Math.floor(origin.y / gridSize);
+
+      // Show reachable range
+      for (let dx = -speedCells; dx <= speedCells; dx++) {
+        for (let dy = -speedCells; dy <= speedCells; dy++) {
+          const dist = Math.abs(dx) + Math.abs(dy); // Manhattan distance
+          if (dist > remaining) continue;
+          const gx = originGX + dx;
+          const gy = originGY + dy;
+          if (gx < 0 || gy < 0) continue;
+          ctx.fillStyle = dist <= remaining
+            ? "rgba(46,139,87,0.15)"
+            : "rgba(232,148,10,0.10)";
+          ctx.fillRect(gx * gridSize, gy * gridSize, gridSize, gridSize);
+        }
+      }
+
+      // Draw movement path
+      if (movementPath.length > 0) {
+        ctx.strokeStyle = "rgba(46,139,87,0.6)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(origin.x, origin.y);
+        movementPath.forEach(p => {
+          ctx.lineTo(p.x * gridSize + gridSize / 2, p.y * gridSize + gridSize / 2);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
 
     // Tokens
+    const now = Date.now();
     tokens.forEach(t => {
+      // Skip hidden tokens in player view
+      if (t.hidden && viewRole === "player") return;
+
       const r = gridSize * 0.4;
+      const isSelected = t.id === selectedTokenId;
+      const isActiveCombatant = t.id === activeCombatantId;
+
+      // Vision radius indicator (only for selected token in select mode)
+      if (isSelected && fogMode === "vision" && t.vision > 0) {
+        const vr = t.vision * gridSize;
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, vr, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(110,160,250,0.2)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        if (t.darkvision && t.darkvision > t.vision) {
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, t.darkvision * gridSize, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(165,120,255,0.15)";
+          ctx.stroke();
+        }
+      }
+
+      // Active combatant glow (pulsing)
+      if (isActiveCombatant && combatLive) {
+        const pulse = 0.5 + 0.5 * Math.sin(now / 400);
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(220, 20, 60, " + (0.3 + 0.4 * pulse) + ")";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+
+      // Selection ring
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255, 215, 0, 0.8)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Hidden token opacity for DM view (affects circle, label, and HP bar)
+      if (t.hidden && viewRole === "dm") {
+        ctx.globalAlpha = 0.4;
+      }
+
+      // Token circle
       ctx.beginPath();
       ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
       ctx.fillStyle = t.color;
       ctx.fill();
-      ctx.strokeStyle = "rgba(0,0,0,0.5)";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = isSelected ? "rgba(255,220,30,0.9)" : "rgba(0,0,6,0.50)";
+      ctx.lineWidth = isSelected ? 2.5 : 2;
       ctx.stroke();
+
       // Label
       ctx.fillStyle = "#fff";
-      ctx.font = `bold ${Math.max(9, gridSize * 0.22)}px Cinzel`;
+      ctx.font = "bold " + Math.max(9, gridSize * 0.22) + "px Cinzel";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const label = t.name.length > 3 ? t.name.substring(0,3) : t.name;
       ctx.fillText(label, t.x, t.y);
-      // HP bar under token
+
+      ctx.globalAlpha = 1;
+
+      // HP bar
       if (t.hp != null && t.maxHp) {
         const barW = gridSize * 0.7, barH = 4;
         const barX = t.x - barW/2, barY = t.y + r + 4;
         ctx.fillStyle = "rgba(0,0,0,0.6)";
         ctx.fillRect(barX, barY, barW, barH);
-        ctx.fillStyle = t.hp < t.maxHp * 0.3 ? "#c0392b" : t.hp < t.maxHp * 0.6 ? "#d97706" : "#2d6a4f";
-        ctx.fillRect(barX, barY, barW * (t.hp / t.maxHp), barH);
+        ctx.fillStyle = t.hp < t.maxHp * 0.3 ? "#d4433a" : t.hp < t.maxHp * 0.6 ? "#e8940a" : "#2e8b57";
+        ctx.fillRect(barX, barY, barW * Math.max(0, t.hp / t.maxHp), barH);
+      }
+
+      // Hidden indicator (DM only)
+      if (t.hidden && viewRole === "dm") {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,255,255,0.3)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
       }
     });
 
     ctx.restore();
 
-    // Ruler overlay (drawn in screen space)
-    if (tool === "ruler" && rulerStart && rulerEnd) {
+    // Pings (screen space)
+    const nowPing = Date.now();
+    const activePings = pings.filter(p => nowPing - p.time < 3000);
+    if (activePings.length !== pings.length) {
+      // Clean up expired pings on next frame
+      setTimeout(() => setPings(prev => prev.filter(p => Date.now() - p.time < 3000)), 0);
+    }
+    activePings.forEach(p => {
+      const sp = worldToCanvas(p.x, p.y);
+      const age = (nowPing - p.time) / 3000;
+      const alpha = 1 - age;
+      for (let ring = 0; ring < 3; ring++) {
+        const r = 8 + ring * 12 + age * 20;
+        const ringAlpha = alpha * (1 - ring * 0.3);
+        if (ringAlpha <= 0) continue;
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = p.color.replace(")", "," + ringAlpha + ")").replace("rgb(", "rgba(");
+        // Handle hex colors
+        if (p.color.startsWith("#")) {
+          const hex = p.color;
+          const r2 = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
+          ctx.strokeStyle = "rgba(" + r2 + "," + g + "," + b + "," + ringAlpha + ")";
+        }
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+      // Center dot
+      ctx.beginPath();
+      ctx.arc(sp.x, sp.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = alpha;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+
+    // Ruler overlay (screen space)
+    if (activeTool === "ruler" && rulerStart && rulerEnd) {
       const rulerColor = cssVar("--crimson");
       ctx.strokeStyle = rulerColor;
       ctx.lineWidth = 2;
@@ -2482,15 +2895,45 @@ function Battlemap({ party, npcs }) {
       ctx.lineTo(e.x, e.y);
       ctx.stroke();
       ctx.setLineDash([]);
-      const dist = Math.sqrt((rulerEnd.x - rulerStart.x) ** 2 + (rulerEnd.y - rulerStart.y) ** 2);
+      const dist = Math.sqrt((rulerEnd.x - rulerStart.x)**2 + (rulerEnd.y - rulerStart.y)**2);
       const ft = Math.round(dist / gridSize * 5);
       ctx.fillStyle = rulerColor;
       ctx.font = "bold 12px Cinzel";
-      ctx.fillText(`${ft} ft`, (s.x + e.x) / 2, (s.y + e.y) / 2 - 8);
+      ctx.fillText(ft + " ft", (s.x + e.x)/2, (s.y + e.y)/2 - 8);
     }
-  }, [bgColor, bgImage, showGrid, gridSize, zoom, pan, drawings, fogCells, tokens, tool, rulerStart, rulerEnd, drawPoints]);
 
-  useEffect(() => { render(); }, [render]);
+    // Movement mode HUD (screen space)
+    if (movementMode && selectedToken) {
+      const speedCells = Math.floor((selectedToken.speed || 30) / 5);
+      const used = movementPath.length;
+      const remaining = speedCells - used;
+      ctx.fillStyle = "rgba(0,0,6,0.70)";
+      ctx.fillRect(w/2 - 80, 8, 160, 28);
+      ctx.strokeStyle = "rgba(46,139,87,0.6)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(w/2 - 80, 8, 160, 28);
+      ctx.fillStyle = remaining > 0 ? "#5ee09a" : "#f06858";
+      ctx.font = "bold 11px Cinzel";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Move: " + (used * 5) + "/" + (speedCells * 5) + " ft  (" + (remaining * 5) + " left)", w/2, 22);
+    }
+  }, [bgColor, bgImage, showGrid, gridSize, zoom, pan, drawings, fogCells, tokens, walls, wallStart, wallPreview, activeTool, rulerStart, rulerEnd, selectedTokenId, activeCombatantId, combatLive, fogMode, movementMode, movementPath, movementOrigin, terrainCells, pings, viewRole]);
+
+  // Animation loop for combat glow and pings
+  useEffect(() => {
+    if (!combatLive && pings.length === 0) return;
+    let running = true;
+    const animate = () => {
+      if (!running) return;
+      render();
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animate();
+    return () => { running = false; cancelAnimationFrame(animRef.current); };
+  }, [combatLive, pings.length, render]);
+
+  useEffect(() => { if (!combatLive && pings.length === 0) render(); }, [render, combatLive, pings]);
 
   useEffect(() => {
     const resize = () => {
@@ -2506,62 +2949,314 @@ function Battlemap({ party, npcs }) {
     return () => window.removeEventListener("resize", resize);
   }, [render]);
 
+  // ── DM: Broadcast state changes ──
+  const syncTimerRef = useRef(null);
+  useEffect(() => {
+    if (viewRole !== "dm") return;
+    clearTimeout(syncTimerRef.current);
+    syncTimerRef.current = setTimeout(() => {
+      const state = {
+        tokens, drawings, fogCells, walls, terrainCells, bgColor, gridSize, showGrid,
+        combatLive, combatants, turn, round, conditions, fogMode, pings,
+      };
+      // Merge in any player pings
+      try {
+        const existing = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
+        if (existing.playerPings) {
+          const fresh = existing.playerPings.filter(pp => Date.now() - pp.time < 3000);
+          if (fresh.length > 0) {
+            const myPingIds = new Set(pings.map(p => p.id));
+            const newPlayerPings = fresh.filter(pp => !myPingIds.has(pp.id));
+            if (newPlayerPings.length > 0) {
+              state.pings = [...pings, ...newPlayerPings];
+            }
+          }
+        }
+      } catch {}
+      localStorage.setItem(SYNC_KEY, JSON.stringify(state));
+    }, 150);
+    return () => clearTimeout(syncTimerRef.current);
+  }, [tokens, drawings, fogCells, walls, terrainCells, bgColor, gridSize, showGrid, combatLive, combatants, turn, round, conditions, fogMode, pings, viewRole]);
+
+  // ── Player: Read state changes ──
+  useEffect(() => {
+    if (viewRole !== "player") return;
+    const interval = setInterval(() => {
+      try {
+        const raw = localStorage.getItem(SYNC_KEY);
+        if (!raw) return;
+        const state = JSON.parse(raw);
+        if (state.tokens) setTokens(state.tokens);
+        if (state.drawings) setDrawings(state.drawings);
+        if (state.fogCells) setFogCells(state.fogCells);
+        if (state.walls) setWalls(state.walls);
+        if (state.terrainCells) setTerrainCells(state.terrainCells);
+        if (state.bgColor) setBgColor(state.bgColor);
+        if (state.gridSize) setGridSize(state.gridSize);
+        if (state.showGrid !== undefined) setShowGrid(state.showGrid);
+        if (state.combatLive !== undefined) setCombatLive(state.combatLive);
+        if (state.combatants) setCombatants(state.combatants);
+        if (state.turn !== undefined) setTurn(state.turn);
+        if (state.round !== undefined) setRound(state.round);
+        if (state.conditions) setConditions(state.conditions);
+        if (state.fogMode) setFogMode(state.fogMode);
+        if (state.pings) setPings(state.pings.filter(p => Date.now() - p.time < 3000));
+      } catch {}
+    }, 250);
+    return () => clearInterval(interval);
+  }, [viewRole]);
+
+  // ── Player: Write pings back ──
+  useEffect(() => {
+    if (viewRole !== "player" || pings.length === 0) return;
+    try {
+      const raw = localStorage.getItem(SYNC_KEY);
+      if (raw) {
+        const state = JSON.parse(raw);
+        state.playerPings = pings.filter(p => p.source === "player");
+        localStorage.setItem(SYNC_KEY, JSON.stringify(state));
+      }
+    } catch {}
+  }, [pings, viewRole]);
+
+  // ── Keyboard handler ──
+  useEffect(() => {
+    const handleKey = (e) => {
+      // Don't trigger shortcuts when typing in input fields
+      const tag = e.target.tagName.toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select") return;
+
+      if (e.key === "p" || e.key === "P") {
+        setPingMode(prev => !prev);
+      }
+      if (e.key === "m" || e.key === "M") {
+        if (selectedToken) {
+          if (!movementMode) {
+            setMovementMode(true);
+            setMovementPath([]);
+            setMovementOrigin({ x: selectedToken.x, y: selectedToken.y });
+          } else {
+            setMovementMode(false);
+            setMovementPath([]);
+            setMovementOrigin(null);
+          }
+        }
+      }
+      if (e.key === "Escape") {
+        setPingMode(false);
+        setMovementMode(false);
+        setMovementPath([]);
+        setMovementOrigin(null);
+        setContextMenu(null);
+        setWallStart(null);
+        setWallPreview(null);
+        if (movementMode && selectedToken && movementOrigin) {
+          // Cancel movement — return token to origin
+          setTokens(p => p.map(t => t.id === selectedTokenId ? {...t, x: movementOrigin.x, y: movementOrigin.y} : t));
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [selectedToken, movementMode, movementOrigin, selectedTokenId]);
+
   const getMouseWorld = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
     return canvasToWorld(cx, cy);
   };
 
+  // ── Mouse handlers ──
   const handleMouseDown = (e) => {
+    if (e.button === 2) return;
+    setContextMenu(null);
     const w = getMouseWorld(e);
-    if (tool === "select") {
+
+    // Pings work for both DM and player
+    if (pingMode) {
+      const id = "ping-" + Date.now();
+      const newPing = { id, x: w.x, y: w.y, color: viewRole === "dm" ? "#d4433a" : "#58aaff", time: Date.now(), source: viewRole };
+      setPings(prev => [...prev, newPing]);
+      setPingMode(false);
+      return;
+    }
+
+    if (activeTool === "wall") {
+      const snap = snapToGridIntersection(w.x, w.y);
+      if (!wallStart) {
+        setWallStart(snap);
+      } else {
+        if (snap.x !== wallStart.x || snap.y !== wallStart.y) {
+          setWalls(p => [...p, { x1:wallStart.x, y1:wallStart.y, x2:snap.x, y2:snap.y }]);
+        }
+        setWallStart(null);
+        setWallPreview(null);
+      }
+      return;
+    }
+
+    if (activeTool === "terrain") {
+      const gx = Math.floor(w.x/gridSize), gy = Math.floor(w.y/gridSize);
+      const key = gx + "," + gy;
+      setTerrainCells(p => ({...p, [key]: selectedTerrain}));
+      setDragState({ type:"terrain", adding: selectedTerrain });
+      return;
+    }
+
+    if (activeTool === "select") {
       const hit = [...tokens].reverse().find(t => Math.hypot(t.x - w.x, t.y - w.y) < gridSize * 0.4);
-      if (hit) setDragState({ type: "token", id: hit.id, offsetX: w.x - hit.x, offsetY: w.y - hit.y });
-      else setDragState({ type: "pan", startX: e.clientX, startY: e.clientY, panX: pan.x, panY: pan.y });
-    } else if (tool === "draw") {
-      setDrawPoints([{ x: w.x, y: w.y }]);
-    } else if (tool === "fog") {
-      const gx = Math.floor(w.x / gridSize), gy = Math.floor(w.y / gridSize);
-      const key = `${gx},${gy}`;
-      setFogCells(p => ({ ...p, [key]: !p[key] }));
-      setDragState({ type: "fog", adding: !fogCells[`${gx},${gy}`] });
-    } else if (tool === "ruler") {
+      if (hit) {
+        setSelectedTokenId(hit.id);
+        if (movementMode && hit.id === selectedTokenId) {
+          // In movement mode, clicking the selected token starts a move drag
+          setDragState({ type:"token-move", id:hit.id, offsetX:w.x-hit.x, offsetY:w.y-hit.y });
+        } else {
+          setMovementMode(false);
+          setMovementPath([]);
+          setDragState({ type:"token", id:hit.id, offsetX:w.x-hit.x, offsetY:w.y-hit.y });
+        }
+      } else {
+        setSelectedTokenId(null);
+        setMovementMode(false);
+        setMovementPath([]);
+        setDragState({ type:"pan", startX:e.clientX, startY:e.clientY, panX:pan.x, panY:pan.y });
+      }
+    } else if (activeTool === "draw") {
+      setDrawPoints([{ x:w.x, y:w.y }]);
+    } else if (activeTool === "fog") {
+      const gx = Math.floor(w.x/gridSize), gy = Math.floor(w.y/gridSize);
+      const key = gx + "," + gy;
+      if (fogMode === "vision") {
+        // In vision mode, fog tool manually reveals/hides
+        setFogCells(p => ({...p, [key]: p[key] === false ? undefined : false}));
+      } else {
+        setFogCells(p => ({...p, [key]: !p[key]}));
+      }
+      setDragState({ type:"fog", adding: fogMode === "vision" ? false : !fogCells[gx + "," + gy] });
+    } else if (activeTool === "ruler") {
       setRulerStart(w);
       setRulerEnd(w);
-    } else if (tool === "eraser") {
-      const hit = [...tokens].reverse().find(t => Math.hypot(t.x - w.x, t.y - w.y) < gridSize * 0.4);
-      if (hit) setTokens(p => p.filter(t => t.id !== hit.id));
+    } else if (activeTool === "eraser") {
+      // Eraser: delete tokens, walls, terrain, or drawings near click
+      const hitToken = [...tokens].reverse().find(t => Math.hypot(t.x - w.x, t.y - w.y) < gridSize * 0.4);
+      if (hitToken) {
+        setTokens(p => p.filter(t => t.id !== hitToken.id));
+        return;
+      }
+      // Check walls
+      const hitWall = walls.findIndex(wall => {
+        const dist = distToSegment(w.x, w.y, wall.x1, wall.y1, wall.x2, wall.y2);
+        return dist < 8;
+      });
+      if (hitWall >= 0) {
+        setWalls(p => p.filter((_, i) => i !== hitWall));
+        return;
+      }
+      // Check terrain
+      const tgx = Math.floor(w.x / gridSize), tgy = Math.floor(w.y / gridSize);
+      const terrainKey = tgx + "," + tgy;
+      if (terrainCells[terrainKey]) {
+        setTerrainCells(p => { const n = {...p}; delete n[terrainKey]; return n; });
+        return;
+      }
+      // Check drawings (find nearest drawing within threshold)
+      const hitDrawing = drawings.findIndex(d => {
+        return d.points.some(pt => Math.hypot(pt.x - w.x, pt.y - w.y) < 12);
+      });
+      if (hitDrawing >= 0) {
+        setDrawings(p => p.filter((_, i) => i !== hitDrawing));
+      }
     }
   };
 
   const handleMouseMove = (e) => {
-    if (!dragState && tool !== "draw" && tool !== "ruler") return;
     const w = getMouseWorld(e);
-    if (dragState?.type === "token") {
-      setTokens(p => p.map(t => t.id === dragState.id ? { ...t, x: w.x - dragState.offsetX, y: w.y - dragState.offsetY } : t));
+
+    // Wall preview
+    if (activeTool === "wall" && wallStart) {
+      setWallPreview(snapToGridIntersection(w.x, w.y));
+      return;
+    }
+
+    if (!dragState && activeTool !== "draw" && activeTool !== "ruler" && activeTool !== "terrain") return;
+
+    if (dragState?.type === "token" || dragState?.type === "token-move") {
+      const newX = w.x - dragState.offsetX;
+      const newY = w.y - dragState.offsetY;
+      setTokens(p => p.map(t => t.id === dragState.id ? {...t, x:newX, y:newY} : t));
+
+      // Track movement path in grid cells
+      if (movementMode && dragState.type === "token-move") {
+        const gx = Math.floor(newX / gridSize);
+        const gy = Math.floor(newY / gridSize);
+        setMovementPath(prev => {
+          const last = prev[prev.length - 1];
+          if (last && last.x === gx && last.y === gy) return prev;
+          if (prev.length === 0) {
+            const ogx = movementOrigin ? Math.floor(movementOrigin.x / gridSize) : gx;
+            const ogy = movementOrigin ? Math.floor(movementOrigin.y / gridSize) : gy;
+            if (gx === ogx && gy === ogy) return prev;
+          }
+          return [...prev, { x: gx, y: gy }];
+        });
+      }
     } else if (dragState?.type === "pan") {
-      setPan({ x: dragState.panX + (e.clientX - dragState.startX), y: dragState.panY + (e.clientY - dragState.startY) });
-    } else if (tool === "draw" && drawPoints.length > 0) {
-      setDrawPoints(p => [...p, { x: w.x, y: w.y }]);
+      setPan({ x:dragState.panX + (e.clientX - dragState.startX), y:dragState.panY + (e.clientY - dragState.startY) });
+    } else if (activeTool === "draw" && drawPoints.length > 0) {
+      setDrawPoints(p => [...p, { x:w.x, y:w.y }]);
     } else if (dragState?.type === "fog") {
-      const gx = Math.floor(w.x / gridSize), gy = Math.floor(w.y / gridSize);
-      setFogCells(p => ({ ...p, [`${gx},${gy}`]: dragState.adding }));
-    } else if (tool === "ruler" && rulerStart) {
+      const gx = Math.floor(w.x/gridSize), gy = Math.floor(w.y/gridSize);
+      if (fogMode === "vision") {
+        setFogCells(p => ({...p, [gx + "," + gy]: dragState.adding}));
+      } else {
+        setFogCells(p => ({...p, [gx + "," + gy]: dragState.adding}));
+      }
+    } else if (dragState?.type === "terrain") {
+      const gx = Math.floor(w.x/gridSize), gy = Math.floor(w.y/gridSize);
+      const key = gx + "," + gy;
+      setTerrainCells(p => ({...p, [key]: dragState.adding}));
+    } else if (activeTool === "ruler" && rulerStart) {
       setRulerEnd(w);
     }
   };
 
   const handleMouseUp = () => {
-    if (tool === "draw" && drawPoints.length > 1) {
-      setDrawings(p => [...p, { points: drawPoints, color: drawColor, width: drawWidth }]);
+    if (activeTool === "draw" && drawPoints.length > 1) {
+      setDrawings(p => [...p, { points:drawPoints, color:drawColor, width:drawWidth }]);
+    }
+    if (dragState?.type === "token" || dragState?.type === "token-move") {
+      setTokens(p => p.map(t => {
+        if (t.id !== dragState.id) return t;
+        return { ...t, x: Math.floor(t.x / gridSize) * gridSize + gridSize / 2, y: Math.floor(t.y / gridSize) * gridSize + gridSize / 2 };
+      }));
     }
     setDrawPoints([]);
     setDragState(null);
-    if (tool === "ruler") { setRulerStart(null); setRulerEnd(null); }
+    if (activeTool === "ruler") { setRulerStart(null); setRulerEnd(null); }
+  };
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    const w = getMouseWorld(e);
+    const hit = [...tokens].reverse().find(t => Math.hypot(t.x - w.x, t.y - w.y) < gridSize * 0.4);
+    if (hit) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      setContextMenu({ x: e.clientX - rect.left, y: e.clientY - rect.top, tokenId: hit.id });
+      setSelectedTokenId(hit.id);
+    }
   };
 
   const handleWheel = (e) => {
     e.preventDefault();
+    if (selectedToken && selectedToken.hp != null && (mode === "select" || mode === "combat")) {
+      const w = getMouseWorld(e);
+      const isOverToken = Math.hypot(selectedToken.x - w.x, selectedToken.y - w.y) < gridSize * 0.4;
+      if (isOverToken) {
+        const delta = e.deltaY < 0 ? 1 : -1;
+        setTokens(p => p.map(t => t.id === selectedTokenId ? {...t, hp: Math.max(0, Math.min(t.maxHp, t.hp + delta))} : t));
+        return;
+      }
+    }
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
     setZoom(z => Math.max(0.25, Math.min(4, z + delta)));
   };
@@ -2577,106 +3272,866 @@ function Battlemap({ party, npcs }) {
   const addToken = (name, color, hp, maxHp) => {
     const cx = (canvasRef.current?.width / 2 - pan.x) / zoom;
     const cy = (canvasRef.current?.height / 2 - pan.y) / zoom;
-    const snappedX = Math.floor(cx / gridSize) * gridSize + gridSize / 2;
-    const snappedY = Math.floor(cy / gridSize) * gridSize + gridSize / 2;
-    setTokens(p => [...p, { id: `tk-${Date.now()}-${Math.random()}`, name, color, hp, maxHp, x: snappedX, y: snappedY }]);
+    const snap = snapToGridCenter(cx, cy);
+    const id = "tk-" + Date.now() + "-" + Math.random();
+    setTokens(p => [...p, { id, name, color, hp, maxHp, x:snap.x, y:snap.y, vision:0, darkvision:0, speed:30, hidden:false }]);
+    setSelectedTokenId(id);
   };
 
-  const tools = [
-    { id:"select", label:"Select" }, { id:"draw", label:"Draw" },
-    { id:"fog", label:"Fog" }, { id:"ruler", label:"Ruler" }, { id:"eraser", label:"Eraser" },
-  ];
+  // ── Drag & Drop from sidebar ──
+  const handleDragOver = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData("application/token");
+    if (!data) return;
+    const parsed = JSON.parse(data);
+    const rect = canvasRef.current.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    const w = canvasToWorld(cx, cy);
+    const snap = snapToGridCenter(w.x, w.y);
+    const id = "tk-" + Date.now() + "-" + Math.random();
+    setTokens(p => [...p, { id, name:parsed.name, color:parsed.color, hp:parsed.hp, maxHp:parsed.maxHp, x:snap.x, y:snap.y, vision:0, darkvision:0, speed:30, hidden:false }]);
+    setSelectedTokenId(id);
+  };
+
+  // ── Token actions ──
+  const adjustTokenHp = (id, delta) => {
+    setTokens(p => p.map(t => t.id === id ? {...t, hp: Math.max(0, Math.min(t.maxHp, t.hp + delta))} : t));
+  };
+  const removeToken = (id) => {
+    setTokens(p => p.filter(t => t.id !== id));
+    if (selectedTokenId === id) setSelectedTokenId(null);
+  };
+  const updateToken = (id, updates) => {
+    setTokens(p => p.map(t => t.id === id ? {...t, ...updates} : t));
+  };
+
+  // ── Dice rolling ──
+  const rollD20 = () => {
+    const result = Math.floor(Math.random() * 20) + 1;
+    setDiceResult({ value: result, type: "d20", time: Date.now() });
+    setRollHistory(h => [{ expr: "1d20", result, rolls: [result], modifier: 0, time: Date.now() }, ...h.slice(0, 19)]);
+    setTimeout(() => setDiceResult(null), 3000);
+    return result;
+  };
+
+  const rollAttack = (tokenId) => {
+    const result = Math.floor(Math.random() * 20) + 1;
+    const tk = tokens.find(t => t.id === tokenId);
+    const name = tk?.name || "Token";
+    setDiceResult({ value: result, type: "attack", name, time: Date.now(), crit: result === 20, fumble: result === 1 });
+    setRollHistory(h => [{ expr: "1d20 (attack)", result, rolls: [result], modifier: 0, who: name, time: Date.now() }, ...h.slice(0, 19)]);
+    setTimeout(() => setDiceResult(null), 4000);
+  };
+
+  const rollDiceExpression = (expr) => {
+    if (!expr.trim()) return;
+    const parsed = parseDiceExpression(expr);
+    setRollHistory(h => [{ expr: parsed.expression, result: parsed.total, rolls: parsed.rolls, modifier: parsed.modifier, time: Date.now() }, ...h.slice(0, 19)]);
+    setDiceInput("");
+  };
+
+  // ── Combat functions ──
+  const conditionsList = ["Blinded","Charmed","Deafened","Frightened","Grappled","Incapacitated","Invisible","Paralyzed","Petrified","Poisoned","Prone","Restrained","Stunned","Unconscious","Concentrating"];
+
+  const startCombat = () => {
+    setMode("combat");
+    const combs = tokens.map(t => ({
+      id: "cb-" + t.id,
+      mapTokenId: t.id,
+      name: t.name,
+      init: Math.floor(Math.random() * 20) + 1,
+      hp: t.hp || 30,
+      maxHp: t.maxHp || 30,
+      ac: 12,
+      type: t.color === "#2e8b57" ? "pc" : "enemy",
+    })).sort((a, b) => b.init - a.init);
+    setCombatants(combs);
+    setTurn(0);
+    setRound(1);
+    setCombatLive(true);
+    setConditions({});
+    if (combs.length > 0) setSelectedTokenId(combs[0].mapTokenId);
+  };
+
+  const endCombat = () => {
+    setCombatLive(false);
+    setCombatants([]);
+    setConditions({});
+    setMode("select");
+  };
+
+  const nextTurn = () => {
+    let nextIdx = turn + 1;
+    while (nextIdx < combatants.length && combatants[nextIdx].hp <= 0) nextIdx++;
+    if (nextIdx >= combatants.length) {
+      setRound(r => r + 1);
+      let first = 0;
+      while (first < combatants.length && combatants[first].hp <= 0) first++;
+      setTurn(first);
+      if (combatants[first]) setSelectedTokenId(combatants[first].mapTokenId);
+    } else {
+      setTurn(nextIdx);
+      if (combatants[nextIdx]) setSelectedTokenId(combatants[nextIdx].mapTokenId);
+    }
+  };
+
+  const prevTurn = () => {
+    if (turn === 0 && round === 1) return;
+    let prevIdx = turn - 1;
+    if (prevIdx < 0) { setRound(r => Math.max(1, r - 1)); prevIdx = combatants.length - 1; }
+    while (prevIdx >= 0 && combatants[prevIdx].hp <= 0) prevIdx--;
+    if (prevIdx >= 0) {
+      setTurn(prevIdx);
+      if (combatants[prevIdx]) setSelectedTokenId(combatants[prevIdx].mapTokenId);
+    }
+  };
+
+  const adjCombatantHp = (id, d) => {
+    setCombatants(p => p.map(c => c.id === id ? {...c, hp: Math.max(0, Math.min(c.maxHp, c.hp + d))} : c));
+    const combatant = combatants.find(c => c.id === id);
+    if (combatant) {
+      setTokens(p => p.map(t => t.id === combatant.mapTokenId ? {...t, hp: Math.max(0, Math.min(t.maxHp, t.hp + d))} : t));
+    }
+  };
+
+  const addCondition = (id, cond) => { if(!cond) return; setConditions(p => ({...p, [id]: [...(p[id]||[]), cond]})); };
+  const removeCondition = (id, idx) => { setConditions(p => ({...p, [id]: (p[id]||[]).filter((_,i) => i !== idx)})); };
+  const removeCombatant = (id) => {
+    setCombatants(p => p.filter(c => c.id !== id));
+    if (turn >= combatants.length - 1) setTurn(t => Math.max(0, t - 1));
+  };
+
+  const addCombatantToEncounter = () => {
+    if (!addName.trim() || !addInit) return;
+    const tokenId = "tk-" + Date.now() + "-" + Math.random();
+    const cx = (canvasRef.current?.width / 2 - pan.x) / zoom;
+    const cy = (canvasRef.current?.height / 2 - pan.y) / zoom;
+    const snap = snapToGridCenter(cx, cy);
+    const hpNum = parseInt(addHp) || 30;
+    setTokens(p => [...p, { id: tokenId, name: addName, color: cssVar("--crimson"), hp: hpNum, maxHp: hpNum, x: snap.x, y: snap.y, vision:0, darkvision:0, speed:30, hidden:false }]);
+    const newC = { id: "cb-" + Date.now(), mapTokenId: tokenId, name: addName, init: parseInt(addInit), hp: hpNum, maxHp: hpNum, ac: parseInt(addAc) || 12, type: "enemy" };
+    setCombatants(p => [...p, newC].sort((a, b) => b.init - a.init));
+    setAddName(""); setAddInit(""); setAddHp(""); setAddAc("");
+  };
+
+  // ── Export/Import battle state ──
+  const exportBattleState = () => {
+    const state = {
+      tokens, drawings, walls, terrainCells, fogCells, bgColor, gridSize, showGrid, fogMode,
+      combatLive, combatants, turn, round, conditions,
+    };
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "battlemap-" + new Date().toISOString().slice(0,10) + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importBattleState = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const state = JSON.parse(ev.target.result);
+        if (state.tokens) setTokens(state.tokens);
+        if (state.drawings) setDrawings(state.drawings);
+        if (state.walls) setWalls(state.walls);
+        if (state.terrainCells) setTerrainCells(state.terrainCells);
+        if (state.fogCells) setFogCells(state.fogCells);
+        if (state.bgColor) setBgColor(state.bgColor);
+        if (state.gridSize) setGridSize(state.gridSize);
+        if (state.showGrid !== undefined) setShowGrid(state.showGrid);
+        if (state.fogMode) setFogMode(state.fogMode);
+        if (state.combatLive !== undefined) setCombatLive(state.combatLive);
+        if (state.combatants) setCombatants(state.combatants);
+        if (state.turn !== undefined) setTurn(state.turn);
+        if (state.round !== undefined) setRound(state.round);
+        if (state.conditions) setConditions(state.conditions);
+      } catch (err) { console.error("Import failed:", err); }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  // ── Encounter templates ──
+  const saveEncounterTemplate = () => {
+    if (!templateName.trim()) return;
+    const tpl = {
+      id: "tpl-" + Date.now(),
+      name: templateName,
+      combatants: combatants.map(c => ({...c})),
+      tokens: tokens.map(t => ({...t})),
+      conditions: {...conditions},
+    };
+    const updated = [...templates, tpl];
+    setTemplates(updated);
+    localStorage.setItem(TEMPLATE_KEY, JSON.stringify(updated));
+    setTemplateName("");
+    setShowTemplateInput(false);
+  };
+
+  const loadEncounterTemplate = (id) => {
+    const tpl = templates.find(t => t.id === id);
+    if (!tpl) return;
+    setTokens(tpl.tokens.map(t => ({...t})));
+    setCombatants(tpl.combatants.map(c => ({...c})));
+    setConditions({...tpl.conditions});
+    setCombatLive(tpl.combatants.length > 0);
+    if (tpl.combatants.length > 0) { setTurn(0); setRound(1); setMode("combat"); }
+  };
+
+  const deleteTemplate = (id) => {
+    const updated = templates.filter(t => t.id !== id);
+    setTemplates(updated);
+    localStorage.setItem(TEMPLATE_KEY, JSON.stringify(updated));
+  };
+
+  // ── Quick macros ──
+  const macroRollInitiative = () => {
+    if (!selectedToken) return;
+    const result = parseDiceExpression("1d20");
+    setDiceResult({ value: result.total, type: "initiative", name: selectedToken.name, time: Date.now() });
+    setRollHistory(prev => [{ expr: "1d20", rolls: result.rolls, mod: 0, total: result.total, who: selectedToken.name + " initiative", time: Date.now() }, ...prev].slice(0, 20));
+    setTimeout(() => setDiceResult(null), 3000);
+    // Update combatant init if in combat
+    const cb = combatants.find(c => c.mapTokenId === selectedTokenId);
+    if (cb) {
+      setCombatants(prev => prev.map(c => c.id === cb.id ? {...c, init: result.total} : c).sort((a,b) => b.init - a.init));
+    }
+  };
+
+  const macroSavingThrow = () => {
+    const dc = prompt("DC for saving throw:");
+    if (!dc) return;
+    const result = parseDiceExpression("1d20");
+    const pass = result.total >= parseInt(dc);
+    setDiceResult({ value: result.total, type: "save", name: (selectedToken?.name || "Save") + (pass ? " PASS" : " FAIL"), time: Date.now(), crit: result.total === 20, fumble: result.total === 1 });
+    setRollHistory(prev => [{ expr: "1d20 vs DC" + dc, rolls: result.rolls, mod: 0, total: result.total, who: (selectedToken?.name || "?") + " save " + (pass ? "PASS" : "FAIL"), time: Date.now() }, ...prev].slice(0, 20));
+    setTimeout(() => setDiceResult(null), 3500);
+  };
+
+  const macroShortRest = () => {
+    setTokens(prev => prev.map(t => t.maxHp ? {...t, hp: Math.min(t.maxHp, t.hp + Math.floor(t.maxHp / 2))} : t));
+    setCombatants(prev => prev.map(c => ({...c, hp: Math.min(c.maxHp, c.hp + Math.floor(c.maxHp / 2))})));
+    setRollHistory(prev => [{ expr: "Short Rest", rolls: [], mod: 0, total: 0, who: "Party healed", time: Date.now() }, ...prev].slice(0, 20));
+  };
+
+  const macroPerception = () => {
+    const mod = prompt("WIS modifier:");
+    const result = parseDiceExpression("1d20+" + (parseInt(mod) || 0));
+    setDiceResult({ value: result.total, type: "perception", name: (selectedToken?.name || "Perception"), time: Date.now(), crit: result.rolls[0] === 20, fumble: result.rolls[0] === 1 });
+    setRollHistory(prev => [{ expr: "1d20+" + (parseInt(mod) || 0), rolls: result.rolls, mod: result.modifier, total: result.total, who: (selectedToken?.name || "?") + " perception", time: Date.now() }, ...prev].slice(0, 20));
+    setTimeout(() => setDiceResult(null), 3000);
+  };
+
+  // ── Point-to-segment distance (for eraser hitting walls) ──
+  function distToSegment(px, py, x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const len2 = dx * dx + dy * dy;
+    if (len2 === 0) return Math.hypot(px - x1, py - y1);
+    let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+  }
+
+  // ── Presets & definitions ──
   const bgPresets = [
-    { c:"#1a1a2e", l:"Dark" }, { c:"#2d4a2d", l:"Forest" }, { c:"#3a3020", l:"Cave" },
-    { c:"#1a3a4a", l:"Water" }, { c:"#5a4a3a", l:"Sand" },
+    { c:"#10101e", l:"Dark" }, { c:"#1e3e22", l:"Forest" }, { c:"#30281a", l:"Cave" },
+    { c:"#143040", l:"Water" }, { c:"#4a3e30", l:"Sand" },
   ];
+
+  const bmModes = viewRole === "player"
+    ? [{ id:"select", icon:Target, label:"Select" }, { id:"combat", icon:Swords, label:"Combat" }]
+    : [{ id:"select", icon:Target, label:"Select" }, { id:"draw", icon:Edit3, label:"Draw" }, { id:"combat", icon:Swords, label:"Combat" }];
+
+  const drawToolDefs = [
+    { id:"draw", label:"Draw", icon:Edit3 },
+    { id:"fog", label:"Fog", icon:Eye },
+    { id:"wall", label:"Wall", icon:Lock },
+    { id:"terrain", label:"Terrain", icon:Mountain },
+    { id:"ruler", label:"Ruler", icon:Compass },
+    { id:"eraser", label:"Eraser", icon:Trash2 },
+  ];
+
+  const getCursor = () => {
+    if (mode === "draw") {
+      if (drawTool === "wall") return "crosshair";
+      if (drawTool === "draw") return "crosshair";
+      if (drawTool === "eraser") return "pointer";
+      if (drawTool === "terrain") return "crosshair";
+      return "crosshair";
+    }
+    if (pingMode) return "crosshair";
+    if (movementMode) return "move";
+    return dragState?.type === "pan" ? "grabbing" : "grab";
+  };
+
+  // ── Context menu condition submenu state ──
+  const [showConditionMenu, setShowConditionMenu] = useState(false);
 
   return (
     <div style={{ display:"flex", flexDirection:"column", flex:1, minHeight:0 }}>
-      {/* Toolbar */}
-      <div style={{ display:"flex", flexWrap:"wrap", gap:3, padding:"6px 10px", background:T.bg, borderBottom:`1px solid ${T.crimsonBorder}`, alignItems:"center" }}>
-        <div style={{ display:"inline-flex", gap:2, padding:2, background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:"3px" }}>
-          {tools.map(t => (
-            <button key={t.id} onClick={()=>setTool(t.id)} style={{
-              padding:"5px 9px", background:tool===t.id?T.crimson:"transparent", border:"1px solid transparent",
-              color:tool===t.id?T.text:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"1px",
-              textTransform:"uppercase", cursor:"pointer", borderRadius:"2px", fontWeight:500, transition:"all 0.15s",
-            }}>{t.label}</button>
-          ))}
-        </div>
-        <div style={{ width:1, height:22, background:T.border, margin:"0 3px" }}/>
-        <input type="color" value={drawColor} onChange={e=>setDrawColor(e.target.value)} style={{ width:24, height:24, border:`1px solid ${T.border}`, background:"none", padding:0, cursor:"pointer", borderRadius:"2px" }} />
-        <select value={drawWidth} onChange={e=>setDrawWidth(parseInt(e.target.value))} style={{ padding:"3px 4px", fontSize:10, fontFamily:T.ui, background:T.bgCard, border:`1px solid ${T.border}`, color:T.textMuted, borderRadius:"2px" }}>
-          <option value="2">Thin</option><option value="3">Med</option><option value="6">Thick</option><option value="10">Bold</option>
-        </select>
-        <div style={{ width:1, height:22, background:T.border, margin:"0 3px" }}/>
-        <button onClick={()=>setShowGrid(!showGrid)} style={{ padding:"5px 9px", background:showGrid?T.crimsonSoft:"transparent", border:`1px solid ${showGrid?T.crimsonBorder:"transparent"}`, color:showGrid?T.crimson:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", borderRadius:"2px", fontWeight:500 }}>Grid</button>
-        <button onClick={()=>setZoom(z=>Math.min(4,z+0.25))} style={{ padding:"5px 8px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontSize:14, cursor:"pointer", borderRadius:"2px" }}>+</button>
-        <span style={{ fontFamily:T.ui, fontSize:10, color:T.textMuted, letterSpacing:"1px", minWidth:36, textAlign:"center" }}>{Math.round(zoom*100)}%</span>
-        <button onClick={()=>setZoom(z=>Math.max(0.25,z-0.25))} style={{ padding:"5px 8px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontSize:14, cursor:"pointer", borderRadius:"2px" }}>−</button>
-        <button onClick={()=>{setZoom(1);setPan({x:0,y:0});}} style={{ padding:"5px 9px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", borderRadius:"2px", fontWeight:500 }}>Reset</button>
-        <div style={{ width:1, height:22, background:T.border, margin:"0 3px" }}/>
-        <button onClick={()=>setFogCells({})} style={{ padding:"5px 9px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", borderRadius:"2px", fontWeight:500 }}>Reveal</button>
-        <button onClick={()=>{setDrawings([]);setTokens([]);setFogCells({});}} style={{ padding:"5px 9px", background:"transparent", border:`1px solid ${T.border}`, color:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", borderRadius:"2px", fontWeight:500 }}>Clear</button>
-      </div>
-
       <div style={{ display:"flex", flex:1, minHeight:0 }}>
-        {/* Canvas */}
-        <div ref={wrapRef} style={{ flex:1, position:"relative", overflow:"hidden", background:bgColor, boxShadow:"inset 0 2px 8px rgba(0,0,0,0.4)", cursor:tool==="select"?"grab":tool==="draw"?"crosshair":"default" }}>
-          <canvas ref={canvasRef} style={{ display:"block", width:"100%", height:"100%", position:"absolute", top:0, left:0 }}
-            onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel} />
-          <input type="file" ref={fileRef} style={{display:"none"}} accept="image/*" onChange={handleMapUpload} />
+
+        {/* ── LEFT: Mode Strip ── */}
+        <div style={{ width:48, background:T.bgCard, borderRight:"1px solid " + T.crimsonBorder, display:"flex", flexDirection:"column", alignItems:"center", paddingTop:8, gap:2 }}>
+          {bmModes.map(m => (
+            <button key={m.id} onClick={() => { if (m.id === "draw" && viewRole === "player") return; setMode(m.id); }} title={m.label}
+              style={{
+                width:38, height:38, display:"flex", alignItems:"center", justifyContent:"center",
+                background: mode === m.id ? T.crimsonSoft : "transparent",
+                border: mode === m.id ? "1px solid " + T.crimsonBorder : "1px solid transparent",
+                borderRadius:"4px", cursor:"pointer", transition:"all 0.15s",
+              }}>
+              <m.icon size={18} color={mode === m.id ? cssVar("--crimson") : cssVar("--text-muted")} />
+            </button>
+          ))}
+
+          <div style={{ width:28, height:1, background:T.border, margin:"6px 0" }} />
+
+          {mode === "draw" && drawToolDefs.map(dt => (
+            <button key={dt.id} onClick={() => { setDrawTool(dt.id); setWallStart(null); setWallPreview(null); }} title={dt.label}
+              style={{
+                width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center",
+                background: drawTool === dt.id ? "rgba(212,67,58,0.12)" : "transparent",
+                border: drawTool === dt.id ? "1px solid rgba(212,67,58,0.3)" : "1px solid transparent",
+                borderRadius:"3px", cursor:"pointer", transition:"all 0.15s",
+              }}>
+              <dt.icon size={14} color={drawTool === dt.id ? cssVar("--crimson") : cssVar("--text-faint")} />
+            </button>
+          ))}
+
+          {mode === "draw" && drawTool === "terrain" && (
+            <React.Fragment>
+              <div style={{ width:28, height:1, background:T.border, margin:"4px 0" }} />
+              {Object.entries(TERRAIN_TYPES).map(([key, terrain]) => (
+                <button key={key} onClick={() => setSelectedTerrain(key)} title={terrain.label}
+                  style={{
+                    width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center",
+                    background: selectedTerrain === key ? terrain.color : "transparent",
+                    border: selectedTerrain === key ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
+                    borderRadius:"3px", cursor:"pointer", transition:"all 0.15s", fontSize:10, fontFamily:T.ui, color:T.text
+                  }}>
+                  {terrain.label.substring(0, 1)}
+                </button>
+              ))}
+            </React.Fragment>
+          )}
+
+          {mode === "draw" && drawTool === "draw" && (
+            <React.Fragment>
+              <div style={{ width:28, height:1, background:T.border, margin:"4px 0" }} />
+              <input type="color" value={drawColor} onChange={e=>setDrawColor(e.target.value)}
+                style={{ width:28, height:28, border:"1px solid " + T.border, background:"none", padding:0, cursor:"pointer", borderRadius:"3px" }} />
+              <select value={drawWidth} onChange={e=>setDrawWidth(parseInt(e.target.value))} title="Brush width"
+                style={{ width:36, padding:"2px", fontSize:8, fontFamily:T.ui, background:T.bgCard, border:"1px solid " + T.border, color:T.textMuted, borderRadius:"2px", textAlign:"center" }}>
+                <option value="2">S</option><option value="3">M</option><option value="6">L</option><option value="10">XL</option>
+              </select>
+            </React.Fragment>
+          )}
+
+          <div style={{ flex:1 }} />
+
+          <button onClick={() => setShowGrid(!showGrid)} title="Toggle Grid"
+            style={{ width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center", background:showGrid?"rgba(212,67,58,0.12)":"transparent", border:"1px solid transparent", borderRadius:"3px", cursor:"pointer" }}>
+            <Layers size={14} color={showGrid ? cssVar("--crimson") : cssVar("--text-faint")} />
+          </button>
+
+          <button onClick={() => setPingMode(!pingMode)} title="Ping (P)"
+            style={{ width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center", background:pingMode?"rgba(88,170,255,0.15)":"transparent", border:"1px solid " + (pingMode?"rgba(88,170,255,0.3)":"transparent"), borderRadius:"3px", cursor:"pointer" }}>
+            <MapPin size={14} color={pingMode ? "#58aaff" : cssVar("--text-faint")} />
+          </button>
+
+          <button onClick={() => setShowDicePanel(!showDicePanel)} title="Toggle Dice Panel"
+            style={{ width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center", background:showDicePanel?"rgba(212,67,58,0.12)":"transparent", border:"1px solid transparent", borderRadius:"3px", cursor:"pointer" }}>
+            <Dice6 size={14} color={showDicePanel ? cssVar("--crimson") : cssVar("--text-faint")} />
+          </button>
+
+          <button onClick={() => { setZoom(1); setPan({x:0,y:0}); }} title="Reset View"
+            style={{ width:34, height:34, display:"flex", alignItems:"center", justifyContent:"center", background:"transparent", border:"1px solid transparent", borderRadius:"3px", cursor:"pointer", marginBottom:8 }}>
+            <RefreshCw size={14} color={cssVar("--text-faint")} />
+          </button>
         </div>
 
-        {/* Sidebar */}
-        <div style={{ width:220, background:T.bgCard, overflowY:"auto", padding:14, display:"flex", flexDirection:"column", gap:14, borderLeft:`1px solid ${T.crimsonBorder}` }}>
-          <div>
-            <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:`1px solid ${T.crimsonBorder}` }}>Map Background</span>
-            <div onClick={()=>fileRef.current?.click()} style={{ width:"100%", padding:10, background:T.bg, border:`1px dashed ${T.border}`, borderRadius:"2px", cursor:"pointer", fontSize:11, color:T.textMuted, textAlign:"center", transition:"all 0.15s" }}>
-              {bgImage ? "Replace Map Image" : "Upload Map Image"}
+        {/* ── CENTER: Canvas ── */}
+        <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0 }}>
+          <div ref={wrapRef} style={{ flex:1, position:"relative", overflow:"hidden", background:bgColor, boxShadow:"inset 0 2px 8px rgba(0,0,6,0.45)", cursor:getCursor() }}
+            onDragOver={handleDragOver} onDrop={handleDrop}>
+            <canvas ref={canvasRef} style={{ display:"block", width:"100%", height:"100%", position:"absolute", top:0, left:0 }}
+              onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp} onWheel={handleWheel} onContextMenu={handleContextMenu} />
+            <input type="file" ref={fileRef} style={{display:"none"}} accept="image/*" onChange={handleMapUpload} />
+
+            {/* Zoom indicator */}
+            <div style={{ position:"absolute", bottom:8, left:8, background:"rgba(0,0,0,0.6)", padding:"4px 10px", borderRadius:"3px", fontFamily:T.ui, fontSize:9, color:"rgba(255,255,255,0.7)", letterSpacing:"1px", pointerEvents:"none" }}>
+              {Math.round(zoom*100)}%
             </div>
-            <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginTop:8 }}>
-              {bgPresets.map(p => (
-                <button key={p.c} onClick={()=>setBgColor(p.c)} style={{ padding:"3px 7px", background:bgColor===p.c?T.crimsonSoft:"transparent", border:`1px solid ${bgColor===p.c?T.crimsonBorder:T.border}`, color:bgColor===p.c?T.crimson:T.textMuted, fontFamily:T.ui, fontSize:7, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"2px", textTransform:"uppercase" }}>{p.l}</button>
-              ))}
-            </div>
-            <div style={{ display:"flex", gap:6, alignItems:"center", marginTop:6 }}>
-              <span style={{ fontFamily:T.ui, fontSize:7, color:T.textMuted, letterSpacing:"1px" }}>GRID</span>
-              <select value={gridSize} onChange={e=>setGridSize(parseInt(e.target.value))} style={{ padding:"3px 4px", fontSize:10, fontFamily:T.ui, background:T.bgCard, border:`1px solid ${T.border}`, color:T.textMuted, borderRadius:"2px", flex:1 }}>
-                <option value="20">Tiny</option><option value="30">Small</option><option value="40">Medium</option><option value="50">Large</option><option value="60">XL</option>
-              </select>
-            </div>
+
+            {/* Mode indicators (stacked top-left) */}
+            {pingMode && (
+              <div style={{ position:"absolute", top:8, left:8, background:"rgba(88,170,255,0.8)", padding:"4px 10px", borderRadius:"3px", fontFamily:T.ui, fontSize:9, color:"#f2e8d6", letterSpacing:"1px", pointerEvents:"none", zIndex:10 }}>
+                PING MODE (click to ping, Esc to cancel)
+              </div>
+            )}
+            {movementMode && !pingMode && (
+              <div style={{ position:"absolute", top:8, left:8, background:"rgba(46,139,87,0.8)", padding:"4px 10px", borderRadius:"3px", fontFamily:T.ui, fontSize:9, color:"#f2e8d6", letterSpacing:"1px", pointerEvents:"none", zIndex:10 }}>
+                MOVEMENT MODE (M to toggle, Esc to cancel)
+              </div>
+            )}
+
+            {/* Player view badge */}
+            {viewRole === "player" && (
+              <div style={{ position:"absolute", top:8, right:8, background:"rgba(88,170,255,0.8)", padding:"4px 10px", borderRadius:"3px", fontFamily:T.ui, fontSize:9, color:"#f2e8d6", letterSpacing:"1px", pointerEvents:"none" }}>
+                PLAYER VIEW
+              </div>
+            )}
+
+            {/* Dice result popup */}
+            {diceResult && (
+              <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", background: diceResult.crit ? "rgba(46,139,87,0.95)" : diceResult.fumble ? "rgba(212,67,58,0.95)" : "rgba(4,4,10,0.88)", padding:"16px 28px", borderRadius:"8px", zIndex:200, textAlign:"center", border: diceResult.crit ? "2px solid #6fcf97" : diceResult.fumble ? "2px solid #e8605a" : "1px solid rgba(255,255,255,0.2)", pointerEvents:"none", boxShadow:"0 4px 20px rgba(0,0,6,0.50)" }}>
+                <div style={{ fontSize:10, fontFamily:T.ui, color:"rgba(255,255,255,0.6)", letterSpacing:"2px", textTransform:"uppercase", marginBottom:4 }}>{diceResult.name ? diceResult.name + (diceResult.type === "attack" ? " attacks" : diceResult.type === "initiative" ? " initiative" : diceResult.type === "save" ? "" : diceResult.type === "perception" ? " perception" : "") : "d20"}</div>
+                <div style={{ fontSize:36, fontFamily:T.ui, color:"#f2e8d6", fontWeight:700 }}>{diceResult.value}</div>
+                {diceResult.crit && <div style={{ fontSize:10, fontFamily:T.ui, color:"#5ee09a", letterSpacing:"2px", marginTop:2 }}>NAT 20!</div>}
+                {diceResult.fumble && <div style={{ fontSize:10, fontFamily:T.ui, color:"#f06858", letterSpacing:"2px", marginTop:2 }}>NAT 1!</div>}
+              </div>
+            )}
+
+            {/* Dice panel */}
+            {showDicePanel && (
+              <div style={{ position:"absolute", bottom:16, right:16, width:240, maxHeight:300, background:T.bgCard, border:"1px solid " + T.crimsonBorder, borderRadius:"4px", boxShadow:"0 4px 16px rgba(0,0,6,0.45)", display:"flex", flexDirection:"column", zIndex:100, overflow:"hidden" }}>
+                <div style={{ padding:"10px 12px", borderBottom:"1px solid " + T.border, display:"flex", alignItems:"center", gap:8 }}>
+                  <input type="text" value={diceInput} onChange={e=>setDiceInput(e.target.value)} placeholder="2d6+3, 1d20, etc" onKeyDown={e=>{ if(e.key==="Enter") rollDiceExpression(diceInput); }}
+                    style={{ flex:1, padding:"4px 6px", fontSize:10, fontFamily:T.body, background:T.bgInput, border:"1px solid " + T.border, color:T.text, borderRadius:"2px", outline:"none" }} />
+                  <button onClick={() => rollDiceExpression(diceInput)} style={{ background:cssVar("--crimson"), border:"none", color:"#f2e8d6", padding:"4px 8px", borderRadius:"2px", cursor:"pointer", fontSize:9, fontFamily:T.ui, fontWeight:500 }}>Roll</button>
+                </div>
+                <div style={{ flex:1, overflowY:"auto", padding:"8px" }}>
+                  {rollHistory.length === 0 ? (
+                    <div style={{ fontSize:9, color:T.textFaint, textAlign:"center", padding:"12px 8px", fontStyle:"italic" }}>No rolls yet</div>
+                  ) : (
+                    rollHistory.map((roll, i) => (
+                      <div key={i} style={{ padding:"6px 8px", marginBottom:"4px", background:T.bgInput, borderRadius:"2px", fontSize:8, color:T.text, borderLeft:"2px solid " + (roll.result > 15 ? "#5ee09a" : roll.result <= 5 ? "#f06858" : "transparent") }}>
+                        <div style={{ fontFamily:T.ui, letterSpacing:"0.5px", fontWeight:500, marginBottom:2 }}>{roll.expr}</div>
+                        <div style={{ color:T.textMuted, marginBottom:1 }}>Rolls: {roll.rolls.join(", ")}</div>
+                        <div style={{ color:T.text, fontWeight:600 }}>Total: {roll.result}</div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Right-click context menu (expanded) */}
+            {contextMenu && (() => {
+              const tk = tokens.find(t => t.id === contextMenu.tokenId);
+              if (!tk) return null;
+              return (
+                <div style={{ position:"absolute", left:contextMenu.x, top:contextMenu.y, background:T.bgCard, border:"1px solid " + T.crimsonBorder, borderRadius:"4px", boxShadow:"0 4px 16px rgba(0,0,6,0.45)", zIndex:100, minWidth:160, padding:"4px 0" }}
+                  onMouseLeave={() => { setContextMenu(null); setShowConditionMenu(false); }}>
+                  <div style={{ padding:"6px 12px", fontSize:11, color:T.text, fontWeight:500, borderBottom:"1px solid " + T.border, fontFamily:T.body }}>{tk.name}</div>
+                  {tk.hp != null && (
+                    <React.Fragment>
+                      <button onClick={() => { adjustTokenHp(tk.id, -5); setContextMenu(null); }}
+                        style={{ display:"block", width:"100%", padding:"7px 12px", background:"none", border:"none", textAlign:"left", cursor:"pointer", fontSize:11, color:"#f06858", fontFamily:T.body }}>
+                        Damage (-5 HP)
+                      </button>
+                      <button onClick={() => { adjustTokenHp(tk.id, 5); setContextMenu(null); }}
+                        style={{ display:"block", width:"100%", padding:"7px 12px", background:"none", border:"none", textAlign:"left", cursor:"pointer", fontSize:11, color:"#5ee09a", fontFamily:T.body }}>
+                        Heal (+5 HP)
+                      </button>
+                      <button onClick={() => { const v = prompt("Adjust HP by (negative to damage):"); if (v) adjustTokenHp(tk.id, parseInt(v)); setContextMenu(null); }}
+                        style={{ display:"block", width:"100%", padding:"7px 12px", background:"none", border:"none", textAlign:"left", cursor:"pointer", fontSize:11, color:T.textDim, fontFamily:T.body }}>
+                        Custom HP...
+                      </button>
+                    </React.Fragment>
+                  )}
+                  <div style={{ height:1, background:T.border, margin:"2px 0" }} />
+                  <button onClick={() => { rollAttack(tk.id); setContextMenu(null); }}
+                    style={{ display:"block", width:"100%", padding:"7px 12px", background:"none", border:"none", textAlign:"left", cursor:"pointer", fontSize:11, color:"#b99aff", fontFamily:T.body }}>
+                    Roll Attack (d20)
+                  </button>
+                  <div style={{ position:"relative" }}>
+                    <button onClick={() => setShowConditionMenu(!showConditionMenu)}
+                      style={{ display:"flex", width:"100%", padding:"7px 12px", background:"none", border:"none", textAlign:"left", cursor:"pointer", fontSize:11, color:T.textDim, fontFamily:T.body, alignItems:"center", justifyContent:"space-between" }}>
+                      <span>Add Condition</span> <ChevronRight size={10}/>
+                    </button>
+                    {showConditionMenu && (
+                      <div style={{ position:"absolute", left:"100%", top:0, background:T.bgCard, border:"1px solid " + T.crimsonBorder, borderRadius:"4px", boxShadow:"0 4px 12px rgba(0,0,6,0.35)", minWidth:130, padding:"4px 0", maxHeight:220, overflowY:"auto" }}>
+                        {conditionsList.map(cond => (
+                          <button key={cond} onClick={() => {
+                            // Find combatant for this token
+                            const cb = combatants.find(c => c.mapTokenId === tk.id);
+                            if (cb) addCondition(cb.id, cond);
+                            setContextMenu(null); setShowConditionMenu(false);
+                          }}
+                            style={{ display:"block", width:"100%", padding:"5px 10px", background:"none", border:"none", textAlign:"left", cursor:"pointer", fontSize:10, color:T.textDim, fontFamily:T.body }}>
+                            {cond}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ height:1, background:T.border, margin:"2px 0" }} />
+                  {viewRole === "dm" && (
+                    <button onClick={() => { updateToken(tk.id, { hidden: !tk.hidden }); setContextMenu(null); }}
+                      style={{ display:"block", width:"100%", padding:"7px 12px", background:"none", border:"none", textAlign:"left", cursor:"pointer", fontSize:11, color:T.textMuted, fontFamily:T.body }}>
+                      {tk.hidden ? "Show Token" : "Hide Token"}
+                    </button>
+                  )}
+                  <button onClick={() => { removeToken(tk.id); setContextMenu(null); }}
+                    style={{ display:"block", width:"100%", padding:"7px 12px", background:"none", border:"none", textAlign:"left", cursor:"pointer", fontSize:11, color:T.textMuted, fontFamily:T.body }}>
+                    Remove Token
+                  </button>
+                </div>
+              );
+            })()}
           </div>
 
-          <div>
-            <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:`1px solid ${T.crimsonBorder}` }}>Add Tokens</span>
-            {party.map(p => (
-              <div key={p.id} onClick={()=>addToken(p.name,"#2d6a4f",p.hp,p.maxHp)} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"7px 10px", background:T.bg, border:`1px solid ${T.border}`, borderRadius:"2px", cursor:"pointer", marginBottom:3, transition:"all 0.15s" }}>
+          {/* ── BOTTOM: Combat Bar ── */}
+          {combatLive && (
+            <div style={{ height:56, background:T.bgCard, borderTop:"1px solid " + T.crimsonBorder, display:"flex", alignItems:"center", padding:"0 16px", gap:16, flexShrink:0 }}>
+              <Tag variant="danger">Round {round}</Tag>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ width:6, height:6, borderRadius:"50%", background:combatants[turn]?.type==="pc"?"#5ee09a":cssVar("--crimson") }} />
+                <span style={{ fontFamily:T.body, fontSize:14, color:T.text, fontWeight:400 }}>
+                  {combatants[turn]?.name || "\u2014"}
+                </span>
+                <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px" }}>
+                  {turn+1}/{combatants.filter(c=>c.hp>0).length}
+                </span>
+              </div>
+              <div style={{ flex:1 }} />
+              {viewRole === "dm" && (
+                <React.Fragment>
+                  <CrimsonBtn onClick={prevTurn} secondary small><ChevronUp size={11}/></CrimsonBtn>
+                  <CrimsonBtn onClick={nextTurn} small><SkipForward size={11}/> Next Turn</CrimsonBtn>
+                  <CrimsonBtn onClick={endCombat} secondary small><X size={11}/> End</CrimsonBtn>
+                </React.Fragment>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── RIGHT: Context Panel ── */}
+        <div style={{ width:280, background:T.bgCard, overflowY:"auto", display:"flex", flexDirection:"column", borderLeft:"1px solid " + T.crimsonBorder }}>
+
+          {mode === "combat" ? (
+            <div style={{ padding:14, display:"flex", flexDirection:"column", gap:10 }}>
+              <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", paddingBottom:5, borderBottom:"1px solid " + T.crimsonBorder }}>
+                {combatLive ? "Initiative Order" : "Combat Setup"}
+              </span>
+
+              {!combatLive ? (
+                <div style={{ textAlign:"center", padding:"28px 0" }}>
+                  <Swords size={28} color={cssVar("--text-faint")} style={{ marginBottom:10 }} />
+                  <p style={{ fontFamily:T.body, fontSize:13, color:T.textMuted, fontStyle:"italic", fontWeight:300, marginBottom:12 }}>
+                    {tokens.length === 0 ? "Place tokens on the map first" : tokens.length + " token" + (tokens.length!==1?"s":"") + " ready"}
+                  </p>
+                  <CrimsonBtn onClick={startCombat} disabled={tokens.length === 0}><Swords size={13}/> Start Encounter</CrimsonBtn>
+                </div>
+              ) : (
+                <React.Fragment>
+                  <div style={{ display:"flex", flexDirection:"column", gap:2, maxHeight:340, overflowY:"auto" }}>
+                    {combatants.map((c, i) => (
+                      <div key={c.id}
+                        onClick={() => setSelectedTokenId(c.mapTokenId)}
+                        style={{
+                          padding:"8px 10px", background: i===turn ? T.crimsonSoft : "transparent",
+                          borderRadius:"2px", borderLeft: i===turn ? "3px solid " + cssVar("--crimson") : "3px solid transparent",
+                          opacity: c.hp<=0 ? 0.3 : 1, transition:"all 0.15s", cursor:"pointer",
+                        }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <span style={{ fontSize:11, fontFamily:T.body, fontWeight:500, color:T.textFaint, minWidth:18 }}>{c.init}</span>
+                          <span style={{ width:5, height:5, borderRadius:"50%", flexShrink:0, background:c.type==="pc"?"#5ee09a":cssVar("--crimson") }} />
+                          <span style={{ flex:1, fontSize:12, fontFamily:T.body, fontWeight:400, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
+                          <span style={{ fontFamily:T.ui, fontSize:7, color:T.textFaint, letterSpacing:"0.5px" }}>AC{c.ac}</span>
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:3, marginTop:3, paddingLeft:24 }}>
+                          <button onClick={e=>{e.stopPropagation();adjCombatantHp(c.id,-5);}} style={{ background:"none", border:"none", cursor:"pointer", color:"#f06858", fontSize:12, padding:"1px 3px" }}>-</button>
+                          <div style={{ flex:1, height:5, background:T.bgInput, borderRadius:"2px", overflow:"hidden" }}>
+                            <div style={{ width: Math.round(c.hp/c.maxHp*100) + "%", height:"100%", background:c.hp<c.maxHp*0.3?"#d4433a":c.hp<c.maxHp*0.6?"#e8940a":"#2e8b57", transition:"width 0.2s" }} />
+                          </div>
+                          <span style={{ fontSize:9, fontFamily:T.body, minWidth:32, textAlign:"center", color:T.textMuted }}>{c.hp}/{c.maxHp}</span>
+                          <button onClick={e=>{e.stopPropagation();adjCombatantHp(c.id,5);}} style={{ background:"none", border:"none", cursor:"pointer", color:"#5ee09a", fontSize:12, padding:"1px 3px" }}>+</button>
+                          {c.type==="enemy" && <button onClick={e=>{e.stopPropagation();removeCombatant(c.id);}} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:"1px" }}><X size={9}/></button>}
+                        </div>
+                        {(conditions[c.id]||[]).length > 0 && (
+                          <div style={{ display:"flex", gap:3, flexWrap:"wrap", marginTop:3, paddingLeft:24 }}>
+                            {(conditions[c.id]||[]).map((cond,ci) => (
+                              <span key={ci} onClick={e=>{e.stopPropagation();removeCondition(c.id,ci);}}
+                                style={{ display:"inline-flex", alignItems:"center", gap:2, background:T.crimsonSoft, border:"1px solid " + T.crimsonBorder, padding:"1px 5px", borderRadius:"2px", fontSize:7, fontFamily:T.ui, letterSpacing:"0.5px", color:cssVar("--crimson"), cursor:"pointer", textTransform:"uppercase" }}>
+                                {cond} <X size={6}/>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {i === turn && c.hp > 0 && (
+                          <div style={{ paddingLeft:24, marginTop:3 }}>
+                            <select onChange={e=>{addCondition(c.id,e.target.value);e.target.value="";}} value=""
+                              onClick={e=>e.stopPropagation()}
+                              style={{ padding:"2px 4px", fontSize:9, fontFamily:T.ui, background:T.bgInput, border:"1px solid " + T.border, color:T.textMuted, borderRadius:"2px", cursor:"pointer" }}>
+                              <option value="">+ Condition</option>
+                              {conditionsList.map(co=><option key={co} value={co}>{co}</option>)}
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ borderTop:"1px solid " + T.border, paddingTop:10, marginTop:6 }}>
+                    <span style={{ fontFamily:T.ui, fontSize:8, color:T.textFaint, letterSpacing:"1px", textTransform:"uppercase", display:"block", marginBottom:6 }}>Add Combatant</span>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 40px", gap:4 }}>
+                      <Input value={addName} onChange={setAddName} placeholder="Name" style={{ padding:"5px 8px", fontSize:11 }} />
+                      <Input value={addInit} onChange={setAddInit} placeholder="Init" type="number" style={{ padding:"5px 4px", fontSize:11, textAlign:"center" }} />
+                    </div>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 32px", gap:4, marginTop:4 }}>
+                      <Input value={addHp} onChange={setAddHp} placeholder="HP" type="number" style={{ padding:"5px 8px", fontSize:11 }} />
+                      <Input value={addAc} onChange={setAddAc} placeholder="AC" type="number" style={{ padding:"5px 8px", fontSize:11 }} />
+                      <CrimsonBtn onClick={addCombatantToEncounter} secondary small style={{ padding:"5px 6px" }}><Plus size={11}/></CrimsonBtn>
+                    </div>
+                  </div>
+                </React.Fragment>
+              )}
+            </div>
+
+          ) : selectedToken ? (
+            <div style={{ padding:14, display:"flex", flexDirection:"column", gap:12 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase" }}>Selected Token</span>
+                <button onClick={() => setSelectedTokenId(null)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:2 }}><X size={12}/></button>
+              </div>
+
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <span style={{ width:24, height:24, borderRadius:"50%", background:selectedToken.color, border:"2px solid rgba(255,220,30,0.6)", flexShrink:0 }} />
+                <span style={{ fontSize:16, fontFamily:T.body, color:T.text, fontWeight:400 }}>{selectedToken.name}</span>
+              </div>
+
+              {selectedToken.hp != null && selectedToken.maxHp && (
                 <div>
-                  <div style={{ fontSize:12, color:T.text }}>{p.name}</div>
-                  <div style={{ fontSize:10, color:T.textMuted }}>PC · {p.hp}/{p.maxHp}</div>
-                </div>
-                <Plus size={12} color={T.crimson}/>
-              </div>
-            ))}
-            <div onClick={()=>{const n=prompt("Token name:");if(n)addToken(n,cssVar("--crimson"),null,null);}} style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:4, padding:"7px 10px", background:T.bg, border:`1px dashed ${T.border}`, borderRadius:"2px", cursor:"pointer", marginTop:4, fontSize:10, color:T.textMuted, fontFamily:T.ui, letterSpacing:"1px", textTransform:"uppercase" }}>
-              <Plus size={10}/> Enemy Token
-            </div>
-          </div>
+                  <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textFaint, textTransform:"uppercase", display:"block", marginBottom:6 }}>Hit Points</span>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                    <span style={{ fontSize:28, fontFamily:T.body, fontWeight:300, color: selectedToken.hp < selectedToken.maxHp * 0.3 ? "#f06858" : selectedToken.hp < selectedToken.maxHp * 0.6 ? "#f5c45c" : "#5ee09a" }}>
+                      {selectedToken.hp}
+                    </span>
+                    <span style={{ fontSize:14, color:T.textFaint, fontFamily:T.body }}>/ {selectedToken.maxHp}</span>
+                  </div>
+                  <HpBar val={selectedToken.hp} max={selectedToken.maxHp} color={selectedToken.hp < selectedToken.maxHp * 0.3 ? "#d4433a" : selectedToken.hp < selectedToken.maxHp * 0.6 ? "#e8940a" : "#2e8b57"} />
 
-          <div>
-            <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:`1px solid ${T.crimsonBorder}` }}>On Map ({tokens.length})</span>
-            {tokens.map(t => (
-              <div key={t.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"5px 8px", background:T.bg, border:`1px solid ${T.border}`, borderRadius:"2px", marginBottom:2, fontSize:11, color:T.text }}>
-                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                  <span style={{ width:8, height:8, borderRadius:"50%", background:t.color, flexShrink:0 }}/>
-                  <span>{t.name.length>12?t.name.substring(0,12)+"...":t.name}</span>
+                  <div style={{ display:"flex", gap:6, marginTop:10 }}>
+                    {[{d:-10,c:"rgba(212,67,58,0.15)",bc:"rgba(212,67,58,0.3)",tc:"#f06858"},{d:-5,c:"rgba(212,67,58,0.10)",bc:"rgba(212,67,58,0.2)",tc:"#f06858"},{d:-1,c:"rgba(212,67,58,0.06)",bc:"rgba(212,67,58,0.15)",tc:"#f06858"},{d:1,c:"rgba(46,139,87,0.06)",bc:"rgba(46,139,87,0.15)",tc:"#5ee09a"},{d:5,c:"rgba(46,139,87,0.10)",bc:"rgba(46,139,87,0.2)",tc:"#5ee09a"},{d:10,c:"rgba(46,139,87,0.15)",bc:"rgba(46,139,87,0.3)",tc:"#5ee09a"}].map(btn => (
+                      <button key={btn.d} onClick={() => adjustTokenHp(selectedToken.id, btn.d)}
+                        style={{ flex:1, padding:"7px 0", background:btn.c, border:"1px solid " + btn.bc, borderRadius:"3px", color:btn.tc, fontFamily:T.ui, fontSize:9, letterSpacing:"1px", cursor:"pointer" }}>
+                        {btn.d > 0 ? "+" : ""}{btn.d}
+                      </button>
+                    ))}
+                  </div>
+                  <p style={{ fontSize:9, color:T.textFaint, fontStyle:"italic", marginTop:6, fontFamily:T.body }}>Scroll wheel over token to adjust HP</p>
                 </div>
-                <button onClick={()=>setTokens(p=>p.filter(tk=>tk.id!==t.id))} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:0 }}><X size={10}/></button>
+              )}
+
+              {/* Vision & Movement settings */}
+              <div style={{ borderTop:"1px solid " + T.border, paddingTop:10 }}>
+                <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:T.textFaint, textTransform:"uppercase", display:"block", marginBottom:8 }}>Token Settings</span>
+
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                  <div>
+                    <span style={{ fontFamily:T.ui, fontSize:7, color:T.textMuted, letterSpacing:"0.5px", display:"block", marginBottom:3 }}>SPEED (ft)</span>
+                    <input type="number" value={selectedToken.speed || 30} onChange={e => updateToken(selectedToken.id, { speed: parseInt(e.target.value) || 30 })}
+                      style={{ width:"100%", padding:"4px 6px", fontSize:11, fontFamily:T.body, background:T.bgInput, border:"1px solid " + T.border, color:T.text, borderRadius:"2px", outline:"none" }} />
+                  </div>
+                  <div>
+                    <span style={{ fontFamily:T.ui, fontSize:7, color:T.textMuted, letterSpacing:"0.5px", display:"block", marginBottom:3 }}>VISION (cells)</span>
+                    <input type="number" value={selectedToken.vision || 0} onChange={e => updateToken(selectedToken.id, { vision: parseInt(e.target.value) || 0 })}
+                      style={{ width:"100%", padding:"4px 6px", fontSize:11, fontFamily:T.body, background:T.bgInput, border:"1px solid " + T.border, color:T.text, borderRadius:"2px", outline:"none" }} />
+                  </div>
+                </div>
+
+                <div style={{ marginTop:6 }}>
+                  <span style={{ fontFamily:T.ui, fontSize:7, color:T.textMuted, letterSpacing:"0.5px", display:"block", marginBottom:3 }}>DARKVISION (cells)</span>
+                  <input type="number" value={selectedToken.darkvision || 0} onChange={e => updateToken(selectedToken.id, { darkvision: parseInt(e.target.value) || 0 })}
+                    style={{ width:"100%", padding:"4px 6px", fontSize:11, fontFamily:T.body, background:T.bgInput, border:"1px solid " + T.border, color:T.text, borderRadius:"2px", outline:"none" }} />
+                  <p style={{ fontSize:8, color:T.textFaint, fontStyle:"italic", marginTop:3, fontFamily:T.body }}>
+                    Vision: 12 = 60ft, Darkvision: 12 = 60ft dim
+                  </p>
+                </div>
+
+                <div style={{ display:"flex", gap:6, marginTop:8 }}>
+                  <CrimsonBtn onClick={() => { if (selectedToken) { setMovementMode(!movementMode); if (!movementMode) { setMovementPath([]); setMovementOrigin({x:selectedToken.x,y:selectedToken.y}); } } }} secondary small style={{ flex:1 }}>
+                    {movementMode ? "End Move" : "Move (M)"}
+                  </CrimsonBtn>
+                  <CrimsonBtn onClick={() => rollAttack(selectedToken.id)} secondary small style={{ flex:1 }}>
+                    Roll d20
+                  </CrimsonBtn>
+                </div>
               </div>
-            ))}
-            {tokens.length===0 && <div style={{ fontSize:10, color:T.textFaint, fontStyle:"italic", padding:4 }}>No tokens placed</div>}
-          </div>
+
+              <div style={{ borderTop:"1px solid " + T.border, paddingTop:10 }}>
+                <CrimsonBtn onClick={() => removeToken(selectedToken.id)} secondary small style={{ width:"100%" }}>
+                  <Trash2 size={11}/> Remove Token
+                </CrimsonBtn>
+              </div>
+            </div>
+
+          ) : (
+            <div style={{ padding:14, display:"flex", flexDirection:"column", gap:14 }}>
+              <div>
+                <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:"1px solid " + T.crimsonBorder }}>Map Settings</span>
+                {viewRole === "dm" && (
+                  <React.Fragment>
+                    <div onClick={() => fileRef.current?.click()} style={{ width:"100%", padding:10, background:T.bg, border:"1px dashed " + T.border, borderRadius:"2px", cursor:"pointer", fontSize:11, color:T.textMuted, textAlign:"center", transition:"all 0.15s" }}>
+                      {bgImage ? "Replace Map Image" : "Upload Map Image"}
+                    </div>
+                  </React.Fragment>
+                )}
+                <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginTop:8 }}>
+                  {bgPresets.map(p => (
+                    <button key={p.c} onClick={() => setBgColor(p.c)} style={{ padding:"3px 7px", background:bgColor===p.c?T.crimsonSoft:"transparent", border:"1px solid " + (bgColor===p.c?T.crimsonBorder:T.border), color:bgColor===p.c?cssVar("--crimson"):T.textMuted, fontFamily:T.ui, fontSize:7, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"2px", textTransform:"uppercase" }}>{p.l}</button>
+                  ))}
+                </div>
+                <div style={{ display:"flex", gap:6, alignItems:"center", marginTop:6 }}>
+                  <span style={{ fontFamily:T.ui, fontSize:7, color:T.textMuted, letterSpacing:"1px" }}>GRID</span>
+                  <select value={gridSize} onChange={e=>setGridSize(parseInt(e.target.value))} style={{ padding:"3px 4px", fontSize:10, fontFamily:T.ui, background:T.bgCard, border:"1px solid " + T.border, color:T.textMuted, borderRadius:"2px", flex:1 }}>
+                    <option value="20">Tiny</option><option value="30">Small</option><option value="40">Medium</option><option value="50">Large</option><option value="60">XL</option>
+                  </select>
+                </div>
+
+                {/* Fog mode toggle */}
+                <div style={{ display:"flex", gap:4, marginTop:8 }}>
+                  <button onClick={() => setFogMode("manual")} style={{ flex:1, padding:"5px 0", background:fogMode==="manual"?T.crimsonSoft:"transparent", border:"1px solid " + (fogMode==="manual"?T.crimsonBorder:T.border), color:fogMode==="manual"?cssVar("--crimson"):T.textMuted, fontFamily:T.ui, fontSize:7, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"2px 0 0 2px", textTransform:"uppercase" }}>Manual Fog</button>
+                  <button onClick={() => setFogMode("vision")} style={{ flex:1, padding:"5px 0", background:fogMode==="vision"?T.crimsonSoft:"transparent", border:"1px solid " + (fogMode==="vision"?T.crimsonBorder:T.border), color:fogMode==="vision"?cssVar("--crimson"):T.textMuted, fontFamily:T.ui, fontSize:7, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"0 2px 2px 0", textTransform:"uppercase" }}>Vision Fog</button>
+                </div>
+                {fogMode === "vision" && (
+                  <p style={{ fontSize:8, color:T.textFaint, fontStyle:"italic", marginTop:4, fontFamily:T.body }}>
+                    Set vision on tokens to auto-reveal. Walls block line of sight.
+                  </p>
+                )}
+
+                {viewRole === "dm" && (
+                  <div style={{ display:"flex", gap:4, marginTop:6 }}>
+                    <button onClick={() => setFogCells({})} style={{ flex:1, padding:"5px 0", background:"transparent", border:"1px solid " + T.border, color:T.textMuted, fontFamily:T.ui, fontSize:7, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"2px", textTransform:"uppercase" }}>Reveal All</button>
+                    <button onClick={() => { setDrawings([]); setTokens([]); setFogCells({}); setWalls([]); setTerrainCells({}); }} style={{ flex:1, padding:"5px 0", background:"transparent", border:"1px solid " + T.border, color:T.textMuted, fontFamily:T.ui, fontSize:7, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"2px", textTransform:"uppercase" }}>Clear All</button>
+                  </div>
+                )}
+                {viewRole === "dm" && walls.length > 0 && (
+                  <button onClick={() => setWalls([])} style={{ width:"100%", padding:"5px 0", background:"transparent", border:"1px solid " + T.border, color:"#b574ff", fontFamily:T.ui, fontSize:7, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"2px", textTransform:"uppercase", marginTop:4 }}>
+                    Clear Walls ({walls.length})
+                  </button>
+                )}
+                {viewRole === "dm" && Object.keys(terrainCells).length > 0 && (
+                  <button onClick={() => setTerrainCells({})} style={{ width:"100%", padding:"5px 0", background:"transparent", border:"1px solid " + T.border, color:cssVar("--crimson"), fontFamily:T.ui, fontSize:7, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"2px", textTransform:"uppercase", marginTop:4 }}>
+                    Clear Terrain ({Object.keys(terrainCells).length})
+                  </button>
+                )}
+              </div>
+
+              <div>
+                <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:"1px solid " + T.crimsonBorder }}>Token Library</span>
+                <p style={{ fontSize:9, color:T.textFaint, fontStyle:"italic", marginBottom:6, fontFamily:T.body }}>Drag onto map or click to place</p>
+                {party.map(p => (
+                  <div key={p.id}
+                    draggable
+                    onDragStart={e => e.dataTransfer.setData("application/token", JSON.stringify({ name:p.name, color:"#2e8b57", hp:p.hp, maxHp:p.maxHp }))}
+                    onClick={() => addToken(p.name, "#2e8b57", p.hp, p.maxHp)}
+                    style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"7px 10px", background:T.bg, border:"1px solid " + T.border, borderRadius:"2px", cursor:"grab", marginBottom:3, transition:"all 0.15s" }}>
+                    <div>
+                      <div style={{ fontSize:12, color:T.text }}>{p.name}</div>
+                      <div style={{ fontSize:10, color:T.textMuted }}>PC · {p.hp}/{p.maxHp}</div>
+                    </div>
+                    <Plus size={12} color={cssVar("--crimson")}/>
+                  </div>
+                ))}
+                {viewRole === "dm" && (
+                  <div onClick={() => { const n=prompt("Token name:"); if(n) addToken(n, cssVar("--crimson"), null, null); }}
+                    style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:4, padding:"7px 10px", background:T.bg, border:"1px dashed " + T.border, borderRadius:"2px", cursor:"pointer", marginTop:4, fontSize:10, color:T.textMuted, fontFamily:T.ui, letterSpacing:"1px", textTransform:"uppercase" }}>
+                    <Plus size={10}/> Enemy Token
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:"1px solid " + T.crimsonBorder }}>On Map ({tokens.filter(t => viewRole === "player" ? !t.hidden : true).length})</span>
+                {tokens.filter(t => viewRole === "player" ? !t.hidden : true).map(t => (
+                  <div key={t.id}
+                    onClick={() => { setSelectedTokenId(t.id); setMode("select"); }}
+                    style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"5px 8px", background: t.id === selectedTokenId ? T.crimsonSoft : T.bg, border:"1px solid " + (t.id === selectedTokenId ? T.crimsonBorder : T.border), borderRadius:"2px", marginBottom:2, fontSize:11, color:T.text, cursor:"pointer", transition:"all 0.15s" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                      <span style={{ width:8, height:8, borderRadius:"50%", background:t.color, flexShrink:0 }}/>
+                      <span>{t.name.length>12?t.name.substring(0,12)+"...":t.name}</span>
+                      {t.hidden && viewRole === "dm" && <EyeOff size={8} color={T.textFaint} style={{ marginLeft: 4 }}/>}
+                    </div>
+                    {viewRole === "dm" && (
+                      <button onClick={e=>{e.stopPropagation();removeToken(t.id);}} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:0 }}><X size={10}/></button>
+                    )}
+                  </div>
+                ))}
+                {tokens.filter(t => viewRole === "player" ? !t.hidden : true).length===0 && <div style={{ fontSize:10, color:T.textFaint, fontStyle:"italic", padding:4 }}>No tokens placed</div>}
+              </div>
+
+              {viewRole === "dm" && (
+                <React.Fragment>
+                  <div>
+                    <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:"1px solid " + T.crimsonBorder }}>Encounter Templates</span>
+                    {showTemplateInput ? (
+                      <div style={{ display:"flex", gap:4, marginBottom:6 }}>
+                        <Input value={templateName} onChange={setTemplateName} placeholder="Template name" style={{ flex:1, padding:"5px 8px", fontSize:10 }} />
+                        <CrimsonBtn onClick={saveEncounterTemplate} secondary small><Plus size={10}/></CrimsonBtn>
+                      </div>
+                    ) : (
+                      <button onClick={() => setShowTemplateInput(true)} style={{ width:"100%", padding:"5px 0", background:"transparent", border:"1px solid " + T.border, color:T.textMuted, fontFamily:T.ui, fontSize:8, letterSpacing:"0.5px", cursor:"pointer", borderRadius:"2px", textTransform:"uppercase", marginBottom:6 }}>
+                        + Save Current
+                      </button>
+                    )}
+                    {templates.length === 0 ? (
+                      <div style={{ fontSize:9, color:T.textFaint, fontStyle:"italic", padding:4 }}>No templates saved</div>
+                    ) : (
+                      templates.map(tpl => (
+                        <div key={tpl.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"5px 8px", background:T.bg, border:"1px solid " + T.border, borderRadius:"2px", marginBottom:2, fontSize:10, color:T.text }}>
+                          <button onClick={() => loadEncounterTemplate(tpl.id)} style={{ flex:1, background:"none", border:"none", cursor:"pointer", color:T.text, textAlign:"left", fontSize:10 }}>
+                            {tpl.name}
+                          </button>
+                          <button onClick={() => deleteTemplate(tpl.id)} style={{ background:"none", border:"none", cursor:"pointer", color:T.textFaint, padding:0 }}><X size={10}/></button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div>
+                    <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:"1px solid " + T.crimsonBorder }}>Export/Import</span>
+                    <div style={{ display:"flex", gap:4 }}>
+                      <CrimsonBtn onClick={exportBattleState} secondary small style={{ flex:1 }}>
+                        <Download size={10}/> Export
+                      </CrimsonBtn>
+                      <CrimsonBtn onClick={() => { const input = document.createElement("input"); input.type="file"; input.accept=".json"; input.onchange=(e)=>importBattleState(e); input.click(); }} secondary small style={{ flex:1 }}>
+                        <Upload size={10}/> Import
+                      </CrimsonBtn>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span style={{ fontFamily:T.ui, fontSize:9, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase", display:"block", marginBottom:6, paddingBottom:5, borderBottom:"1px solid " + T.crimsonBorder }}>Quick Macros</span>
+                    <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+                      <CrimsonBtn onClick={macroRollInitiative} secondary small style={{ width:"100%" }}>
+                        Roll Initiative
+                      </CrimsonBtn>
+                      <CrimsonBtn onClick={macroSavingThrow} secondary small style={{ width:"100%" }}>
+                        Saving Throw
+                      </CrimsonBtn>
+                      <CrimsonBtn onClick={macroShortRest} secondary small style={{ width:"100%" }}>
+                        Short Rest (Heal)
+                      </CrimsonBtn>
+                      <CrimsonBtn onClick={macroPerception} secondary small style={{ width:"100%" }}>
+                        Perception Check
+                      </CrimsonBtn>
+                    </div>
+                  </div>
+                </React.Fragment>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -2684,92 +4139,74 @@ function Battlemap({ party, npcs }) {
 }
 
 function PlayView({ data, setData }) {
-  const [panel,setPanel] = useState("initiative");
-  const [mode,setMode] = useState("battlemap");
+  const [viewMode, setViewMode] = useState("battlemap");
+  const isPlayer = new URLSearchParams(window.location.search).get("role") === "player";
+
+  useEffect(() => {
+    document.title = isPlayer ? "Player View — Phmurt Studios" : "DM View — Phmurt Studios";
+  }, [isPlayer]);
+
+  const openPlayerView = () => {
+    const url = window.location.href.split("?")[0] + "?role=player";
+    window.open(url, "_blank");
+  };
 
   return (
-    <div style={{ display:"grid", gridTemplateColumns:"1fr 340px", gap:0, padding:0, height:"calc(100vh - 56px)" }}>
-      <div style={{ display:"flex", flexDirection:"column", minHeight:0 }}>
-        {/* Mode toggle + header */}
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"16px 24px", borderBottom:`1px solid ${T.border}` }}>
-          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-            <div>
-              <div style={{ fontSize:24, color:T.text, fontWeight:300 }}>Play Mode</div>
-              <p style={{ fontSize:11, color:T.textMuted, fontStyle:"italic", margin:"2px 0 0", fontWeight:300 }}>Session {data.sessionsPlayed + 1}</p>
-            </div>
-            <Tag variant="critical"><span style={{ width:5, height:5, borderRadius:"50%", background:T.crimson, display:"inline-block", animation:"pulse 2s infinite" }}/> Live</Tag>
+    <div style={{ display:"flex", flexDirection:"column", height:"calc(100vh - 56px)" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"12px 24px", borderBottom:"1px solid " + T.border, flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+          <div>
+            <div style={{ fontSize:24, color:T.text, fontWeight:300 }}>Play Mode</div>
+            <p style={{ fontSize:11, color:T.textMuted, fontStyle:"italic", margin:"2px 0 0", fontWeight:300 }}>Session {data.sessionsPlayed + 1}</p>
           </div>
+          <Tag variant="critical"><span style={{ width:5, height:5, borderRadius:"50%", background:cssVar("--crimson"), display:"inline-block", animation:"pulse 2s infinite" }}/> Live</Tag>
+          {isPlayer && <Tag variant="muted">Player View</Tag>}
+        </div>
+        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+          {!isPlayer && (
+            <button onClick={openPlayerView}
+              style={{ padding:"6px 14px", background:T.crimsonSoft, border:"1px solid " + T.crimsonBorder, borderRadius:"3px", cursor:"pointer", color:cssVar("--crimson"), fontFamily:T.ui, fontSize:9, letterSpacing:"1px", textTransform:"uppercase", display:"flex", alignItems:"center", gap:6 }}>
+              <Globe size={11}/> Open Player View
+            </button>
+          )}
           <div style={{ display:"flex", gap:0 }}>
             {[{id:"battlemap",label:"Battle Map"},{id:"npcs",label:"NPCs"}].map(t=>(
-              <button key={t.id} onClick={()=>setMode(t.id)} style={{
-                padding:"8px 16px", background:mode===t.id?T.crimsonSoft:"transparent",
-                border:`1px solid ${mode===t.id?T.crimsonBorder:T.border}`, cursor:"pointer",
-                color:mode===t.id?T.crimson:T.textMuted, fontFamily:T.ui, fontSize:9, letterSpacing:"1.5px",
+              <button key={t.id} onClick={()=>setViewMode(t.id)} style={{
+                padding:"8px 16px", background:viewMode===t.id?T.crimsonSoft:"transparent",
+                border:"1px solid " + (viewMode===t.id?T.crimsonBorder:T.border), cursor:"pointer",
+                color:viewMode===t.id?cssVar("--crimson"):T.textMuted, fontFamily:T.ui, fontSize:9, letterSpacing:"1.5px",
                 textTransform:"uppercase", fontWeight:500, borderRadius:t.id==="battlemap"?"2px 0 0 2px":"0 2px 2px 0",
               }}>{t.label}</button>
             ))}
           </div>
         </div>
-
-        {mode==="battlemap" ? (
-          <Battlemap party={data.party} npcs={data.npcs} />
-        ) : (
-          <div style={{ padding:24, overflowY:"auto" }}>
-            <SectionTitle icon={Users} count={data.npcs.filter(n=>n.alive).length}>NPC Reference</SectionTitle>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
-              {data.npcs.filter(n=>n.alive).map(n => (
-                <div key={n.id} style={{
-                  padding:"12px 16px", background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:"4px",
-                  borderLeft:`3px solid ${n.attitude==="allied"||n.attitude==="friendly"?"#2d6a4f":n.attitude==="hostile"?T.crimson:T.textFaint}`,
-                }}>
-                  <div style={{ fontSize:13, fontWeight:300, color:T.text, marginBottom:2 }}>{n.name}</div>
-                  <div style={{ fontSize:11, color:T.textFaint, fontWeight:300, fontStyle:"italic" }}>{n.role} — {n.loc}</div>
-                  {n.faction && <Tag variant="muted" style={{marginTop:4}}>{n.faction}</Tag>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Right sidebar: Initiative/Dice + Party Status */}
-      <div style={{ display:"flex", flexDirection:"column", overflowY:"auto", borderLeft:`1px solid ${T.border}` }}>
-        <div style={{ display:"flex", borderBottom:`1px solid ${T.border}` }}>
-          {[{id:"initiative",icon:Swords,label:"Initiative"},{id:"dice",icon:Dice6,label:"Dice"}].map(t=>(
-            <button key={t.id} onClick={()=>setPanel(t.id)} style={{
-              flex:1, padding:"16px 32px", background:"transparent", border:"none",
-              borderBottom:panel===t.id?`3px solid ${T.crimson}`:"3px solid transparent",
-              cursor:"pointer", color:panel===t.id?T.crimson:T.textMuted,
-              fontFamily:T.ui, fontSize:10, letterSpacing:"2px", textTransform:"uppercase",
-              fontWeight:500, transition:"all 0.3s", display:"flex", alignItems:"center", justifyContent:"center", gap:6,
-            }}><t.icon size={13}/> {t.label}</button>
-          ))}
-        </div>
-
-        <Section style={{ flex:1, margin:0, borderRadius:0, border:"none", borderBottom:`1px solid ${T.border}` }}>
-          {panel==="initiative" && <InitiativeTracker party={data.party}/>}
-          {panel==="dice" && <DiceRoller/>}
-        </Section>
-
-        <Section style={{ borderRadius:0, border:"none", borderBottom:`1px solid ${T.border}` }}>
-          <SectionTitle icon={Heart}>Party Status</SectionTitle>
-          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {data.party.map(p => (
-              <div key={p.id} style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <span style={{ fontSize:12, fontWeight:300, color:T.textDim, minWidth:70, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.name.split(" ")[0]}</span>
-                <div style={{flex:1}}><HpBar val={p.hp} max={p.maxHp} color={p.hp<p.maxHp*0.3?T.crimson:p.hp<p.maxHp*0.6?"#d97706":"#2d6a4f"}/></div>
-                <span style={{ fontSize:11, color:T.textMuted, minWidth:42, textAlign:"right" }}>{p.hp}/{p.maxHp}</span>
+      {viewMode==="battlemap" ? (
+        <Battlemap party={data.party} npcs={data.npcs} viewRole={isPlayer ? "player" : "dm"} />
+      ) : (
+        <div style={{ padding:24, overflowY:"auto", flex:1 }}>
+          <SectionTitle icon={Users} count={data.npcs.filter(n=>n.alive).length}>NPC Reference</SectionTitle>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:12 }}>
+            {data.npcs.filter(n=>n.alive).map(n => (
+              <div key={n.id} style={{
+                padding:"12px 16px", background:T.bgCard, border:"1px solid " + T.border, borderRadius:"4px",
+                borderLeft:"3px solid " + (n.attitude==="allied"||n.attitude==="friendly"?"#2e8b57":n.attitude==="hostile"?cssVar("--crimson"):T.textFaint),
+              }}>
+                <div style={{ fontSize:13, fontWeight:300, color:T.text, marginBottom:2 }}>{n.name}</div>
+                <div style={{ fontSize:11, color:T.textFaint, fontWeight:300, fontStyle:"italic" }}>{n.role} — {n.loc}</div>
+                {n.faction && <Tag variant="muted" style={{marginTop:4}}>{n.faction}</Tag>}
               </div>
             ))}
           </div>
-        </Section>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
 
 
-// ═══════════════════════════════════════════════════════════════════════════
+
 // NOTES
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -2902,7 +4339,7 @@ function SettingsView({ data, setData }) {
         {!confirmReset ? (
           <CrimsonBtn secondary onClick={()=>setConfirmReset(true)}><Trash2 size={12}/> Reset Campaign</CrimsonBtn>
         ) : (
-          <div style={{ padding:16, background:"rgba(192,57,43,0.08)", border:`1px solid rgba(192,57,43,0.3)`, borderRadius:"4px" }}>
+          <div style={{ padding:16, background:"rgba(212,67,58,0.08)", border:`1px solid rgba(212,67,58,0.3)`, borderRadius:"4px" }}>
             <p style={{ fontSize:13, color:T.crimson, marginBottom:12, fontWeight:300 }}>This will erase all campaign data. Are you sure?</p>
             <div style={{ display:"flex", gap:12 }}>
               <CrimsonBtn onClick={()=>{setData(d=>({...NEW_CAMPAIGN(),name:d.name}));setConfirmReset(false);}}><Trash2 size={12}/> Confirm Reset</CrimsonBtn>
@@ -11056,7 +12493,7 @@ const FMG_Shrine = ({x,y,s=1,color="#6a8a6a"}) => (
   </g>
 );
 
-const FMG_Cave = ({x,y,s=1,color="#5a4a3a"}) => (
+const FMG_Cave = ({x,y,s=1,color="#4a3e30"}) => (
   <g transform={`translate(${x},${y}) scale(${s})`}>
     <path d="M-5,3 Q-4,-2 -2,-3 Q0,-4 2,-3 Q4,-2 5,3" fill="black" fillOpacity="0.3" stroke={color} strokeWidth="0.8"/>
     <path d="M-3,3 Q-2,0 0,-1 Q2,0 3,3" fill="black" fillOpacity="0.4"/>
@@ -12529,7 +13966,7 @@ function FantasyMapGenerator() {
         onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
 
         {generating && (
-          <div style={{ position:"absolute", inset:0, zIndex:100, background:"rgba(0,0,0,0.7)", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:14 }}>
+          <div style={{ position:"absolute", inset:0, zIndex:100, background:"rgba(0,0,6,0.70)", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:14 }}>
             <RefreshCw size={28} color={T.crimson} style={{ animation:"spin 1s linear infinite" }}/>
             <span style={{ fontFamily:T.ui, fontSize:10, letterSpacing:"2px", color:T.crimson, textTransform:"uppercase" }}>Forging World...</span>
           </div>
@@ -12649,7 +14086,7 @@ function FantasyMapGenerator() {
               return (
                 <g key={`p${i}`} onClick={(e)=>{e.stopPropagation();handleEntityClick({...p,entityType:"poi"});}} onMouseEnter={()=>setHoveredEntity(p)} onMouseLeave={()=>setHoveredEntity(null)} style={{cursor:"pointer"}}>
                   {isSelected && <circle cx={p.x*CELL} cy={p.y*CELL} r={10} fill="none" stroke={T.crimson} strokeWidth={1.5} filter="url(#fmgGlow)"/>}
-                  {layers.icons && Icon ? <Icon x={p.x*CELL} y={p.y*CELL} s={0.7}/> : <circle cx={p.x*CELL} cy={p.y*CELL} r={3} fill="#8a7060" stroke="rgba(0,0,0,0.3)" strokeWidth={0.5}/>}
+                  {layers.icons && Icon ? <Icon x={p.x*CELL} y={p.y*CELL} s={0.7}/> : <circle cx={p.x*CELL} cy={p.y*CELL} r={3} fill="#8a7060" stroke="rgba(0,0,6,0.35)" strokeWidth={0.5}/>}
                   {showPOILabels&&layers.labels&&<text x={p.x*CELL} y={p.y*CELL-8} textAnchor="middle" fill={mapStyle==="parchment"?"rgba(60,40,20,0.6)":"rgba(220,200,180,0.6)"} fontFamily="'Spectral', serif" fontSize={6} fontStyle="italic" filter="url(#fmgShadow)">{p.name}</text>}
                 </g>
               );
@@ -12667,7 +14104,7 @@ function FantasyMapGenerator() {
                 <rect x={hoveredEntity.x*CELL+10} y={hoveredEntity.y*CELL-35} width={Math.max(120,hoveredEntity.name.length*7+24)} height={44} rx={2} fill="rgba(15,15,20,0.92)" stroke="rgba(150,80,80,0.4)" strokeWidth={0.5}/>
                 <text x={hoveredEntity.x*CELL+18} y={hoveredEntity.y*CELL-20} fill="#f0e0c0" fontFamily="'Cinzel', serif" fontSize={9} fontWeight={500}>{hoveredEntity.name}</text>
                 <text x={hoveredEntity.x*CELL+18} y={hoveredEntity.y*CELL-8} fill="rgba(200,180,150,0.6)" fontFamily="'Spectral', serif" fontSize={7} style={{textTransform:"capitalize"}}>{hoveredEntity.type}{hoveredEntity.population?` | Pop. ${hoveredEntity.population.toLocaleString()}`:""}</text>
-                {hoveredEntity.threat&&<text x={hoveredEntity.x*CELL+18} y={hoveredEntity.y*CELL+3} fill={hoveredEntity.threat==="deadly"||hoveredEntity.threat==="extreme"?"#ff7070":hoveredEntity.threat==="high"?"#f0b860":"#6fcf97"} fontFamily="'Spectral', serif" fontSize={7}>Threat: {hoveredEntity.threat}</text>}
+                {hoveredEntity.threat&&<text x={hoveredEntity.x*CELL+18} y={hoveredEntity.y*CELL+3} fill={hoveredEntity.threat==="deadly"||hoveredEntity.threat==="extreme"?"#ff7070":hoveredEntity.threat==="high"?"#f5c45c":"#5ee09a"} fontFamily="'Spectral', serif" fontSize={7}>Threat: {hoveredEntity.threat}</text>}
               </g>
             )}
           </svg>
