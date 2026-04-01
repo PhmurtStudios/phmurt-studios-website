@@ -2778,11 +2778,12 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
       // Skip hidden tokens in player view
       if (t.hidden && viewRole === "player") return;
 
-      const r = gridSize * 0.42;
+      const r = gridSize * 0.44;
       const isSelected = t.id === selectedTokenId;
       const isHovered = t.id === hoveredTokenId;
       const isActiveCombatant = t.id === activeCombatantId;
       const isDead = t.hp != null && t.hp <= 0;
+      const isPC = t.color === "#2e8b57";
 
       // Find conditions for this token via combatant link
       const linkedCombatant = combatants.find(c => c.mapTokenId === t.id);
@@ -2806,10 +2807,14 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
         }
       }
 
-      // Drop shadow under token
+      // Drop shadow under token (deeper for visual weight)
       ctx.beginPath();
-      ctx.arc(t.x + 1, t.y + 2, r + 1, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(0,0,6,0.35)";
+      ctx.arc(t.x + 1, t.y + 3, r + 2, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,6,0.5)";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(t.x, t.y + 1, r + 1, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,6,0.25)";
       ctx.fill();
 
       // Active combatant glow (pulsing double ring)
@@ -2869,21 +2874,42 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
         ctx.globalAlpha = Math.max(ctx.globalAlpha * 0.5, 0.2);
       }
 
-      // Token circle
+      // Token circle with inner highlight for depth
       ctx.beginPath();
       ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
       ctx.fillStyle = isDead ? "#444" : t.color;
       ctx.fill();
-      ctx.strokeStyle = isSelected ? "rgba(255,220,30,0.9)" : isHovered ? "rgba(255,255,255,0.5)" : "rgba(0,0,6,0.50)";
-      ctx.lineWidth = isSelected ? 2.5 : isHovered ? 2 : 2;
+      // Inner highlight (subtle top-light effect)
+      if (!isDead) {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y - r * 0.15, r * 0.75, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.08)";
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
+      ctx.strokeStyle = isSelected ? "rgba(255,220,30,0.9)" : isHovered ? "rgba(255,255,255,0.5)" : "rgba(0,0,6,0.60)";
+      ctx.lineWidth = isSelected ? 3 : isHovered ? 2.5 : 2;
       ctx.stroke();
+      // Thin inner border for definition
+      if (!isDead) {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, r - 1.5, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,255,255,0.1)";
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
 
-      // Label
+      // Label (larger font for readability)
       ctx.fillStyle = isDead ? "#999" : "#fff";
-      ctx.font = "bold " + Math.max(9, gridSize * 0.22) + "px Cinzel";
+      ctx.font = "bold " + Math.max(10, gridSize * 0.24) + "px Cinzel";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const label = t.name.length > 3 ? t.name.substring(0,3) : t.name;
+      // Text shadow for contrast
+      ctx.fillStyle = "rgba(0,0,0,0.4)";
+      ctx.fillText(label, t.x + 0.5, t.y + 0.5);
+      ctx.fillStyle = isDead ? "#999" : "#fff";
       ctx.fillText(label, t.x, t.y);
 
       // Dead X overlay
@@ -2900,21 +2926,27 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
 
       ctx.globalAlpha = 1;
 
-      // HP bar (wider and taller)
+      // HP bar (prominent, wider, with backdrop)
       if (t.hp != null && t.maxHp) {
-        const barW = gridSize * 0.78, barH = 5;
-        const barX = t.x - barW/2, barY = t.y + r + 5;
+        const barW = gridSize * 0.84, barH = 6;
+        const barX = t.x - barW/2, barY = t.y + r + 6;
+        // Backdrop shadow
+        ctx.fillStyle = "rgba(0,0,0,0.4)";
+        ctx.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
         // Bar background
-        ctx.fillStyle = "rgba(0,0,0,0.65)";
+        ctx.fillStyle = "rgba(0,0,0,0.75)";
         ctx.fillRect(barX, barY, barW, barH);
         // HP fill
         const hpFrac = Math.max(0, t.hp / t.maxHp);
         if (hpFrac > 0) {
           ctx.fillStyle = getHpColor(t.hp, t.maxHp);
           ctx.fillRect(barX, barY, barW * hpFrac, barH);
+          // Shine on HP bar
+          ctx.fillStyle = "rgba(255,255,255,0.15)";
+          ctx.fillRect(barX, barY, barW * hpFrac, barH * 0.4);
         }
         // Bar border
-        ctx.strokeStyle = "rgba(0,0,0,0.3)";
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
         ctx.lineWidth = 0.5;
         ctx.strokeRect(barX, barY, barW, barH);
       }
@@ -3148,6 +3180,8 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
       if (e.key === "1") { setMode("select"); }
       if (e.key === "2" && viewRole === "dm") { setMode("draw"); }
       if (e.key === "3") { setMode("combat"); }
+      if (e.key === "f" || e.key === "F") { setImmersive(prev => !prev); }
+      if (e.key === "Tab") { e.preventDefault(); setSidebarOpen(prev => !prev); }
 
       if (e.key === "p" || e.key === "P") {
         setPingMode(prev => !prev);
@@ -3717,12 +3751,39 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
   // ── Context menu condition submenu state ──
   const [showConditionMenu, setShowConditionMenu] = useState(false);
 
-  return (
-    <div style={{ display:"flex", flexDirection:"column", flex:1, minHeight:0 }}>
-      <div style={{ display:"flex", flex:1, minHeight:0 }}>
+  // ── Immersive focus mode ──
+  const [immersive, setImmersive] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-        {/* ── LEFT: Mode Strip ── */}
-        <div style={{ width:56, background:T.bgCard, borderRight:"2px solid " + T.crimsonBorder, display:"flex", flexDirection:"column", alignItems:"center", paddingTop:6, gap:1, boxShadow:"2px 0 12px rgba(0,0,6,0.3)" }}>
+  return (
+    <div style={{ display:"flex", flexDirection:"column", flex:1, minHeight:0, ...(immersive ? { position:"fixed", inset:0, zIndex:9999, background:T.bg } : {}) }}>
+
+      {/* ── Immersive mode top bar ── */}
+      {immersive && (
+        <div style={{ height:32, background:"rgba(4,4,10,0.92)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 16px", flexShrink:0, borderBottom:"1px solid rgba(212,67,58,0.15)", backdropFilter:"blur(12px)", boxShadow:"0 2px 12px rgba(0,0,6,0.4)" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <Swords size={12} color={cssVar("--crimson")} />
+            <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"2px", color:T.textMuted, textTransform:"uppercase" }}>Play Mode</span>
+            {combatLive && <span style={{ fontFamily:T.ui, fontSize:8, letterSpacing:"1px", color:cssVar("--crimson"), background:"rgba(212,67,58,0.15)", padding:"2px 8px", borderRadius:"2px" }}>Combat R{round}</span>}
+          </div>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <span style={{ fontFamily:T.ui, fontSize:7, color:T.textFaint, letterSpacing:"1px" }}>F to exit · Tab sidebar</span>
+            <button onClick={() => setImmersive(false)} style={{ background:"none", border:"1px solid rgba(255,255,255,0.15)", borderRadius:"3px", padding:"3px 10px", cursor:"pointer", color:T.textMuted, fontFamily:T.ui, fontSize:7, letterSpacing:"1px", textTransform:"uppercase" }}>Exit Focus</button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display:"flex", flex:1, minHeight:0, position:"relative" }}>
+
+        {/* ── LEFT: Floating Mode Strip ── */}
+        <div style={{
+          width: immersive ? 48 : 56, background: immersive ? "rgba(4,4,10,0.92)" : T.bgCard,
+          borderRight: immersive ? "1px solid rgba(212,67,58,0.12)" : "2px solid " + T.crimsonBorder,
+          display:"flex", flexDirection:"column", alignItems:"center", paddingTop:6, gap:1,
+          boxShadow: immersive ? "2px 0 24px rgba(0,0,6,0.6)" : "2px 0 12px rgba(0,0,6,0.3)",
+          flexShrink:0, transition:"width 0.25s ease",
+          ...(immersive ? { borderRadius:"0 8px 8px 0", margin:"8px 0 8px 0", borderLeft:"none" } : {}),
+        }}>
           <span style={{ fontFamily:T.ui, fontSize:6, letterSpacing:"2px", color:T.textFaint, textTransform:"uppercase", marginBottom:4 }}>MODE</span>
           {bmModes.map((m, idx) => (
             <div key={m.id} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:1 }}>
@@ -3811,14 +3872,19 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
           </button>
 
           <button onClick={() => { setZoom(1); setPan({x:0,y:0}); }} title="Reset View"
-            style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:"transparent", border:"1px solid transparent", borderRadius:"4px", cursor:"pointer", marginBottom:6 }}>
+            style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:"transparent", border:"1px solid transparent", borderRadius:"4px", cursor:"pointer" }}>
             <RefreshCw size={14} color={cssVar("--text-faint")} />
+          </button>
+
+          <button onClick={() => setImmersive(!immersive)} title="Focus Mode (F)"
+            style={{ width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:immersive?"rgba(212,67,58,0.15)":"transparent", border:"1px solid " + (immersive?"rgba(212,67,58,0.3)":"transparent"), borderRadius:"4px", cursor:"pointer", marginBottom:6 }}>
+            <Target size={14} color={immersive ? cssVar("--crimson") : cssVar("--text-faint")} />
           </button>
         </div>
 
         {/* ── CENTER: Canvas ── */}
         <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0 }}>
-          <div ref={wrapRef} style={{ flex:1, position:"relative", overflow:"hidden", background:bgColor, boxShadow:"inset 0 3px 16px rgba(0,0,6,0.6), inset 0 0 4px rgba(0,0,6,0.3)", cursor:getCursor() }}
+          <div ref={wrapRef} style={{ flex:1, position:"relative", overflow:"hidden", background:bgColor, boxShadow: immersive ? "inset 0 0 40px rgba(0,0,6,0.8), inset 0 0 120px rgba(0,0,6,0.4)" : "inset 0 3px 16px rgba(0,0,6,0.6), inset 0 0 4px rgba(0,0,6,0.3)", cursor:getCursor(), transition:"box-shadow 0.3s ease" }}
             onDragOver={handleDragOver} onDrop={handleDrop}>
             <canvas ref={canvasRef} style={{ display:"block", width:"100%", height:"100%", position:"absolute", top:0, left:0 }}
               onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}
@@ -3985,8 +4051,31 @@ function Battlemap({ party, npcs, viewRole = "dm", activeCampaignId = null }) {
           )}
         </div>
 
+        {/* ── RIGHT: Sidebar Toggle Tab ── */}
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} title={(sidebarOpen ? "Hide" : "Show") + " Sidebar (Tab)"}
+          style={{
+            position:"absolute", right: sidebarOpen ? 280 : 0, top:"50%", transform:"translateY(-50%)",
+            zIndex:50, width:20, height:56, display:"flex", alignItems:"center", justifyContent:"center",
+            background: immersive ? "rgba(4,4,10,0.85)" : T.bgCard,
+            border:"1px solid " + (immersive ? "rgba(212,67,58,0.2)" : T.crimsonBorder),
+            borderRight: sidebarOpen ? "none" : undefined,
+            borderRadius: sidebarOpen ? "4px 0 0 4px" : "4px 0 0 4px",
+            cursor:"pointer", transition:"right 0.25s ease",
+            boxShadow:"-2px 0 8px rgba(0,0,6,0.3)",
+          }}>
+          {sidebarOpen ? <ChevronRight size={12} color={T.textMuted} /> : <ChevronLeft size={12} color={T.textMuted} />}
+        </button>
+
         {/* ── RIGHT: Context Panel ── */}
-        <div style={{ width:280, background:T.bgCard, overflowY:"auto", display:"flex", flexDirection:"column", borderLeft:"2px solid " + T.crimsonBorder, boxShadow:"-3px 0 12px rgba(0,0,6,0.25)" }}>
+        <div style={{
+          width: sidebarOpen ? 280 : 0, minWidth: sidebarOpen ? 280 : 0,
+          background:T.bgCard, overflowY: sidebarOpen ? "auto" : "hidden", overflowX:"hidden",
+          display:"flex", flexDirection:"column",
+          borderLeft: sidebarOpen ? "2px solid " + T.crimsonBorder : "none",
+          boxShadow: sidebarOpen ? "-3px 0 12px rgba(0,0,6,0.25)" : "none",
+          transition:"width 0.25s ease, min-width 0.25s ease",
+          opacity: sidebarOpen ? 1 : 0,
+        }}>
 
           {mode === "combat" ? (
             <div style={{ padding:14, display:"flex", flexDirection:"column", gap:10 }}>
